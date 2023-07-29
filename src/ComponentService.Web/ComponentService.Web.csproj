@@ -4,6 +4,12 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
+    <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.15" />
+  </ItemGroup>
 
 </Project>

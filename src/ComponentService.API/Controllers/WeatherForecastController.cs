@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace ComponentService.API.Controllers;
+namespace CYRetailIMS.ComponentService.API.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase

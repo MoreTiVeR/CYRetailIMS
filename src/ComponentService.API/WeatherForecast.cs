@@ -1,4 +1,4 @@
-namespace ComponentService.API;
+namespace CYRetailIMS.ComponentService.API;
 
 public class WeatherForecast
 {

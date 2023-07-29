@@ -1,4 +1,4 @@
-namespace ComponentService.Web.Models;
+namespace CYRetailIMS.ComponentService.Web.Models;
 
 public class ErrorViewModel
 {

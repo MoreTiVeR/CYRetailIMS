@@ -1,4 +1,4 @@
-namespace ComponentService.Web;
+namespace CYRetailIMS.ComponentService.Web;
 
 public class Program
 {

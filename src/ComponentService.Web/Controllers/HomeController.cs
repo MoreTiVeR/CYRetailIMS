@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
-using ComponentService.Web.Models;
+using CYRetailIMS.ComponentService.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ComponentService.Web.Controllers;
+namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
