@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Caching\" />
+    <Folder Include="Common\Middleware\" />
     <Folder Include="Service\" />
     <Folder Include="Repositories\" />
   </ItemGroup>

@@ -17,26 +17,26 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
         _validators = validators;
     }
 
-    //public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-    //{
-    //    if (_validators.Any())
-    //    {
-    //        var context = new ValidationContext<TRequest>(request);
+    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    {
+        if (_validators.Any())
+        {
+            var context = new ValidationContext<TRequest>(request);
 
-    //        var validationResults = await Task.WhenAll(
-    //            _validators.Select(v =>
-    //                v.ValidateAsync(context, cancellationToken)));
+            var validationResults = await Task.WhenAll(
+                _validators.Select(v =>
+                    v.ValidateAsync(context, cancellationToken)));
 
-    //        var failures = validationResults
-    //            .Where(r => r.Errors.Any())
-    //            .SelectMany(r => r.Errors)
-    //            .ToList();
+            var failures = validationResults
+                .Where(r => r.Errors.Any())
+                .SelectMany(r => r.Errors)
+                .ToList();
 
-    //        if (failures.Any())
-    //            throw new ValidationException($"Validation failed: {failures.Select(s => s.ErrorMessage).Aggregate((s, t) => s + "|" + t)}");
-    //    }
-    //    return await next();
-    //}
+            if (failures.Any())
+                throw new ValidationException($"Validation failed: {failures.Select(s => s.ErrorMessage).Aggregate((s, t) => s + "|" + t)}");
+        }
+        return await next();
+    }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
@@ -58,4 +58,5 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
         }
         return await next();
     }
+
 }

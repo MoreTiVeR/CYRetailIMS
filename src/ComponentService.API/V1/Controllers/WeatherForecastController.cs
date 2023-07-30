@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CYRetailIMS.ComponentService.API.Controllers;
+namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/test")]
 public class WeatherForecastController : ControllerBase
 {
     private static readonly string[] Summaries = new[]
