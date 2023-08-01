@@ -43,4 +43,16 @@ public static class ObjectExtensions
             }
         };
     }
+
+    public static string ToJson(this object obj)
+    {
+        try
+        {
+            return JsonConvert.SerializeObject(obj);
+        }
+        catch
+        {
+            return default;
+        }
+    }
 }

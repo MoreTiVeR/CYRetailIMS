@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace INSCore.Template.Infrastructure.Extensions;
+namespace CYRetailIMS.Infrastructure.Common.Extensions;
 public static class MediatorExtensions
 {
     public static async Task DispatchDomainEvents(this IMediator mediator, DbContext context)

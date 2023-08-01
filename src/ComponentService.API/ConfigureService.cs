@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Text;
 using CYRetailIMS.Application.Common.Filter;
+using CYRetailIMS.Application.Common.Models;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -39,7 +40,7 @@ public static class ConfigureService
             //    Description = $"A CY Retail Inventory Management System API <b>(.NET7)</b> <b>Ver.{Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion}</b> <b>({envName})</b>",
             //    Contact = new OpenApiContact
             //    {
-            //        Name = "INSCore Team",
+            //        Name = "AppBoxs Team",
             //        Email = "email address"
             //    },
             //    License = new OpenApiLicense

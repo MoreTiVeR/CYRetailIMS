@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Behaviours;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ public static class ConfigureService
         #region Auto Mapper Configurations
         var mappingConfig = new MapperConfiguration(mc =>
         {
-            //mc.AddProfile<GetTransactionReportByOrderMappingProfile>();
+            mc.AddProfile<CreateEmployeeMappingProfile>();
             //mc.AddProfile<SampleAutoMapperMappingProfile>();
             //mc.AddProfile<SampleBusinessValidatioMappingProfile>();
             //mc.AddProfile<GetEmployeeByCodeMappingProfile>();

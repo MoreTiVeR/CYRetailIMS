@@ -6,16 +6,16 @@ namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/test")]
-public class WeatherForecastController : ControllerBase
+public class UserController : ControllerBase
 {
     private static readonly string[] Summaries = new[]
     {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
-    private readonly ILogger<WeatherForecastController> _logger;
+    private readonly ILogger<UserController> _logger;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public UserController(ILogger<UserController> logger)
     {
         _logger = logger;
     }

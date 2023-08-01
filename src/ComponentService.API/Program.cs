@@ -1,6 +1,9 @@
 
+using System.Configuration;
 using CYRetailIMS.Application;
+using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Infrastructure;
+using CYRetailIMS.Infrastructure.Common.Middleware;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
 
@@ -21,9 +24,8 @@ public class Program
         builder.Services.AddApplicationServices();
         builder.Services.AddComponentServices(_configuration, builder.Environment.EnvironmentName);
         builder.Services.AddInfrastructureServices(_configuration);
+        builder.Services.Configure<ExceptionSettings>(_configuration.GetSection("ExceptionSettings"));
         #endregion
-
-
 
         #region Add Swagger
 
@@ -88,7 +90,10 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
-        
+
+        //ExceptionSettings exceptionSettings = _configuration.GetSection("ExceptionSettings").Get<ExceptionSettings>();
+        app.UseMiddleware<ExceptionHandlerMiddleware>();
+
         app.MapControllers();
 
         app.Run();

@@ -14,8 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Events\TMEmployee\" />
-    <Folder Include="Events\TMBranch\" />
+    <Folder Include="Events\TMBranchs\" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using log4net;
 using Microsoft.AspNetCore.Http;
 
-namespace INSCore.Template.Infrastructure.Logging;
+namespace CYRetailIMS.Infrastructure.Common.Logging;
 public class Log4NetLogger : ILog4NetLogger
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -16,15 +16,9 @@ public class Log4NetLogger : ILog4NetLogger
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public void Debug(object message)
-    {
-        throw new NotImplementedException();
-    }
+    public void Debug(object message) => _log.Debug($"SessionID[{_sessionID}] Time[{_dateTimeProvider.Now:yyyyMMdd H:mm:ss fff}] [{message}]");
 
-    public void Debug(object message, Exception exceptionData)
-    {
-        throw new NotImplementedException();
-    }
+    public void Debug(object message, Exception exceptionData) => _log.Debug($"SessionID[{_sessionID}] Time[{_dateTimeProvider.Now:yyyyMMdd H:mm:ss fff}] [{message}]", exceptionData);
 
     public void Error(object message) => _log.Error($"SessionID[{_sessionID}] Time[{_dateTimeProvider.Now:yyyyMMdd H:mm:ss fff}] [{message}]");
     public void Error(object message, Exception exceptionData) => _log.Error($"SessionID[{_sessionID}] Time[{_dateTimeProvider.Now:yyyyMMdd H:mm:ss fff}] [{message}]", exceptionData);

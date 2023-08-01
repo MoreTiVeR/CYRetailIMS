@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using CYRetailIMS.Application.Common.Cryptography;
 
-namespace INSCore.Template.Infrastructure.Cryptography;
+namespace CYRetailIMS.Infrastructure.Common.Cryptography;
 public class EncryptionString : IEncryptionString
 {
     public string HashWithSHA256(string key)

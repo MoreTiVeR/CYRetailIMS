@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
 using CYRetailIMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -77,6 +78,7 @@ public partial class CYDBContext : DbContext
     {
         //optionsBuilder.UseSqlServer("Server=.\\;Data Source=localhost;Initial Catalog=CYDB;Persist Security Info=True;User ID=cyuser;Password=#pakdum?0104;TrustServerCertificate=True");
     }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TMBranch>(entity =>
@@ -103,16 +105,16 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMDepartment>(entity =>
         {
-            entity.Property(e => e.DepartmentID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMEmployee>(entity =>
         {
-            entity.Property(e => e.EmpID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.Department).WithMany(p => p.TMEmployees).HasConstraintName("FK_TMEmployee_TMDepartments");
+
+            entity.HasOne(d => d.User).WithMany(p => p.TMEmployees).HasConstraintName("FK_TMEmployee_TMUsers");
         });
 
         modelBuilder.Entity<TMItem>(entity =>
@@ -179,7 +181,6 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.RoleID).HasName("PK_Table1");
 
-            entity.Property(e => e.RoleID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 

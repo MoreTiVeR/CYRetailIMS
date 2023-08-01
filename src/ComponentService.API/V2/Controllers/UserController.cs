@@ -6,7 +6,7 @@ namespace CYRetailIMS.ComponentService.API.V2.Controllers;
 [ApiController]
 [ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/users")]
-public class UsersController : ControllerBase
+public class UserController : ControllerBase
 {
 
     [HttpGet("{userid}")]
