@@ -1,0 +1,79 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using Microsoft.Extensions.Configuration;
+@model LoginViewModel
+@inject IConfiguration Configuration
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="account-content">
+    <div class="login-wrapper">
+        <div class="login-content">
+            <form id="frmLogin" asp-action="Auth" asp-controller="Account">
+                <div class="login-userset">
+                    <div class="login-logo logo-normal">
+                        <img src="../assets/img/logo.png" alt="img">
+                    </div>
+                    <a href="index.html" class="login-logo logo-white">
+                        <img src="../assets/img/logo-white.png" alt="">
+                    </a>
+                    <div class="login-userheading">
+                        <h3>Sign In</h3>
+                        <h4>Please login to your account</h4>
+                    </div>
+                    <div class="form-login">
+                        <label>UserName</label>
+                        <div class="form-addons">
+                            <input type="text" asp-for="UserName" asp-validation-for="" placeholder="@Html.DisplayNameFor(f => f.UserName)" required>
+                            <img src="../assets/img/icons/mail.svg" alt="img">
+                        </div>
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                    <div class="form-login">
+                        <label>Password</label>
+                        <div class="pass-group">
+                            <input type="password" asp-for="Password" class="pass-input" placeholder="@Html.DisplayNameFor(f => f.Password)" required>
+                            <span asp-validation-for="Password" class="fas toggle-password fa-eye-slash text-danger"></span>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-login">
+                        <div class="alreadyuser">
+                            <h4><a href="forgetpassword.html" class="hover-a">Forgot Password?</a></h4>
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <button id="btnLogin" type="submit" class="btn btn-login" >Sign In</button>
+                    </div>
+                    <div class="signinform text-center">
+                        <h4>Don’t have an account? <a href="signup.html" class="hover-a">Sign Up</a></h4>
+                    </div>
+                    <div class="form-setlogin">
+                        <h4>Or sign up with</h4>
+                    </div>
+                    <div class="form-sociallink">
+                        <ul>
+                            <li>
+                                <a href="javascript:void(0);">
+                                    <img src="../assets/img/icons/google.png" class="me-2" alt="google">
+                                    Sign Up using Google
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);">
+                                    <img src="../assets/img/icons/facebook.png" class="me-2" alt="google">
+                                    Sign Up using Facebook
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="login-img">
+            <img src="../assets/img/login.jpg" alt="img">
+        </div>
+    </div>
+</div>
