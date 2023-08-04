@@ -1,4 +1,10 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿
+function ShowMessage(msg) {
+    console.log('Call => ShowMessage success => msg');
+    toastr.success(msg);
+}
 
-// Write your JavaScript code.
+function ShowMessageError(msg) {
+    console.log('Call => ShowMessage info => msg');
+    toastr.error(msg);
+}

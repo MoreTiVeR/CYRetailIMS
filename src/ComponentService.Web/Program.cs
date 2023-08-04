@@ -19,6 +19,7 @@ public class Program
 
         // Add services to the container
         // Register the global exception filter
+        builder.Services.AddMvc().AddRazorRuntimeCompilation();
         builder.Services.AddControllersWithViews(opt =>
         {
             opt.Filters.Add<GlobalExceptionFilter>();

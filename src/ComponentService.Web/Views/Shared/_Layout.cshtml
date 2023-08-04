@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ComponentService.Web</title>
-@*    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @*    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ComponentService.Web.styles.css" asp-append-version="true" />*@
 </head>
@@ -41,9 +41,15 @@
             &copy; 2566 - ComponentService.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-@*    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @*    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>*@
+
+    <!--charactersRemaining-->
+    <script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
+    <!--serializeJSON js-->
+    <script src="~/lib/marioizquierdo-jquery.serializeJSON/jquery.serializejson.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

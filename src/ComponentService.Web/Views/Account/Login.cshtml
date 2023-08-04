@@ -11,7 +11,7 @@
 <div class="account-content">
     <div class="login-wrapper">
         <div class="login-content">
-            <form id="frmLogin" asp-action="Auth" asp-controller="Account">
+            <form id="frmLogin" onsubmit="return Login(this)">
                 <div class="login-userset">
                     <div class="login-logo logo-normal">
                         <img src="../assets/img/logo.png" alt="img">
@@ -26,7 +26,7 @@
                     <div class="form-login">
                         <label>UserName</label>
                         <div class="form-addons">
-                            <input type="text" asp-for="UserName" asp-validation-for="" placeholder="@Html.DisplayNameFor(f => f.UserName)" required>
+                            <input type="text" asp-for="UserName" placeholder="@Html.DisplayNameFor(f => f.UserName)" required>
                             <img src="../assets/img/icons/mail.svg" alt="img">
                         </div>
                         <span asp-validation-for="UserName" class="text-danger"></span>
@@ -35,7 +35,7 @@
                         <label>Password</label>
                         <div class="pass-group">
                             <input type="password" asp-for="Password" class="pass-input" placeholder="@Html.DisplayNameFor(f => f.Password)" required>
-                            <span asp-validation-for="Password" class="fas toggle-password fa-eye-slash text-danger"></span>
+                            <span class="fas toggle-password fa-eye-slash text-danger"></span>
                         </div>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
