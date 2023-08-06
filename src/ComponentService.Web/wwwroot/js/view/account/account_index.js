@@ -5,7 +5,7 @@ $(document).ready(function (){
 
 function Login(form) {
 
-    $("#global-loader").css('display', 'block');
+    $("#global-loader").css('display', '');
 
     var frmLogin = $("#frmLogin");
     frmLogin.validate();
@@ -25,10 +25,8 @@ function Login(form) {
                     //popup.dialog('close');
                     ShowMessage(data.message);
 
-                    await delay(1000);
-
                     //To do next?
-                    window.location = "Home/Index";
+                    window.location = data.url;
                 }
                 else {
                     ShowMessageError(data.message);
