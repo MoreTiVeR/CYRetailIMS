@@ -12,11 +12,9 @@ public partial class TMWarehouse
     [Key]
     public int WarehouseID { get; set; }
 
-    [StringLength(50)]
+    [StringLength(100)]
     [Unicode(false)]
     public string WarehouseName { get; set; } = null!;
-
-    public int BranchID { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]
@@ -39,13 +37,9 @@ public partial class TMWarehouse
     [Required]
     public bool? Status { get; set; }
 
-    [ForeignKey("BranchID")]
-    [InverseProperty("TMWarehouses")]
-    public virtual TMBranch Branch { get; set; } = null!;
+    [InverseProperty("Warehouse")]
+    public virtual ICollection<TMStock> TMStocks { get; set; } = new List<TMStock>();
 
     [InverseProperty("Warehouse")]
-    public virtual ICollection<TMShipment> TMShipments { get; set; } = new List<TMShipment>();
-
-    [InverseProperty("Warehouse")]
-    public virtual ICollection<TTPurchaseOrder> TTPurchaseOrders { get; set; } = new List<TTPurchaseOrder>();
+    public virtual ICollection<TTShipment> TTShipments { get; set; } = new List<TTShipment>();
 }

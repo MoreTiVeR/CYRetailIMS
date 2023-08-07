@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CYRetailIMS.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
-public partial class TMRole
+public partial class TMRole: BaseAuditableEntity
 {
     [Key]
     public int RoleID { get; set; }

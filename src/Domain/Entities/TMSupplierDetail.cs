@@ -14,7 +14,7 @@ public partial class TMSupplierDetail
 
     public int SupplierID { get; set; }
 
-    [StringLength(50)]
+    [StringLength(100)]
     [Unicode(false)]
     public string Address { get; set; } = null!;
 
@@ -30,7 +30,8 @@ public partial class TMSupplierDetail
     [Unicode(false)]
     public string Phone { get; set; } = null!;
 
-    [StringLength(10)]
+    [StringLength(100)]
+    [Unicode(false)]
     public string? Description { get; set; }
 
     [StringLength(10)]

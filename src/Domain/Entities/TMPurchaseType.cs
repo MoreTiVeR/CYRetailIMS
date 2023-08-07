@@ -12,6 +12,10 @@ public partial class TMPurchaseType
     [Key]
     public int PurchaseTypeID { get; set; }
 
+    [StringLength(4)]
+    [Unicode(false)]
+    public string PurchaseTypeCode { get; set; } = null!;
+
     [StringLength(50)]
     [Unicode(false)]
     public string PurchaseTypeName { get; set; } = null!;

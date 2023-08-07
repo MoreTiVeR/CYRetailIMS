@@ -12,6 +12,9 @@ public partial class TMUnitOfMeasure
     [Key]
     public int UnitOfMeasureID { get; set; }
 
+    /// <summary>
+    /// หน่วยวัด เช่น ชิ้น อัน กล่อง
+    /// </summary>
     [StringLength(50)]
     [Unicode(false)]
     public string? UnitOfMeasureName { get; set; }

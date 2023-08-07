@@ -6,15 +6,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
-[Table("TMItemType")]
-public partial class TMItemType
+[Table("TTItemTransfer")]
+public partial class TTItemTransfer
 {
     [Key]
-    public int ItemTypeID { get; set; }
+    public int TransferID { get; set; }
 
-    [StringLength(20)]
-    [Unicode(false)]
-    public string ItemTypeName { get; set; } = null!;
+    /// <summary>
+    /// Ref TMTransferType
+    /// </summary>
+    public int TransferTypeID { get; set; }
+
+    /// <summary>
+    /// WarehouseID, BranchID ต้นทาง
+    /// </summary>
+    public int SourceID { get; set; }
+
+    /// <summary>
+    /// WarehouseID, BranchID ปลายทาง
+    /// </summary>
+    public int DestinationID { get; set; }
+
+    public int ItemID { get; set; }
+
+    public int Qty { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]
@@ -37,6 +52,9 @@ public partial class TMItemType
     [Required]
     public bool? Status { get; set; }
 
-    [InverseProperty("ItemType")]
-    public virtual ICollection<TMItem> TMItems { get; set; } = new List<TMItem>();
+    public int ApproveStatus { get; set; }
+
+    [ForeignKey("TransferTypeID")]
+    [InverseProperty("TTItemTransfers")]
+    public virtual TMTransferType TransferType { get; set; } = null!;
 }

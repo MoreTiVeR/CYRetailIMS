@@ -12,9 +12,13 @@ public partial class TMPaymentType
     [Key]
     public int PaymenTypeID { get; set; }
 
+    [StringLength(4)]
+    [Unicode(false)]
+    public string PaymenTypeCode { get; set; } = null!;
+
     [StringLength(50)]
     [Unicode(false)]
-    public string? PaymenTypeName { get; set; }
+    public string PaymenTypeName { get; set; } = null!;
 
     [StringLength(50)]
     [Unicode(false)]

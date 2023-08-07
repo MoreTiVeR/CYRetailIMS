@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CYRetailIMS.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
-public partial class TMMenu
+public partial class TMMenu : BaseAuditableEntity
 {
     [Key]
     public int MenuID { get; set; }
@@ -31,7 +32,11 @@ public partial class TMMenu
 
     [StringLength(150)]
     [Unicode(false)]
-    public string? CMS_href { get; set; }
+    public string? CMS_Link { get; set; }
+
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? CMS_Title { get; set; }
 
     [StringLength(10)]
     [Unicode(false)]

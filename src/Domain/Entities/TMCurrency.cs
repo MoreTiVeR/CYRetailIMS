@@ -12,7 +12,7 @@ public partial class TMCurrency
     [Key]
     public int CurrencyID { get; set; }
 
-    [StringLength(50)]
+    [StringLength(4)]
     [Unicode(false)]
     public string CurrencyCode { get; set; } = null!;
 

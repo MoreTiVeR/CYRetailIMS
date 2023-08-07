@@ -44,7 +44,7 @@ public partial class TMSubMenu
 
     [StringLength(150)]
     [Unicode(false)]
-    public string? CMS_Href { get; set; }
+    public string? CMS_Link { get; set; }
 
     [StringLength(10)]
     [Unicode(false)]

@@ -6,15 +6,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
-[Table("TMItemType")]
-public partial class TMItemType
+[Table("TMStock")]
+public partial class TMStock
 {
     [Key]
-    public int ItemTypeID { get; set; }
+    public int StockID { get; set; }
 
-    [StringLength(20)]
-    [Unicode(false)]
-    public string ItemTypeName { get; set; } = null!;
+    public int ItemID { get; set; }
+
+    public int WarehouseID { get; set; }
+
+    public int QtyInStock { get; set; }
+
+    [Column(TypeName = "decimal(4, 2)")]
+    public decimal UnitPrice { get; set; }
+
+    [Column(TypeName = "decimal(8, 4)")]
+    public decimal TotalPrice { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]
@@ -37,6 +45,7 @@ public partial class TMItemType
     [Required]
     public bool? Status { get; set; }
 
-    [InverseProperty("ItemType")]
-    public virtual ICollection<TMItem> TMItems { get; set; } = new List<TMItem>();
+    [ForeignKey("WarehouseID")]
+    [InverseProperty("TMStocks")]
+    public virtual TMWarehouse Warehouse { get; set; } = null!;
 }

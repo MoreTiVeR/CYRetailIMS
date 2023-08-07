@@ -12,6 +12,10 @@ public partial class TMItem
     [Key]
     public int ItemID { get; set; }
 
+    [StringLength(10)]
+    [Unicode(false)]
+    public string ItemCode { get; set; } = null!;
+
     public int ItemTypeID { get; set; }
 
     public int UnitOfMeasureID { get; set; }
@@ -29,12 +33,7 @@ public partial class TMItem
     public string? BarCode { get; set; }
 
     [Column(TypeName = "decimal(8, 4)")]
-    public decimal Cost { get; set; }
-
-    [Column(TypeName = "decimal(8, 4)")]
-    public decimal SellingPrice { get; set; }
-
-    public int InStock { get; set; }
+    public decimal Price { get; set; }
 
     [Unicode(false)]
     public string? ItemImageUrl { get; set; }
@@ -65,6 +64,9 @@ public partial class TMItem
 
     [InverseProperty("Item")]
     public virtual ICollection<TMItemPromotionDetail> TMItemPromotionDetails { get; set; } = new List<TMItemPromotionDetail>();
+
+    [InverseProperty("Item")]
+    public virtual ICollection<TTStockTransaction> TTStockTransactions { get; set; } = new List<TTStockTransaction>();
 
     [ForeignKey("UnitOfMeasureID")]
     [InverseProperty("TMItems")]

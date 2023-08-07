@@ -16,6 +16,8 @@ public partial class CYDBContext : DbContext
     {
     }
 
+    public virtual DbSet<TMApproveStatus> TMApproveStatuses { get; set; }
+
     public virtual DbSet<TMBranch> TMBranches { get; set; }
 
     public virtual DbSet<TMBranchDetail> TMBranchDetails { get; set; }
@@ -46,9 +48,11 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMRoleInMenu> TMRoleInMenus { get; set; }
 
-    public virtual DbSet<TMShipment> TMShipments { get; set; }
-
     public virtual DbSet<TMShipmentType> TMShipmentTypes { get; set; }
+
+    public virtual DbSet<TMStock> TMStocks { get; set; }
+
+    public virtual DbSet<TMStockType> TMStockTypes { get; set; }
 
     public virtual DbSet<TMSubMenu> TMSubMenus { get; set; }
 
@@ -62,6 +66,8 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMSupplierType> TMSupplierTypes { get; set; }
 
+    public virtual DbSet<TMTransferType> TMTransferTypes { get; set; }
+
     public virtual DbSet<TMUnitOfMeasure> TMUnitOfMeasures { get; set; }
 
     public virtual DbSet<TMUser> TMUsers { get; set; }
@@ -70,9 +76,15 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMWarehouse> TMWarehouses { get; set; }
 
+    public virtual DbSet<TTItemTransfer> TTItemTransfers { get; set; }
+
     public virtual DbSet<TTPurchaseOrder> TTPurchaseOrders { get; set; }
 
     public virtual DbSet<TTPurchaseOrderDetail> TTPurchaseOrderDetails { get; set; }
+
+    public virtual DbSet<TTShipment> TTShipments { get; set; }
+
+    public virtual DbSet<TTStockTransaction> TTStockTransactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -81,9 +93,14 @@ public partial class CYDBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<TMApproveStatus>(entity =>
+        {
+            entity.Property(e => e.ApproveStatusID).ValueGeneratedNever();
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+        });
+
         modelBuilder.Entity<TMBranch>(entity =>
         {
-            entity.Property(e => e.BranchID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
@@ -99,7 +116,6 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.CurrencyID).HasName("PK_TMCurrencyType");
 
-            entity.Property(e => e.CurrencyID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
@@ -119,7 +135,6 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMItem>(entity =>
         {
-            entity.Property(e => e.ItemID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.ItemType).WithMany(p => p.TMItems).HasConstraintName("FK_TMItem_TMItemType");
@@ -155,25 +170,21 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMItemType>(entity =>
         {
-            entity.Property(e => e.ItemTypeID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMMenu>(entity =>
         {
-            entity.Property(e => e.MenuID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMPaymentType>(entity =>
         {
-            entity.Property(e => e.PaymenTypeID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMPurchaseType>(entity =>
         {
-            entity.Property(e => e.PurchaseTypeID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
@@ -193,29 +204,27 @@ public partial class CYDBContext : DbContext
             entity.HasOne(d => d.SubMenu).WithMany(p => p.TMRoleInMenus).HasConstraintName("FK_TMRoleInMenus_TMSubMenu");
         });
 
-        modelBuilder.Entity<TMShipment>(entity =>
-        {
-            entity.Property(e => e.ShipmentID).ValueGeneratedNever();
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
-
-            entity.HasOne(d => d.ShipmentType).WithMany(p => p.TMShipments)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_TMShipment_TMShipmentType");
-
-            entity.HasOne(d => d.Warehouse).WithMany(p => p.TMShipments)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_TMShipment_TMWarehouse");
-        });
-
         modelBuilder.Entity<TMShipmentType>(entity =>
         {
-            entity.Property(e => e.ShipmentTypeID).ValueGeneratedNever();
+            entity.Property(e => e.ShipmentTypeName).HasComment("ประเภทการขนส่ง ขนส่งทางบก ขนส่งทางน้ำ ขนส่งทางอากาศ ขนส่งระบบคอนเทนเนอร์ ขนส่งพัสดุแบบด่วน(Delivery Express)");
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+        });
+
+        modelBuilder.Entity<TMStock>(entity =>
+        {
+            entity.Property(e => e.StockID).ValueGeneratedNever();
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.Warehouse).WithMany(p => p.TMStocks).HasConstraintName("FK_TMStock_TMWarehouse");
+        });
+
+        modelBuilder.Entity<TMStockType>(entity =>
+        {
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMSubMenu>(entity =>
         {
-            entity.Property(e => e.SubMenuID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
@@ -223,7 +232,6 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.SupplierID).HasName("PK_TMVendor");
 
-            entity.Property(e => e.SupplierID).ValueGeneratedNever();
             entity.Property(e => e.Description).IsFixedLength();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
@@ -232,7 +240,6 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMSupplierContact>(entity =>
         {
-            entity.Property(e => e.SupplierContactID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.SupplierContactType).WithMany(p => p.TMSupplierContacts).HasConstraintName("FK_TMSupplierContact_TMSupplierContactType");
@@ -244,15 +251,11 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.SupplierContactTypeID).HasName("PK_TMVendorContactType");
 
-            entity.Property(e => e.SupplierContactTypeID).ValueGeneratedNever();
-            entity.Property(e => e.Description).IsFixedLength();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMSupplierDetail>(entity =>
         {
-            entity.Property(e => e.SupplierDetailID).ValueGeneratedNever();
-            entity.Property(e => e.Description).IsFixedLength();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.Supplier).WithMany(p => p.TMSupplierDetails).HasConstraintName("FK_TMSupplierDetail_TMSupplier");
@@ -262,15 +265,19 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.SupplierTypeID).HasName("PK_TMVendorType");
 
-            entity.Property(e => e.SupplierTypeID).ValueGeneratedNever();
-            entity.Property(e => e.Description).IsFixedLength();
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+        });
+
+        modelBuilder.Entity<TMTransferType>(entity =>
+        {
+            entity.Property(e => e.TransferTypeID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMUnitOfMeasure>(entity =>
         {
-            entity.Property(e => e.UnitOfMeasureID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.UnitOfMeasureName).HasComment("หน่วยวัด เช่น ชิ้น อัน กล่อง");
         });
 
         modelBuilder.Entity<TMUser>(entity =>
@@ -293,15 +300,21 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMWarehouse>(entity =>
         {
-            entity.Property(e => e.WarehouseID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+        });
 
-            entity.HasOne(d => d.Branch).WithMany(p => p.TMWarehouses).HasConstraintName("FK_TMWarehouse_TMBranch");
+        modelBuilder.Entity<TTItemTransfer>(entity =>
+        {
+            entity.Property(e => e.DestinationID).HasComment("WarehouseID, BranchID ปลายทาง");
+            entity.Property(e => e.SourceID).HasComment("WarehouseID, BranchID ต้นทาง");
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.TransferTypeID).HasComment("Ref TMTransferType");
+
+            entity.HasOne(d => d.TransferType).WithMany(p => p.TTItemTransfers).HasConstraintName("FK_TTItemTransfer_TMTransferType");
         });
 
         modelBuilder.Entity<TTPurchaseOrder>(entity =>
         {
-            entity.Property(e => e.PurchaseOrderID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.Currency).WithMany(p => p.TTPurchaseOrders).HasConstraintName("FK_TTPurchaseOrder_TMCurrency");
@@ -311,16 +324,42 @@ public partial class CYDBContext : DbContext
             entity.HasOne(d => d.PurchaseType).WithMany(p => p.TTPurchaseOrders).HasConstraintName("FK_TTPurchaseOrder_TMPurchaseType");
 
             entity.HasOne(d => d.Supplier).WithMany(p => p.TTPurchaseOrders).HasConstraintName("FK_TTPurchaseOrder_TMSupplier");
-
-            entity.HasOne(d => d.Warehouse).WithMany(p => p.TTPurchaseOrders).HasConstraintName("FK_TTPurchaseOrder_TMWarehouse");
         });
 
         modelBuilder.Entity<TTPurchaseOrderDetail>(entity =>
         {
-            entity.Property(e => e.PurchaseOrderDetailID).ValueGeneratedNever();
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.PurchaseOrder).WithMany(p => p.TTPurchaseOrderDetails).HasConstraintName("FK_TTPurchaseOrderDetail_TTPurchaseOrder");
+        });
+
+        modelBuilder.Entity<TTShipment>(entity =>
+        {
+            entity.HasKey(e => e.ShipmentID).HasName("PK_TMShipment");
+
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.PurchaseOrder).WithMany(p => p.TTShipments).HasConstraintName("FK_TMShipment_TTPurchaseOrder");
+
+            entity.HasOne(d => d.ShipmentType).WithMany(p => p.TTShipments)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TMShipment_TMShipmentType");
+
+            entity.HasOne(d => d.Warehouse).WithMany(p => p.TTShipments)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TMShipment_TMWarehouse");
+        });
+
+        modelBuilder.Entity<TTStockTransaction>(entity =>
+        {
+            entity.HasKey(e => e.StockTransactionID).HasName("PK_TTStockHistory");
+
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.StockTypeID).HasComment("Ref TMStockType In, Out");
+
+            entity.HasOne(d => d.Item).WithMany(p => p.TTStockTransactions).HasConstraintName("FK_TTStockTransaction_TMItem");
+
+            entity.HasOne(d => d.StockType).WithMany(p => p.TTStockTransactions).HasConstraintName("FK_TTStockTransaction_TMStockType");
         });
 
         OnModelCreatingPartial(modelBuilder);

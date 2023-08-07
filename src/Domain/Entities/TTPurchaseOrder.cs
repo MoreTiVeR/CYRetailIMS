@@ -16,8 +16,6 @@ public partial class TTPurchaseOrder
     [Unicode(false)]
     public string PurchaseOrderName { get; set; } = null!;
 
-    public int WarehouseID { get; set; }
-
     public int PurchaseTypeID { get; set; }
 
     public int SupplierID { get; set; }
@@ -89,7 +87,6 @@ public partial class TTPurchaseOrder
     [InverseProperty("PurchaseOrder")]
     public virtual ICollection<TTPurchaseOrderDetail> TTPurchaseOrderDetails { get; set; } = new List<TTPurchaseOrderDetail>();
 
-    [ForeignKey("WarehouseID")]
-    [InverseProperty("TTPurchaseOrders")]
-    public virtual TMWarehouse Warehouse { get; set; } = null!;
+    [InverseProperty("PurchaseOrder")]
+    public virtual ICollection<TTShipment> TTShipments { get; set; } = new List<TTShipment>();
 }

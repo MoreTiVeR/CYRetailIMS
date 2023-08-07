@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CYRetailIMS.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
 [Table("TMBranchDetail")]
-public partial class TMBranchDetail
+public partial class TMBranchDetail : BaseAuditableEntity
 {
     [Key]
     public int BranchID { get; set; }
@@ -35,20 +36,6 @@ public partial class TMBranchDetail
     [StringLength(5)]
     [Unicode(false)]
     public string ZipCode { get; set; } = null!;
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string CreatedBy { get; set; } = null!;
-
-    [Column(TypeName = "datetime")]
-    public DateTime CreadedDate { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? UpdatedBy { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? UpdatedDate { get; set; }
 
     [Required]
     public bool? Status { get; set; }

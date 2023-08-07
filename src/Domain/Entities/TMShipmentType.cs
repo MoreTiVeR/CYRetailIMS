@@ -12,6 +12,9 @@ public partial class TMShipmentType
     [Key]
     public int ShipmentTypeID { get; set; }
 
+    /// <summary>
+    /// ประเภทการขนส่ง ขนส่งทางบก ขนส่งทางน้ำ ขนส่งทางอากาศ ขนส่งระบบคอนเทนเนอร์ ขนส่งพัสดุแบบด่วน(Delivery Express)
+    /// </summary>
     [StringLength(50)]
     [Unicode(false)]
     public string? ShipmentTypeName { get; set; }
@@ -38,5 +41,5 @@ public partial class TMShipmentType
     public bool? Status { get; set; }
 
     [InverseProperty("ShipmentType")]
-    public virtual ICollection<TMShipment> TMShipments { get; set; } = new List<TMShipment>();
+    public virtual ICollection<TTShipment> TTShipments { get; set; } = new List<TTShipment>();
 }

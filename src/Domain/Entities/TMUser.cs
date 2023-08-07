@@ -14,7 +14,7 @@ public partial class TMUser : BaseAuditableEntity
 
     public int RoleID { get; set; }
 
-    [StringLength(50)]
+    [StringLength(20)]
     [Unicode(false)]
     public string UserName { get; set; } = null!;
 
