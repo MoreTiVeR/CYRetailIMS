@@ -17,7 +17,8 @@
     <Folder Include="Services\DepartmentService\" />
     <Folder Include="Services\MenuService\Commands\" />
     <Folder Include="Services\MenuService\EventHandlers\" />
-    <Folder Include="Services\MenuService\Queries\" />
+    <Folder Include="Services\MenuService\Queries\GetMenuByRoleID\" />
+    <Folder Include="Services\MenuService\Queries\GetMenuList\" />
     <Folder Include="Services\RoleService\" />
     <Folder Include="Services\UserService\" />
   </ItemGroup>

@@ -12,6 +12,8 @@ public partial class TMSubMenu
     [Key]
     public int SubMenuID { get; set; }
 
+    public int MenuID { get; set; }
+
     public int Seq { get; set; }
 
     [StringLength(50)]
