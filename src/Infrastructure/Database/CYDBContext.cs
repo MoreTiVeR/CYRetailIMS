@@ -38,7 +38,7 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMItemType> TMItemTypes { get; set; }
 
-    public virtual DbSet<TMMenu> TMMenus { get; set; }
+    public virtual DbSet<TMMenus> TMMenus { get; set; }
 
     public virtual DbSet<TMPaymentType> TMPaymentTypes { get; set; }
 
@@ -46,7 +46,7 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMRole> TMRoles { get; set; }
 
-    public virtual DbSet<TMRoleInMenu> TMRoleInMenus { get; set; }
+    public virtual DbSet<TMRoleInMenus> TMRoleInMenus { get; set; }
 
     public virtual DbSet<TMShipmentType> TMShipmentTypes { get; set; }
 
@@ -54,7 +54,7 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMStockType> TMStockTypes { get; set; }
 
-    public virtual DbSet<TMSubMenu> TMSubMenus { get; set; }
+    public virtual DbSet<TMSubMenus> TMSubMenus { get; set; }
 
     public virtual DbSet<TMSupplier> TMSuppliers { get; set; }
 
@@ -121,12 +121,12 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMDepartment>(entity =>
         {
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMEmployee>(entity =>
         {
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.Department).WithMany(p => p.TMEmployees).HasConstraintName("FK_TMEmployee_TMDepartments");
 
@@ -173,9 +173,9 @@ public partial class CYDBContext : DbContext
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
-        modelBuilder.Entity<TMMenu>(entity =>
+        modelBuilder.Entity<TMMenus>(entity =>
         {
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMPaymentType>(entity =>
@@ -192,10 +192,10 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.RoleID).HasName("PK_Table1");
 
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
-        modelBuilder.Entity<TMRoleInMenu>(entity =>
+        modelBuilder.Entity<TMRoleInMenus>(entity =>
         {
             entity.HasOne(d => d.Menu).WithMany(p => p.TMRoleInMenus).HasConstraintName("FK_TMRoleInMenus_TMMenus");
 
@@ -223,9 +223,9 @@ public partial class CYDBContext : DbContext
             entity.Property(e => e.Status).HasDefaultValueSql("((1))");
         });
 
-        modelBuilder.Entity<TMSubMenu>(entity =>
+        modelBuilder.Entity<TMSubMenus>(entity =>
         {
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMSupplier>(entity =>
@@ -284,14 +284,14 @@ public partial class CYDBContext : DbContext
         {
             entity.Property(e => e.ApproveStatus).HasDefaultValueSql("((0))");
             entity.Property(e => e.Password).IsFixedLength();
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.Role).WithMany(p => p.TMUsers).HasConstraintName("FK_TMUsers_TMRoles");
         });
 
         modelBuilder.Entity<TMUserInBranch>(entity =>
         {
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.Branch).WithMany(p => p.TMUserInBranches).HasConstraintName("FK_TMUserInBranchs_TMBranch");
 
@@ -354,7 +354,7 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.StockTransactionID).HasName("PK_TTStockHistory");
 
-            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
             entity.Property(e => e.StockTypeID).HasComment("Ref TMStockType In, Out");
 
             entity.HasOne(d => d.Item).WithMany(p => p.TTStockTransactions).HasConstraintName("FK_TTStockTransaction_TMItem");

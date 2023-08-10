@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
-public partial class TMMenu : BaseAuditableEntity
+[Table("TMMenus")]
+public partial class TMMenus : BaseAuditableEntity
 {
     [Key]
     public int MenuID { get; set; }
@@ -38,23 +39,6 @@ public partial class TMMenu : BaseAuditableEntity
     [Unicode(false)]
     public string? CMS_Title { get; set; }
 
-    [StringLength(10)]
-    [Unicode(false)]
-    public string CreatedBy { get; set; } = null!;
-
-    [Column(TypeName = "datetime")]
-    public DateTime CreadedDate { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? UpdatedBy { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? UpdatedDate { get; set; }
-
-    [Required]
-    public bool? Status { get; set; }
-
     [InverseProperty("Menu")]
-    public virtual ICollection<TMRoleInMenu> TMRoleInMenus { get; set; } = new List<TMRoleInMenu>();
+    public virtual ICollection<TMRoleInMenus> TMRoleInMenus { get; set; } = new List<TMRoleInMenus>();
 }

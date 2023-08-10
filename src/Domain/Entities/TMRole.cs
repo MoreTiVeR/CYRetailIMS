@@ -20,25 +20,8 @@ public partial class TMRole: BaseAuditableEntity
     [Unicode(false)]
     public string? Description { get; set; }
 
-    [StringLength(10)]
-    [Unicode(false)]
-    public string CreatedBy { get; set; } = null!;
-
-    [Column(TypeName = "datetime")]
-    public DateTime CreadedDate { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? UpdatedBy { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? UpdatedDate { get; set; }
-
-    [Required]
-    public bool? Status { get; set; }
-
     [InverseProperty("Role")]
-    public virtual ICollection<TMRoleInMenu> TMRoleInMenus { get; set; } = new List<TMRoleInMenu>();
+    public virtual ICollection<TMRoleInMenus> TMRoleInMenus { get; set; } = new List<TMRoleInMenus>();
 
     [InverseProperty("Role")]
     public virtual ICollection<TMUser> TMUsers { get; set; } = new List<TMUser>();

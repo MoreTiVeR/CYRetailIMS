@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace CYRetailIMS.Domain.Infrastructure.Repositories;
 
@@ -17,6 +18,10 @@ public interface IGenericRepository<T> where T : class
     T Find(Expression<Func<T, bool>> match);
 
     Task<T> FindAsync(Expression<Func<T, bool>> match);
+
+    Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+
+    Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null);
 
     T Add(T entity);
 

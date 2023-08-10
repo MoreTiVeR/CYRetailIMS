@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
+[Table("TMUser")]
 public partial class TMUser : BaseAuditableEntity
 {
     [Key]

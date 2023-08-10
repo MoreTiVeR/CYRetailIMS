@@ -60,7 +60,7 @@ public class CreateEmployeeHandler : BaseService, IRequestHandler<CreateEmployee
             UserName = "admin",
             Password = bytePass,
             RoleID = 1,
-            Status = true,
+            IsActive = true,
             ApproveStatus = 1
         };
         userData.SetCreatedDate();

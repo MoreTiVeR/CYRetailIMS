@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CYRetailIMS.Domain.Entities;
 
 [PrimaryKey("RoleID", "MenuID", "SubMenuID")]
-public partial class TMRoleInMenu : BaseAuditableEntity
+public partial class TMRoleInMenus
 {
     [Key]
     public int RoleID { get; set; }
@@ -19,13 +19,17 @@ public partial class TMRoleInMenu : BaseAuditableEntity
     [Key]
     public int SubMenuID { get; set; }
 
-    public bool CanRead { get; set; }
+    public bool CanView { get; set; }
 
-    public bool CanWrite { get; set; }
+    public bool CanCreate { get; set; }
+
+    public bool CanEdit { get; set; }
+
+    public bool CanDelete { get; set; }
 
     [ForeignKey("MenuID")]
     [InverseProperty("TMRoleInMenus")]
-    public virtual TMMenu Menu { get; set; } = null!;
+    public virtual TMMenus Menu { get; set; } = null!;
 
     [ForeignKey("RoleID")]
     [InverseProperty("TMRoleInMenus")]
@@ -33,5 +37,5 @@ public partial class TMRoleInMenu : BaseAuditableEntity
 
     [ForeignKey("SubMenuID")]
     [InverseProperty("TMRoleInMenus")]
-    public virtual TMSubMenu SubMenu { get; set; } = null!;
+    public virtual TMSubMenus SubMenu { get; set; } = null!;
 }

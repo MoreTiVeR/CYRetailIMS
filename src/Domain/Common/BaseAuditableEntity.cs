@@ -31,11 +31,11 @@ public abstract class BaseAuditableEntity : BaseEntity
     public DateTime? UpdatedDate { get; set; }
 
     [Required]
-    public bool? Status { get; set; }
+    public bool IsActive { get; set; }
 
-    public void ActiveStatus() => Status = true;
+    public void ActiveStatus() => IsActive = true;
 
-    public void DeActiveStatus() => Status = false;
+    public void DeActiveStatus() => IsActive = false;
 
     public void SetCreatedDate() => CreadedDate = DateTime.Now;
 
