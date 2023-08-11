@@ -24,5 +24,5 @@ public partial class TMRole: BaseAuditableEntity
     public virtual ICollection<TMRoleInMenus> TMRoleInMenus { get; set; } = new List<TMRoleInMenus>();
 
     [InverseProperty("Role")]
-    public virtual ICollection<TMUser> TMUsers { get; set; } = new List<TMUser>();
+    public virtual ICollection<TMUsers> TMUsers { get; set; } = new List<TMUsers>();
 }

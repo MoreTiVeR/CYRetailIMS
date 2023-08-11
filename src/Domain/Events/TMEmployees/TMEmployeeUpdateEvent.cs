@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CYRetailIMS.Domain.Common;
 using CYRetailIMS.Domain.Entities;
 
 namespace CYRetailIMS.Domain.Events.TMEmployees;
-public class TMEmployeeUpdateEvent
+public class TMEmployeeUpdateEvent : BaseEvent
 {
     public TMEmployee Item { get; set; }
     public TMEmployeeUpdateEvent(TMEmployee item)

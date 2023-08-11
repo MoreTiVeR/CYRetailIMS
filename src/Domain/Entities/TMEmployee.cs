@@ -45,5 +45,5 @@ public partial class TMEmployee : BaseAuditableEntity
 
     [ForeignKey("UserID")]
     [InverseProperty("TMEmployees")]
-    public virtual TMUser User { get; set; } = null!;
+    public virtual TMUsers User { get; set; } = null!;
 }

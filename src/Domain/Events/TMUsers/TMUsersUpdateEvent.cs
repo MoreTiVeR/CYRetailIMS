@@ -8,8 +8,8 @@ using CYRetailIMS.Domain.Entities;
 namespace CYRetailIMS.Domain.Events.TMUsers;
 public class TMUsersUpdateEvent
 {
-    public TMUser Item { get; set; }
-    public TMUsersUpdateEvent(TMUser item)
+    public Entities.TMUsers Item { get; set; }
+    public TMUsersUpdateEvent(Entities.TMUsers item)
     {
         Item = item;
     }

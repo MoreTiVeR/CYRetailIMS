@@ -22,5 +22,5 @@ public partial class TMUserInBranch : BaseAuditableEntity
 
     [ForeignKey("UserID")]
     [InverseProperty("TMUserInBranches")]
-    public virtual TMUser User { get; set; } = null!;
+    public virtual TMUsers User { get; set; } = null!;
 }

@@ -1,8 +1,10 @@
 
 using System.Globalization;
+using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
+using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 
@@ -50,7 +52,8 @@ public class Program
         });
 
         #region Service
-
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddHttpClient<IHttpClientRequest, HttpClientRequest>();
         #endregion
 
         var app = builder.Build();

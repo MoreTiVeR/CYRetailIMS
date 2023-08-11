@@ -8,7 +8,7 @@ using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
 namespace CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
-public class GetMenuByRoleIDQuery : IRequest<BaseResponse<List<GetMenuByRoleIDResponseDTO>>>
+public record GetMenuByRoleIDQuery : IRequest<BaseResponse<List<GetMenuByRoleIDResponseDTO>>>
 {
     [Required]
     public int RoleID { get; init; }

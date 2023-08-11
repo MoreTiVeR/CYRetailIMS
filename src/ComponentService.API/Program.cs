@@ -41,7 +41,16 @@ public class Program
         if (app.Environment.IsProduction())
         {
             loggerFactory.AddLog4Net("log4net.config");
-
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                string swaggerJsonBasePath = string.IsNullOrWhiteSpace(options.RoutePrefix) ? "." : "..";
+                //c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "V1");
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+            });
         }
         else
         {
@@ -58,31 +67,6 @@ public class Program
                     options.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                 }
             });
-
-            //app.UseSwagger(options =>
-            //{
-            //    string swaggerBasePath = "cyretail-ims-api";
-            //    options.RouteTemplate = "swagger/{documentName}/swagger.json";
-            //    options.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
-            //    {
-            //        if (httpReq.Host.Host.Equals("localhost") || IsValidIPAddress(httpReq.Host.Host))
-            //        {
-            //            swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}" } };
-            //        }
-            //        else
-            //        {
-            //            swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}/{swaggerBasePath}" } };
-            //        }
-            //    });
-            //});
-
-            //app.UseSwaggerUI(options =>
-            //{
-            //    string swaggerJsonBasePath = string.IsNullOrWhiteSpace(options.RoutePrefix) ? "." : "..";
-            //    //build a swagger endpoint for each discovered API version
-            //    options.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "CY Retail Inventory Management System API V1");
-            //    options.RoutePrefix = "swagger";
-            //});
             #endregion
         }
 

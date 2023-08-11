@@ -70,7 +70,7 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMUnitOfMeasure> TMUnitOfMeasures { get; set; }
 
-    public virtual DbSet<TMUser> TMUsers { get; set; }
+    public virtual DbSet<TMUsers> TMUsers { get; set; }
 
     public virtual DbSet<TMUserInBranch> TMUserInBranchs { get; set; }
 
@@ -280,7 +280,7 @@ public partial class CYDBContext : DbContext
             entity.Property(e => e.UnitOfMeasureName).HasComment("หน่วยวัด เช่น ชิ้น อัน กล่อง");
         });
 
-        modelBuilder.Entity<TMUser>(entity =>
+        modelBuilder.Entity<TMUsers>(entity =>
         {
             entity.Property(e => e.ApproveStatus).HasDefaultValueSql("((0))");
             entity.Property(e => e.Password).IsFixedLength();

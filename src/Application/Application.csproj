@@ -10,9 +10,11 @@
 
   <ItemGroup>
     <Folder Include="Caching\" />
+    <Folder Include="Common\Models\Menus\" />
+    <Folder Include="Services\AccountService\Commands\" />
+    <Folder Include="Services\AccountService\EventHandlers\" />
     <Folder Include="Services\EmployeeService\Commands\DeleteEmployee\" />
     <Folder Include="Services\EmployeeService\Commands\UpdateEmployee\" />
-    <Folder Include="Services\EmployeeService\EventHandlers\" />
     <Folder Include="Services\DepartmentService\" />
     <Folder Include="Services\EmployeeService\Queries\v1\" />
     <Folder Include="Services\MenuService\Commands\" />

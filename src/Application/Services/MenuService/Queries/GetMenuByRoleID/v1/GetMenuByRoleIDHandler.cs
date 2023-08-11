@@ -21,25 +21,25 @@ public class GetMenuByRoleIDHandler : BaseService, IRequestHandler<GetMenuByRole
     public async Task<BaseResponse<List<GetMenuByRoleIDResponseDTO>>> Handle(GetMenuByRoleIDQuery request, CancellationToken cancellationToken)
     {
         #region Option#1
-        var resx = (from a in await _unitOfWork.Repository<TMMenus>().QueryAsync()
-                    join b in await _unitOfWork.Repository<TMSubMenus>().QueryAsync() on a.MenuID equals b.MenuID
-                    join c in await _unitOfWork.Repository<TMRoleInMenus>().QueryAsync() on new { a.MenuID, b.SubMenuID } equals new { c.MenuID, c.SubMenuID }
-                    let listx = b
-                    where c.RoleID == request.RoleID && a.IsActive
-                    select new GetMenuByRoleIDResponseDTO
-                    {
-                        MenuID = a.MenuID,
-                        Seq = a.Seq,
-                        MenuName_TH = a.MenuName_TH,
-                        MenuName_EN = a.MenuName_EN,
-                        CMS_DataIconName = a.CMS_DataIconName,
-                        CMS_Link = a.CMS_Link,
-                        CMS_Title = a.CMS_Title,
-                        Description = a.Description,
-                        IsActive = a.IsActive,
-                        SubMenuList = new List<SubMenuResponseDTO>() { new SubMenuResponseDTO { SubMenuID = b.SubMenuID, Seq = b.Seq } }
-                    }).ToList();
-        var _resx = resx;
+        //var resx = (from a in await _unitOfWork.Repository<TMMenus>().QueryAsync()
+        //            join b in await _unitOfWork.Repository<TMSubMenus>().QueryAsync() on a.MenuID equals b.MenuID
+        //            join c in await _unitOfWork.Repository<TMRoleInMenus>().QueryAsync() on new { a.MenuID, b.SubMenuID } equals new { c.MenuID, c.SubMenuID }
+        //            let listx = b
+        //            where c.RoleID == request.RoleID && a.IsActive
+        //            select new GetMenuByRoleIDResponseDTO
+        //            {
+        //                MenuID = a.MenuID,
+        //                Seq = a.Seq,
+        //                MenuName_TH = a.MenuName_TH,
+        //                MenuName_EN = a.MenuName_EN,
+        //                CMS_DataIconName = a.CMS_DataIconName,
+        //                CMS_Link = a.CMS_Link,
+        //                CMS_Title = a.CMS_Title,
+        //                Description = a.Description,
+        //                IsActive = a.IsActive,
+        //                SubMenuList = new List<SubMenuResponseDTO>() { new SubMenuResponseDTO { SubMenuID = b.SubMenuID, Seq = b.Seq } }
+        //            }).ToList();
+        //var _resx = resx;
         #endregion
 
         #region Option#2
