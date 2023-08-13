@@ -13,11 +13,11 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 public class JsonViewModel
 {
     [JsonPropertyName("result")]
-    public bool Result { get; set; }
+    public bool result { get; set; }
 
     [JsonPropertyName("message")]
-    public string Message { get; set; }
+    public string message { get; set; }
 
     [JsonPropertyName("url")]
-    public string RedirectUrl { get; set; }
+    public string url { get; set; }
 }

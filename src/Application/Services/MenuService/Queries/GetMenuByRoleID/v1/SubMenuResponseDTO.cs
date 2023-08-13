@@ -10,41 +10,19 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 namespace CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+
+[Serializable]
 public class SubMenuResponseDTO
 {
-    [JsonPropertyName("submenuid")]
-    public int SubMenuID { get; set; }
-
-    //[JsonPropertyName("menuid")]
-    //public int MenuID { get; set; }
-
-    [JsonPropertyName("seq")]
-    public int Seq { get; set; }
-
-    [JsonPropertyName("menuname_en")]
-    public string MenuName_EN { get; set; } = null!;
-
-    [JsonPropertyName("menuname_th")]
-    public string MenuName_TH { get; set; } = null!;
-
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
-
-    [JsonPropertyName("cms_controllername")]
-    public string? CMS_ControllerName { get; set; }
-
-    [JsonPropertyName("cms_actionname")]
-    public string? CMS_ActionName { get; set; }
-
-    [JsonPropertyName("cms_i_class")]
-    public string? CMS_I_Class { get; set; }
-
-    [JsonPropertyName("cms_span_class")]
-    public string? CMS_Span_Class { get; set; }
-
-    [JsonPropertyName("cms_link")]
-    public string? CMS_Link { get; set; }
-
-    [JsonPropertyName("isactive")]
-    public bool IsActive { get; set; }
+	public int submenuid { get; set; }
+	public int seq { get; set; }
+	public string menuname_en { get; set; }
+	public string menuname_th { get; set; }
+	public string description { get; set; }
+	public string cms_controllername { get; set; }
+	public string cms_actionname { get; set; }
+	public object cms_i_class { get; set; }
+	public object cms_span_class { get; set; }
+	public object cms_link { get; set; }
+	public bool isactive { get; set; }
 }

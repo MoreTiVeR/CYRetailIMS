@@ -42,11 +42,11 @@ public class AccountController : BaseApiController
     {
         DateTime dtStart = DateTime.Now;
         BaseResponse<UserProfileResponseDTO> res = await Mediator.Send(request);
-        Response.Headers.Add("responsecode", res.Status);
-        Response.Headers.Add("responsedatasource", res.Soruce);
-        Response.Headers.Add("responsemessage", res.Message?.Replace(Environment.NewLine, string.Empty));
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]LoginAsync Success");
 
-        return Ok(res.Data);
+        return Ok(res.data);
     }
 }

@@ -28,18 +28,21 @@ public static class ObjectExtensions
         {
             throw new Exception();
         }
-        ErrorResponse? errObj = JsonConvert.DeserializeObject<ErrorResponse>(strContent);
-        if (errObj?.Error != null)
+        ErrorData errObj = JsonConvert.DeserializeObject<ErrorData>(strContent);
+        if (errObj != null)
         {
-            return errObj;
+            return new ErrorResponse
+            {
+                error = errObj
+            };
         }
         return new ErrorResponse
         {
-            Error = new ErrorData
+            error = new ErrorData
             {
-                Status = statueCode,
-                Type = statueCode,
-                Message = strContent
+                status = statueCode,
+                type = statueCode,
+                message = "N/A"
             }
         };
     }

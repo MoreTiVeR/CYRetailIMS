@@ -11,34 +11,15 @@ namespace CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v
 [Serializable]
 public class GetMenuByRoleIDResponseDTO
 {
-    [JsonPropertyName("menuid")]
-    public int MenuID { get; set; }
-
-    [JsonPropertyName("seq")]
-    public int Seq { get; set; }
-
-    [JsonPropertyName("menuname_th")]
-    public string MenuName_TH { get; set; }
-
-    [JsonPropertyName("menuname_en")]
-    public string MenuName_EN { get; set; }
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; }
-
-    [JsonPropertyName("cms_icon_name")]
-    public string CMS_DataIconName { get; set; }
-
-    [JsonPropertyName("cms_link")]
-    public string CMS_Link { get; set; }
-
-    [JsonPropertyName("cms_title")]
-    public string CMS_Title { get; set; }
-
-    [JsonPropertyName("isactive")]
-    public bool IsActive { get; set; }
-
-    [JsonPropertyName("submenulist")]
-    public List<SubMenuResponseDTO> SubMenuList { get; set; }
+	public int menuid { get; set; }
+	public int seq { get; set; }
+	public string menuname_th { get; set; }
+	public string menuname_en { get; set; }
+	public object description { get; set; }
+	public string cms_icon_name { get; set; }
+	public string cms_link { get; set; }
+	public string cms_title { get; set; }
+	public bool isactive { get; set; }
+	public List<SubMenuResponseDTO> submenulist { get; set; }
 
 }

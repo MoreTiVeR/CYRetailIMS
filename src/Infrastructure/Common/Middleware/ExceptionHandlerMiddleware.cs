@@ -42,11 +42,11 @@ public class ExceptionHandlerMiddleware
         // Set the response status code to 500 (Internal Server Error)
         ErrorData errorData = new ErrorData
         {
-            Type = StatusCodes.Status500InternalServerError.ToString(),
-            Status = StatusCodes.Status500InternalServerError.ToString(),
-            Message = ex.InnerException != null && !string.IsNullOrEmpty(ex.InnerException.Message) ? ex.InnerException.Message : ex.Message,
-            Path = route,
-            StrackTrace = _exceptionSettings.IsDeveloperMode 
+            type = StatusCodes.Status500InternalServerError.ToString(),
+            status = StatusCodes.Status500InternalServerError.ToString(),
+            message = ex.InnerException != null && !string.IsNullOrEmpty(ex.InnerException.Message) ? ex.InnerException.Message : ex.Message,
+            path = route,
+            stracktrace = _exceptionSettings.IsDeveloperMode 
             ? ex.InnerException != null && !string.IsNullOrEmpty(ex.InnerException.Message) 
             ? ex.InnerException.StackTrace : ex.StackTrace : ex.StackTrace
         };

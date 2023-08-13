@@ -33,7 +33,7 @@ public class CreateEmployeeHandler : BaseService, IRequestHandler<CreateEmployee
 
         TMUsers isExistUser = (from a in await _unitOfWork.Repository<TMUsers>().QueryAsync()
                               join b in await _unitOfWork.Repository<TMEmployee>().QueryAsync() on a.UserID equals b.UserID
-                              where a.UserName == request.UserName || b.Email == request.Email
+                              where a.UserName == request.username || b.Email == request.email
                               select a).FirstOrDefault();
 
         if (isExistUser != null)
@@ -54,25 +54,25 @@ public class CreateEmployeeHandler : BaseService, IRequestHandler<CreateEmployee
 
         return new BaseResponse<CommandResponse>
         {
-            Result = true,
-            Data = new CommandResponse { result = true },
-            Status = StatusCodes.Status200OK.ToString(),
-            Message = "Success",
-            Soruce = "db"
+            result = true,
+            data = new CommandResponse { result = true },
+            status = StatusCodes.Status200OK.ToString(),
+            message = "Success",
+            soruce = "db"
         };
     }
 
     private TMUsers CreateUserData(CreateEmployeeCommand createEmployeeCommand)
     {
         string secretKey = _configuration.GetSection("AppSettings")["SECRET_KEY"];
-        byte[] bytePass = $"{createEmployeeCommand.UserName.Trim().ToLower()}{secretKey}{createEmployeeCommand.Password}".ToMD5Password();
+        byte[] bytePass = $"{createEmployeeCommand.username.Trim().ToLower()}{secretKey}{createEmployeeCommand.password}".ToMD5Password();
         TMUsers userData = new TMUsers
         {
-            UserName = createEmployeeCommand.UserName,
+            UserName = createEmployeeCommand.username,
             Password = bytePass,
-            RoleID = 1,
+            RoleID = createEmployeeCommand.roleid,
             IsActive = true,
-            ApproveStatus = 1
+            ApproveStatus = 0
         };
         userData.SetCreatedDate();
         userData.SetCreatedBy();

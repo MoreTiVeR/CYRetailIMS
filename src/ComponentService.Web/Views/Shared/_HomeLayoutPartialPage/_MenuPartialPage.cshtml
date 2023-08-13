@@ -1,4 +1,12 @@
-﻿<div class="sidebar" id="sidebar">
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
+	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
+}
+<div class="sidebar" id="sidebar">
 	<div class="sidebar-inner slimscroll">
 		<div id="sidebar-menu" class="sidebar-menu">
 			<ul>
@@ -13,38 +21,31 @@
 				<li class="submenu-open">
 					<h6 class="submenu-hdr">เมนู</h6>
 					<ul>
-						@*<li><a href="saleslist.html"><i data-feather="shopping-cart"></i><span>Sales</span></a></li>
-						<li><a href="invoicereport.html"><i data-feather="file-minus"></i><span>Invoices</span></a></li>
-						<li><a href="salesreturnlists.html"><i data-feather="box"></i><span>Sales Return</span></a></li>
-						<li><a href="quotationList.html"><i data-feather="bar-chart-2"></i><span>Quotation</span></a></li>
-						<li><a href="pos.html"><i data-feather="settings"></i><span>POS</span></a></li>*@
-						<li class="submenu">
-							<a href="javascript:void(0);"><i data-feather="shopping-cart"></i><span>{MENU_X}</span><span class="menu-arrow"></span></a>
-							<ul>
-								<li><a href="transferlist.html">{SUB_MENU_X}</a></li>
-								<li><a href="importtransfer.html">{SUB_MENU_X}</a></li>
-							</ul>
-						</li>
-						<li class="submenu">
-							<a href="javascript:void(0);"><i data-feather="file-minus"></i><span>{MENU_X}</span><span class="menu-arrow"></span></a>
-							<ul>
-								<li><a href="transferlist.html">{SUB_MENU_X}</a></li>
-								<li><a href="importtransfer.html">{SUB_MENU_X}</a></li>
-							</ul>
-						</li>
+						@if (userProfile?.access_menu is not null)
+						{
+							foreach (var menu in userProfile.access_menu)
+							{
+								<li class="submenu">
+									<a href="javascript:void(0);"><i data-feather="@menu.cms_icon_name"></i><span>@menu.menuname_th</span><span class="menu-arrow"></span></a>
+									<ul>
+										@if (menu.submenulist is not null)
+										{
+											foreach (var submenu in menu.submenulist)
+											{
+												<li><a asp-controller="@submenu.cms_controllername" asp-action="@submenu.cms_actionname" title="@submenu.description">@submenu.menuname_th</a></li>
+											}
+										}
+									</ul>
+								</li>
+							}
+						}
 					</ul>
 				</li>
 				<li class="submenu-open">
 					<h6 class="submenu-hdr">ตั้งค่า</h6>
 					<ul>
-						<li class="submenu">
-							<a href="javascript:void(0);"><i data-feather="settings"></i><span>ตั้งค่าระบบ</span><span class="menu-arrow"></span></a>
-							<ul>
-								<li><a href="grouppermissions.html">กำหนดสิทธ์เข้าถึงข้อมูล</a></li>
-							</ul>
-						</li>
 						<li>
-							<a href="signin.html"><i data-feather="log-out"></i><span>ออกจากระบบ</span> </a>
+							<a asp-controller="Account" asp-action="Logout"><i data-feather="log-out"></i><span>ออกจากระบบ</span> </a>
 						</li>
 					</ul>
 				</li>

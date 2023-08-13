@@ -10,10 +10,10 @@ public class CreateEmployeeValidator : AbstractValidator<CreateEmployeeCommand>
 {
     public CreateEmployeeValidator()
     {
-        RuleFor(r => r.DepartmentID).NotEmpty().NotNull();
-        RuleFor(r => r.FirstName).NotEmpty().NotNull();
-        RuleFor(r => r.LastName).NotEmpty().NotNull();
-        RuleFor(r => r.Email).NotEmpty().NotNull();
-        RuleFor(r => r.Salary).NotEmpty().NotNull().Must(s => s > 0);
+        RuleFor(r => r.departmentid).NotEmpty().NotNull();
+        RuleFor(r => r.firstname).NotEmpty().NotNull();
+        RuleFor(r => r.lastname).NotEmpty().NotNull();
+        RuleFor(r => r.email).NotEmpty().NotNull();
+        RuleFor(r => r.salary).NotEmpty().NotNull().Must(s => s > 0);
     }
 }

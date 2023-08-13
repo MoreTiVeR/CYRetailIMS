@@ -41,11 +41,11 @@ public class EmployeeController : BaseApiController
     {
         DateTime dtStart = DateTime.Now;
         BaseResponse<CommandResponse> res = await Mediator.Send(request);
-        Response.Headers.Add("responsecode", res.Status);
-        Response.Headers.Add("responsedatasource", res.Soruce);
-        Response.Headers.Add("responsemessage", res.Message?.Replace(Environment.NewLine, string.Empty));
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]CreateEmployeeAsync Success");
 
-        return Ok(res.Data);
+        return Ok(res.data);
     }
 }

@@ -1,0 +1,71 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "AccessDenied";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="description" content="POS - Bootstrap Admin Template">
+    <meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern,  html5, responsive">
+    <meta name="author" content="AppBoxs">
+    <meta name="robots" content="noindex, nofollow">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/img/favicon.png">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" asp-append-version="true">
+
+    <!-- animation CSS -->
+    <link rel="stylesheet" href="../assets/css/animate.css" asp-append-version="true">
+
+    <!-- Datatable CSS -->
+    <link rel="stylesheet" href="../assets/css/dataTables.bootstrap4.min.css" asp-append-version="true">
+
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="../assets/plugins/fontawesome/css/fontawesome.min.css" asp-append-version="true">
+    <link rel="stylesheet" href="../assets/plugins/fontawesome/css/all.min.css" asp-append-version="true">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css" asp-append-version="true">
+
+</head>
+<body class="error-page">
+    <div id="global-loader">
+        <div class="whirly-loader"> </div>
+    </div>
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <div class="error-box">
+            <img src="../assets/img/pages/not-authorized.png" class="img-fluid" alt="not authorized" width="400">
+            <h3 class="h2 mb-3"><i class="fas fa-exclamation-circle"></i>&nbsp; ไม่มีสิทธิ์ในการเข้าถึงข้อมูล!</h3>
+            <p class="h4 font-weight-normal">คุณไม่มีสิทธิ์ในการเข้าใช้งาน กรุณาติดต่อผู้ดูแลระบบ</p>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">กลับ</a>
+        </div>
+    </div>
+    <!-- /Main Wrapper -->
+    <!-- jQuery -->
+    <script src="../assets/js/jquery-3.6.0.min.js" asp-append-version="true"></script>
+
+    <!-- Feather Icon JS -->
+    <script src="../assets/js/feather.min.js" asp-append-version="true"></script>
+
+    <!-- Slimscroll JS -->
+    <script src="../assets/js/jquery.slimscroll.min.js" asp-append-version="true"></script>
+
+
+    <!-- Bootstrap Core JS -->
+    <script src="../assets/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+
+    <!-- Custom JS -->
+    <script src="../assets/js/script.js" asp-append-version="true"></script>
+
+</body>
+</html>

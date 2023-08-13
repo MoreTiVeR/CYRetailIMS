@@ -5,18 +5,13 @@ namespace CYRetailIMS.Application.Common.Models;
 [Serializable]
 public class ErrorData
 {
-    [JsonProperty("type")]
-    public string Type { get; set; }
+    public string type { get; set; }
 
-    [JsonProperty("status")]
-    public string Status { get; set; }
+    public string status { get; set; }
 
-    [JsonProperty("message")]
-    public string Message { get; set; }
+    public string message { get; set; }
 
-    [JsonProperty("path")]
-    public string Path { get; set; }
+    public string path { get; set; }
 
-    [JsonProperty("stracktrace")]
-    public string StrackTrace { get; set; }
+    public string stracktrace { get; set; }
 }

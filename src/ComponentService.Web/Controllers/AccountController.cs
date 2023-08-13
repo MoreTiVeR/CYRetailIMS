@@ -3,16 +3,18 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using AutoMapper;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
-public class AccountController : Controller
+public class AccountController : BaseController
 {
-    private readonly IHttpClientRequest _httpClientRequest;
-    public AccountController(IHttpClientRequest httpClientRequest)
+    public AccountController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log4NetLogger) 
+        : base(httpClientRequest, mapper, log4NetLogger)
     {
-        _httpClientRequest = httpClientRequest;
     }
 
     public IActionResult Login()
@@ -20,19 +22,31 @@ public class AccountController : Controller
         return View();
     }
 
+    public IActionResult Logout()
+    {
+        HttpContext.Session.Clear();
+        return RedirectToAction("Login", "Account");
+    }
+
     [HttpPost]
     public async Task<IActionResult> Authen([FromBody] LoginViewModel loginObj)
     {
-       var resLogin = await _httpClientRequest.HttpRequestToObject<UserProfileResponseDTO,
+        BaseResponse<UserProfileResponseDTO> resLogin = await _httpClientRequest.HttpRequestToObject<UserProfileResponseDTO,
                     LoginQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}api/v1/account/v1/login"),
-                    new LoginQuery { UserName = loginObj.UserName, Password = loginObj.Password });
-        if (!resLogin.Result)
+                    new LoginQuery { username = loginObj.UserName, password = loginObj.Password });
+        if (resLogin.result)
         {
-            //return Json(new { result = false, message = "Invalid UserName or Password." });
-            return Json(new JsonViewModel { Message = resLogin.Error.Error.Message });
+            #region Set Profile
+            UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);
+            base.UserProfile = userProfile;
+            var principal = CreatePrincipal(userProfile);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            #endregion
+
+            return Json(new JsonViewModel { result = true, message = "Login Success", url = Url.Action("Index", "Home") });
         }
-        return Json(new JsonViewModel { Result = true, Message = "Login Success", RedirectUrl = Url.Action("Index", "Home") });
-        //return Json(new { result = true, message = "Success", redirect_url = Url.Action("Index", "Home"), url = Url.Action("Index", "Home") });
+
+        return Json(new JsonViewModel { result = resLogin.result, message = resLogin.error.error.message });
     }
 
 }

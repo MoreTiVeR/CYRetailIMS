@@ -11,12 +11,12 @@ public static class HttpResponseExtensions
         httpResponse.Headers.TryGetValues("responsedatasource", out IEnumerable<string>? outResponsedatasource);
         return new BaseResponse<T>
         {
-            Result = httpResponse.IsSuccessStatusCode,
-            Data = httpResponse.IsSuccessStatusCode ? strContent.ToDataObject<T>() : default,
-            Error = httpResponse.IsSuccessStatusCode ? default : strContent.ToErrorObject(((int)httpResponse.StatusCode).ToString()),
-            Status = outResponseCode != null && outResponseCode.Any() ? outResponseCode.FirstOrDefault() : httpResponse.StatusCode.ToString(),
-            Message = outResponsemessage != null && outResponsemessage.Any() ? outResponsemessage.FirstOrDefault() : httpResponse.ReasonPhrase,
-            Soruce = outResponsedatasource != null && outResponsedatasource.Any() ? outResponsedatasource.FirstOrDefault() : "N/A"
+            result = httpResponse.IsSuccessStatusCode,
+            data = httpResponse.IsSuccessStatusCode ? strContent.ToDataObject<T>() : default,
+            error = httpResponse.IsSuccessStatusCode ? default : strContent.ToErrorObject(((int)httpResponse.StatusCode).ToString()),
+            status = outResponseCode != null && outResponseCode.Any() ? outResponseCode.FirstOrDefault() : httpResponse.StatusCode.ToString(),
+            message = outResponsemessage != null && outResponsemessage.Any() ? outResponsemessage.FirstOrDefault() : httpResponse.ReasonPhrase,
+            soruce = outResponsedatasource != null && outResponsedatasource.Any() ? outResponsedatasource.FirstOrDefault() : "N/A"
         };
     }
 }

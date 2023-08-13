@@ -4663,6 +4663,7 @@ span.select2-container.select2-container--default.select2-container--open {
   padding: 10px 0;
   display: block;
 }
+/*Menu Font Size*/
 .sidebar .sidebar-menu > ul > li.submenu-open ul li a {
   font-weight: 500;
   font-size: 16px;

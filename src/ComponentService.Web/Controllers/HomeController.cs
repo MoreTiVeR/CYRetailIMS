@@ -1,20 +1,25 @@
 ﻿using System.Diagnostics;
+using AutoMapper;
+using CYRetailIMS.Application.Common.Interfaces;
+using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
-public class HomeController : Controller
-{
-    private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+[CustomAuthorize(RoleName.Admin, RoleName.Staff)]
+public class HomeController : BaseController
+{
+    public HomeController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log) 
+        : base(httpClientRequest, mapper, log)
     {
-        _logger = logger;
     }
 
     public IActionResult Index()
     {
-        return View();
+        //base.InitialData();
+		return View();
     }
 
     public IActionResult Privacy()

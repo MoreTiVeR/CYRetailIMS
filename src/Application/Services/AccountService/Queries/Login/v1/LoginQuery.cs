@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -10,9 +11,9 @@ using MediatR;
 namespace CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
 public record LoginQuery : IRequest<BaseResponse<UserProfileResponseDTO>>
 {
-    [JsonPropertyName("username")]
-    public string UserName { get; init; }
+    [Required(AllowEmptyStrings = false)]
+    public string username { get; init; }
 
-    [JsonPropertyName("password")]
-    public string Password { get; init; }
+	[Required(AllowEmptyStrings = false)]
+    public string password { get; init; }
 }

@@ -51,44 +51,44 @@ public class GetMenuByRoleIDHandler : BaseService, IRequestHandler<GetMenuByRole
             throw new Exception("Data Not Found");
         }
         List<GetMenuByRoleIDResponseDTO> resMapiing = _mapper.Map<List<TMRoleInMenus>, List<GetMenuByRoleIDResponseDTO>>(resMenu.ToList())
-            .GroupBy(g => g.MenuID)
+            .GroupBy(g => g.menuid)
             .Select(s => new GetMenuByRoleIDResponseDTO
             {
-                MenuID = s.Key,
-                Seq = s.FirstOrDefault(w => w.MenuID == s.Key).Seq,
-                MenuName_TH = s.FirstOrDefault(w => w.MenuID == s.Key).MenuName_TH,
-                MenuName_EN = s.FirstOrDefault(w => w.MenuID == s.Key).MenuName_EN,
-                Description = s.FirstOrDefault(w => w.MenuID == s.Key).Description,
-                CMS_DataIconName = s.FirstOrDefault(w => w.MenuID == s.Key).CMS_DataIconName,
-                CMS_Link = s.FirstOrDefault(w => w.MenuID == s.Key).CMS_Link,
-                CMS_Title = s.FirstOrDefault(w => w.MenuID == s.Key).CMS_Title,
-                IsActive = s.FirstOrDefault(w => w.MenuID == s.Key).IsActive,
-                SubMenuList = (from a in resMenu.Select(s => s.SubMenu)
+                menuid = s.Key,
+                seq = s.FirstOrDefault(w => w.menuid == s.Key).seq,
+                menuname_th = s.FirstOrDefault(w => w.menuid == s.Key).menuname_th,
+                menuname_en = s.FirstOrDefault(w => w.menuid == s.Key).menuname_en,
+                description = s.FirstOrDefault(w => w.menuid == s.Key).description,
+				cms_icon_name = s.FirstOrDefault(w => w.menuid == s.Key).cms_icon_name,
+                cms_link = s.FirstOrDefault(w => w.menuid == s.Key).cms_link,
+                cms_title = s.FirstOrDefault(w => w.menuid == s.Key).cms_title,
+                isactive = s.FirstOrDefault(w => w.menuid == s.Key).isactive,
+                submenulist = (from a in resMenu.Select(s => s.SubMenu)
                                where a.MenuID == s.Key && a.IsActive
                                select new SubMenuResponseDTO
                                {
-                                   SubMenuID = a.SubMenuID,
-                                   Seq = a.Seq,
-                                   MenuName_TH = a.MenuName_TH,
-                                   MenuName_EN = a.MenuName_EN,
-                                   Description = a.Description,
-                                   CMS_ControllerName = a.CMS_ControllerName,
-                                   CMS_ActionName = a.CMS_ActionName,
-                                   CMS_I_Class = a.CMS_I_Class,
-                                   CMS_Span_Class = a.CMS_Span_Class,
-                                   CMS_Link = a.CMS_Link,
-                                   IsActive = a.IsActive
+                                   submenuid = a.SubMenuID,
+                                   seq = a.Seq,
+                                   menuname_th = a.MenuName_TH,
+                                   menuname_en = a.MenuName_EN,
+                                   description = a.Description,
+                                   cms_controllername = a.CMS_ControllerName,
+                                   cms_actionname = a.CMS_ActionName,
+                                   cms_i_class = a.CMS_I_Class,
+                                   cms_span_class = a.CMS_Span_Class,
+                                   cms_link = a.CMS_Link,
+                                   isactive = a.IsActive
                                }).ToList()
-            }).Where(w => w.IsActive).ToList();
+            }).Where(w => w.isactive).ToList();
         #endregion
 
         return new BaseResponse<List<GetMenuByRoleIDResponseDTO>>
         {
-            Result = true,
-            Data = resMapiing,
-            Message = "Success",
-            Soruce = "db",
-            Status = StatusCodes.Status200OK.ToString()
+            result = true,
+            data = resMapiing,
+            message = "Success",
+            soruce = "db",
+            status = StatusCodes.Status200OK.ToString()
         };
     }
 }

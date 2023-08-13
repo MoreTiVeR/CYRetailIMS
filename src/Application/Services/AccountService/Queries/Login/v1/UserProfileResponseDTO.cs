@@ -7,38 +7,20 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
 
 namespace CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
+
+[Serializable]
 public class UserProfileResponseDTO
 {
-    [JsonPropertyName("userid")]
-    public int UserID { get; set; }
-
-    [JsonPropertyName("roleid")]
-    public int RoleID { get; set; }
-
-    [JsonPropertyName("username")]
-    public string UserName { get; set; }
-
-    [JsonPropertyName("profilepicture")]
-    public string ProfilePicture { get; set; }
-
-    [JsonPropertyName("firstname")]
-    public string FirstName { get; set; }
-
-    [JsonPropertyName("lastname")]
-    public string LastName { get; set; }
-
-    [JsonPropertyName("email")]
-    public string Email { get; set; }
-
-    [JsonPropertyName("lastlogout")]
-    public DateTime? LastLogout { get; set; }
-
-    [JsonPropertyName("isactive")]
-    public bool IsActive { get; set; }
-
-    [JsonPropertyName("approvestatus")]
-    public int? ApproveStatus { get; set; }
-
-    [JsonPropertyName("access_menu")]
-    public List<GetMenuByRoleIDResponseDTO> access_menu { get; set; }
+	public int userid { get; set; }
+	public int roleid { get; set; }
+	public string rolename { get; set; }
+	public string username { get; set; }
+	public object profilepicture { get; set; }
+	public string firstname { get; set; }
+	public string lastname { get; set; }
+	public string email { get; set; }
+	public object lastlogout { get; set; }
+	public bool isactive { get; set; }
+	public int approvestatus { get; set; }
+	public List<GetMenuByRoleIDResponseDTO> access_menu { get; set; }
 }

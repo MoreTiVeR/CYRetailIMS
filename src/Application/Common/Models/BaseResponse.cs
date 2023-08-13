@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models;
 public class BaseResponse<T>
 {
-    public bool Result { get; set; }
-    public string Status { get; set; }
-    public string Message { get; set; }
-    public string Soruce { get; set; }
-    public T Data { get; set; }
-    public ErrorResponse Error { get; set; }
+    public bool result { get; set; }
+    public string status { get; set; }
+    public string message { get; set; }
+    public string soruce { get; set; }
+    public T data { get; set; }
+    public ErrorResponse error { get; set; }
 }

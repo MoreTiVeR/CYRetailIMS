@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models;
 public class ErrorResponse
 {
-    public ErrorData Error { get; set; }
+    public ErrorData error { get; set; }
 }

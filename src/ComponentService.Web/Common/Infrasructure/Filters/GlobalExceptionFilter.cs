@@ -23,23 +23,9 @@ public class GlobalExceptionFilter : IExceptionFilter
         _logger.LogError(context.Exception, "An unhandled exception occurred.");
         var action = context.RouteData.Values["action"].ToString();
         var controller = context.RouteData.Values["controller"].ToString();
-        // Set the result to a custom error page or JSON response
-        // In this example, I'm returning a JSON response with the exception message.
-        //context.Result = new JsonResult(new { error = "An unexpected error occurred." })
-        //{
-        //    StatusCode = 500
-        //};
 
         // Mark the exception as handled
         context.ExceptionHandled = true;
-
-        //Redirect to action
-        //context.Result = RedirectToAction("Error", "InternalError");
-
-        //context.Result = new ViewResult()
-        //{
-        //    ViewName = "Error"
-        //};
 
         ErrorViewModel errorData = new ErrorViewModel
         {

@@ -26,11 +26,13 @@ public static class ConfigureService
         #region Auto Mapper Configurations
         var mappingConfig = new MapperConfiguration(mc =>
         {
+            #region API
             mc.AddProfile<CreateEmployeeMappingProfile>();
             mc.AddProfile<GetMenuByRoleIDMappingProfile>();
             //mc.AddProfile<SampleBusinessValidatioMappingProfile>();
             //mc.AddProfile<GetEmployeeByCodeMappingProfile>();
             //mc.AddProfile<CreateEmployeeMappingProfile>();
+            #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();
         services.AddSingleton(mapper);
