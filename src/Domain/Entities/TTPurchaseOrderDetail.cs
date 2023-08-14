@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CYRetailIMS.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
 [Table("TTPurchaseOrderDetail")]
-public partial class TTPurchaseOrderDetail
+public partial class TTPurchaseOrderDetail : BaseAuditableEntity
 {
     [Key]
     public int PurchaseOrderDetailID { get; set; }
@@ -45,23 +46,6 @@ public partial class TTPurchaseOrderDetail
 
     [Column(TypeName = "decimal(8, 4)")]
     public decimal Total { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string CreatedBy { get; set; } = null!;
-
-    [Column(TypeName = "datetime")]
-    public DateTime CreadedDate { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? UpdatedBy { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? UpdatedDate { get; set; }
-
-    [Required]
-    public bool? Status { get; set; }
 
     [ForeignKey("PurchaseOrderID")]
     [InverseProperty("TTPurchaseOrderDetails")]

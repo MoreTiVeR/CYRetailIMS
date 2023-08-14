@@ -10,6 +10,6 @@ using MediatR;
 namespace CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
 public record GetMenuByRoleIDQuery : IRequest<BaseResponse<List<GetMenuByRoleIDResponseDTO>>>
 {
-    [Required]
-    public int RoleID { get; init; }
+    [Required(ErrorMessage = "Role id is required")]
+    public int roleid { get; init; }
 }

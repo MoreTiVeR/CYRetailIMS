@@ -11,18 +11,17 @@
 <div class="account-content">
     <div class="login-wrapper">
         <div class="login-content">
-            <form id="frmLogin" onsubmit="return Login(this)">
-                <div class="login-userset">
-                    <div class="login-logo logo-normal">
-                        <img src="../assets/img/logo.png" alt="img">
-                    </div>
-                    <a href="index.html" class="login-logo logo-white">
-                        <img src="../assets/img/logo-white.png" alt="">
-                    </a>
-                    <div class="login-userheading">
-                        <h3>Sign In</h3>
-                        <h4>Please login to your account</h4>
-                    </div>
+            <div class="login-userset">
+                <div class="login-logo logo-normal">
+                    <img src="assets/img/logo_cy.png" alt="img">
+                </div>
+                <a href="index.html" class="login-logo logo-white">
+                    <img src="assets/img/logo-white.png" alt="">
+                </a>
+                <div class="login-userheading">
+                    <h3>เข้าสู่ระบบ</h3>
+                </div>
+                <form id="frmLogin" class="form-login" onsubmit="return Login(this)">
                     <div class="form-login">
                         <label>UserName</label>
                         <div class="form-addons">
@@ -45,35 +44,35 @@
                         </div>
                     </div>
                     <div class="form-login">
-                        <button id="btnLogin" type="submit" class="btn btn-login" >Sign In</button>
+                        <button id="btnLogin" type="submit" class="btn btn-login">ล็อกอิน</button>
                     </div>
-                    <div class="signinform text-center">
-                        <h4>Don’t have an account? <a href="signup.html" class="hover-a">Sign Up</a></h4>
-                    </div>
-                    <div class="form-setlogin">
-                        <h4>Or sign up with</h4>
-                    </div>
-                    <div class="form-sociallink">
-                        <ul>
-                            <li>
-                                <a href="javascript:void(0);">
-                                    <img src="../assets/img/icons/google.png" class="me-2" alt="google">
-                                    Sign Up using Google
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript:void(0);">
-                                    <img src="../assets/img/icons/facebook.png" class="me-2" alt="google">
-                                    Sign Up using Facebook
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                </form>
+                <div class="signinform text-center">
+                    <h4>ยังไม่มีบัญชีผู้ใช้งาน? <a href="signup.html" class="hover-a">คลิกเพื่อลงทะเบียน</a></h4>
                 </div>
-            </form>
+                <div class="form-setlogin">
+                    <h4>หรือ เข้าสู่ระบบด้วย</h4>
+                </div>
+                <div class="form-sociallink">
+                    <ul>
+                        <li>
+                            <a href="javascript:void(0);">
+                                <img src="assets/img/icons/google.png" class="me-2" alt="google">
+                                เข้าสู่ระบบด้วย Google
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);">
+                                <img src="assets/img/icons/facebook.png" class="me-2" alt="google">
+                                เข้าสู่ระบบด้วย Facebook
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div class="login-img">
-            <img src="../assets/img/login.jpg" alt="img">
+            <img src="assets/img/login.jpg" alt="img">
         </div>
     </div>
 </div>

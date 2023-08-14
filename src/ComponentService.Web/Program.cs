@@ -70,4 +70,11 @@ public class Program
 
         app.Run();
     }
+
+    //public static void RegisterBundles(BundleCollection bundles)
+    //{
+    //    bundles.Add(new ScriptBundle("~/bundles/js").Include(
+    //      "~/Scripts/bootstrap.js",
+    //      "~/Scripts/jquery-3.3.1.js"));
+    //}
 }

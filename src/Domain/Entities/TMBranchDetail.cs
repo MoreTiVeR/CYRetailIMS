@@ -37,9 +37,6 @@ public partial class TMBranchDetail : BaseAuditableEntity
     [Unicode(false)]
     public string ZipCode { get; set; } = null!;
 
-    [Required]
-    public bool? Status { get; set; }
-
     [ForeignKey("BranchID")]
     [InverseProperty("TMBranchDetail")]
     public virtual TMBranch Branch { get; set; } = null!;

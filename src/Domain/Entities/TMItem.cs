@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CYRetailIMS.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
 [Table("TMItem")]
-public partial class TMItem
+public partial class TMItem : BaseAuditableEntity
 {
     [Key]
     public int ItemID { get; set; }
@@ -18,15 +19,21 @@ public partial class TMItem
 
     public int ItemTypeID { get; set; }
 
+    public int BrandID { get; set; }
+
     public int UnitOfMeasureID { get; set; }
 
-    [StringLength(50)]
+    [StringLength(100)]
     [Unicode(false)]
     public string Name { get; set; } = null!;
 
     [StringLength(5)]
     [Unicode(false)]
     public string? ShortName { get; set; }
+
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Description { get; set; }
 
     [StringLength(13)]
     [Unicode(false)]
@@ -38,22 +45,9 @@ public partial class TMItem
     [Unicode(false)]
     public string? ItemImageUrl { get; set; }
 
-    [StringLength(10)]
-    [Unicode(false)]
-    public string CreatedBy { get; set; } = null!;
-
-    [Column(TypeName = "datetime")]
-    public DateTime CreadedDate { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? UpdatedBy { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? UpdatedDate { get; set; }
-
-    [Required]
-    public bool? Status { get; set; }
+    [ForeignKey("BrandID")]
+    [InverseProperty("TMItems")]
+    public virtual TMItemBrand Brand { get; set; } = null!;
 
     [ForeignKey("ItemTypeID")]
     [InverseProperty("TMItems")]

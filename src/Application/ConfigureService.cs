@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Behaviours;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureByID.v1;
+using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,9 +32,9 @@ public static class ConfigureService
             #region API
             mc.AddProfile<CreateEmployeeMappingProfile>();
             mc.AddProfile<GetMenuByRoleIDMappingProfile>();
-            //mc.AddProfile<SampleBusinessValidatioMappingProfile>();
-            //mc.AddProfile<GetEmployeeByCodeMappingProfile>();
-            //mc.AddProfile<CreateEmployeeMappingProfile>();
+            mc.AddProfile<GetUnitOfMeasureByIDMappingProfile>();
+            mc.AddProfile<GetUnitOfMeasureListMappingProfile>();
+            mc.AddProfile<GetItemByIDMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

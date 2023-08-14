@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 
 [Route("api/v{version:apiVersion}/account")]
-[ApiController]
 public class AccountController : BaseApiController
 {
     public AccountController(ILog4NetLogger log) : base(log)

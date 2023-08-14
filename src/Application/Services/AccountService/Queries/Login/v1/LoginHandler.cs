@@ -55,7 +55,7 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
                                               access_menu = new List<GetMenuByRoleIDResponseDTO>()
                                           }).FirstOrDefault();
 
-        BaseResponse<List<GetMenuByRoleIDResponseDTO>> resMenu = await _getMenuByRoleIDHandler.Handle(new GetMenuByRoleIDQuery { RoleID = resUser.FirstOrDefault().RoleID }, CancellationToken.None);
+        BaseResponse<List<GetMenuByRoleIDResponseDTO>> resMenu = await _getMenuByRoleIDHandler.Handle(new GetMenuByRoleIDQuery { roleid = resUser.FirstOrDefault().RoleID }, CancellationToken.None);
         if (resMenu.result)
         {
             resData.access_menu = resMenu.data;

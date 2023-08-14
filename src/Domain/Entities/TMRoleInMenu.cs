@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CYRetailIMS.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
 [PrimaryKey("RoleID", "MenuID", "SubMenuID")]
-public partial class TMRoleInMenus
+public partial class TMRoleInMenu
 {
     [Key]
     public int RoleID { get; set; }

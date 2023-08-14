@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
-public partial class TMRole: BaseAuditableEntity
+public partial class TMRole : BaseAuditableEntity
 {
     [Key]
     public int RoleID { get; set; }
@@ -21,7 +21,7 @@ public partial class TMRole: BaseAuditableEntity
     public string? Description { get; set; }
 
     [InverseProperty("Role")]
-    public virtual ICollection<TMRoleInMenus> TMRoleInMenus { get; set; } = new List<TMRoleInMenus>();
+    public virtual ICollection<TMRoleInMenu> TMRoleInMenus { get; set; } = new List<TMRoleInMenu>();
 
     [InverseProperty("Role")]
     public virtual ICollection<TMUsers> TMUsers { get; set; } = new List<TMUsers>();

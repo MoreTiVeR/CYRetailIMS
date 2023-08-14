@@ -12,7 +12,7 @@ public class GetMenuByRoleIDMappingProfile : Profile
     public GetMenuByRoleIDMappingProfile()
     {
         CreateMap<TMSubMenus, SubMenuResponseDTO>();
-        CreateMap<TMRoleInMenus, GetMenuByRoleIDResponseDTO>()
+        CreateMap<TMRoleInMenu, GetMenuByRoleIDResponseDTO>()
             .ForMember(m => m.menuid, f => f.MapFrom(x => x.Menu.MenuID))
             .ForMember(m => m.seq, f => f.MapFrom(x => x.Menu.Seq))
             .ForMember(m => m.menuname_th, f => f.MapFrom(x => x.Menu.MenuName_TH))

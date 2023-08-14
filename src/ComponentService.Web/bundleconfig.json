@@ -1,0 +1,43 @@
+[
+  {
+    "outputFileName": "wwwroot/assets/css/bundle/mainlayout.css",
+    "inputFiles": [
+      "wwwroot/assets/css/bootstrap.min.css",
+      "wwwroot/assets/plugins/toastr/toatr.css",
+      "wwwroot/assets/plugins/fontawesome/css/all.min.css",
+      "wwwroot/assets/plugins/fontawesome/css/fontawesome.min.css",
+      "wwwroot/assets/css/bootstrap-datetimepicker.min.css",
+      "wwwroot/assets/css/animate.css",
+      "wwwroot/assets/plugins/select2/css/select2.min.css",
+      "wwwroot/assets/css/dataTables.bootstrap4.min.css",
+      "wwwroot/assets/css/style.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/assets/css/bundle/loginlayout.css",
+    "inputFiles": [
+      "wwwroot/assets/css/bootstrap.min.css",
+      "wwwroot/assets/plugins/toastr/toatr.css",
+      "wwwroot/assets/plugins/fontawesome/css/all.min.css",
+      "wwwroot/assets/plugins/fontawesome/css/fontawesome.min.css",
+      "wwwroot/assets/css/style.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/assets/js/bundle/global_bundle.js",
+    "inputFiles": [
+      "wwwroot/lib/jquery-validation-1.19.5/dist/jquery.validate.min.js",
+      "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
+      "wwwroot/lib/jquery-ajax-unobtrusive-master/src/jquery.unobtrusive-ajax.min.js",
+      "wwwroot/assets/js/jquery-3.6.0.min.js"
+    ]
+  }
+]

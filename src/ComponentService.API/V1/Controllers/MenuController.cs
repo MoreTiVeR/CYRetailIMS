@@ -41,7 +41,7 @@ public class MenuController : BaseApiController
     public async Task<IActionResult> GetMenuByRoleIDAsync(int roleid)
     {
         DateTime dtStart = DateTime.Now;
-        BaseResponse<List<GetMenuByRoleIDResponseDTO>> res = await Mediator.Send(new GetMenuByRoleIDQuery { RoleID = roleid });
+        BaseResponse<List<GetMenuByRoleIDResponseDTO>> res = await Mediator.Send(new GetMenuByRoleIDQuery { roleid = roleid });
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));

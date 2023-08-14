@@ -10,6 +10,6 @@ public class GetMenuByRoleIDValidator : AbstractValidator<GetMenuByRoleIDQuery>
 {
     public GetMenuByRoleIDValidator()
     {
-        RuleFor(r => r.RoleID).NotNull().Must(m => m > 0).WithMessage("Invalid requst");
+        RuleFor(r => r.roleid).NotNull().Must(m => m > 0).WithMessage("Invalid requst");
     }
 }

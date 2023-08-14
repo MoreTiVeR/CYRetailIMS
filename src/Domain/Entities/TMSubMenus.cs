@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Domain.Entities;
 
-[Table("TMSubMenus")]
 public partial class TMSubMenus : BaseAuditableEntity
 {
     [Key]
@@ -25,17 +24,17 @@ public partial class TMSubMenus : BaseAuditableEntity
     [Unicode(false)]
     public string MenuName_TH { get; set; } = null!;
 
-    [StringLength(50)]
+    [StringLength(500)]
     [Unicode(false)]
     public string? Description { get; set; }
 
     [StringLength(20)]
     [Unicode(false)]
-    public string? CMS_ControllerName { get; set; }
+    public string CMS_ControllerName { get; set; } = null!;
 
     [StringLength(30)]
     [Unicode(false)]
-    public string? CMS_ActionName { get; set; }
+    public string CMS_ActionName { get; set; } = null!;
 
     [StringLength(150)]
     [Unicode(false)]
@@ -50,5 +49,5 @@ public partial class TMSubMenus : BaseAuditableEntity
     public string? CMS_Link { get; set; }
 
     [InverseProperty("SubMenu")]
-    public virtual ICollection<TMRoleInMenus> TMRoleInMenus { get; set; } = new List<TMRoleInMenus>();
+    public virtual ICollection<TMRoleInMenu> TMRoleInMenus { get; set; } = new List<TMRoleInMenu>();
 }

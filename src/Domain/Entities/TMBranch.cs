@@ -21,23 +21,6 @@ public partial class TMBranch : BaseAuditableEntity
     [Unicode(false)]
     public string BranchName { get; set; } = null!;
 
-    [StringLength(10)]
-    [Unicode(false)]
-    public string CreatedBy { get; set; } = null!;
-
-    [Column(TypeName = "datetime")]
-    public DateTime CreadedDate { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? UpdatedBy { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? UpdatedDate { get; set; }
-
-    [Required]
-    public bool? Status { get; set; }
-
     [InverseProperty("Branch")]
     public virtual TMBranchDetail? TMBranchDetail { get; set; }
 

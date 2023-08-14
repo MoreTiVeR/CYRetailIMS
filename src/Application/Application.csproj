@@ -17,10 +17,15 @@
     <Folder Include="Services\EmployeeService\Commands\UpdateEmployee\" />
     <Folder Include="Services\DepartmentService\" />
     <Folder Include="Services\EmployeeService\Queries\v1\" />
+    <Folder Include="Services\ItemService\Commands\" />
+    <Folder Include="Services\ItemService\EventHandlers\" />
+    <Folder Include="Services\ItemService\Queries\GetItemList\v1\" />
     <Folder Include="Services\MenuService\Commands\" />
     <Folder Include="Services\MenuService\EventHandlers\" />
     <Folder Include="Services\MenuService\Queries\GetMenuList\v1\" />
     <Folder Include="Services\RoleService\" />
+    <Folder Include="Services\UnitOfMeasureService\Commands\" />
+    <Folder Include="Services\UnitOfMeasureService\EventHandlers\" />
     <Folder Include="Services\UserService\" />
   </ItemGroup>
 

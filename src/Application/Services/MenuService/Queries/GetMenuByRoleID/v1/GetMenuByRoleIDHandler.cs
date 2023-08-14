@@ -43,14 +43,14 @@ public class GetMenuByRoleIDHandler : BaseService, IRequestHandler<GetMenuByRole
         #endregion
 
         #region Option#2
-        IQueryable<TMRoleInMenus> resMenu = await _unitOfWork.Repository<TMRoleInMenus>()
-            .FindWithInclude(w => w.RoleID == request.RoleID, x => x.Include(ss => ss.Menu), x2 => x2.Include(ss2 => ss2.SubMenu));
+        IQueryable<TMRoleInMenu> resMenu = await _unitOfWork.Repository<TMRoleInMenu>()
+            .FindWithInclude(w => w.RoleID == request.roleid, x => x.Include(ss => ss.Menu), x2 => x2.Include(ss2 => ss2.SubMenu));
 
         if (resMenu?.Count() == 0)
         {
             throw new Exception("Data Not Found");
         }
-        List<GetMenuByRoleIDResponseDTO> resMapiing = _mapper.Map<List<TMRoleInMenus>, List<GetMenuByRoleIDResponseDTO>>(resMenu.ToList())
+        List<GetMenuByRoleIDResponseDTO> resMapiing = _mapper.Map<List<TMRoleInMenu>, List<GetMenuByRoleIDResponseDTO>>(resMenu.ToList())
             .GroupBy(g => g.menuid)
             .Select(s => new GetMenuByRoleIDResponseDTO
             {

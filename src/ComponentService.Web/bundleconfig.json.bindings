@@ -1,0 +1,1 @@
+﻿///<binding BeforeBuild='wwwroot/assets/css/style.min.css' AfterBuild='Update all files, wwwroot/assets/css/style.min.css' Clean='wwwroot/assets/css/style.min.css' />
