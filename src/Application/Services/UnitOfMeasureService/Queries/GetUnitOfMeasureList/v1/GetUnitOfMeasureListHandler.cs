@@ -20,7 +20,7 @@ public class GetUnitOfMeasureListHandler : BaseService, IRequestHandler<GetUnitO
     public async Task<BaseResponse<List<GetUnitOfMeasureListResponseDTO>>> Handle(GetUnitOfMeasureListQuery request, CancellationToken cancellationToken)
     {
         IEnumerable<TMUnitOfMeasure> resData = await _unitOfWork.Repository<TMUnitOfMeasure>().FindListAsync(w => w.IsActive);
-        if(resData.Count() == 0)
+        if(!resData.Any())
         {
             throw new Exception("Data not found");
         }

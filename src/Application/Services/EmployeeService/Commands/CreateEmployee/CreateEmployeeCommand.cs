@@ -9,6 +9,8 @@ using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
 namespace CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
+
+[Serializable]
 public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
 {
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
@@ -18,33 +20,33 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     [MaxLength(50, ErrorMessage ="Maximum length 50")]
     [JsonPropertyName("firstname")]
-    public string firstname { get; set; }
+    public string firstname { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     [MaxLength(50, ErrorMessage = "Maximum length 50")]
     [JsonPropertyName("lastname")]
-    public string lastname { get; set; }
+    public string lastname { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     [MaxLength(50, ErrorMessage = "Maximum length 50")]
     [JsonPropertyName("email")]
-    public string email { get; set; }
+    public string email { get; init; }
 
     [JsonPropertyName("salary")]
-    public decimal salary { get; set; }
+    public decimal salary { get; init; }
 
     [JsonPropertyName("startworkingdate")]
-    public DateTime startworkingdate { get; set; }
+    public DateTime startworkingdate { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     [MaxLength(20, ErrorMessage = "Maximum length 20")]
     [JsonPropertyName("username")]
-    public string username { get; set; }
+    public string username { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     [MaxLength(20, ErrorMessage = "Maximum length 50")]
     [JsonPropertyName("password")]
-    public string password { get; set; }
+    public string password { get; init; }
 
     [Required(ErrorMessage = "Required field")]
     [JsonPropertyName("roleid")]

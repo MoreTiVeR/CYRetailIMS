@@ -30,7 +30,7 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
     {
         string secretKey = _configuration.GetSection("AppSettings")["SECRET_KEY"];
         byte[] bytePass = $"{request.username.Trim().ToLower()}{secretKey}{request.password}".ToMD5Password();
-        IQueryable<TMUsers> resUser = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == request.username && w.Password == bytePass, 
+        IQueryable<TMUsers> resUser = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == request.username && w.Password == bytePass && w.IsActive, 
             i => i.Include(x => x.TMEmployees),
             ii => ii.Include(xx => xx.Role));
         if(resUser?.Count() == 0)

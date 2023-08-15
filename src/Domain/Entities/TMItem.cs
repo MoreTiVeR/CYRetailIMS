@@ -39,7 +39,7 @@ public partial class TMItem : BaseAuditableEntity
     [Unicode(false)]
     public string? BarCode { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(8, 2)")]
     public decimal Price { get; set; }
 
     [Unicode(false)]

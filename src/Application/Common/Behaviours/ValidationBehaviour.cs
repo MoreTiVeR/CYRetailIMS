@@ -33,7 +33,10 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
                 .ToList();
 
             if (failures.Any())
-                throw new ValidationException($"Validation failed: {failures.Select(s => s.ErrorMessage).Aggregate((s, t) => s + "|" + t)}");
+            {
+                throw new ValidationException($"{failures.Select(s => s.ErrorMessage).Aggregate((s, t) => s + "|" + t)}");
+                //throw new ValidationException($"Validation failed: {failures.Select(s => s.ErrorMessage).Aggregate((s, t) => s + "|" + t)}");
+            }    
         }
         return await next();
     }

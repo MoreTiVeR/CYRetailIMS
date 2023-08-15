@@ -7,7 +7,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Behaviours;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
+using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandByID.v1;
+using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
+using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeByID.v1;
+using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureByID.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
@@ -34,7 +40,17 @@ public static class ConfigureService
             mc.AddProfile<GetMenuByRoleIDMappingProfile>();
             mc.AddProfile<GetUnitOfMeasureByIDMappingProfile>();
             mc.AddProfile<GetUnitOfMeasureListMappingProfile>();
+
+            mc.AddProfile<CreateItemMappingProfile>();
             mc.AddProfile<GetItemByIDMappingProfile>();
+            mc.AddProfile<GetItemListMappingProfile>();
+
+            mc.AddProfile<GetItemTypeByIDMappingProfile>();
+            mc.AddProfile<GetItemTypeListMappingProfile>();
+
+            mc.AddProfile<GetItemBrandByIDMappingProfile>();
+            mc.AddProfile<GetItemBrandListMappingProfile>();
+            
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

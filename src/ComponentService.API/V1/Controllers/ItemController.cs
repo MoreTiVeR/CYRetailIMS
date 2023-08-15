@@ -1,6 +1,8 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +17,23 @@ public class ItemController : BaseApiController
     {
     }
 
+    [HttpPost]
+    [Route("v1/create")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateItemAsync(CreateItemCommand createItemCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(createItemCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CreateItemAsync Success");
+        return Ok(res.data);
+    }
+
+
     [HttpGet]
     [Route("v1/getitembyid/{itemid}")]
     [ProducesResponseType(typeof(GetItemByIDResponseDTO), StatusCodes.Status200OK)]
@@ -28,6 +47,22 @@ public class ItemController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetItemByIDAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpGet]
+    [Route("v1/getitemlist")]
+    [ProducesResponseType(typeof(List<GetItemListResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemsAsync()
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetItemListResponseDTO>> res = await Mediator.Send(new GetItemListQuery());
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemsAsync Success");
         return Ok(res.data);
     }
 }

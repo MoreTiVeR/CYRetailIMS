@@ -17,9 +17,12 @@
     <Folder Include="Services\EmployeeService\Commands\UpdateEmployee\" />
     <Folder Include="Services\DepartmentService\" />
     <Folder Include="Services\EmployeeService\Queries\v1\" />
-    <Folder Include="Services\ItemService\Commands\" />
-    <Folder Include="Services\ItemService\EventHandlers\" />
-    <Folder Include="Services\ItemService\Queries\GetItemList\v1\" />
+    <Folder Include="Services\ItemBrandService\Commands\" />
+    <Folder Include="Services\ItemBrandService\EventHandlers\" />
+    <Folder Include="Services\ItemService\Commands\DeleteItem\" />
+    <Folder Include="Services\ItemService\Commands\UpdateItem\" />
+    <Folder Include="Services\ItemTypeService\EventHandlers\" />
+    <Folder Include="Services\ItemTypeService\Commands\" />
     <Folder Include="Services\MenuService\Commands\" />
     <Folder Include="Services\MenuService\EventHandlers\" />
     <Folder Include="Services\MenuService\Queries\GetMenuList\v1\" />

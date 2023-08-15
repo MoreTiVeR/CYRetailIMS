@@ -41,7 +41,7 @@ public class GetItemByIDHandler : BaseService, IRequestHandler<GetItemByIDQuery,
                                                            itemimageurl = a.ItemImageUrl,
                                                            price = a.Price
                                                        }).AsEnumerable();
-        if(resData.Count() == 0)
+        if(!resData.Any())
         {
             throw new Exception("Data not found");
         }

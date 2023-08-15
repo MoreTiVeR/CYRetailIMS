@@ -8,6 +8,8 @@ using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
 namespace CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
+
+[Serializable]
 public record GetItemByIDQuery : IRequest<BaseResponse<GetItemByIDResponseDTO>>
 {
     [Required(ErrorMessage = "Item id is required")]
