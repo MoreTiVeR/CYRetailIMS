@@ -14,7 +14,32 @@ public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery,
 
     public async Task<BaseResponse<List<GetItemListResponseDTO>>> Handle(GetItemListQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<TMItem> resItems = await _unitOfWork.Repository<TMItem>().FindListAsync(w => w.IsActive);
+        //IEnumerable<TMItem> resItems = await _unitOfWork.Repository<TMItem>().FindListAsync(w => w.IsActive);
+        IEnumerable<GetItemListResponseDTO> resItems = (from a in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.IsActive)
+                                                        join b in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on a.ItemTypeID equals b.ItemTypeID
+                                                        join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on a.BrandID equals c.BrandID
+                                                        join d in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on a.UnitOfMeasureID equals d.UnitOfMeasureID
+                                                        join e in await _unitOfWork.Repository<TMStock>().QueryAsync(w => w.IsActive) on a.ItemID equals e.ItemID
+                                                        into left_e from p in left_e.DefaultIfEmpty()
+                                                        select new GetItemListResponseDTO
+                                                        {
+                                                            itemid = a.ItemID,
+                                                            itemcode = a.ItemCode,
+                                                            name = a.Name,
+                                                            shortname = a.ShortName,
+                                                            itemtypeid = a.ItemTypeID,
+                                                            itemtypename = b.ItemTypeName,
+                                                            brandid = a.BrandID,
+                                                            brandname = c.BrandName,
+                                                            unitofmeasureid = a.UnitOfMeasureID,
+                                                            unitofmeasurename = d.UnitOfMeasureName,
+                                                            barcode = a.BarCode,
+                                                            description = a.Description,
+                                                            itemimageurl = a.ItemImageUrl,
+                                                            price = a.Price,
+                                                            qty = p != null ? p.QtyInStock : 0,
+                                                            createdby = a.CreatedBy,
+                                                        }).AsEnumerable();
         if (!resItems.Any())
         {
             throw new Exception("Data not found");

@@ -32,7 +32,7 @@ public class AccountController : BaseController
     public async Task<IActionResult> Authen([FromBody] LoginViewModel loginObj)
     {
         BaseResponse<UserProfileResponseDTO> resLogin = await _httpClientRequest.HttpRequestToObject<UserProfileResponseDTO,
-                    LoginQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}api/v1/account/v1/login"),
+                    LoginQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/account/v1/login"),
                     new LoginQuery { username = loginObj.UserName, password = loginObj.Password });
         if (resLogin.result)
         {

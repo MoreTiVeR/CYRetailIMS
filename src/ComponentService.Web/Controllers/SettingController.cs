@@ -4,7 +4,7 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Staff, RoleName.AccountingOfficer, RoleName.Manager)]
+[CustomAuthorize(RoleName.Admin)]
 public class SettingController : Controller
 {
     public IActionResult Index()

@@ -23,7 +23,7 @@ function Login(form) {
             success: function (data) {
                 if (data.result) {
                     //popup.dialog('close');
-                    ShowMessage(data.message);
+                    ShowMessageSuccess(data.message);
 
                     //To do next?
                     window.location = data.url;

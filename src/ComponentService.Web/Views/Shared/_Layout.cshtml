@@ -22,7 +22,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/img/favicon.png">
 
     <!-- Bootstrap CSS -->
-@*    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    @*    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
 
     <!-- Datetimepicker CSS -->
     <link rel="stylesheet" href="~/assets/css/bootstrap-datetimepicker.min.css">
@@ -77,6 +77,14 @@
     <!-- jQuery -->
     <script src="~/assets/js/jquery-3.6.0.min.js" asp-append-version="true"></script>
 
+    <!--Jquery validate Unobtrusive-->
+    <script src="~/lib/jquery-validation-1.19.5/dist/jquery.validate.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery-ajax-unobtrusive-master/src/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+    <!--serializeJSON js-->
+    <script src="~/lib/marioizquierdo-jquery.serializeJSON/jquery.serializejson.min.js" asp-append-version="true"></script>
+
     <!-- Feather Icon JS -->
     <script src="~/assets/js/feather.min.js" asp-append-version="true"></script>
 
@@ -94,8 +102,15 @@
     <script src="~/assets/plugins/apexchart/apexcharts.min.js" asp-append-version="true"></script>
     <script src="~/assets/plugins/apexchart/chart-data.js" asp-append-version="true"></script>
 
+    <!-- Select2 JS -->
+    <script src="~/assets/plugins/select2/js/select2.min.js"></script>
+
+    <!-- Sweetalert 2 -->
+    <script src="~/assets/plugins/sweetalert/sweetalert2.all.min.js"></script>
+    <script src="~/assets/plugins/sweetalert/sweetalerts.min.js"></script>
+
     <!-- Custom JS -->
     <script src="~/assets/js/script.js" asp-append-version="true"></script>
-
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

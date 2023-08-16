@@ -37,4 +37,8 @@ public class GetItemByIDResponseDTO
 
     public string itemimageurl { get; set; }
 
+    public int qty { get; set; }
+
+    public string createdby { get; set; }
+
 }

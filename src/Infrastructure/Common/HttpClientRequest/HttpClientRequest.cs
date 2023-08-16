@@ -25,7 +25,7 @@ public class HttpClientRequest : IHttpClientRequest
         _cyApiUrl = configuration.GetSection("CyApiUrl").Get<string>();
     }
 
-    private async Task<HttpResponseMessage> Invoke<TReq>(HttpMethod method, Uri Endpoint, TReq Req)
+    private async Task<HttpResponseMessage> Invoke<TReq>(HttpMethod method, Uri Endpoint, TReq? Req)
     {
         HttpResponseMessage Response;
         HttpRequestMessage ReqMsg = new HttpRequestMessage(method, Endpoint);
@@ -39,7 +39,7 @@ public class HttpClientRequest : IHttpClientRequest
         return Response;
     }
 
-    public async Task<BaseResponse<TRes>> HttpRequestToObject<TRes, TReq>(HttpMethod method, Uri Endpoint, TReq Req)
+    public async Task<BaseResponse<TRes>> HttpRequestToObject<TRes, TReq>(HttpMethod method, Uri Endpoint, TReq? Req)
     {
         HttpResponseMessage response = await Invoke(method, Endpoint, Req);
         string SearchResultString = await response.Content.ReadAsStringAsync();

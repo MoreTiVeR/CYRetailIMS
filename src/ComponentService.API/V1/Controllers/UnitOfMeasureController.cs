@@ -18,7 +18,7 @@ public class UnitOfMeasureController : BaseApiController
 
     [HttpGet]
     [Route("v1/getunitofmeasure")]
-    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<GetUnitOfMeasureListResponseDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUnitOfMeasureListAsync()

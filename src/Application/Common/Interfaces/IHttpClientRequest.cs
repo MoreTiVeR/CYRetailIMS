@@ -9,5 +9,5 @@ namespace CYRetailIMS.Application.Common.Interfaces;
 public interface IHttpClientRequest
 {
     string CYApiUrl { get; }
-    Task<BaseResponse<TRes>> HttpRequestToObject<TRes, TReq>(HttpMethod method, Uri Endpoint, TReq Req);
+    Task<BaseResponse<TRes>> HttpRequestToObject<TRes, TReq>(HttpMethod method, Uri Endpoint, TReq? Req);
 }
