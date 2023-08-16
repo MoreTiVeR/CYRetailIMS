@@ -112,14 +112,17 @@
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
-                        <th>Item Name</th>
-                        <th>SKU</th>
-                        <th>Category </th>
+                        <th>Product Code</th>
+                        <th>Product Name</th>
+                        <th>Type</th>
                         <th>Brand</th>
-                        <th>price</th>
-                        <th>Unit</th>
                         <th>Qty</th>
+                        <th>Cost</th>
+                        <th>Sale</th>
+                        <th>Detail</th>
                         <th>Created By</th>
+                        <th>Updated By</th>
+                        <th>Updated Date</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -128,6 +131,7 @@
                     {
                         foreach (var item in (List<GetItemListResponseDTO>)ViewBag.ItemList.data)
                         {
+                            Dictionary<string, string> aItemID = new Dictionary<string, string> { { "itemid", item.itemid.ToString() } };
                             <tr>
                                 <td>
                                     <label class="checkboxs">
@@ -136,26 +140,29 @@
                                     </label>
                                 </td>
                                 <td class="productimgname">
-                                    <a href="javascript:void(0);" class="product-img">
+                                    <a asp-action="Detail" asp-controller="Item" asp-all-route-data="aItemID" title="คลิกเพื่อดูรายละเอียด" class="product-img">
                                         <img src="@item.itemimageurl" alt="product">
                                     </a>
-                                    <a href="javascript:void(0);">@item.name</a>
+                                    <a asp-action="Detail" asp-controller="Item" asp-all-route-data="aItemID">@item.name</a>
                                 </td>
-                                <td>@item.itemcode</td>
                                 <td>@item.itemtypename</td>
+                                <td>@item.itemcode</td>
                                 <td>@item.brandname</td>
-                                <td>@item.price</td>
-                                <td>@item.unitofmeasurename</td>
                                 <td>@item.qty</td>
+                                <td>@item.cost</td>
+                                <td>@item.price</td>
+                                <td>@item.description</td>
                                 <td>@item.createdby</td>
+                                <td>@item.updatedby</td>
+                                <td>@item.updateddate</td>
                                 <td>
-                                    <a class="me-3" href="product-details.html">
+                                    <a class="me-3" asp-action="Detail" asp-controller="Item" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/eye.svg" alt="img">
                                     </a>
-                                    <a class="me-3" href="editproduct.html">
+                                    <a class="me-3" asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">
                                     </a>
-                                    <a class="confirm-text" href="javascript:void(0);">
+                                    <a href="#" class="me-3" onclick="deleteItem(@item.itemid)">
                                         <img src="~/assets/img/icons/delete.svg" alt="img">
                                     </a>
                                 </td>
@@ -168,3 +175,8 @@
     </div>
 </div>
 <!-- /product list -->
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/item/item_index.js" asp-append-version="true"></script>
+}

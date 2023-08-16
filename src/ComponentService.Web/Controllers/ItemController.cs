@@ -57,7 +57,17 @@ public class ItemController : BaseController
 		return View();
 	}
 
-	[HttpPost]
+	public IActionResult Detail(int itemid)
+	{
+		return View();
+	}
+
+	public IActionResult Edit(int itemid)
+	{
+		return View();
+	}
+
+    [HttpPost]
 	public async Task<IActionResult> AddItem([FromBody] AddItemViewModel addItemObj)
 	{
 		CreateItemCommand createItemCommand = CreateItemCommand(addItemObj);

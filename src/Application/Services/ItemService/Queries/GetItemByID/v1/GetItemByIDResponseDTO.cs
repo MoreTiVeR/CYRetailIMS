@@ -33,6 +33,14 @@ public class GetItemByIDResponseDTO
 
     public string barcode { get; set; }
 
+    /// <summary>
+    /// ราคาต้นทุน
+    /// </summary>
+    public decimal cost { get; set; }
+
+    /// <summary>
+    /// ราคาขาย
+    /// </summary>
     public decimal price { get; set; }
 
     public string itemimageurl { get; set; }
@@ -40,5 +48,8 @@ public class GetItemByIDResponseDTO
     public int qty { get; set; }
 
     public string createdby { get; set; }
+
+    public string updatedby { get; set; }
+    public string updateddate { get; set; }
 
 }
