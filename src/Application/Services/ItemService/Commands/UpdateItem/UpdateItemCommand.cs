@@ -7,22 +7,13 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
-namespace CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
+namespace CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 
 [Serializable]
-public record CreateItemCommand : IRequest<BaseResponse<CommandResponse>>
+public class UpdateItemCommand : IRequest<BaseResponse<CommandResponse>>
 {
     [Required]
-    public string itemcode { get; init; }
-
-    [Required]
-    public int itemtypeid { get; init; }
-
-    [Required]
-    public int unitofmeasureid { get; init; }
-
-    [Required]
-    public int brandid { get; init; }
+    public int itemid { get; init; }
 
     [Required]
     public string name { get; init; }
@@ -37,7 +28,7 @@ public record CreateItemCommand : IRequest<BaseResponse<CommandResponse>>
     public decimal price { get; init; }
 
     [Required]
-    public float discountpercent { get; init; }
+    public double discountpercent { get; init; }
 
     [Required]
     public int qty { get; init; }
@@ -48,7 +39,7 @@ public record CreateItemCommand : IRequest<BaseResponse<CommandResponse>>
     public string itemimageurl { get; init; }
 
     [Required]
-    public string createdby { get; init; }
+    public string updatedby { get; init; }
 
     [Required]
     public bool isactive { get; init; }

@@ -19,8 +19,7 @@ public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery,
                                                         join b in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on a.ItemTypeID equals b.ItemTypeID
                                                         join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on a.BrandID equals c.BrandID
                                                         join d in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on a.UnitOfMeasureID equals d.UnitOfMeasureID
-                                                        join e in await _unitOfWork.Repository<TMStock>().QueryAsync(w => w.IsActive) on a.ItemID equals e.ItemID
-                                                        into left_e from p in left_e.DefaultIfEmpty()
+                                                        where a.IsActive
                                                         select new GetItemListResponseDTO
                                                         {
                                                             itemid = a.ItemID,
@@ -37,8 +36,14 @@ public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery,
                                                             description = a.Description,
                                                             itemimageurl = a.ItemImageUrl,
                                                             price = a.Price,
-                                                            qty = p != null ? p.QtyInStock : 0,
+                                                            qty = a.Qty,
                                                             createdby = a.CreatedBy,
+                                                            createddate = a.CreadedDate,
+                                                            cost = a.Cost,
+                                                            discountpercent = a.DiscountPercent,
+                                                            updatedby = a.UpdatedBy,
+                                                            updateddate = a.UpdatedDate,
+                                                            isactive = a.IsActive
                                                         }).AsEnumerable();
         if (!resItems.Any())
         {

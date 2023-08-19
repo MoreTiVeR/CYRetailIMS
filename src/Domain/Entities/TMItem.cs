@@ -27,7 +27,7 @@ public partial class TMItem : BaseAuditableEntity
     [Unicode(false)]
     public string Name { get; set; } = null!;
 
-    [StringLength(5)]
+    [StringLength(20)]
     [Unicode(false)]
     public string? ShortName { get; set; }
 
@@ -40,7 +40,14 @@ public partial class TMItem : BaseAuditableEntity
     public string? BarCode { get; set; }
 
     [Column(TypeName = "decimal(8, 2)")]
+    public decimal Cost { get; set; }
+
+    [Column(TypeName = "decimal(8, 2)")]
     public decimal Price { get; set; }
+
+    public double DiscountPercent { get; set; }
+
+    public int Qty { get; set; }
 
     [Unicode(false)]
     public string? ItemImageUrl { get; set; }

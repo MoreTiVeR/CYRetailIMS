@@ -20,26 +20,35 @@ public class GetItemByIDHandler : BaseService, IRequestHandler<GetItemByIDQuery,
 
     public async Task<BaseResponse<GetItemByIDResponseDTO>> Handle(GetItemByIDQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<GetItemByIDResponseDTO> resData = (from a in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.ItemID == request.itemid && w.IsActive)
-                                                       join b in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on a.BrandID equals b.BrandID
-                                                       join c in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on a.ItemTypeID equals c.ItemTypeID
+        IEnumerable<GetItemByIDResponseDTO> resData = (from a in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.IsActive)
+                                                       join b in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on a.ItemTypeID equals b.ItemTypeID
+                                                       join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on a.BrandID equals c.BrandID
                                                        join d in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on a.UnitOfMeasureID equals d.UnitOfMeasureID
+                                                       where a.ItemID == request.itemid && a.IsActive
                                                        select new GetItemByIDResponseDTO
                                                        {
                                                            itemid = a.ItemID,
                                                            itemcode = a.ItemCode,
                                                            name = a.Name,
                                                            shortname = a.ShortName,
-                                                           brandid = a.BrandID,
-                                                           brandname = b.BrandName,
                                                            itemtypeid = a.ItemTypeID,
-                                                           itemtypename = c.ItemTypeName,
+                                                           itemtypename = b.ItemTypeName,
+                                                           brandid = a.BrandID,
+                                                           brandname = c.BrandName,
                                                            unitofmeasureid = a.UnitOfMeasureID,
                                                            unitofmeasurename = d.UnitOfMeasureName,
                                                            barcode = a.BarCode,
                                                            description = a.Description,
                                                            itemimageurl = a.ItemImageUrl,
-                                                           price = a.Price
+                                                           price = a.Price,
+                                                           qty = a.Qty,
+                                                           createdby = a.CreatedBy,
+                                                           createddate = a.CreadedDate,
+                                                           cost = a.Cost,
+                                                           discountpercent = a.DiscountPercent,
+                                                           updatedby = a.UpdatedBy,
+                                                           updateddate = a.UpdatedDate,
+                                                           isactive = a.IsActive
                                                        }).AsEnumerable();
         if(!resData.Any())
         {

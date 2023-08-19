@@ -6,10 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Behaviours;
+using CYRetailIMS.Application.Common.Mappings.UI;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
+using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeByID.v1;
@@ -42,6 +44,7 @@ public static class ConfigureService
             mc.AddProfile<GetUnitOfMeasureListMappingProfile>();
 
             mc.AddProfile<CreateItemMappingProfile>();
+            mc.AddProfile<UpdateItemMappingProfile>();
             mc.AddProfile<GetItemByIDMappingProfile>();
             mc.AddProfile<GetItemListMappingProfile>();
 
@@ -50,7 +53,7 @@ public static class ConfigureService
 
             mc.AddProfile<GetItemBrandByIDMappingProfile>();
             mc.AddProfile<GetItemBrandListMappingProfile>();
-            
+
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

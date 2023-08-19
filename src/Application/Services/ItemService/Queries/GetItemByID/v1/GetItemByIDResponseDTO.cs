@@ -47,9 +47,16 @@ public class GetItemByIDResponseDTO
 
     public int qty { get; set; }
 
+    public double discountpercent { get; init; }
+
     public string createdby { get; set; }
 
-    public string updatedby { get; set; }
-    public string updateddate { get; set; }
+    public DateTime createddate { get; set; }
+
+    public string? updatedby { get; set; }
+
+    public DateTime? updateddate { get; set; }
+
+    public bool isactive { get; set; }
 
 }

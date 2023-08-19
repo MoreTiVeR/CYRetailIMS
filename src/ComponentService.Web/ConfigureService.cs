@@ -1,10 +1,19 @@
 ﻿using AutoMapper;
 using CYRetailIMS.Application.Common.Interfaces;
+using CYRetailIMS.Application.Common.Mappings.UI;
+using CYRetailIMS.Application.ExternalService.ItemAPI;
+using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
+using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
+using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Common.Mappings.Account;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
+using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
+using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace CYRetailIMS.ComponentService.Web;
@@ -46,8 +55,9 @@ public static class ConfigureService
         #region Auto Mapper Configurations
         var mappingConfig = new MapperConfiguration(mc =>
         {
-            #region WEB
+            #region UI/WEB
             mc.AddProfile<AcountMappingProfile>();
+            mc.AddProfile<ItemMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();
@@ -60,6 +70,13 @@ public static class ConfigureService
 
         services.AddSingleton<CYRetailIMS.Application.Common.Interfaces.ILog4NetLogger, CYRetailIMS.Infrastructure.Common.Logging.Log4NetLogger>();
         services.AddTransient<IDateTimeProvider, DateTimeService>();
+        #endregion
+
+        #region External Service
+        services.AddScoped<IItemAPI, ItemAPI>();
+        services.AddScoped<IItemTypeAPI, ItemTypeAPI>();
+        services.AddScoped<IItemBrandAPI, ItemBrandAPI>();
+        services.AddScoped<IItemUnitOfMeasureAPI, ItemUnitOfMeasureAPI>();
         #endregion
 
         return services;

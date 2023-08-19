@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +11,12 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 
 [Serializable]
 [JsonObject]
-public class AddItemViewModel
+public class EditItemViewModel
 {
+    [Required(ErrorMessage = "*กรุณาระบุไอดีสินค้า")]
+    [DisplayName("ระบุไอดีสินค้า")]
+    public int ItemID { get; set; }
+
     [Required(ErrorMessage = "*กรุณาระบุรหัสสินค้า")]
     //[RegularExpression("^[A-Za-z0-9].{4,20}$", ErrorMessage = "รูปแบบชื่อผู้ใช้งานไม่ถูกต้อง, ตัวอักษรภาษาอังกฤาและตัวเลข ความยาวไม่เกิน20ตัวอักษร")]
     [DisplayName("ระบุรหัสสินค้า")]
@@ -66,6 +70,6 @@ public class AddItemViewModel
 
     [Required(ErrorMessage = "*กรุณาระบุสถานะสินค้า")]
     [DisplayName("ระบุสถานะสินค้า")]
-    public virtual string IsActive { get; set; }
+    public string IsActive { get; set; }
 
 }

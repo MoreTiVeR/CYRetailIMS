@@ -19,8 +19,6 @@
     <Folder Include="Services\EmployeeService\Queries\v1\" />
     <Folder Include="Services\ItemBrandService\Commands\" />
     <Folder Include="Services\ItemBrandService\EventHandlers\" />
-    <Folder Include="Services\ItemService\Commands\DeleteItem\" />
-    <Folder Include="Services\ItemService\Commands\UpdateItem\" />
     <Folder Include="Services\ItemTypeService\EventHandlers\" />
     <Folder Include="Services\ItemTypeService\Commands\" />
     <Folder Include="Services\MenuService\Commands\" />

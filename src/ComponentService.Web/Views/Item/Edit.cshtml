@@ -1,8 +1,203 @@
-﻿
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@model EditItemViewModel
+
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="page-header">
+    <div class="page-title">
+        <h4>เพิ่มสินค้า</h4>
+        <h6>สร้างรายการสินค้าใหม่</h6>
+    </div>
+</div>
+
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <form id="frmEditItem" class="form-edit-item" onsubmit="return EditItem(this)">
+            <input type="hidden" asp-for="ItemID" readonly>
+            <div class="row">
+                <!--ROW1-->
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ชื่อสินค้า</label>
+                        <input type="text" asp-for="Name">
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ประเภทสินค้า</label>
+                        <select class="select" asp-for="ItemTypeID">
+                            @if (ViewBag.ItemTypeList.result)
+                            {
+                                <option>--เลือกประเภทสินค้า--</option>
+                                foreach (var item in ViewBag.ItemTypeList.data)
+                                {
+                                    if (@item.itemtypeid == Model.ItemTypeID)
+                                    {
+                                        <option value="@item.itemtypeid" selected>@item.itemtypename</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.itemtypeid">@item.itemtypename</option>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <option>--ไม่พบข้อมูลประเภทสินค้า--</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ItemTypeID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>แบรนด์สินค้า</label>
+                        <select class="select" asp-for="BrandID">
+                            @if (ViewBag.ItemBrandList.result)
+                            {
+                                <option>--เลือกแบรนด์สินค้า--</option>
+                                foreach (var item in ViewBag.ItemBrandList.data)
+                                {
+                                    if(@item.brandid == Model.BrandID)
+                                    {
+                                        <option value="@item.brandid" selected>@item.brandname</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.brandid">@item.brandname</option>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <option>--ไม่พบข้อมูลแบรนด์สินค้า--</option>
+                            }
+                        </select>
+                        <span asp-validation-for="BrandID" class="text-danger"></span>
+                    </div>
+                </div>
+                <!--ROW2-->
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>หน่วยนับสินค้า</label>
+                        <select class="select" asp-for="UnitOfMeasureID">
+                            @if (ViewBag.ItemUOMList.result)
+                            {
+                                <option>--เลือกหน่วยนับสินค้า--</option>
+                                foreach (var item in ViewBag.ItemUOMList.data)
+                                {
+                                    if(@item.unitofmeasureid == Model.UnitOfMeasureID)
+                                    {
+                                        <option value="@item.unitofmeasureid" selected>@item.unitofmeasurename</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.unitofmeasureid">@item.unitofmeasurename</option>
+                                    }
+                                    
+                                }
+                            }
+                            else
+                            {
+                                <option>--ไม่พบข้อมูลหน่วยนับสินค้า--</option>
+                            }
+                        </select>
+                        <span asp-validation-for="UnitOfMeasureID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>รหัสสินค้า</label>
+                        <input type="text" asp-for="ItemCode">
+                        <span asp-validation-for="ItemCode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>จำนวนสินค้า</label>
+                        <input type="text" asp-for="Qty">
+                        <span asp-validation-for="Qty" class="text-danger"></span>
+                    </div>
+                </div>
+                <!--ROW3-->
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label>รายละเอียดสินค้า</label>
+                        <textarea class="form-control" asp-for="Description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+                <!--ROW4-->
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ส่วนลด</label>
+                        <input type="text" asp-for="DiscountPercent">
+                        <span asp-validation-for="DiscountPercent" class="text-danger"></span>
+                       @* <select class="select">
+                            <option>--ส่วนลด (%)--</option>
+                            <option value="0.5">0.5%</option>
+                            <option value="1">1%</option>
+                        </select>*@
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ราคาสินค้า</label>
+                        <input type="text" asp-for="Price">
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>สถานะเปิดใช้งาน</label>
+                        @{
+                            bool.TryParse(Model.IsActive, out bool outIsActive);
+                        }
+                        <select class="select" asp-for="IsActive">
+                            @if (outIsActive)
+                            {
+                                <option value="1" selected>Active</option>
+                                <option value="0">InActive</option>
+                            }
+                            else
+                            {
+                                <option value="1">Active</option>
+                                <option value="0" selected>InActive</option>
+                            }
+                        </select>
+                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label>รูปภาพสินค้า</label>
+                        <div class="image-upload">
+                            <input type="file">
+                            <div class="image-uploads">
+                                <img src="~/assets/img/icons/upload.svg" alt="img">
+                                <h4>ลาก และ ปล่อย ไฟล์ เพื่ออัพโหลด</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+                    <a class="btn btn-cancel">ยกเลิก</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- /add -->
+
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/item/item_edit.js" asp-append-version="true"></script>
+}
 

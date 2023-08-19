@@ -31,7 +31,7 @@ public class CreateItemHandler : BaseService, IRequestHandler<CreateItemCommand,
         TMItem isExistItem = await _unitOfWork.Repository<TMItem>().FirstOrDefaultAsync(w => w.ItemCode.Trim().Equals(request.itemcode));
         if(isExistItem != null)
         {
-            throw new Exception("มีสินค้านี้แล้วในระบบ");
+            throw new Exception("มีข้อมูลสินค้านี้แล้วในระบบ");
         }
 
         TMItem itemEnt = _mapper.Map<TMItem>(request);

@@ -22,14 +22,42 @@ function deleteItem(itemid) {
         if (t.value) {
 
             //Delete
+            $.ajax({
+                type: 'POST',
+                url: '/Item/DeleteItem',
+                data: JSON.stringify({ ItemID: itemid }),
+                contentType: 'application/json',
+                success: function (data) {
+                    if (data.result) {
+                        //popup.dialog('close');
 
-            //Alert
-            Swal.fire({
-                icon: 'success',
-                type: "success",
-                title: "ลบข้อมูลสำเร็จ!",
-                //text: "Your product has been deleted.",
-                confirmButtonClass: "btn btn-success",
+                        //Alert
+                        Swal.fire({
+                            icon: 'success',
+                            type: "success",
+                            title: "ลบข้อมูลสำเร็จ!",
+                            //text: "Your product has been deleted.",
+                            confirmButtonClass: "btn btn-success",
+                        });
+
+                        $("#global-loader").css('display', 'none');
+                        //ShowMessageSuccess(data.message);
+
+                        //To do next?
+                        //window.location = data.url;
+                    }
+                    else {
+                        //ShowMessageError(data.message);
+                        Swal.fire({
+                            title: "ทำรายการไม่สำเร็จ!",
+                            text: data.message,
+                            type: "success",
+                            confirmButtonClass: "btn btn-dander",
+                            buttonsStyling: !1,
+                        });
+                        $("#global-loader").css('display', 'none');
+                    }
+                }
             });
         }
     });

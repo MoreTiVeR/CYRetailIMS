@@ -21,7 +21,9 @@ public class CreateItemMappingProfile : Profile
             .ForMember(m => m.Description, f => f.MapFrom(x => x.description))
             .ForMember(m => m.BarCode, f => f.MapFrom(x => x.barcode))
             .ForMember(m => m.Price, f => f.MapFrom(x => x.price))
-            .ForMember(m => m.ItemImageUrl, f => f.MapFrom(x => x.itemimageurl))
+            .ForMember(m => m.Qty, f => f.MapFrom(x => x.qty))
+            .ForMember(m => m.DiscountPercent, f => f.MapFrom(x => x.discountpercent))
+            .ForMember(m => m.ItemImageUrl, f => f.MapFrom(x => !string.IsNullOrEmpty(x.itemimageurl) ? x.itemimageurl : "../assets/img/product/noimage.png"))
             .ForMember(m => m.CreatedBy, f => f.MapFrom(x => x.createdby))
             .ForMember(m => m.IsActive, f => f.MapFrom(x => x.isactive));
     }
