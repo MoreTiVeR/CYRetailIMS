@@ -20,6 +20,8 @@ using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
+using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -140,18 +142,6 @@ public class ItemController : BaseController
         return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
     }
 
-    //[HttpGet]
-    //public async Task<IActionResult> DeleteItem(int? ID)
-    //{
-    //    UpdateItemCommand updateItemCommand = new UpdateItemCommand { itemid = ID.Value };
-    //    BaseResponse<CommandResponse> resUpdateItem = await _itemAPI.UpdateItemAsync(updateItemCommand);
-    //    if (resUpdateItem.result)
-    //    {
-    //        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
-    //    }
-    //    return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
-    //}
-
     [HttpPost]
     public async Task<IActionResult> DeleteItem([FromBody] DeleteItemViewModel delItemObj)
     {
@@ -162,6 +152,43 @@ public class ItemController : BaseController
             return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.message });
         }
         return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.error.error.message });
+    }
+
+    //[Route("item/getitems")]
+    [HttpGet]
+    public async Task<IActionResult> GetItems()
+    {
+        //var form = Request.Form.ToList();
+        //#region Filter
+        //string filterType = string.Empty;
+        //string filterValue = string.Empty;
+        //var frmSearch = form.Where(w => w.Key == "search[value]").FirstOrDefault(); //.Value[0];
+        //string filter = frmSearch.Value[0].ToLower().Trim();
+        //if (!string.IsNullOrEmpty(filter) && filter.Split("|").Count() > 1 && !string.IsNullOrEmpty(filter.Split("|")[1]))
+        //{
+        //    filterType = filter.Split("|")[0].Trim().ToLower();
+        //    filterValue = filter.Split("|")[1].Trim();
+        //}
+
+        //if (filter.Contains("|") == false)
+        //{
+        //    filterType = "searchbox";
+        //    filterValue = filter;
+        //}
+        //#endregion
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
+        return Json(new { data = resItemList.data });
+    }
+
+    [Route("item/search")]
+    [HttpPost]
+    public async Task<IActionResult> SearchOrderReport(string searchText)
+    {
+        //return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data.OrderBy(o => o.SEQ).ToList() });
+        var form = Request.Form.ToList();
+
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
+        return Json(new { data = resItemList.data });
     }
 
     #region Private Method

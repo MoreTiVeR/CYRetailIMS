@@ -103,7 +103,7 @@
         </div>
         <!-- /Filter -->
         <div class="table-responsive">
-            <table class="table  datanew">
+            <table class="table datanew">
                 <thead>
                     <tr>
                         <th>
@@ -131,6 +131,7 @@
                     {
                         foreach (var item in (List<GetItemListResponseDTO>)ViewBag.ItemList.data)
                         {
+                            string rName = $"rowid{@item.itemid}";
                             Dictionary<string, string> aItemID = new Dictionary<string, string> { { "itemid", item.itemid.ToString() } };
                             <tr>
                                 <td>
@@ -162,7 +163,7 @@
                                     <a class="me-3" asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">
                                     </a>
-                                    <a href="#" class="me-3" onclick="deleteItem(@item.itemid)">
+                                    <a href="#" id="@rName" class="me-3" onclick="deleteItem(@item.itemid)">
                                         <img src="~/assets/img/icons/delete.svg" alt="img">
                                     </a>
                                 </td>
@@ -172,6 +173,33 @@
                 </tbody>
             </table>
         </div>
+        <!-- /Filter -->
+        @*<div class="table-responsive">
+        <table id="tbItems" class="table datanew">
+        <thead>
+        <tr>
+        <th>
+        <label class="checkboxs">
+        <input type="checkbox" id="select-all">
+        <span class="checkmarks"></span>
+        </label>
+        </th>
+        <th>รหัสสินค้า</th>
+        <th>ชื่อสินค้า</th>
+        <th>ประเภท</th>
+        <th>แบรนด์</th>
+        <th>จำนวน</th>
+        <th>ต้นทุน</th>
+        <th>ราคาขาย</th>
+        <th>รายละเอียด</th>
+        <th>สร้างโดย</th>
+        <th>แก้ไขโดย</th>
+        <th>วันที่แก้ไข</th>
+        <th>ดำเนินการ</th>
+        </tr>
+        </thead>
+        </table>
+        </div>*@
     </div>
 </div>
 <!-- /product list -->

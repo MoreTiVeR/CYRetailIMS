@@ -25,13 +25,8 @@ function EditItem(form) {
                 if (data.result) {
                     //popup.dialog('close');
 
-                    Swal.fire({
-                        title: "สำเร็จ!",
-                        text: data.message,
-                        type: "success",
-                        confirmButtonClass: "btn btn-primary",
-                        buttonsStyling: !1,
-                    });
+                    console.log(data);
+                    AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');
                     $("#frmEditItem")[0].reset();
                     $("#global-loader").css('display', 'none');
                     //ShowMessageSuccess(data.message);
@@ -41,13 +36,7 @@ function EditItem(form) {
                 }
                 else {
                     //ShowMessageError(data.message);
-                    Swal.fire({
-                        title: "ทำรายการไม่สำเร็จ!",
-                        text: data.message,
-                        type: "success",
-                        confirmButtonClass: "btn btn-dander",
-                        buttonsStyling: !1,
-                    });
+                    AlertError(data.message);
                     $("#global-loader").css('display', 'none');
                 }
             }

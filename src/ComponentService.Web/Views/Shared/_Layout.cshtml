@@ -45,16 +45,18 @@
 
     <link href="~/assets/css/bundle/mainlayout.css" rel="stylesheet" asp-append-version="true">
 
+    <link href="https://cdn.datatables.net/v/dt/dt-1.13.6/datatables.min.css" rel="stylesheet">
+
 </head>
 
 <body>
     <!---Global-loader-->
-    <div id="global-loader">
-        <img src="~/assets/img/svgs/loader.svg" alt="loader">
-    </div>
-    @*    <div id="global-loader">
-    <div class="whirly-loader"> </div>
+    @*<div id="global-loader">
+    <img src="~/assets/img/svgs/loader.svg" alt="loader">
     </div>*@
+    <div id="global-loader">
+        <div class="whirly-loader"> </div>
+    </div>
 
     <!-- Main Wrapper -->
     <div class="main-wrapper">
@@ -95,6 +97,8 @@
     <script src="~/assets/js/jquery.dataTables.min.js" asp-append-version="true"></script>
     <script src="~/assets/js/dataTables.bootstrap4.min.js" asp-append-version="true"></script>
 
+    <script src="https://cdn.datatables.net/v/dt/dt-1.13.6/datatables.min.js"></script>
+
     <!-- Bootstrap Core JS -->
     <script src="~/assets/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
 
@@ -111,6 +115,9 @@
 
     <!-- Custom JS -->
     <script src="~/assets/js/script.js" asp-append-version="true"></script>
+
+    <!--Custom-->
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
