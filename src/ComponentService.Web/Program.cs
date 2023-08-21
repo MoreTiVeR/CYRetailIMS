@@ -1,11 +1,5 @@
 
 using System.Globalization;
-using CYRetailIMS.Application.Common.Interfaces;
-using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
-using CYRetailIMS.ComponentService.Web.Models;
-using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Localization;
 
@@ -59,9 +53,11 @@ public class Program
             MinimumSameSitePolicy = SameSiteMode.None,
             HttpOnly = HttpOnlyPolicy.None
         });
-        app.UseSession();
+        
         app.UseRouting();
+        app.UseAuthentication();
         app.UseAuthorization();
+        app.UseSession();
 
         //app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.MapControllerRoute(
@@ -70,11 +66,4 @@ public class Program
 
         app.Run();
     }
-
-    //public static void RegisterBundles(BundleCollection bundles)
-    //{
-    //    bundles.Add(new ScriptBundle("~/bundles/js").Include(
-    //      "~/Scripts/bootstrap.js",
-    //      "~/Scripts/jquery-3.3.1.js"));
-    //}
 }

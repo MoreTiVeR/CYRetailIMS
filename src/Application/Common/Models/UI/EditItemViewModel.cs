@@ -13,10 +13,12 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 [JsonObject]
 public class EditItemViewModel
 {
+    [ReadOnly(true)]
     [Required(ErrorMessage = "*กรุณาระบุไอดีสินค้า")]
     [DisplayName("ระบุไอดีสินค้า")]
     public int ItemID { get; set; }
 
+    [ReadOnly(true)]
     [Required(ErrorMessage = "*กรุณาระบุรหัสสินค้า")]
     //[RegularExpression("^[A-Za-z0-9].{4,20}$", ErrorMessage = "รูปแบบชื่อผู้ใช้งานไม่ถูกต้อง, ตัวอักษรภาษาอังกฤาและตัวเลข ความยาวไม่เกิน20ตัวอักษร")]
     [DisplayName("ระบุรหัสสินค้า")]
@@ -32,6 +34,7 @@ public class EditItemViewModel
     [DisplayName("ระบุหน่วยนับสินค้า")]
     public int UnitOfMeasureID { get; set; }
 
+    [ReadOnly(true)]
     [Required(ErrorMessage = "*กรุณาระบุแบรนด์สินค้า")]
     [DisplayName("ระบุแบรนด์สินค้า")]
     public int BrandID { get; set; }
@@ -44,6 +47,9 @@ public class EditItemViewModel
     [DisplayName("ระบุชื่อราคาสินค้า")]
     public decimal Price { get; set; }
 
+    [Required(ErrorMessage = "*กรุณาระบุต้นทุนสินค้า")]
+    [DisplayName("ระบุต้นทุนสินค้า")]
+    public decimal Cost { get; set; }
 
     //[Required(ErrorMessage = "*กรุณาระบุชื่อย่อสินค้า")]
     [DisplayName("ระบุชื่อย่อสินค้า")]

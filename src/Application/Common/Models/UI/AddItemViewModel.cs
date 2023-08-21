@@ -40,6 +40,9 @@ public class AddItemViewModel
     [DisplayName("ระบุชื่อราคาสินค้า")]
     public decimal Price { get; set; }
 
+    [Required(ErrorMessage = "*กรุณาระบุต้นทุนสินค้า")]
+    [DisplayName("ระบุต้นทุนสินค้า")]
+    public decimal Cost { get; set; }
 
     //[Required(ErrorMessage = "*กรุณาระบุชื่อย่อสินค้า")]
     [DisplayName("ระบุชื่อย่อสินค้า")]

@@ -86,6 +86,26 @@ public class ItemController : BaseController
         return View();
     }
 
+    public IActionResult Import()
+    {
+        return View();
+    }
+
+    public IActionResult Adjust()
+    {
+        return View();
+    }
+
+    public IActionResult Transfer()
+    {
+        return View();
+    }
+
+    public IActionResult TransferHistory()
+    {
+        return View();
+    }
+
     public IActionResult Detail(int itemid)
     {
         return View();

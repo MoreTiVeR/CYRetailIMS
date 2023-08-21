@@ -33,7 +33,7 @@
                         <select class="select" asp-for="ItemTypeID">
                             @if (ViewBag.ItemTypeList.result)
                             {
-                                <option>--เลือกประเภทสินค้า--</option>
+                                <option value="">--เลือกประเภทสินค้า--</option>
                                 foreach (var item in ViewBag.ItemTypeList.data)
                                 {
                                     if (@item.itemtypeid == Model.ItemTypeID)
@@ -57,10 +57,10 @@
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>แบรนด์สินค้า</label>
-                        <select class="select" asp-for="BrandID">
+                        <select class="select" asp-for="BrandID" disabled readonly>
                             @if (ViewBag.ItemBrandList.result)
                             {
-                                <option>--เลือกแบรนด์สินค้า--</option>
+                                <option value="">--เลือกแบรนด์สินค้า--</option>
                                 foreach (var item in ViewBag.ItemBrandList.data)
                                 {
                                     if(@item.brandid == Model.BrandID)
@@ -88,7 +88,7 @@
                         <select class="select" asp-for="UnitOfMeasureID">
                             @if (ViewBag.ItemUOMList.result)
                             {
-                                <option>--เลือกหน่วยนับสินค้า--</option>
+                                <option value="">--เลือกหน่วยนับสินค้า--</option>
                                 foreach (var item in ViewBag.ItemUOMList.data)
                                 {
                                     if(@item.unitofmeasureid == Model.UnitOfMeasureID)
@@ -113,14 +113,14 @@
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>รหัสสินค้า</label>
-                        <input type="text" asp-for="ItemCode">
+                        <input type="text" asp-for="ItemCode" readonly>
                         <span asp-validation-for="ItemCode" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>จำนวนสินค้า</label>
-                        <input type="text" asp-for="Qty">
+                        <input type="number" class="form-control" asp-for="Qty">
                         <span asp-validation-for="Qty" class="text-danger"></span>
                     </div>
                 </div>
@@ -135,14 +135,9 @@
                 <!--ROW4-->
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
-                        <label>ส่วนลด</label>
-                        <input type="text" asp-for="DiscountPercent">
-                        <span asp-validation-for="DiscountPercent" class="text-danger"></span>
-                       @* <select class="select">
-                            <option>--ส่วนลด (%)--</option>
-                            <option value="0.5">0.5%</option>
-                            <option value="1">1%</option>
-                        </select>*@
+                        <label>ราคาต้นทุน</label>
+                        <input type="text" asp-for="Cost">
+                        <span asp-validation-for="Cost" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-12">
@@ -173,7 +168,7 @@
                         <span asp-validation-for="IsActive" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-12">
+               @* <div class="col-lg-12">
                     <div class="form-group">
                         <label>รูปภาพสินค้า</label>
                         <div class="image-upload">
@@ -184,10 +179,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>*@
                 <div class="col-lg-12">
                     <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
-                    <a class="btn btn-cancel">ยกเลิก</a>
+                    <button id="btnCancel" type="reset" class="btn btn-cancel me-2">ยกเลิก</button>
+                    @*<a class="btn btn-cancel">ยกเลิก</a>*@
                 </div>
             </div>
         </form>

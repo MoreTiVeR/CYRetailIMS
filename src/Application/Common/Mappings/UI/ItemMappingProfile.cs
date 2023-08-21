@@ -24,6 +24,7 @@ public class ItemMappingProfile : Profile
             .ForMember(x => x.DiscountPercent, f => f.MapFrom(ff => ff.discountpercent))
             .ForMember(x => x.ShortName, f => f.MapFrom(ff => ff.shortname))
             .ForMember(x => x.Qty, f => f.MapFrom(ff => ff.qty))
+            .ForMember(x => x.Cost, f => f.MapFrom(ff => ff.cost))
             .ForMember(x => x.IsActive, f => f.MapFrom(ff => ff.isactive));
     }
 }

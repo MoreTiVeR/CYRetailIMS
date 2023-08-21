@@ -32,13 +32,7 @@
             <div class="wordset">
                 <ul>
                     <li>
-                        <a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="~/assets/img/icons/pdf.svg" alt="img"></a>
-                    </li>
-                    <li>
-                        <a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-                    </li>
-                    <li>
-                        <a data-bs-toggle="tooltip" data-bs-placement="top" title="print"><img src="~/assets/img/icons/printer.svg" alt="img"></a>
+                        <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
                     </li>
                 </ul>
             </div>
@@ -51,7 +45,7 @@
                         <div class="row">
                             <div class="col-lg col-sm-6 col-12">
                                 <div class="form-group">
-                                    <select class="select">
+                                    <select id="ddlItemType" class="select">
                                         <option>เลือกประเภทสินค้า</option>
                                         @if (ViewBag.ItemTypeList.result)
                                         {
@@ -62,7 +56,7 @@
                                         }
                                         else
                                         {
-                                            <option>--ไม่พบข้อมูล--</option>
+                                            <option value="">--ไม่พบข้อมูล--</option>
                                         }
                                         <option>Computers</option>
                                         <option>Fruits</option>
@@ -71,7 +65,7 @@
                             </div>
                             <div class="col-lg col-sm-6 col-12">
                                 <div class="form-group">
-                                    <select class="select">
+                                    <select id="ddlItemBrand" class="select">
                                         <option>เลือกแบรนด์สินค้า</option>
                                         @if (ViewBag.ItemBrandList.result)
                                         {
@@ -82,14 +76,14 @@
                                         }
                                         else
                                         {
-                                            <option>--ไม่พบข้อมูล--</option>
+                                            <option value="">--ไม่พบข้อมูล--</option>
                                         }
                                     </select>
                                 </div>
                             </div>
                             <div class="col-lg-1 col-sm-6 col-12">
                                 <div class="form-group">
-                                    <a class="btn btn-filters ms-auto" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                                    <a id="btnSearch" class="btn btn-filters ms-auto" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
                                 </div>
                             </div>
                             <div class="col-lg col-sm-6 col-12">
@@ -141,10 +135,10 @@
                                     </label>
                                 </td>
                                 <td class="productimgname">
-                                    <a asp-action="Detail" asp-controller="Item" asp-all-route-data="aItemID" title="คลิกเพื่อดูรายละเอียด" class="product-img">
+                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="คลิกเพื่อดูรายละเอียด" class="product-img">
                                         <img src="@item.itemimageurl" alt="product">
                                     </a>
-                                    <a asp-action="Detail" asp-controller="Item" asp-all-route-data="aItemID">@item.name</a>
+                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="@item.description">@item.name</a>
                                 </td>
                                 <td>@item.itemtypename</td>
                                 <td>@item.itemcode</td>
@@ -157,9 +151,6 @@
                                 <td>@item.updatedby</td>
                                 <td>@item.updateddate</td>
                                 <td>
-                                    <a class="me-3" asp-action="Detail" asp-controller="Item" asp-all-route-data="aItemID">
-                                        <img src="~/assets/img/icons/eye.svg" alt="img">
-                                    </a>
                                     <a class="me-3" asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">
                                     </a>

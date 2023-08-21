@@ -46,9 +46,7 @@ public class CustomAuthorize : TypeFilterAttribute
                 }
 
                 if (!flagClaim)
-                {
                     context.Result = new RedirectResult("~/Permission/AccessDenied");
-                }
             }
             else
             {

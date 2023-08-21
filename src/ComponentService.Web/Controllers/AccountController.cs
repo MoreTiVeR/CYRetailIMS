@@ -25,6 +25,8 @@ public class AccountController : BaseController
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();
+        HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
         return RedirectToAction("Login", "Account");
     }
 
@@ -38,6 +40,13 @@ public class AccountController : BaseController
         {
             #region Set Profile
             UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);
+            #region Order SubMenu
+            userProfile.access_menu = userProfile.access_menu.Select(e =>
+            {
+                e.submenulist = e.submenulist.OrderBy(s => s.seq).ToList();
+                return e;
+            }).ToList();
+            #endregion
             base.UserProfile = userProfile;
             var principal = CreatePrincipal(userProfile);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);

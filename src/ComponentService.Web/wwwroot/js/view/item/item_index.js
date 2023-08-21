@@ -59,6 +59,15 @@ $(document).ready(function () {
 });
 
 
+$("#btnSearch").on('click', function () {
+    AlertWarn('ยังไม่เปิดให้ใช้งานค้นหา');
+    //AlertSuccess($("#ddlItemType").val() + " | " + $("#ddlItemBrand").val());
+});
+
+$("#btnExportExcel").on('click', function () {
+    AlertWarn('ยังไม่เปิดให้ใช้งานส่งออกไฟล์Excel');
+});
+
 function deleteItem(itemid) {
 
     Swal.fire({

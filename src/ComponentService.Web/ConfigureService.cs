@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Configuration;
+using AutoMapper;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
@@ -22,6 +23,10 @@ public static class ConfigureService
 {
     public static IServiceCollection AddWebComponentServices(this IServiceCollection services, IConfiguration configuration, string envName)
     {
+        #region Session Timeout
+        int sessionTimeout = configuration.GetSection("Appsettings")["SESSION_TIMEOUT"] != null ? int.Parse(configuration.GetSection("Appsettings")["SESSION_TIMEOUT"]) : 60;
+        #endregion
+
         services.AddMvc().AddRazorRuntimeCompilation();
         services.AddControllersWithViews(opt =>
         {
@@ -32,19 +37,12 @@ public static class ConfigureService
 
         services.AddSession(opts =>
         {
-            // make the session cookie Essential
-            //opts.Cookie.Name = "CY.Session";
+            opts.Cookie.Name = "CY.Session";
+            opts.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);//You can set Time
             opts.Cookie.IsEssential = true;
-            opts.IdleTimeout = TimeSpan.FromMinutes(30);
-            //opts.Cookie.HttpOnly = true;
-            //opts.Cookie.Name = "AT.Session";
-            //opts.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            //opts.IdleTimeout = TimeSpan.FromMinutes(sessionTimeOut);
-
-            //opts.IdleTimeout = TimeSpan.FromMinutes(10);
-            //opts.Cookie.HttpOnly = true;
-            //opts.Cookie.IsEssential = true; // make the session cookie Essential
         });
+
+        services.AddDataProtection();
 
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
         {
