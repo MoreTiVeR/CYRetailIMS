@@ -1,4 +1,12 @@
-﻿<div class="header">
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
+	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
+}
+<div class="header">
 
 	<!-- Logo -->
 	<div class="header-left active">
@@ -54,30 +62,15 @@
 			</a>
 			<div class="dropdown-menu dropdown-menu-right">
 				<a href="javascript:void(0);" class="dropdown-item active">
-					<img src="../assets/img/flags/us.png" alt="" height="16"> English
-				</a>
-				<a href="javascript:void(0);" class="dropdown-item">
-					<img src="../assets/img/flags/fr.png" alt="" height="16"> French
-				</a>
-				<a href="javascript:void(0);" class="dropdown-item">
-					<img src="../assets/img/flags/es.png" alt="" height="16"> Spanish
-				</a>
-				<a href="javascript:void(0);" class="dropdown-item">
-					<img src="../assets/img/flags/de.png" alt="" height="16"> German
+					<img src="../assets/img/flags/th.png" alt="" height="16"> Thai
 				</a>
 			</div>
 		</li>
 		<!-- /Flag -->
 
 		<li class="nav-item nav-item-box">
-			<a href="javascript:void(0);" id="btnFullscreen">
+			<a href="javascript:void(0);" id="btnFullscreen" title="ขยายเต็มจอ">
 				<i data-feather="maximize"></i>
-			</a>
-		</li>
-		<li class="nav-item nav-item-box">
-			<a href="email.html">
-				<i data-feather="mail"></i>
-				<span class="badge rounded-pill">1</span>
 			</a>
 		</li>
 		<!-- Notifications -->
@@ -99,7 +92,7 @@
 										<img alt="" src="../assets/img/profiles/avatar-02.jpg">
 									</span>
 									<div class="media-body flex-grow-1">
-										<p class="noti-details"><span class="noti-title">John Doe</span> added new task <span class="noti-title">Patient appointment booking</span></p>
+										<p class="noti-details"><span class="noti-title">Admin</span> added new task <span class="noti-title">Patient appointment booking</span></p>
 										<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
 									</div>
 								</div>
@@ -167,17 +160,17 @@
 		<!-- /Notifications -->
 
 		<li class="nav-item nav-item-box">
-			<a href="generalsettings.html"><i data-feather="settings"></i></a>
+			<a  asp-controller="User" asp-action="Profile" title="ตั้งค่าข้อมูลส่วนตัว"><i data-feather="settings"></i></a>
 		</li>
 		<li class="nav-item dropdown has-arrow main-drop">
 			<a href="javascript:void(0);" class="dropdown-toggle nav-link userset" data-bs-toggle="dropdown">
 				<span class="user-info">
 					<span class="user-letter">
-						<img src="../assets/img/profiles/avator1.jpg" alt="" class="img-fluid">
+						<img src="@userProfile.profilepicture" alt="@userProfile.rolename" class="img-fluid">
 					</span>
 					<span class="user-detail">
-						<span class="user-name">John Smilga</span>
-						<span class="user-role">Super Admin</span>
+						<span class="user-name">@userProfile.firstname</span>
+						<span class="user-role">@userProfile.rolename</span>
 					</span>
 				</span>
 			</a>
@@ -185,16 +178,16 @@
 				<div class="profilename">
 					<div class="profileset">
 						<span class="user-img">
-							<img src="../assets/img/profiles/avator1.jpg" alt="">
+							<img src="@userProfile.profilepicture" alt="@userProfile.rolename">
 							<span class="status online"></span>
 						</span>
 						<div class="profilesets">
-							<h6>John Smilga</h6>
-							<h5>Super Admin</h5>
+							<h6>@userProfile.firstname</h6>
+							<h5>@userProfile.rolename</h5>
 						</div>
 					</div>
 					<hr class="m-0">
-					<a class="dropdown-item" asp-controller="Profile" asp-action="Index"> <i class="me-2" data-feather="user"></i> My Profile</a>
+					<a class="dropdown-item" asp-controller="User" asp-action="Profile"> <i class="me-2" data-feather="user"></i> My Profile</a>
 					<a class="dropdown-item" asp-controller="Setting" asp-action="Index"><i class="me-2" data-feather="settings"></i>Settings</a>
 					<hr class="m-0">
 					<a class="dropdown-item logout pb-0" asp-controller="Account" asp-action="Logout"><img src="../assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
@@ -207,7 +200,7 @@
 	<div class="dropdown mobile-user-menu">
 		<a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 		<div class="dropdown-menu dropdown-menu-right">
-			<a class="dropdown-item" asp-controller="Profile" asp-action="Index">My Profile</a>
+			<a class="dropdown-item" asp-controller="User" asp-action="Profile">My Profile</a>
 			<a class="dropdown-item" asp-controller="Setting" asp-action="Index">Settings</a>
 			<a class="dropdown-item" asp-controller="Account" asp-action="Logout" >Logout</a>
 		</div>

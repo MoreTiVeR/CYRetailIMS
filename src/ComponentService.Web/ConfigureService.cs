@@ -1,13 +1,13 @@
 ﻿using System.Configuration;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Interfaces;
-using CYRetailIMS.Application.Common.Mappings.UI;
+using CYRetailIMS.Application.Common.Mappings.UI.Account;
+using CYRetailIMS.Application.Common.Mappings.UI.Item;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
-using CYRetailIMS.ComponentService.Web.Common.Mappings.Account;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;

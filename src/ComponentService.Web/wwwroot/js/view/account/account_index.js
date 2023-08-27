@@ -5,7 +5,7 @@ $(document).ready(function (){
 
 function Login(form) {
 
-    $("#global-loader").css('display', '');
+    //$("#global-loader").css('display', '');
 
     var frmLogin = $("#frmLogin");
     frmLogin.validate();
@@ -30,13 +30,13 @@ function Login(form) {
                 }
                 else {
                     ShowMessageError(data.message);
-                    $("#global-loader").css('display', 'none');
+                    //$("#global-loader").css('display', 'none');
                 }
             }
         });
         return false;
     }
     else {
-        $("#global-loader").css('display', 'none');
+        //$("#global-loader").css('display', 'none');
     }
 }

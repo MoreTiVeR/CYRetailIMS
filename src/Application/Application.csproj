@@ -10,15 +10,18 @@
 
   <ItemGroup>
     <Folder Include="Caching\" />
-    <Folder Include="Common\Models\Menus\" />
     <Folder Include="Services\AccountService\Commands\" />
     <Folder Include="Services\AccountService\EventHandlers\" />
+    <Folder Include="Services\BranchService\Commands\" />
+    <Folder Include="Services\BranchService\EventHandlers\" />
     <Folder Include="Services\EmployeeService\Commands\DeleteEmployee\" />
     <Folder Include="Services\EmployeeService\Commands\UpdateEmployee\" />
     <Folder Include="Services\DepartmentService\" />
     <Folder Include="Services\EmployeeService\Queries\v1\" />
     <Folder Include="Services\ItemBrandService\Commands\" />
     <Folder Include="Services\ItemBrandService\EventHandlers\" />
+    <Folder Include="Services\ItemInBranchService\Commands\" />
+    <Folder Include="Services\ItemInBranchService\EventHandlers\" />
     <Folder Include="Services\ItemTypeService\EventHandlers\" />
     <Folder Include="Services\ItemTypeService\Commands\" />
     <Folder Include="Services\MenuService\Commands\" />
@@ -27,6 +30,8 @@
     <Folder Include="Services\RoleService\" />
     <Folder Include="Services\UnitOfMeasureService\Commands\" />
     <Folder Include="Services\UnitOfMeasureService\EventHandlers\" />
+    <Folder Include="Services\UserInBranchService\Commands\" />
+    <Folder Include="Services\UserInBranchService\EventHandlers\" />
     <Folder Include="Services\UserService\" />
   </ItemGroup>
 

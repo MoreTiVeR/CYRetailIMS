@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using CYRetailIMS.Application.Services.UserInBranchService.Queries.GetUserInBranchByUserID.v1;
 
 namespace CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
 
@@ -22,5 +24,10 @@ public class UserProfileResponseDTO
 	public object lastlogout { get; set; }
 	public bool isactive { get; set; }
 	public int approvestatus { get; set; }
+
 	public List<GetMenuByRoleIDResponseDTO> access_menu { get; set; }
+	//public List<GetMenuByRoleIDResponseDTO> access_menu { get => _access_menu is null ? new List<GetMenuByRoleIDResponseDTO>() : _access_menu; set => _access_menu = value; }
+
+	public List<GetUserInBranchByUserIDBrancResponseDTO> access_branch { get; set; }
+	//public List<GetUserInBranchByUserIDBrancResponseDTO> access_branch { get => _access_branch is null ? new List<GetUserInBranchByUserIDBrancResponseDTO>() : _access_branch; set => _access_branch = value; }
 }

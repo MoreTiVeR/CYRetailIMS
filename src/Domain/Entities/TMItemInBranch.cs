@@ -11,17 +11,24 @@ namespace CYRetailIMS.Domain.Entities;
 [Table("TMItemInBranch")]
 public partial class TMItemInBranch : BaseAuditableEntity
 {
-    [Key]
-    public int BranchID { get; set; }
+	[Key]
+	public int BranchID { get; set; }
 
-    [Key]
-    public int ItemID { get; set; }
+	[Key]
+	public int ItemID { get; set; }
 
-    [ForeignKey("BranchID")]
-    [InverseProperty("TMItemInBranches")]
-    public virtual TMBranch Branch { get; set; } = null!;
+	[Column(TypeName = "decimal(8, 2)")]
+	public decimal Price { get; set; }
 
-    [ForeignKey("ItemID")]
-    [InverseProperty("TMItemInBranches")]
-    public virtual TMItem Item { get; set; } = null!;
+	public double DiscountPercent { get; set; }
+
+	public int Qty { get; set; }
+
+	[ForeignKey("BranchID")]
+	[InverseProperty("TMItemInBranches")]
+	public virtual TMBranch Branch { get; set; } = null!;
+
+	[ForeignKey("ItemID")]
+	[InverseProperty("TMItemInBranches")]
+	public virtual TMItem Item { get; set; } = null!;
 }

@@ -126,7 +126,24 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await Task.Run(() => result);
     }
 
-    public T FirstOrDefault(Expression<Func<T, bool>> predicate) => _context.Set<T>().FirstOrDefault(predicate);
+	public async Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null
+        , Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null)
+	{
+		var result = _context.Set<T>().Where(predicate).AsQueryable();
+
+		if (include != null)
+			result = include(result);
+
+		if (include2 != null)
+			result = include2(result);
+
+		if (include3 != null)
+			result = include3(result);
+
+		return await Task.Run(() => result);
+	}
+
+	public T FirstOrDefault(Expression<Func<T, bool>> predicate) => _context.Set<T>().FirstOrDefault(predicate);
 
     public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate) => await _context.Set<T>().FirstOrDefaultAsync(predicate);
 

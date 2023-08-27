@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Common\Mappings\Account\**" />
+    <Content Remove="Common\Mappings\Account\**" />
+    <EmbeddedResource Remove="Common\Mappings\Account\**" />
+    <None Remove="Common\Mappings\Account\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="bundleconfig.json" />
   </ItemGroup>
 
@@ -26,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Common\Mappings\" />
     <Folder Include="Views\Home\_HomePartialPage\" />
     <Folder Include="Views\Item\_ItemPartialPage\" />
     <Folder Include="Views\Order\_OrderPartialPage\" />
@@ -44,14 +52,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\assets\css\bundle\loginlayout.css">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="wwwroot\assets\css\bundle\loginlayout.min.css">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
     <Content Update="wwwroot\assets\img\icons\add-circle.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

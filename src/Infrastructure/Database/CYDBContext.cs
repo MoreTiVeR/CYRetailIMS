@@ -153,9 +153,12 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMItemInBranch>(entity =>
         {
-            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+			entity.Property(e => e.DiscountPercent).HasDefaultValueSql("((0))");
+			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+			entity.Property(e => e.Price).HasDefaultValueSql("((0))");
+			entity.Property(e => e.Qty).HasDefaultValueSql("((0))");
 
-            entity.HasOne(d => d.Branch).WithMany(p => p.TMItemInBranches).HasConstraintName("FK_TMItemInBranch_TMBranch");
+			entity.HasOne(d => d.Branch).WithMany(p => p.TMItemInBranches).HasConstraintName("FK_TMItemInBranch_TMBranch");
 
             entity.HasOne(d => d.Item).WithMany(p => p.TMItemInBranches).HasConstraintName("FK_TMItemInBranch_TMItem");
         });

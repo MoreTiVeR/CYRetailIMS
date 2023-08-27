@@ -5,67 +5,69 @@ namespace CYRetailIMS.Domain.Infrastructure.Repositories;
 
 public interface IGenericRepository<T> where T : class
 {
-    IQueryable<T> Query();
-    Task<IQueryable<T>> QueryAsync();
+	IQueryable<T> Query();
+	Task<IQueryable<T>> QueryAsync();
 
-    IQueryable<T> Query(Expression<Func<T, bool>> predicate);
-    Task<IQueryable<T>> QueryAsync(Expression<Func<T, bool>> predicate);
+	IQueryable<T> Query(Expression<Func<T, bool>> predicate);
+	Task<IQueryable<T>> QueryAsync(Expression<Func<T, bool>> predicate);
 
-    IEnumerable<T> GetAll();
+	IEnumerable<T> GetAll();
 
-    Task<IEnumerable<T>> GetAllAsync();
+	Task<IEnumerable<T>> GetAllAsync();
 
-    T Find(Expression<Func<T, bool>> match);
+	T Find(Expression<Func<T, bool>> match);
 
-    Task<T> FindAsync(Expression<Func<T, bool>> match);
+	Task<T> FindAsync(Expression<Func<T, bool>> match);
 
-    Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+	Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
 
-    Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null);
+	Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null);
 
-    T Add(T entity);
+	Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null);
 
-    Task<T> AddAsync(T entity);
+	T Add(T entity);
 
-    ICollection<T> AddRange(ICollection<T> entity);
+	Task<T> AddAsync(T entity);
 
-    Task<ICollection<T>> AddRangeAsync(ICollection<T> entity);
+	ICollection<T> AddRange(ICollection<T> entity);
 
-    T Update(T updated);
+	Task<ICollection<T>> AddRangeAsync(ICollection<T> entity);
 
-    T UpdateRange(T updated);
+	T Update(T updated);
 
-    void Delete(T t);
+	T UpdateRange(T updated);
 
-    void DeleteRange(ICollection<T> t);
+	void Delete(T t);
 
-    int Count();
+	void DeleteRange(ICollection<T> t);
 
-    Task<int> CountAsync();
+	int Count();
 
-    IEnumerable<T> Filter(
-        Expression<Func<T, bool>> filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        string includeProperties = "",
-        int? page = null,
-        int? pageSize = null);
+	Task<int> CountAsync();
 
-    bool Exist(Expression<Func<T, bool>> predicate);
+	IEnumerable<T> Filter(
+		Expression<Func<T, bool>> filter = null,
+		Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+		string includeProperties = "",
+		int? page = null,
+		int? pageSize = null);
 
-    T FirstOrDefault(Expression<Func<T, bool>> predicate);
-    Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
-    Task<IEnumerable<T>> FindListAsync(Expression<Func<T, bool>> predicate);
-    Task<IEnumerable<T>> FindListAsync(Expression<Func<T, bool>> predicate, string navigationPropertyPath);
-    IQueryable<T> Where(Expression<Func<T, bool>> predicate);
-    Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
-    IEnumerable<T> FromSqlRaw(string spName);
-    IEnumerable<T> FromSqlRaw(string spName, params object[] sqlParameter);
-    Task<IEnumerable<T>> FromSqlRawAsync(string spName);
-    Task<IEnumerable<T>> FromSqlRawAsync(string spName, params object[] sqlParameter);
-    int ExecuteSqlRaw(string spName, object[] sqlParameter);
-    Task<int> ExecuteSqlRawAsync(string spName, object[] sqlParameter);
+	bool Exist(Expression<Func<T, bool>> predicate);
 
-    object[] ExecuteSqlRawWithReturn(string spName, object[] sqlParameter);
-    Task<object[]> ExecuteSqlRawWithReturnAsync(string spName, object[] sqlParameter);
+	T FirstOrDefault(Expression<Func<T, bool>> predicate);
+	Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+	Task<IEnumerable<T>> FindListAsync(Expression<Func<T, bool>> predicate);
+	Task<IEnumerable<T>> FindListAsync(Expression<Func<T, bool>> predicate, string navigationPropertyPath);
+	IQueryable<T> Where(Expression<Func<T, bool>> predicate);
+	Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+	IEnumerable<T> FromSqlRaw(string spName);
+	IEnumerable<T> FromSqlRaw(string spName, params object[] sqlParameter);
+	Task<IEnumerable<T>> FromSqlRawAsync(string spName);
+	Task<IEnumerable<T>> FromSqlRawAsync(string spName, params object[] sqlParameter);
+	int ExecuteSqlRaw(string spName, object[] sqlParameter);
+	Task<int> ExecuteSqlRawAsync(string spName, object[] sqlParameter);
+
+	object[] ExecuteSqlRawWithReturn(string spName, object[] sqlParameter);
+	Task<object[]> ExecuteSqlRawWithReturnAsync(string spName, object[] sqlParameter);
 
 }

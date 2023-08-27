@@ -23,4 +23,9 @@ public class SaleController : BaseController
     {
         return View();
     }
+
+	public IActionResult Items()
+	{
+		return View();
+	}
 }

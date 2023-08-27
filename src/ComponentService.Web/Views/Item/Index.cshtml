@@ -151,10 +151,10 @@
                                 <td>@item.updatedby</td>
                                 <td>@item.updateddate</td>
                                 <td>
-                                    <a class="me-3" asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID">
+                                    <a class="me-3" asp-action="Edit" asp-controller="Item" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">
                                     </a>
-                                    <a href="#" id="@rName" class="me-3" onclick="deleteItem(@item.itemid)">
+                                    <a href="#" id="@rName" class="me-3" title="ลบข้อมูลสินค้า" onclick="deleteItem(@item.itemid)">
                                         <img src="~/assets/img/icons/delete.svg" alt="img">
                                     </a>
                                 </td>

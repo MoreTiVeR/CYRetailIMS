@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using CYRetailIMS.Application.Services.UserInBranchService.Queries.GetUserInBranchByUserID.v1;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
@@ -20,11 +21,14 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
 {
     private readonly IConfiguration _configuration;
     private readonly GetMenuByRoleIDHandler _getMenuByRoleIDHandler;
-    public LoginHandler(IMapper mapper, IUnitOfWork unitOfWork, IConfiguration configuration) : base(mapper, unitOfWork)
+    private readonly GetUserInBranchByUserIDHandler _getUserInBranchByUserIDHandler;
+	public LoginHandler(IMapper mapper, IUnitOfWork unitOfWork, IConfiguration configuration) : base(mapper, unitOfWork)
     {
         _configuration = configuration;
         _getMenuByRoleIDHandler = new GetMenuByRoleIDHandler(_mapper, unitOfWork);
-    }
+		_getUserInBranchByUserIDHandler = new GetUserInBranchByUserIDHandler(_mapper, unitOfWork);
+
+	}
 
     public async Task<BaseResponse<UserProfileResponseDTO>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
@@ -33,7 +37,7 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
         IQueryable<TMUsers> resUser = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == request.username && w.Password == bytePass && w.IsActive, 
             i => i.Include(x => x.TMEmployees),
             ii => ii.Include(xx => xx.Role));
-        if(resUser?.Count() == 0)
+        if(!resUser.Any())
         {
             throw new Exception("ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
         }
@@ -55,12 +59,24 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
                                               access_menu = new List<GetMenuByRoleIDResponseDTO>()
                                           }).FirstOrDefault();
 
-        BaseResponse<List<GetMenuByRoleIDResponseDTO>> resMenu = await _getMenuByRoleIDHandler.Handle(new GetMenuByRoleIDQuery { roleid = resUser.FirstOrDefault().RoleID }, CancellationToken.None);
-        if (resMenu.result)
+
+		#region Get Access Menu
+		BaseResponse<List<GetMenuByRoleIDResponseDTO>> resMenu = await _getMenuByRoleIDHandler.Handle(new GetMenuByRoleIDQuery { roleid = resData.roleid }, CancellationToken.None);
+		if (resMenu.result)
+		{
+			resData.access_menu = resMenu.data;
+		}
+        #endregion
+
+        #region Get Access Branch
+        BaseResponse<GetUserInBranchByUserIDResponseDTO> resUserBranch = await _getUserInBranchByUserIDHandler.Handle(new GetUserInBranchByUserIDQuery { userid = resData.userid }, CancellationToken.None);
+        if (resUserBranch.result)
         {
-            resData.access_menu = resMenu.data;
-        }
-        return new BaseResponse<UserProfileResponseDTO>
+            resData.access_branch = resUserBranch.data.branchs;
+		}
+        #endregion
+
+		return new BaseResponse<UserProfileResponseDTO>
         {
             result = true,
             data = resData,

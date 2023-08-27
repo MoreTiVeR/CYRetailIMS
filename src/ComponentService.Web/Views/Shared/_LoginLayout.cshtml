@@ -37,21 +37,16 @@
     *@
 
     <link href="~/assets/css/bundle/loginlayout.css" rel="stylesheet" asp-append-version="true" />
-    <!--Custom-->
-    <link rel="stylesheet" href="~/css/site.css">
 
 </head>
 <body class="account-page">
     <!---Global-loader-->
+    @*<div id="global-loader">
+    <img src="~/assets/img/svgs/loader.svg" alt="loader">
+    </div>*@
     <div id="global-loader">
-        <img src="~/assets/img/svgs/loader.svg" alt="loader">
+        <div class="whirly-loader"> </div>
     </div>
-    @*    <div id="global-loader">
-    <div class="whirly-loader"> </div>
-    </div>*@
-    @*    <div id="global-loader">
-    <div class="shapes"></div>
-    </div>*@
 
     <!-- Main Wrapper -->
     <div class="main-wrapper">
@@ -83,11 +78,14 @@
     <script src="~/assets/plugins/toastr/toastr.min.js" asp-append-version="true"></script>
     <script src="~/assets/plugins/toastr/toastr.js" asp-append-version="true"></script>
 
-    <!--Page Script-->
-    <script src="~/js/view/account/account_index.js" asp-append-version="true"></script>
+    <!-- Custom JS -->
+    <script src="~/assets/js/script.js" asp-append-version="true"></script>
 
     <!--Custom-->
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!--Page Script-->
+    <script src="~/js/view/account/account_index.js" asp-append-version="true"></script>
 
 </body>
 </html>
