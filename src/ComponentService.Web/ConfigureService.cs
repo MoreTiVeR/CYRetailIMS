@@ -5,6 +5,7 @@ using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
+using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
@@ -13,6 +14,7 @@ using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
+using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -75,6 +77,7 @@ public static class ConfigureService
         services.AddScoped<IItemTypeAPI, ItemTypeAPI>();
         services.AddScoped<IItemBrandAPI, ItemBrandAPI>();
         services.AddScoped<IItemUnitOfMeasureAPI, ItemUnitOfMeasureAPI>();
+        services.AddScoped<IItemInBranchAPI, ItemInBranchAPI>();
         #endregion
 
         return services;

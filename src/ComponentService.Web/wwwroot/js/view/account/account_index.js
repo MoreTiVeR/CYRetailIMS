@@ -5,7 +5,7 @@ $(document).ready(function (){
 
 function Login(form) {
 
-    //$("#global-loader").css('display', '');
+    $("#global-loader").css('display', '');
 
     var frmLogin = $("#frmLogin");
     frmLogin.validate();

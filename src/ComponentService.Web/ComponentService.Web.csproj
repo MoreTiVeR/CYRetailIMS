@@ -46,6 +46,13 @@
 
   <ItemGroup>
     <None Include="bundleconfig.json" />
+    <None Include="wwwroot\assets\plugins\pickers\daterange\daterangepicker.js" />
+    <None Include="wwwroot\assets\plugins\pickers\dateTime\pick-a-datetime.js" />
+    <None Include="wwwroot\assets\plugins\pickers\dateTime\pick-a-datetime.min.js" />
+    <None Include="wwwroot\assets\plugins\pickers\pickadate\legacy.js" />
+    <None Include="wwwroot\assets\plugins\pickers\pickadate\picker.date.js" />
+    <None Include="wwwroot\assets\plugins\pickers\pickadate\picker.js" />
+    <None Include="wwwroot\assets\plugins\pickers\pickadate\picker.time.js" />
     <None Include="wwwroot\assets\plugins\sweetalert\sweetalert2.all.min.js" />
     <None Include="wwwroot\assets\plugins\sweetalert\sweetalerts.min.js" />
     <None Include="wwwroot\lib\jquery-ajax-unobtrusive-master\.vsts-pipelines\builds\ci-public.yml" />
