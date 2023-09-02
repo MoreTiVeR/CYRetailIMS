@@ -11,6 +11,7 @@
     string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
     UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
 }
+@model SellingItemViewModel
 
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
@@ -23,268 +24,114 @@
 </div>
 <div class="card">
     <div class="card-body">
+        
         <div class="row">
-            <div class="col-lg-3 col-sm-6 col-12">
-                <div class="form-group">
-                    <label>สาขา</label>
+            <div class="form-group">
+                <form id="frmSelling" class="form repeater-default" asp-action="SaveSellingItem" asp-controller="Sale" method="post"
+                      data-ajax="true"
+                      data-ajax-update=""
+                      data-ajax-success="OnSuccess"
+                      data-ajax-failure=""
+                      data-ajax-begin="">
                     <div class="row">
-                        <div class="col-lg-10 col-sm-10 col-10">
-                            <select id="ddlBranch" class="select">
-                                @if (userProfile.access_branch is not null)
-                                {
-                                    foreach (var branch in userProfile.access_branch)
-                                    {
-                                        <option value="@branch.branchid">@branch.branchname</option>
-                                    }
-                                }
-                                else
-                                {
-                                    <option value="">-- ไม่พบสาขา --</option>
-                                }
-
-                            </select>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>สาขา</label>
+                                <div class="row">
+                                    <div class="col-lg-12 col-sm-10 col-12">
+                                        <select id="ddlBranch" class="form-control ddl-ddlBranch" asp-for="branch">
+                                            @if (userProfile.access_branch is not null)
+                                            {
+                                                foreach (var branch in userProfile.access_branch)
+                                                {
+                                                    <option value="@branch.branchid">@branch.branchname</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="">-- ไม่พบสาขา --</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-lg-2 col-sm-2 col-2 ps-0">
-                            <div class="add-icon">
-                                <span><img src="~/assets/img/icons/plus1.svg" alt="img"></span>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>วันที่ขาย</label>
+                                <div class="input-groupicon">
+                                    <input id="txtSaleDate" type="text" placeholder="กรุณาเลือกวันที่ขายสินค้า" class="pickadate-saledate" asp-for="saledate">
+                                    <a class="addonset">
+                                        <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12 ">
+                            <div class="form-group">
+                                <label>รวมเงินทั้งหมด :</label>
+                                <div class="input-group">
+                                    <input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน" readonly aria-label="จำนวนเงิน (บาท)" value="0.00" asp-for="amount">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">THB</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6 col-12">
-                <div class="form-group">
-                    <label>วันที่ขาย</label>
-                    <div class="input-groupicon">
-                        <input id="txtSaleDate" type="text" placeholder="กรุณาเลือกวันที่ขายสินค้า" class="pickadate-saledate">
-                        <a class="addonset">
-                            <img src="~/assets/img/icons/calendars.svg" alt="img">
-                        </a>
+                    <div class="row" id="divSellingItem">
                     </div>
-                </div>
-            </div>
-            
-            @* <div class="col-lg-12 col-sm-6 col-12">
-            <div class="form-group">
-            <label>เลือกสินค้าขายออก</label>
-            <div class="input-groupicon">
-            <input id="txtItem" type="text" placeholder="พิมพ์ชื่อ หรือ รหัสสินค้า ที่ต้องการขาย แล้วกดเลือกรายการ...">
-            <div class="addonset">
-            <img src="~/assets/img/icons/scanners.svg" alt="img">
-            </div>
-            </div>
-            </div>
-            </div>*@
-        </div>
-        <div class="row">
-            <div class="col-lg-6 col-sm-6 col-12">
-                <div class="form-group">
-                    <label>เลือกสินค้าขายออก</label>
-                    <div class="row">
-                        <div class="col-lg-10 col-sm-10 col-10">
-                            <select id="ddlSearchItem" class="ddl-select2 select2">
-                                @if(ViewBag.ItemInBranch is not null)
-                                {
-                                    foreach (var item in ViewBag.ItemInBranch as List<GetItemInBranchByBranchIDItemResponseDTO>)
-                                    {
-                                        <option value="@item.itemid">@item.brandname | @item.itemname</option>
-                                    }
-                                }
-                                @*<option selected="selected">orange</option>
-                                <option>white</option>
-                                <option>purple</option>*@
-                            </select>
+                    <div class="row form-group">
+                        <div class="col-lg-12 col-sm-12 col-12">
+                            <button id="btnAdd" class="btn btn-primary" data-repeater-create type="button">
+                                <i class="bx bx-plus"></i>
+                                เพิ่มรายการใหม่
+                            </button>
                         </div>
-                        @*<div class="col-lg-2 col-sm-2 col-2 ps-0">
-                            <div class="add-icon">
-                                <span><img src="~/assets/img/icons/plus1.svg" alt="img"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>ยอดเงินโอน</label>
+                                <div class="input-group">
+                                    <input id="txtAmtTransfer" type="text" asp-for="mtransfer" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                                    <span class="input-group-text">บาท</span>
+                                </div>
                             </div>
-                        </div>*@
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>ยอดเงินฝาก</label>
+                                <div class="input-group">
+                                    <input id="txtAmtDeposit" type="text" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                                    <span class="input-group-text">บาท</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>ยอดเงินคงเหลือ</label>
+                                <div class="input-group">
+                                    <input id="txtAmtAvailableCash" type="text" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                                    <span class="input-group-text">บาท</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
+        
         <div class="row">
-            <div class="table-responsive mb-3">
-                <table id="tbAddItem" class="table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>ชื่อสินค้า</th>
-                            <th>จำนวน</th>
-                            <th>ราคา</th>
-                            <th>รวมเงิน</th>
-                            <th>ดำเนินการ</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-        <div class="row">
-            <div class="table-responsive mb-3">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>ชื่อสินค้า</th>
-                            <th>จำนวน</th>
-                            <th>ราคา</th>
-                            <th>รวมเงิน</th>
-                            <th>ดำเนินการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td class="productimgname">
-                                <a class="product-img">
-                                    <img src="~/assets/img/product/product1.jpg" alt="product">
-                                </a>
-                                <a href="javascript:void(0);">Apple Earpods</a>
-                            </td>
-                            <td>
-                                <div class="increment-decrement">
-                                    <div class="input-groups">
-                                        <input type="button" value="-" class="button-minus dec button">
-                                        <input type="text" name="child" value="0" class="quantity-field">
-                                        <input type="button" value="+" class="button-plus inc button ">
-                                    </div>
-                                </div>
-                            </td>
-                            <td>15000.00</td>
-                            <td>1500.00</td>
-                            <td>
-                                <a href="javascript:void(0);" class="delete-set"><img src="~/assets/img/icons/delete.svg" alt="svg"></a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td class="productimgname">
-                                <a class="product-img">
-                                    <img src="~/assets/img/product/product1.jpg" alt="product">
-                                </a>
-                                <a href="javascript:void(0);">iPhone 11</a>
-                            </td>
-                            <td>
-                                <div class="increment-decrement">
-                                    <div class="input-groups">
-                                        <input type="button" value="-" class="button-minus dec button">
-                                        <input type="text" name="child" value="0" class="quantity-field">
-                                        <input type="button" value="+" class="button-plus inc button ">
-                                    </div>
-                                </div>
-                            </td>
-                            <td>1500.00</td>
-                            <td>1500.00</td>
-                            <td>
-                                <a href="javascript:void(0);" class="delete-set"><img src="~/assets/img/icons/delete.svg" alt="svg"></a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td class="productimgname">
-                                <a class="product-img">
-                                    <img src="~/assets/img/product/product1.jpg" alt="product">
-                                </a>
-                                <a href="javascript:void(0);">Macbook pro</a>
-                            </td>
-                            <td>
-                                <div class="increment-decrement">
-                                    <div class="input-groups">
-                                        <input type="button" value="-" class="button-minus dec button">
-                                        <input type="text" name="child" value="0" class="quantity-field">
-                                        <input type="button" value="+" class="button-plus inc button ">
-                                    </div>
-                                </div>
-                            </td>
-                            <td>1500.00</td>
-                            <td>1500.00</td>
-                            <td>
-                                <a href="javascript:void(0);" class="delete-set"><img src="../assets/img/icons/delete.svg" alt="svg"></a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-lg-3 col-sm-6 col-12">
-                @*<div class="form-group">
-                <label>ยอดเงินโอน</label>
-                <input type="text">
-                </div>*@
-                <div class="form-group row">
-                    <label>ยอดเงินโอน</label>
-                    <div class="input-group">
-                        <input id="txtAmtTransfer" type="text" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
-                        <span class="input-group-text">บาท</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6 col-12">
-                <div class="form-group">
-                    <label>ยอดเงินฝาก</label>
-                    @*<input type="text">*@
-                    <div class="input-group">
-                        <input id="txtAmtDeposit" type="text" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
-                        <span class="input-group-text">บาท</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6 col-12">
-                <div class="form-group">
-                    <label>ยอดเงินคงเหลือ</label>
-                    @*<input type="text">*@
-                    <div class="input-group">
-                        <input id="txtAmtAvailableCash" type="text" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
-                        <span class="input-group-text">บาท</span>
-                    </div>
-                </div>
-            </div>
-            @*<div class="col-lg-3 col-sm-6 col-12">
-            <div class="form-group">
-            <label>Status</label>
-            <select class="select">
-            <option>Choose Status</option>
-            <option>Completed</option>
-            <option>Inprogress</option>
-            </select>
-            </div>
-            </div>*@
-            @*<div class="row">
-            <div class="col-lg-6 ">
-            <div class="total-order w-100 max-widthauto m-auto mb-4">
-            <ul>
-            <li>
-            <h4>Order Tax</h4>
-            <h5>$ 0.00 (0.00%)</h5>
-            </li>
-            <li>
-            <h4>Discount	</h4>
-            <h5>$ 0.00</h5>
-            </li>
-            </ul>
-            </div>
-            </div>
-            <div class="col-lg-6 ">
-            <div class="total-order w-100 max-widthauto m-auto mb-4">
-            <ul>
-            <li>
-            <h4>Shipping</h4>
-            <h5>$ 0.00</h5>
-            </li>
-            <li class="total">
-            <h4>Grand Total</h4>
-            <h5>$ 0.00</h5>
-            </li>
-            </ul>
-            </div>
-            </div>
-            </div>*@
             <div class="col-lg-12">
-                <a href="javascript:void(0);" class="btn btn-submit me-2">Submit</a>
-                <a href="javascript:void(0);" class="btn btn-cancel">Cancel</a>
+                <button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
+                    <i class="bx bx-plus"></i>
+                    ยกเลิก
+                </button>
+                <button id="btnSave" name="btnSave" class="btn btn-submit me-2">
+                    <i class="bx bx-plus"></i>
+                    บันทึกข้อมูล
+                </button>
             </div>
         </div>
     </div>
@@ -293,6 +140,7 @@
 <!-- /product list -->
 @section Scripts{
 
+    <script src="~/assets/plugins/repeater/jquery.repeater.min.js"></script>
     <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
     <script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
     <script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
@@ -302,4 +150,21 @@
     <!--Page Script-->
     <script src="~/js/view/sale/sale_create.js" asp-append-version="true"></script>
 
+
+    <script>
+        $(document).ready(function () {
+            $('.repeater').repeater({
+                // (Required if there is a nested repeater)
+                // Specify the configuration of the nested repeaters.
+                // Nested configuration follows the same format as the base configuration,
+                // supporting options "defaultValues", "show", "hide", etc.
+                // Nested repeaters additionally require a "selector" field.
+                repeaters: [{
+                    // (Required)
+                    // Specify the jQuery selector for this nested repeater
+                    selector: '.inner-repeater'
+                }]
+            });
+        });
+    </script>
 }
