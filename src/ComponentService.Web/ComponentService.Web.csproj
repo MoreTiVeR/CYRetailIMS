@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <None Include="bundleconfig.json" />
+    <None Include="wwwroot\assets\plugins\icons\weather\fonts\weathericons-regular-webfont.woff2" />
     <None Include="wwwroot\assets\plugins\pickers\daterange\daterangepicker.js" />
     <None Include="wwwroot\assets\plugins\pickers\dateTime\pick-a-datetime.js" />
     <None Include="wwwroot\assets\plugins\pickers\dateTime\pick-a-datetime.min.js" />

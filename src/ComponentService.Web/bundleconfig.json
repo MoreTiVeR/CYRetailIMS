@@ -4,13 +4,14 @@
     "inputFiles": [
       "wwwroot/assets/css/bootstrap.min.css",
       "wwwroot/assets/plugins/toastr/toatr.css",
-      "wwwroot/assets/plugins/fontawesome/css/all.min.css",
-      "wwwroot/assets/plugins/fontawesome/css/fontawesome.min.css",
       "wwwroot/assets/css/bootstrap-datetimepicker.min.css",
       "wwwroot/assets/css/animate.css",
       "wwwroot/assets/plugins/select2/css/select2.min.css",
       "wwwroot/assets/css/dataTables.bootstrap4.min.css",
-      "wwwroot/assets/css/style.css"
+      "wwwroot/assets/css/style.css",
+      "wwwroot/assets/plugins/fontawesome/css/all.min.css",
+      "wwwroot/assets/plugins/fontawesome/css/fontawesome.min.css",
+      "wwwroot/assets/plugins/icons/feather/feather.css"
     ],
     "minify": {
       "enabled": true,
@@ -22,10 +23,10 @@
     "inputFiles": [
       "wwwroot/assets/css/bootstrap.min.css",
       "wwwroot/assets/plugins/toastr/toatr.css",
-      "wwwroot/assets/plugins/fontawesome/css/all.min.css",
-      "wwwroot/assets/plugins/fontawesome/css/fontawesome.min.css",
       "wwwroot/assets/css/animate.css",
-      "wwwroot/assets/css/style.css"
+      "wwwroot/assets/css/style.css",
+      "wwwroot/assets/plugins/fontawesome/css/all.min.css",
+      "wwwroot/assets/plugins/fontawesome/css/fontawesome.min.css"
     ],
     "minify": {
       "enabled": true,

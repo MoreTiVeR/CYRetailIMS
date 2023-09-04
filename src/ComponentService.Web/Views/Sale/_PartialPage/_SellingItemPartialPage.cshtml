@@ -4,13 +4,14 @@
 
 <input id="totalrow" name="totalrow" value="1" hidden />
 <div data-repeater-list="group-a" class="group-a">
-    <div data-repeater-item>
+    <div data-repeater-item id="another-participant1">
         <div class="row justify-content-between">
             <div class="col-md-2 col-sm-12 form-group">
                 <div class="position-relative has-icon-left search-box">
-                    <select id="ddlSearchItem" name="ddlSearchItem" class="form-control ddl-seatchitem">
+                    <select id="ddlSearchItem" name="ddlSearchItem" class="ddl-select2 select2 ddl-searchitem">
                         @if (ViewBag.ItemInBranch is not null)
                         {
+                            <option value="">-- เลือกสินค้าขาย --</option>
                             foreach (var item in ViewBag.ItemInBranch as List<GetItemInBranchByBranchIDItemResponseDTO>)
                             {
                                 <option value="@item.itemid">@item.brandname | @item.itemname</option>
@@ -38,7 +39,7 @@
             <div class="col-md-3 col-sm-12 form-group">
                 <fieldset>
                     <div class="input-group">
-                        <input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน"  aria-label="จำนวนเงิน (บาท)" value="0.00">
+                        <input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน"  aria-label="จำนวนเงิน (บาท)" >
                         <div class="input-group-append">
                             <span class="input-group-text">THB</span>
                         </div>
@@ -46,11 +47,32 @@
                 </fieldset>
             </div>
             <div class="col-md-2 col-sm-12 form-group">
-                <button id="btnDeleteRow" class="btn btn-danger text-nowrap px-1" data-repeater-delete type="button">
-                    <i class="bx bx-x"></i>
+                <button id="btnDeleteRow" class="btn btn-danger text-nowrap" data-repeater-delete type="button">
+                    <i class="fe fe-x"></i>
                     ลบรายการ
                 </button>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts{
+    <script>
+        //$(document).ready(function () {
+        //    $('.repeater-container').on('change', '.ddl-searchitem', function (event) {
+        //        alert('11');
+        //        var selected_element = $(event.currentTarget);
+        //        var select_val = selected_element.val();
+        //        alert('InitialRepeater -> ' + select_val);
+        //    });
+
+        //    $('.repeater-container .ddl-searchitem').each(function () {
+        //        alert('22');
+        //        var $this = $(this);
+        //        $this.removeAttr("id").removeAttr("data-select2-id");
+        //        $this.select2();
+        //        $this.next().next().remove();
+        //    });
+        //});
+    </script>
+}

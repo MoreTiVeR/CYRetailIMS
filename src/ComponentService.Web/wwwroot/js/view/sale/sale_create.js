@@ -2,25 +2,104 @@
 $(document).ready(function () {
     InitialDatePicker();
     InitialNumberInput();
-    InitialAddItemPartial();
-
-    $('.ddl-ddlBranch').select2();
-    $('.ddl-seatchitem').select2();
-
+    //InitialRepeater();
+    InitialItemRepeater();
+    $('.select2').select2();
 });
 
-$('.select2').on('change', function () {
-    var value = $(this).val();
-    var text = $(this).find(':selected').text();
-    alert(value + ' | ' + text);
-    // Set selected 
-    $('#txtItem').val(value);
+$(document).on('change', '.select2', function (e) {
+    // Get the selected value
+    var selectedValue = $(this).val();
+    // Get the data-row attribute to identify the row
+    var row = $(this).data('row');
+    console.log($(this).data('name'));
+    // Log the selected value for the current row (you can replace this with your desired logic)
+    console.log("Row " + row + ": " + selectedValue);
+    ShowMessageInfo('Selected value :' + selectedValue);
+});
+
+$("#btnSave").on('click', function () {
+    //var isValid = $("#frmCurrency").valid();
+    var data = $($("#frmSelling")).serializeJSON();
+    $.post("ItemDataValidation", { data }).then(
+        function (results) {
+
+            if (results.result) {
+                console.log(results.msg);
+                Swal.fire({
+                    //title: 'ยืนยันการบันทึกข้อมูล?',
+                    //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+                    //type: 'warning',
+                    title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+                    icon: 'warning',
+                    html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>'
+                        + '<br>' + results.msg + '',
+                    showCancelButton: true,
+                    //showDenyButton: true,
+                    confirmButtonColor: '#04B431',
+                    confirmButtonText: 'บันทึก',
+                    cancelButtonColor: '#D33',
+                    cancelButtonText: "ยกเลิก",
+                    //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                    //denyButtonColor: '#D33',
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        denyButton: 'btn btn-warning ml-1',
+                        cancelButton: 'btn btn-danger ml-1'
+                    },
+                    buttonsStyling: false,
+                    focusConfirm: true
+                }).then(function (result) {
+                    if (result.value) {
+                        $("#frmSelling").submit();
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        //Code
+                    }
+                });
+            }
+            else {
+                ShowMessageError(results.msg);
+                return;
+            }
+
+        }, function (results) {
+            //Failed
+            console.log('Failed');
+            ShowMessageError(results.message);
+
+        }, function () {
+            ShowMessageError('Unknow error => Create Sale data.');
+            console.log('this will run if the deferred generates a progress update.');
+        }
+    );
 
 });
 
 $("#btnAdd").on('click', function () {
     var trows = parseInt($("#totalrow").val()) + parseInt(1);
     $("#totalrow").val(trows);
+
+    //var $div = $('div[id^="another-participant"]:last');
+    //console.log($div);
+
+    //var num = parseInt($div.prop("id").match(/\d+/g), 10) + 1;
+    //console.log(num);
+
+    //var $klon = $div.clone().prop('id', 'another-participant' + num);
+    //console.log($klon);
+
+    //$klon.find('select').each(function () {
+    //    var value = $(this).val();
+    //    var text = $(this).find(':selected').text();
+    //    var id = this.id;
+    //    let name_number = this.name.match(/\d+/);
+    //    name_number++;
+    //    this.id = this.id + '_' + name_number;
+    //    this.name = this.name.replace(/\[[0-9]\]+/, '[' + name_number + ']')
+    //});
+    //// Finally insert $klon after the last div
+    //$div.after($klon);
 });
 
 function AddItem(form) {
@@ -64,26 +143,6 @@ function AddItem(form) {
     }
 }
 
-function InitialAddItemPartial() {
-    $.ajax({
-        url: 'GetSellingItemPartialPage',
-        type: "POST",
-        xhrFields: {
-            withCredentials: true
-        }
-    }).done(function (results) {
-
-        $("#divSellingItem").html(results);
-        InitialRepeater();
-        $('.ddl-seatchitem').select2();
-        //$('.select2').select2();
-        
-
-    }).fail(function (results) {
-        console.log('Invalid Data.');
-    });
-}
-
 function ValidationEnglishKeyPress() {
     $("input[ID='txtItemCode']").on("keypress", function (event) {
 
@@ -115,40 +174,27 @@ function ValidationEnglishKeyPress() {
 }
 
 function InitialRepeater() {
-    initEmpty: false,
-    $('.file-repeater, .contact-repeater, .repeater-default').repeater({
+    $('.repeater-default').repeater({
+        initEmpty: false,
         show: function () {
             $(this).slideDown();
-
-            //form.find('select').next('.select2-container').remove();
-            //form.find('select').select2();
-
-            //$(".search-box select").select2();
-            //$(this).find('.select2').removeClass('select2-hidden-accessible');
-            //$(this).find('.select2-container').remove();
-            //$(this).find('.select2').select2();
-            //alert('slidedow');
-
-            //$(".group-a :input").each(function (e) {
-            //    //console.log(this);
-            //    //console.log(e);
-            //    if (this.id == "ddlSearchItem") {
-            //        console.log('id: ' + this.id + ' | name: ' + this.name);
-            //        console.log("input[name='group-a[" + e + "][" + this.id + "]']");
-            //        //$("#group-a[1][ddlSearchItem]").select2();
-            //        $("input[name='group-a[" + e + "][" + this.id + "]']").select2();
-            //        $("#ddlSearchItem").select2();
-            //    }
-            //});
-
-            $('.select2-container').remove();
-            $('select').select2({
-                //width: '100%',
-                //placeholder: "เลือกสินค้าขาย",
-                //allowClear: true
+            $(this).find('select').each(function () {
+                if (typeof $(this).attr('id') === "undefined") {
+                    // ...
+                } else {
+                    $('.ddl-searchitem').removeAttr("id").removeAttr("data-select2-id"); //some times id was not unique So select2 not working, so i remove id 
+                    $('.ddl-searchitem').select2();
+                    //$('.ddl-searchitem').on('change', function (event) {
+                    //    var selected_element = $(event.currentTarget);
+                    //    var select_val = selected_element.val();
+                    //    alert('InitialRepeater -> ' + select_val);
+                    //});
+                    $('.ddl-searchitem-container').css('width', '100%');
+                    $('.ddl-searchitem').next().next().remove();
+                }
             });
         },
-        hide: function (deleteElement, e) {
+        hide: function (deleteElement) {
 
             Swal.fire({
                 //title: 'ยืนยันการบันทึกข้อมูล?',
@@ -175,28 +221,6 @@ function InitialRepeater() {
                 focusConfirm: true
             }).then(function (result) {
 
-                //if (result.isConfirmed) {
-                //    $.post("SetIsPrint", { isPrint: true }).then(
-                //        function (results) {
-                //            if (results.result) {
-                //                $("#frmCurrency").submit();
-                //            }
-                //            else {
-                //                Swal.fire(results.msg);
-                //            }
-                //        });
-                //} else if (result.isDenied) {
-                //    $.post("SetIsPrint", { isPrint: false }).then(
-                //        function (results) {
-                //            if (results.result) {
-                //                $("#frmCurrency").submit();
-                //            }
-                //            else {
-                //                Swal.fire(results.msg);
-                //            }
-                //        });
-                //}
-
                 //confirm
                 if (result.value) {
 
@@ -205,8 +229,12 @@ function InitialRepeater() {
                     var trows = parseInt($("#totalrow").val()) - 1;
                     $("#totalrow").val(trows);
 
-                    var deletedCode = $(this).repeaterVal()["group-a"][0].txtItemCode;
-
+                    //get the values of the inputs as a formatted object
+                    var valr = $('.repeater').repeaterVal();
+                    console.log(valr);
+                    console.log('success get val');
+                    var deletedCode = $(this).repeaterVal()["group-a"][0].ddlSearchItem;
+                    alert(deletedCode);
                     //Total Price Calculator each row
                     var id;
                     var price;
@@ -214,7 +242,7 @@ function InitialRepeater() {
                     $(".group-a :input").each(function (e) {
                         id = this.id;
 
-                        if (this.id == "txtItemCode") {
+                        if (this.id == "ddlSearchItem") {
                             if (this.value == deletedCode) {
                                 console.log(this.name);
                                 var res = this.name.split('[');
@@ -255,27 +283,124 @@ function InitialRepeater() {
             });
         },
         ready: function (setIndexes) {
-            //
+            //$('.select2').select2({
+            //    placeholder: 'Select an option'
+            //});
         },
         isFirstItemUndeletable: false
     });
 }
 
-function CalculateRateByCode(qty, name) {
+function InitialItemRepeater() {
+    window.outerRepeater = $('.repeater-default').repeater({
+        isFirstItemUndeletable: false,
+        initEmpty: false,
+        //defaultValues: { 'text-input': 'outer-default' },
+        show: function () {
+            console.log('outer show');
+            $(this).slideDown();
+            $(this).find('select').each(function () {
+                if (typeof $(this).attr('id') === "undefined") {
+                    // ...
+                } else {
+                    $('.ddl-searchitem').removeAttr("id").removeAttr("data-select2-id"); //some times id was not unique So select2 not working, so i remove id
+                    $('.ddl-searchitem').select2();
+                    //$('.ddl-searchitem').on('change', function (event) {
+                    //    var selected_element = $(event.currentTarget);
+                    //    var select_val = selected_element.val();
+                    //    alert('InitialRepeater -> ' + select_val);
+                    //});
+                    $('.ddl-searchitem-container').css('width', '100%');
+                    $('.ddl-searchitem').next().next().remove();
+                }
+            });
+        },
+        hide: function (deleteElement) {
+
+            //Remove total row
+            var trows = parseInt($("#totalrow").val()) - 1;
+            $("#totalrow").val(trows);
+
+            //Delete row
+            $(this).slideUp(deleteElement);
+            console.log('row deleted');
+
+            //Get ItemCode-Key from delete row from select2
+            var deletedCode = $(this).repeaterVal()["outer-item-group"][0].ddlSearchItem;
+
+            //Re-calculate price
+            var price;
+            $(".outer-item-group :input").each(function (e) {
+                if (this.type == 'select-one') {
+                    if (this.value == deletedCode) {
+                        console.log(this.name);
+                        var res = this.name.split('[');
+                        var resIdx = res[1].split(']');
+                        var txtAmt = $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val();
+                        price = txtAmt;
+                        console.log('Set delete => price : ' + price);
+                    }
+                    else {
+                        //Code here
+                    }
+                }
+            });
+
+            var totalAmt = 0;
+            var idx = 0;
+            $(".outer-item-group :input").each(function (e) {
+                if (this.id == "txtAmount") {
+                    console.log('row : ' + idx);
+                    var resAmt = $("input[name='outer-item-group[" + idx + "][txtAmount]']").val();
+                    if (new Number(resAmt) == price) {
+                        //Do nothing
+                    }
+                    else {
+                        totalAmt += new Number(resAmt);
+                    }
+                    idx += 1;
+                }
+            });
+
+            console.log('Re-calculate price:' + totalAmt);
+            $("#txtSummaryTHB").val(currencyFormat(totalAmt));
+        }
+    });
+}
+
+function CalculatePriceByPrice(price, name) {
     var res = name.split('[');
     var resIdx = res[1].split(']');
 
-    var curCode = $("input[name='" + name + "']").val();
+    var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val() | 0;
+    var total = parseFloat(price) * qty;
 
-    //Set currency code to upper case
-    $("input[name='" + name + "']").val(curCode.toUpperCase());
+    $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+
+    //Sum total amount
+    var totalRow = parseInt($("#totalrow").val());
+    var totalAmt = 0;
+    for (var i = 0; i < totalRow; i++) {
+        var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
+        totalAmt += parseFloat(txtAmt);
+    }
+    $("#txtSummaryTHB").val(currencyFormat(totalAmt));
+
+}
+
+function CalculatePriceByKey(itemkey, name) {
+    var res = name.split('[');
+    var resIdx = res[1].split(']');
+    //alert('index -> ' + resIdx[0]);
+    //var curCode = $("input[name='" + name + "']").val();
+    //Set new Rate
 
     var ajaxRequest = $.ajax({
-        url: 'GetItemPriceByCode',
+        url: 'GetItemPriceByID',
         async: true,
         type: 'POST',
         dataType: 'JSON',
-        data: { "curCode": curCode },
+        data: { "itemId": itemkey },
         success: function (response) {
 
             if (!response.result) {
@@ -283,17 +408,18 @@ function CalculateRateByCode(qty, name) {
                 return;
             }
 
-            //Set new Rate
-            $("input[name='group-a[" + resIdx[0] + "][txtItemPrice]']").val(response.data);
+            //Set item price
+            $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val(response.data);
 
-            //Re-check qty if is null
+            //Get & Re-check qty if is null
+            var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val() | 0;
             if (isNaN(qty)) {
-                qty = $("input[name='group-a[" + resIdx[0] + "][txtItemQty]']").val();
+                qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val();
             }
 
-            var curRate = $("input[name='group-a[" + resIdx[0] + "][txtItemPrice]']").val();
-            var total = parseFloat(curRate) * qty;
-            $("input[name='group-a[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+            //var curRate = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
+            var total = parseFloat(response.data) * qty;
+            $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
 
             //Sum total amount
             var totalAmt = 0;
@@ -301,7 +427,7 @@ function CalculateRateByCode(qty, name) {
             var totalRow = parseInt($("#totalrow").val());
 
             for (var i = 0; i < totalRow; i++) {
-                var txtAmt = $("input[name='group-a[" + i + "][txtAmount]']").val();
+                var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val();
                 totalAmt += parseFloat(txtAmt);
             }
 
@@ -315,67 +441,51 @@ function CalculateRateByCode(qty, name) {
         }
     });
 
+
 }
 
-$("#btnSave").on('click', function () {
-    //var isValid = $("#frmCurrency").valid();
-    var data = $($("#frmSelling")).serializeJSON();
-    $.post("ItemDataValidation", { data }).then(
-        function (results) {
+function CalculatePriceByQty(qty, name) {
+    var res = name.split('[');
+    var resIdx = res[1].split(']');
 
-            //ShowMessageSuccess(results.msg + '|' + results.result);
+    var itemPrice = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
+    var total = parseFloat(itemPrice) * qty;
 
-            if (results.result) {
+    $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
 
-                console.log(results.msg);
+    //Sum total amount
+    var totalRow = parseInt($("#totalrow").val());
+    var totalAmt = 0;
+    for (var i = 0; i < totalRow; i++) {
+        var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
+        totalAmt += parseFloat(txtAmt);
+    }
+    $("#txtSummaryTHB").val(currencyFormat(totalAmt));
+}
 
-                Swal.fire({
-                    //title: 'ยืนยันการบันทึกข้อมูล?',
-                    //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-                    //type: 'warning',
-                    title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
-                    icon: 'warning',
-                    html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>'
-                        + '<br>' + results.msg + '',
-                    showCancelButton: true,
-                    //showDenyButton: true,
-                    confirmButtonColor: '#04B431',
-                    confirmButtonText: 'บันทึก',
-                    cancelButtonColor: '#D33',
-                    cancelButtonText: "ยกเลิก",
-                    //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-                    //denyButtonColor: '#D33',
-                    customClass: {
-                        confirmButton: 'btn btn-success',
-                        denyButton: 'btn btn-warning ml-1',
-                        cancelButton: 'btn btn-danger ml-1'
-                    },
-                    buttonsStyling: false,
-                    focusConfirm: true
-                }).then(function (result) {
-                    if (result.value) {
-                        $("#frmSelling").submit();
-                    }
-                    else if (result.dismiss === Swal.DismissReason.cancel) {
-                        //Code
-                    }
-                });
-            }
-            else {
-                ShowMessageError(results.msg);
-                return;
-            }
+function OnSuccess(data) {
+    $("#txtSummaryTHB").val(0);
 
+    if (data.result) {
+        ShowMessageSuccess(data.msg);
+        /*InitialAddItemPartial();*/
+        ResetForm();
+    }
+    else {
+        ShowMessageError(data.msg);
+    }
+}
 
-        }, function (results) {
-            //Failed
-            console.log('Failed');
-            ShowMessageError(results.message);
-
-        }, function () {
-            ShowMessageError('Unknow error => UpdateOrderDetailStatus.');
-            console.log('this will run if the deferred generates a progress update.');
-        }
-    );
-
-});
+function ResetForm() {
+    $('.outer-item-group').empty();
+    $('#frmSelling')[0].reset(); // [0] gets the DOM element from the jQuery object
+    //$(".ddl-searchitem").select2({
+    //    allowClear: true
+    //});
+    /*$("#ddlSearchItem").on('change', function () { $(this).val("").select2(); });*/
+    //$('.ddl-searchitem').select2({
+    //    placeholder: "-- เลือกสินค้าขาย --",
+    //    allowClear: true,
+    //    width: '100%',
+    //})
+}

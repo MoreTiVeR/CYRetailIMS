@@ -3,6 +3,7 @@ using AutoMapper;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
+using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
@@ -15,10 +16,13 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class SaleController : BaseController
 {
     private readonly IItemInBranchAPI _itemInBranchAPI;
+    private readonly IItemAPI _itemAPI;
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
-        IItemInBranchAPI itemInBranchAPI) : base(httpClientRequest, mapper, log)
+        IItemInBranchAPI itemInBranchAPI,
+        IItemAPI itemAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
+        _itemAPI = itemAPI;
     }
 
     public IActionResult Index()
@@ -33,10 +37,10 @@ public class SaleController : BaseController
         return View();
     }
 
-	public IActionResult Items()
-	{
-		return View();
-	}
+    public IActionResult Items()
+    {
+        return View();
+    }
 
     /// <summary>
     /// Only for Validation
@@ -74,15 +78,15 @@ public class SaleController : BaseController
             #region Create Transaction detail
             decimal totalAmt = 0;
             decimal totalProfitAmt = 0;
-            int idx = form.Where(w => w.Key.Contains("data[group-a]")).Count() / 4;
+            int idx = form.Where(w => w.Key.Contains("data[outer-item-group]")).Count() / 4;
             for (int i = 0; i < idx; i++)
             {
                 //RequestTransactionDetailDto detailDto = new RequestTransactionDetailDto();
 
-                var code = form.Where(w => w.Key == $"data[group-a][{i}][ddlSearchItem]").FirstOrDefault().Value[0];
-                var rate = form.Where(w => w.Key == $"data[group-a][{i}][txtItemPrice]").FirstOrDefault().Value[0];
-                var qty = form.Where(w => w.Key == $"data[group-a][{i}][txtItemQty]").FirstOrDefault().Value[0];
-                var amt = form.Where(w => w.Key == $"data[group-a][{i}][txtAmount]").FirstOrDefault().Value[0];
+                var code = form.Where(w => w.Key == $"data[outer-item-group][{i}][ddlSearchItem]").FirstOrDefault().Value[0];
+                var rate = form.Where(w => w.Key == $"data[outer-item-group][{i}][txtItemPrice]").FirstOrDefault().Value[0];
+                var qty = form.Where(w => w.Key == $"data[outer-item-group][{i}][txtItemQty]").FirstOrDefault().Value[0];
+                var amt = form.Where(w => w.Key == $"data[outer-item-group][{i}][txtAmount]").FirstOrDefault().Value[0];
 
                 if (!string.IsNullOrEmpty(code) &&
                     !string.IsNullOrEmpty(rate) &&
@@ -179,7 +183,7 @@ public class SaleController : BaseController
             //{
             //    return Json(new { result = false, msg = "ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
             //}
-            return Json(new { result = true, msg = "ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            return Json(new { result = true, msg = "ตรวจสอบข้อมูลถุกต้อง." });
 
         }
         catch (Exception ex)
@@ -198,13 +202,48 @@ public class SaleController : BaseController
 
             decimal totalAmt = 0;
             decimal totalProfitAmt = 0;
-            int idx = form.Where(w => w.Key.Contains("data[group-a]")).Count() / 4;
+            int dddd = (form.Count - 1) / 4;
+            int idx = form.Where(w => w.Key.Contains("outer-item-group")).Count() / 4;
+            for (int i = 0; i < idx; i++)
+            {
+                //RequestTransactionDetailDto detailDto = new RequestTransactionDetailDto();
 
-            return Json(new { result = false, msg = "ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+                var code = form.Where(w => w.Key == $"outer-item-group[{i}][ddlSearchItem]").FirstOrDefault().Value[0];
+                var rate = form.Where(w => w.Key == $"outer-item-group[{i}][txtItemPrice]").FirstOrDefault().Value[0];
+                var qty = form.Where(w => w.Key == $"outer-item-group[{i}][txtItemQty]").FirstOrDefault().Value[0];
+                var amt = form.Where(w => w.Key == $"outer-item-group[{i}][txtAmount]").FirstOrDefault().Value[0];
+
+                if (!string.IsNullOrEmpty(code) &&
+                    !string.IsNullOrEmpty(rate) &&
+                    !string.IsNullOrEmpty(qty) &&
+                    !string.IsNullOrEmpty(amt))
+                {
+                    //Code
+                }
+            }
+            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
         }
         catch (Exception ex)
         {
             return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetItemPriceByID(string itemId)
+    {
+        try
+        {
+            var res = await _itemAPI.GetItemByIdAsync(Convert.ToInt32(itemId));
+            if (res.result)
+            {
+                return Json(new { result = true, data = res.data.price, msg = "สำเร็จ" });
+            }
+            return Json(new { result = false, msg = res.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย, ไม่พบข้อมูลสินค้า. <br> {ex.Message}" });
         }
     }
 

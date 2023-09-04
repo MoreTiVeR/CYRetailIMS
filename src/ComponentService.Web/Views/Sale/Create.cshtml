@@ -24,7 +24,7 @@
 </div>
 <div class="card">
     <div class="card-body">
-        
+
         <div class="row">
             <div class="form-group">
                 <form id="frmSelling" class="form repeater-default" asp-action="SaveSellingItem" asp-controller="Sale" method="post"
@@ -39,12 +39,13 @@
                                 <label>สาขา</label>
                                 <div class="row">
                                     <div class="col-lg-12 col-sm-10 col-12">
-                                        <select id="ddlBranch" class="form-control ddl-ddlBranch" asp-for="branch">
+                                        <select id="ddlBranch" class="form-control select2 ddl-ddlBranch" asp-for="branch">
                                             @if (userProfile.access_branch is not null)
                                             {
                                                 foreach (var branch in userProfile.access_branch)
                                                 {
-                                                    <option value="@branch.branchid">@branch.branchname</option>
+                                                   <option value="@branch.branchid">@branch.branchname</option>
+                                                    <option value="99">99</option>
                                                 }
                                             }
                                             else
@@ -53,6 +54,7 @@
                                             }
                                         </select>
                                     </div>
+                                    <span asp-validation-for="branch" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -64,6 +66,7 @@
                                     <a class="addonset">
                                         <img src="~/assets/img/icons/calendars.svg" alt="img">
                                     </a>
+                                    <span asp-validation-for="saledate" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -71,7 +74,7 @@
                             <div class="form-group">
                                 <label>รวมเงินทั้งหมด :</label>
                                 <div class="input-group">
-                                    <input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน" readonly aria-label="จำนวนเงิน (บาท)" value="0.00" asp-for="amount">
+                                    <input type="number" id="txtSummaryTHB" name="txtSummaryTHB" class="form-control" placeholder="รวมเงิน" readonly aria-label="จำนวนเงิน (บาท)" value="0.00" asp-for="amount">
                                     <div class="input-group-append">
                                         <span class="input-group-text">THB</span>
                                     </div>
@@ -80,11 +83,64 @@
                         </div>
                     </div>
                     <div class="row" id="divSellingItem">
+                        <input id="totalrow" name="totalrow" value="1" hidden />
+                        <div data-repeater-list="outer-item-group" class="outer-item-group">
+                            <div data-repeater-item class="outer-item-group">
+                                <div class="row justify-content-between">
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left search-box">
+                                            <select id="ddlSearchItem" name="ddlSearchItem" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
+                                                @if (ViewBag.ItemInBranch is not null)
+                                                {
+                                                    <option value="">-- เลือกสินค้าขาย --</option>
+                                                    foreach (var item in ViewBag.ItemInBranch as List<GetItemInBranchByBranchIDItemResponseDTO>)
+                                                    {
+                                                        <option value="@item.itemid">@item.brandname | @item.itemname</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtItemPrice" name="txtItemPrice" onchange="return CalculatePriceByPrice(this.value, this.name)" class="form-control" placeholder="ราคาขายสินค้า" readonly>
+                                            <div class="form-control-position">
+                                                <i class="bx bxs-keyboard"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtItemQty" name="txtItemQty" onchange="return CalculatePriceByQty(this.value, this.name)" class="form-control" placeholder="ระบุจำนวน">
+                                            <div class="form-control-position">
+                                                <i class="bx bx-money"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-12 form-group">
+                                        <fieldset>
+                                            <div class="input-group">
+                                                <input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน" aria-label="จำนวนเงิน (บาท)" readonly>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">THB</span>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <button id="btnDeleteRow" class="btn btn-danger text-nowrap" data-repeater-delete type="button">
+                                            <i class="fe fe-x"></i>
+                                            ลบรายการ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="row form-group">
                         <div class="col-lg-12 col-sm-12 col-12">
                             <button id="btnAdd" class="btn btn-primary" data-repeater-create type="button">
-                                <i class="bx bx-plus"></i>
+                                <i class="fe fe-plus"></i>
                                 เพิ่มรายการใหม่
                             </button>
                         </div>
@@ -97,31 +153,34 @@
                                     <input id="txtAmtTransfer" type="text" asp-for="mtransfer" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
                                     <span class="input-group-text">บาท</span>
                                 </div>
+                                <span asp-validation-for="mtransfer" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>ยอดเงินฝาก</label>
                                 <div class="input-group">
-                                    <input id="txtAmtDeposit" type="text" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                                    <input id="txtAmtDeposit" type="text" asp-for="mdeposit" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
                                     <span class="input-group-text">บาท</span>
                                 </div>
+                                <span asp-validation-for="mdeposit" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>ยอดเงินคงเหลือ</label>
                                 <div class="input-group">
-                                    <input id="txtAmtAvailableCash" type="text" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                                    <input id="txtAmtAvailableCash" type="text" asp-for="mcash" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
                                     <span class="input-group-text">บาท</span>
                                 </div>
+                                <span asp-validation-for="mcash" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-        
+
         <div class="row">
             <div class="col-lg-12">
                 <button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
@@ -140,7 +199,7 @@
 <!-- /product list -->
 @section Scripts{
 
-    <script src="~/assets/plugins/repeater/jquery.repeater.min.js"></script>
+    <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
     <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
     <script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
     <script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
@@ -150,21 +209,10 @@
     <!--Page Script-->
     <script src="~/js/view/sale/sale_create.js" asp-append-version="true"></script>
 
-
     <script>
         $(document).ready(function () {
-            $('.repeater').repeater({
-                // (Required if there is a nested repeater)
-                // Specify the configuration of the nested repeaters.
-                // Nested configuration follows the same format as the base configuration,
-                // supporting options "defaultValues", "show", "hide", etc.
-                // Nested repeaters additionally require a "selector" field.
-                repeaters: [{
-                    // (Required)
-                    // Specify the jQuery selector for this nested repeater
-                    selector: '.inner-repeater'
-                }]
-            });
+
+            
         });
     </script>
 }
