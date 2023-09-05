@@ -1,11 +1,15 @@
 ﻿
-$(document).ready(function () {
-    InitialDatePicker();
-    InitialNumberInput();
-    //InitialRepeater();
-    InitialItemRepeater();
-    $('.select2').select2();
-});
+//$(document).ready(function () {
+//    InitialDatePicker();
+//    InitialNumberInput();
+//    InitialItemRepeater();
+//    $('.select2').select2();
+//});
+
+InitialDatePicker();
+InitialNumberInput();
+InitialItemRepeater();
+$('.select2').select2();
 
 $(document).on('change', '.select2', function (e) {
     // Get the selected value
@@ -20,86 +24,70 @@ $(document).on('change', '.select2', function (e) {
 
 $("#btnSave").on('click', function () {
     //var isValid = $("#frmCurrency").valid();
-    var data = $($("#frmSelling")).serializeJSON();
-    $.post("ItemDataValidation", { data }).then(
-        function (results) {
+    //$("#frmSelling").validate();
+    if (!$("#frmSelling").valid()) {
+        ShowMessageError('กรุณาตรวจสอบข้อมูลก่อนบันทึกข้อมูล!');
+    }
+    else {
+        var data = $($("#frmSelling")).serializeJSON();
+        $.post("ItemDataValidation", { data }).then(
+            function (results) {
 
-            if (results.result) {
-                console.log(results.msg);
-                Swal.fire({
-                    //title: 'ยืนยันการบันทึกข้อมูล?',
-                    //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-                    //type: 'warning',
-                    title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
-                    icon: 'warning',
-                    html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>'
-                        + '<br>' + results.msg + '',
-                    showCancelButton: true,
-                    //showDenyButton: true,
-                    confirmButtonColor: '#04B431',
-                    confirmButtonText: 'บันทึก',
-                    cancelButtonColor: '#D33',
-                    cancelButtonText: "ยกเลิก",
-                    //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-                    //denyButtonColor: '#D33',
-                    customClass: {
-                        confirmButton: 'btn btn-success',
-                        denyButton: 'btn btn-warning ml-1',
-                        cancelButton: 'btn btn-danger ml-1'
-                    },
-                    buttonsStyling: false,
-                    focusConfirm: true
-                }).then(function (result) {
-                    if (result.value) {
-                        $("#frmSelling").submit();
-                    }
-                    else if (result.dismiss === Swal.DismissReason.cancel) {
-                        //Code
-                    }
-                });
+                if (results.result) {
+                    console.log(results.msg);
+                    Swal.fire({
+                        //title: 'ยืนยันการบันทึกข้อมูล?',
+                        //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+                        //type: 'warning',
+                        title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+                        icon: 'warning',
+                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>'
+                            + '<br>' + results.msg + '',
+                        showCancelButton: true,
+                        //showDenyButton: true,
+                        confirmButtonColor: '#04B431',
+                        confirmButtonText: 'บันทึก',
+                        cancelButtonColor: '#D33',
+                        cancelButtonText: "ยกเลิก",
+                        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                        //denyButtonColor: '#D33',
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            denyButton: 'btn btn-warning ml-1',
+                            cancelButton: 'btn btn-danger ml-1'
+                        },
+                        buttonsStyling: false,
+                        focusConfirm: true
+                    }).then(function (result) {
+                        if (result.value) {
+                            $("#frmSelling").submit();
+                        }
+                        else if (result.dismiss === Swal.DismissReason.cancel) {
+                            //Code
+                        }
+                    });
+                }
+                else {
+                    ShowMessageError(results.msg);
+                    return;
+                }
+
+            }, function (results) {
+                //Failed
+                console.log('Failed');
+                ShowMessageError(results.message);
+
+            }, function () {
+                ShowMessageError('Unknow error => Create Sale data.');
+                console.log('this will run if the deferred generates a progress update.');
             }
-            else {
-                ShowMessageError(results.msg);
-                return;
-            }
-
-        }, function (results) {
-            //Failed
-            console.log('Failed');
-            ShowMessageError(results.message);
-
-        }, function () {
-            ShowMessageError('Unknow error => Create Sale data.');
-            console.log('this will run if the deferred generates a progress update.');
-        }
-    );
-
+        );
+    }
 });
 
 $("#btnAdd").on('click', function () {
     var trows = parseInt($("#totalrow").val()) + parseInt(1);
     $("#totalrow").val(trows);
-
-    //var $div = $('div[id^="another-participant"]:last');
-    //console.log($div);
-
-    //var num = parseInt($div.prop("id").match(/\d+/g), 10) + 1;
-    //console.log(num);
-
-    //var $klon = $div.clone().prop('id', 'another-participant' + num);
-    //console.log($klon);
-
-    //$klon.find('select').each(function () {
-    //    var value = $(this).val();
-    //    var text = $(this).find(':selected').text();
-    //    var id = this.id;
-    //    let name_number = this.name.match(/\d+/);
-    //    name_number++;
-    //    this.id = this.id + '_' + name_number;
-    //    this.name = this.name.replace(/\[[0-9]\]+/, '[' + name_number + ']')
-    //});
-    //// Finally insert $klon after the last div
-    //$div.after($klon);
 });
 
 function AddItem(form) {
@@ -173,124 +161,6 @@ function ValidationEnglishKeyPress() {
     });
 }
 
-function InitialRepeater() {
-    $('.repeater-default').repeater({
-        initEmpty: false,
-        show: function () {
-            $(this).slideDown();
-            $(this).find('select').each(function () {
-                if (typeof $(this).attr('id') === "undefined") {
-                    // ...
-                } else {
-                    $('.ddl-searchitem').removeAttr("id").removeAttr("data-select2-id"); //some times id was not unique So select2 not working, so i remove id 
-                    $('.ddl-searchitem').select2();
-                    //$('.ddl-searchitem').on('change', function (event) {
-                    //    var selected_element = $(event.currentTarget);
-                    //    var select_val = selected_element.val();
-                    //    alert('InitialRepeater -> ' + select_val);
-                    //});
-                    $('.ddl-searchitem-container').css('width', '100%');
-                    $('.ddl-searchitem').next().next().remove();
-                }
-            });
-        },
-        hide: function (deleteElement) {
-
-            Swal.fire({
-                //title: 'ยืนยันการบันทึกข้อมูล?',
-                //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-                //type: 'warning',
-                title: '<strong>ยืนยันการลบข้อมูล?</strong>',
-                icon: 'warning',
-                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการลบ!</span></u>'
-                    + '<br><br>คุณต้องการลบรายการนี้หรือไม่?',
-                showCancelButton: true,
-                //showDenyButton: true,
-                confirmButtonColor: '#04B431',
-                confirmButtonText: 'ตกลง',
-                cancelButtonColor: '#D33',
-                cancelButtonText: "ยกเลิก",
-                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-                //denyButtonColor: '#D33',
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    denyButton: 'btn btn-warning ml-1',
-                    cancelButton: 'btn btn-danger ml-1'
-                },
-                buttonsStyling: false,
-                focusConfirm: true
-            }).then(function (result) {
-
-                //confirm
-                if (result.value) {
-
-                    $(this).slideUp(deleteElement);
-
-                    var trows = parseInt($("#totalrow").val()) - 1;
-                    $("#totalrow").val(trows);
-
-                    //get the values of the inputs as a formatted object
-                    var valr = $('.repeater').repeaterVal();
-                    console.log(valr);
-                    console.log('success get val');
-                    var deletedCode = $(this).repeaterVal()["group-a"][0].ddlSearchItem;
-                    alert(deletedCode);
-                    //Total Price Calculator each row
-                    var id;
-                    var price;
-                    var row = 1;
-                    $(".group-a :input").each(function (e) {
-                        id = this.id;
-
-                        if (this.id == "ddlSearchItem") {
-                            if (this.value == deletedCode) {
-                                console.log(this.name);
-                                var res = this.name.split('[');
-                                var resIdx = res[1].split(']');
-                                var txtAmt = $("input[name='group-a[" + resIdx[0] + "][txtAmount]']").val();
-                                price = txtAmt;
-                                console.log('Set delete => price : ' + price);
-                            }
-                            else {
-                                //Code here
-                            }
-                        }
-                    });
-
-                    var totalAmt = 0;
-                    var idx = 0;
-                    $(".group-a :input").each(function (e) {
-                        if (this.id == "txtAmount") {
-                            console.log('row : ' + idx);
-                            var resAmt = $("input[name='group-a[" + idx + "][txtAmount]']").val();
-                            if (new Number(resAmt) == price) {
-                                //Do nothing
-                            }
-                            else {
-                                totalAmt += new Number(resAmt);
-                            }
-                            idx += 1;
-                        }
-                    });
-
-                    console.log(totalAmt);
-                    //$("#txtSummaryTHB").val(currencyFormat(totalAmt));
-                    $("#frmSelling").submit();
-                }
-                else if (result.dismiss === Swal.DismissReason.cancel) {
-                    //
-                }
-            });
-        },
-        ready: function (setIndexes) {
-            //$('.select2').select2({
-            //    placeholder: 'Select an option'
-            //});
-        },
-        isFirstItemUndeletable: false
-    });
-}
-
 function InitialItemRepeater() {
     window.outerRepeater = $('.repeater-default').repeater({
         isFirstItemUndeletable: false,
@@ -308,7 +178,7 @@ function InitialItemRepeater() {
                     //$('.ddl-searchitem').on('change', function (event) {
                     //    var selected_element = $(event.currentTarget);
                     //    var select_val = selected_element.val();
-                    //    alert('InitialRepeater -> ' + select_val);
+                    //    alert('InitialItemRepeater -> ' + select_val);
                     //});
                     $('.ddl-searchitem-container').css('width', '100%');
                     $('.ddl-searchitem').next().next().remove();
@@ -404,6 +274,7 @@ function CalculatePriceByKey(itemkey, name) {
         success: function (response) {
 
             if (!response.result) {
+                $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
                 ShowMessageError(response.msg);
                 return;
             }
