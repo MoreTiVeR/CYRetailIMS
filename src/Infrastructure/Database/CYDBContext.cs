@@ -68,6 +68,8 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMSupplierType> TMSupplierTypes { get; set; }
 
+    public virtual DbSet<TMTransactionType> TMTransactionTypes { get; set; }
+
     public virtual DbSet<TMTransferType> TMTransferTypes { get; set; }
 
     public virtual DbSet<TMUnitOfMeasure> TMUnitOfMeasures { get; set; }
@@ -87,6 +89,10 @@ public partial class CYDBContext : DbContext
     public virtual DbSet<TTShipment> TTShipments { get; set; }
 
     public virtual DbSet<TTStockTransaction> TTStockTransactions { get; set; }
+
+    public virtual DbSet<TTTransaction> TTTransactions { get; set; }
+
+    public virtual DbSet<TTTransactonDetail> TTTransactonDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -374,6 +380,31 @@ public partial class CYDBContext : DbContext
             entity.HasOne(d => d.Item).WithMany(p => p.TTStockTransactions).HasConstraintName("FK_TTStockTransaction_TMItem");
 
             entity.HasOne(d => d.StockType).WithMany(p => p.TTStockTransactions).HasConstraintName("FK_TTStockTransaction_TMStockType");
+        });
+
+        modelBuilder.Entity<TMTransactionType>(entity =>
+        {
+            entity.HasKey(e => e.TransactionTypeID).HasName("PK_TMTTTransactionType");
+
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+        });
+
+        modelBuilder.Entity<TTTransaction>(entity =>
+        {
+            entity.HasKey(e => e.TransactionID).HasName("PK_TTSaleTransactions");
+
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.TransactionType).WithMany(p => p.TTTransactions).HasConstraintName("FK_TTTransactions_TMTransactionType");
+        });
+
+        modelBuilder.Entity<TTTransactonDetail>(entity =>
+        {
+            entity.HasKey(e => e.TransactionDetailID).HasName("PK_TTSaleTransactonDetail");
+
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.Transaction).WithMany(p => p.TTTransactonDetails).HasConstraintName("FK_TTTransactonDetail_TTTransactions");
         });
 
         OnModelCreatingPartial(modelBuilder);

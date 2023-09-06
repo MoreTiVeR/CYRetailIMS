@@ -28,6 +28,7 @@
     <Folder Include="Services\MenuService\EventHandlers\" />
     <Folder Include="Services\MenuService\Queries\GetMenuList\v1\" />
     <Folder Include="Services\RoleService\" />
+    <Folder Include="Services\TransactionService\Queries\" />
     <Folder Include="Services\UnitOfMeasureService\Commands\" />
     <Folder Include="Services\UnitOfMeasureService\EventHandlers\" />
     <Folder Include="Services\UserInBranchService\Commands\" />
