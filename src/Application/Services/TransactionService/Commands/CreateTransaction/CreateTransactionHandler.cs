@@ -23,17 +23,28 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
 
     public async Task<BaseResponse<CommandResponse>> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
     {
+        #region Begin Tran
         await _unitOfWork.BeginTransactionAsync();
+        #endregion
+
         #region Check Item in branch stock
         List<int> itemList = request.transactiondetail.Select(s => s.itemid).ToList();
-        IEnumerable<TMItemInBranch> resItemInBranch = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => w.BranchID == request.branchid && itemList.Any(s => s.Equals(w.ItemID)));
+        IEnumerable<TMItemInBranch> resItemInBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.branchid && itemList.Any(s => s.Equals(w.ItemID)));
         if (!resItemInBranch.Any())
         {
             throw new Exception("ขออภัย, ไม่พบสินค้าในสต๊อก");
         }
         #endregion
 
-        #region Create Transaction
+        #region Check Qty in branch stock
+        bool isAvailableStock = ValidateQtyInBranchStock(request, resItemInBranch);
+        if (!isAvailableStock)
+        {
+            throw new Exception("ขออภัย, จำนวนสต๊อกสินค้าไม่เพียงพอ!");
+        }
+        #endregion
+
+        #region Create Transaction & Transaction Detail
         TTTransaction tranEntity = MappingTransaction(request);
         tranEntity.SetCreatedBy(request.createdby);
         tranEntity.SetCreatedDate();
@@ -63,10 +74,22 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
             s.Qty = s.Qty - minusQty;
             return s;
         }).ToList();
+
+        //request.transactiondetail.ForEach(i =>
+        //{
+        //    TMItemInBranch itemBranch = _unitOfWork.Repository<TMItemInBranch>().Find(w => w.ItemID == i.itemid);
+        //    if(ValidateQtyInBranchStock(i, itemBranch))
+        //    {
+        //        itemBranch.Qty = itemBranch.Qty - i.qty;
+        //    }
+        //});
         #endregion
 
+        #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
         await _unitOfWork.CommitTransactionAsync();
+        #endregion
+
         return new BaseResponse<CommandResponse>
         {
             result = true,
@@ -75,7 +98,11 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
             message = "Success",
             soruce = "db"
         };
-        //throw new NotImplementedException();
+    }
+
+    private async Task ValidateQtyBeforeUpdateStock(TMItemInBranch s, int minusQty)
+    {
+        var dsds = await _unitOfWork.Repository<TMItemInBranch>().AnyAsync(w => w.ItemID == s.ItemID && s.Qty < minusQty);
     }
 
     private TTTransaction MappingTransaction(CreateTransactionCommand createTransactionCommand)
@@ -105,5 +132,25 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
                                  IsActive = a.isactive
                              }).ToList();
         return resTranDetail;
+    }
+
+    private bool ValidateQtyInBranchStock(CreateTransactionCommand request, IEnumerable<TMItemInBranch> itemInBranches)
+    {
+        request.transactiondetail.ForEach(item =>
+        {
+            if(!itemInBranches.Any(stock => stock.Qty > 0 && item.qty <= stock.Qty))
+            {
+                throw new Exception($"ขออภัย, จำนวนสินค้าในสต๊อกไม่เพียงพอ!");
+            }
+        });
+        return true;
+    }
+    private bool ValidateQtyInBranchStock(CreateTransactionDetailCommand request, TMItemInBranch itemInBranches)
+    {
+        if (itemInBranches.Qty <= 0 || itemInBranches.Qty < request.qty)
+        {
+            throw new Exception($"ขออภัย, จำนวนสินค้าในสต๊อกไม่เพียงพอ!");
+        }
+        return true;
     }
 }

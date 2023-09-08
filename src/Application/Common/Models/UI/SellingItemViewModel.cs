@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace CYRetailIMS.Application.Common.Models.UI;
 public class AddSaleItemViewModel
@@ -15,6 +16,8 @@ public class AddSaleItemViewModel
     public decimal txtAmount { get; set; }
 }
 
+[Serializable]
+[JsonObject]
 public class SellingItemViewModel
 {
     [Required(ErrorMessage = "* กรุณาระบุสาขา")]

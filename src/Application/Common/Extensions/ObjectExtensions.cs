@@ -17,6 +17,24 @@ public static class ObjectExtensions
         catch { return false; }
     }
 
+    public static int ToInt32(this string obj)
+    {
+        int.TryParse(obj, out int result);
+        return result;
+    }
+
+    public static decimal ToDecimal(this string obj)
+    {
+        decimal.TryParse(obj, out decimal result);
+        return result;
+    }
+
+    public static double ToFloat(this string obj)
+    {
+        double.TryParse(obj, out double result);
+        return result;
+    }
+
     public static T ToDataObject<T>(this string strContent)
     {
         return JsonConvert.DeserializeObject<T>(strContent);

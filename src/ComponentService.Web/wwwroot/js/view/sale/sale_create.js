@@ -64,6 +64,7 @@ $("#btnSave").on('click', function () {
                         }
                         else if (result.dismiss === Swal.DismissReason.cancel) {
                             //Code
+                            ShowMessageInfo('ยกเลิก');
                         }
                     });
                 }

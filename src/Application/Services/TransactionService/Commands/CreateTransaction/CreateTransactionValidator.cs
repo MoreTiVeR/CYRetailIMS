@@ -13,10 +13,15 @@ public class CreateTransactionValidator : AbstractValidator<CreateTransactionCom
         RuleFor(r => r.transactiontypeid).NotNull().Must(s => s > 0).WithMessage("ประเภทการขายปลีก-ส่ง");
         RuleFor(r => r.branchid).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุสาขา");
         RuleFor(r => r.transactiondate).NotNull().WithMessage("กรุณาระบุวันที่ขายสินค้า");
-        RuleFor(r => r.amounttransfer).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุยอดเงินโอน");
-        RuleFor(r => r.amountdeposit).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุยอดเงินฝากธนาคาร");
-        RuleFor(r => r.amountcash).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุยอดเงินคงเหลือหน้าร้าน");
-        RuleFor(r => r.totalamount).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุยอดเงินขายสินค้าทั้งหมด");
+        RuleFor(r => r.amounttransfer).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินโอน");
+        RuleFor(r => r.amountdeposit).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินฝากธนาคาร");
+        RuleFor(r => r.amountcash).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินคงเหลือหน้าร้าน");
+        //RuleFor(r => r.totalamount).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุยอดเงินขายสินค้าทั้งหมด");
+        //RuleFor(r => r).NotNull().Must(s => s.totalamount > 0).Must(s => s.totalamount == (s.amountcash + s.amountdeposit + s.amountdeposit)).WithMessage("กรุณาระบุยอดเงินรวมทั้งหมดตรงกับยอดขาย กรุณาตรวจสอบใหม่อีกครั้ง");
+        //RuleFor(command => command.totalamount).NotNull().Must((command) => IsValidTotalAmount(command));
+        
+        RuleFor(r => r.totalamount).Must((r, totalAmount) => IsValidTotalAmount(r, totalAmount)).WithMessage("ยอดเงินรวมทั้งหมดไม่ตรงกับยอดขาย กรุณาตรวจสอบใหม่อีกครั้ง");
+
         RuleFor(r => r.createdby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
         RuleFor(r => r.isactive).NotNull().Must(x => x == true || x == false).WithMessage("ระบุสถานะการทำรายการ เปิดใช้งาน|ไม่ใช้งาน");
 
@@ -34,5 +39,14 @@ public class CreateTransactionValidator : AbstractValidator<CreateTransactionCom
             .Must(coll => coll.Sum(item => item.amount) == coll.Sum(item => item.price * item.qty)).WithMessage(x => $"จำนวนเงินรวม ไม่ตรงกับยอดขายสินค้า กรุณาตรวจสอบใหม่อีกครั้ง")
             .Must(coll => coll.Sum(item => item.amount) > 0).WithMessage("จำนวนเงินรวมไม่ถูกต้อง กรุณาตรวจสอบใหม่อีกครั้ง")
             .When(x => x.transactiondetail != null);
+    }
+
+    private bool IsValidTotalAmount(CreateTransactionCommand command, decimal totalAmount)
+    {
+        // Calculate the sum of Amount Cash and Amount Deposit
+        decimal calculatedTotal = command.amounttransfer + command.amountdeposit + command.amountcash;
+
+        // Compare the calculated total with the provided Total Amount
+        return totalAmount == calculatedTotal;
     }
 }

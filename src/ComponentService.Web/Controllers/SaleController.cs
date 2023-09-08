@@ -1,12 +1,16 @@
 ﻿using System.Text;
 using AutoMapper;
+using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
+using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
+using CYRetailIMS.ComponentService.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -17,12 +21,16 @@ public class SaleController : BaseController
 {
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IItemAPI _itemAPI;
+    private readonly ITransactionAPI _transactionAPI;
+
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemInBranchAPI itemInBranchAPI,
-        IItemAPI itemAPI) : base(httpClientRequest, mapper, log)
+        IItemAPI itemAPI,
+        ITransactionAPI transactionAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
         _itemAPI = itemAPI;
+        _transactionAPI = transactionAPI;
     }
 
     public IActionResult Index()
@@ -62,7 +70,7 @@ public class SaleController : BaseController
 
             #region Prepare new from with not empty value
             form = form.Where(w => w.Key.Contains("data[outer-item-group]")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
-            if(form.Count == 0)
+            if (form.Count == 0)
             {
                 return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
             }
@@ -106,10 +114,16 @@ public class SaleController : BaseController
         }
     }
 
+    [HttpPost]
     public async Task<IActionResult> SaveSellingItem(SellingItemViewModel sellingItemObj)
     {
         try
         {
+            if (!base.UserProfile.access_branch.Any(w => w.branchid == sellingItemObj.branch.ToInt32()))
+            {
+                return Json(new { result = false, msg = $"{GlobalMessageModel.ErrorInvalidBranch}" });
+            }
+
             #region Get form value
             List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
             #endregion
@@ -122,28 +136,46 @@ public class SaleController : BaseController
             }
             #endregion
 
+            #region PrePare TransactionRequest
+            List<CreateTransactionDetailCommand> createTransactionDetailCommands = new List<CreateTransactionDetailCommand>();
+            #endregion
+
             decimal totalAmt = 0;
             decimal totalProfitAmt = 0;
             int idx = form.Count / 4;
             for (int i = 0; i < idx; i++)
             {
-                var code = form.Where(w => w.Key == $"outer-item-group[{i}][ddlSearchItem]").FirstOrDefault().Value[0];
-                var rate = form.Where(w => w.Key == $"outer-item-group[{i}][txtItemPrice]").FirstOrDefault().Value[0];
+                var itemid = form.Where(w => w.Key == $"outer-item-group[{i}][ddlSearchItem]").FirstOrDefault().Value[0];
+                var itemprice = form.Where(w => w.Key == $"outer-item-group[{i}][txtItemPrice]").FirstOrDefault().Value[0];
                 var qty = form.Where(w => w.Key == $"outer-item-group[{i}][txtItemQty]").FirstOrDefault().Value[0];
                 var amt = form.Where(w => w.Key == $"outer-item-group[{i}][txtAmount]").FirstOrDefault().Value[0];
 
-                if (!string.IsNullOrEmpty(code) &&
-                    !string.IsNullOrEmpty(rate) &&
+                if (!string.IsNullOrEmpty(itemid) &&
+                    !string.IsNullOrEmpty(itemprice) &&
                     !string.IsNullOrEmpty(qty) &&
                     !string.IsNullOrEmpty(amt))
                 {
-                    //Code
+                    createTransactionDetailCommands.Add(new CreateTransactionDetailCommand
+                    {
+                        itemid = itemid.ToInt32(),
+                        price = itemprice.ToDecimal(),
+                        qty = qty.ToInt32(),
+                        //amount = amt.ToDecimal(),
+                        amount = decimal.Multiply(itemprice.ToDecimal(), qty.ToInt32()),
+                        isactive = true
+                    });
                 }
             }
 
-            #region Create Object
-
+            #region Prepare & Create Transaction
+            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionCommand(sellingItemObj, createTransactionDetailCommands);
+            BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            }
             #endregion
+
             return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
         }
         catch (Exception ex)
@@ -171,7 +203,25 @@ public class SaleController : BaseController
     }
 
     #region Private Method
-
+    private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj, List<CreateTransactionDetailCommand> createTransactionDetailCommands)
+    {
+        decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
+        return new CreateTransactionCommand
+        {
+            transactiontypeid = 1, //Retail
+            amountcash = reqObj.mcash,
+            amountdeposit = reqObj.mdeposit,
+            amounttransfer = reqObj.mtransfer,
+            branchid = reqObj.branch.ToInt32(),
+            totalamount = toalAmt,
+            isactive = true,
+            isexcludevat = false,
+            transactiondate = reqObj.saledate,
+            creadeddate = DateTime.Now,
+            createdby = base.UserProfile.username,
+            transactiondetail = createTransactionDetailCommands
+        };
+    }
     #endregion
 
     #region Partial Page
