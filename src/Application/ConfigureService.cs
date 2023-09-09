@@ -13,6 +13,7 @@ using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
@@ -58,6 +59,7 @@ public static class ConfigureService
 
             mc.AddProfile<GetItemBrandByIDMappingProfile>();
             mc.AddProfile<GetItemBrandListMappingProfile>();
+            mc.AddProfile<GetItemInBranchByBranchListMappingProfile>();
 
             mc.AddProfile<GetBranchByIDMappingProfile>();
             mc.AddProfile<GetBranchListMappingProfile>();

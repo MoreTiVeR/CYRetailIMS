@@ -11,7 +11,7 @@ public class GetItemInBranchByBranchIDResponseDTO
 {
 	public int branchid { get; set; }
 
-    public string branchname { get; set; }
+	public string branchname { get; set; }
 
-    public List<GetItemInBranchByBranchIDItemResponseDTO> itemlist { get; set; }
+	public List<GetItemInBranchByBranchIDItemResponseDTO> itemlist { get; set; }
 }

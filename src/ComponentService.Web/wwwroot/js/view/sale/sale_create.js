@@ -1,4 +1,4 @@
-﻿
+﻿var datepicker;
 //$(document).ready(function () {
 //    InitialDatePicker();
 //    InitialNumberInput();
@@ -340,7 +340,7 @@ function OnSuccess(data) {
 
     if (data.result) {
         ShowMessageSuccess(data.msg);
-        /*InitialAddItemPartial();*/
+        AlertSuccess(data.msg);
         ResetForm();
     }
     else {
@@ -351,6 +351,7 @@ function OnSuccess(data) {
 function ResetForm() {
     $('.outer-item-group').empty();
     $('#frmSelling')[0].reset(); // [0] gets the DOM element from the jQuery object
+
     //$(".ddl-searchitem").select2({
     //    allowClear: true
     //});
@@ -361,3 +362,4 @@ function ResetForm() {
     //    width: '100%',
     //})
 }
+

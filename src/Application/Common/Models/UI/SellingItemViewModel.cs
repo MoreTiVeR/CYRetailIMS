@@ -26,7 +26,9 @@ public class SellingItemViewModel
 
     [Required(ErrorMessage = "* กรุณาระบุวันที่ขาย")]
     [Display(Name = "วันที่ขาย")]
-    public DateTime saledate { get; set; }
+    //public DateTime saledate { get; set; }
+    public string saledate { get; set; }
+
     public int qty { get; set; }
 
     [Required(ErrorMessage = "* กรุณาระบุยอดเงินโอน")]

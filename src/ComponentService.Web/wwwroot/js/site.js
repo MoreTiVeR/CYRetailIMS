@@ -1,13 +1,14 @@
 ﻿var datepicker;
-$(document).ready(function () {
-    
+//$(document).ready(function () {
 
-});
+
+//});
 
 function InitialDatePicker() {
     var $input = $('.pickadate-saledate').pickadate({
         selectYears: true,
         selectMonths: true,
+        language: 'th-th',
         format: 'dd/mm/yyyy',
         formatSubmit: 'dd/mm/yyyy',
         monthsFull: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'],

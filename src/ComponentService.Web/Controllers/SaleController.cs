@@ -1,14 +1,19 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
+using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
+using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -21,21 +26,31 @@ public class SaleController : BaseController
 {
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IItemAPI _itemAPI;
-    private readonly ITransactionAPI _transactionAPI;
+	private readonly ITransactionAPI _transactionAPI;
 
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemInBranchAPI itemInBranchAPI,
         IItemAPI itemAPI,
-        ITransactionAPI transactionAPI) : base(httpClientRequest, mapper, log)
+		ITransactionAPI transactionAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
         _itemAPI = itemAPI;
-        _transactionAPI = transactionAPI;
+		_transactionAPI = transactionAPI;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> IndexAsync()
     {
-        return View();
+        BaseResponse<List<GetItemInBranchByBranchListResponseDTO>> resItemBrandList = await _itemInBranchAPI.GetItemInBranchByBranchListAsync(new GetItemInBranchByBranchListQuery
+		{
+            branchid_list = base.UserProfile.access_branch.Select(s => s.branchid).ToList()
+		});
+
+		BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+
+		ViewBag.BranchList = base.UserProfile.access_branch;
+        ViewBag.ItemBranchList = resItemBrandList.data.SelectMany(s => s.itemlist);
+        ViewBag.TransactionList = resTransaction;
+		return View();
     }
 
     public async Task<IActionResult> Create()
@@ -205,6 +220,10 @@ public class SaleController : BaseController
     #region Private Method
     private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj, List<CreateTransactionDetailCommand> createTransactionDetailCommands)
     {
+        //DateTime.TryParseExact(reqObj.saledate, "dd/MM/yyyy", new System.Globalization.CultureInfo("en-US"), System.Globalization.DateTimeStyles.None, out DateTime dt);
+        //var dt2 = DateTime.ParseExact(reqObj.saledate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+        //var dt3 = DateTime.ParseExact(reqObj.saledate, "dd/MM/yyyy", new System.Globalization.CultureInfo("en-US"));
+
         decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
         return new CreateTransactionCommand
         {
@@ -216,7 +235,7 @@ public class SaleController : BaseController
             totalamount = toalAmt,
             isactive = true,
             isexcludevat = false,
-            transactiondate = reqObj.saledate,
+            transactiondate = reqObj.saledate.ToDateTime(),
             creadeddate = DateTime.Now,
             createdby = base.UserProfile.username,
             transactiondetail = createTransactionDetailCommands
