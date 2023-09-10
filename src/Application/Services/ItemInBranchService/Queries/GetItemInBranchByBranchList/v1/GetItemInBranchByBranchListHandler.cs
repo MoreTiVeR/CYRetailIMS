@@ -23,10 +23,11 @@ public class GetItemInBranchByBranchListHandler : BaseService, IRequestHandler<G
 	public async Task<BaseResponse<List<GetItemInBranchByBranchListResponseDTO>>> Handle(GetItemInBranchByBranchListQuery request, CancellationToken cancellationToken)
 	{
 		IEnumerable<TMItemInBranch> resItemBranch = await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => request.branchid_list.Contains(w.BranchID) && w.IsActive,
-			i => i.Include(x => x.Branch),
-			ii => ii.Include(xx => xx.Item),
-			iii => iii.Include(xxx => xxx.Item.Brand));
-		if (!resItemBranch.Any())
+            i => i.Include(x => x.Branch),
+            i => i.Include(x => x.Item),
+            i => i.Include(x => x.Item.Brand),
+            i => i.Include(x => x.Item.ItemType));
+        if (!resItemBranch.Any())
 		{
 			throw new Exception("Data not found");
 		}
@@ -38,15 +39,18 @@ public class GetItemInBranchByBranchListHandler : BaseService, IRequestHandler<G
 			itemlist = (from x in s
 						select new GetItemInBranchByBranchIDItemResponseDTO
 						{
-							itemid = x.ItemID,
-							itemname = x.Item.Name,
-							itemcode = x.Item.ItemCode,
-							brandname = x.Item.Brand.BrandName,
-							brandshortname = x.Item.Brand.BrandShortName,
-							price = x.Price,
-							discountpercent = x.DiscountPercent,
-							qty = x.Qty
-						}).ToList()
+                            itemid = x.ItemID,
+                            itemname = x.Item.Name,
+                            itemcode = x.Item.ItemCode,
+                            brandname = x.Item.Brand.BrandName,
+                            brandshortname = x.Item.Brand.BrandShortName,
+                            price = x.Price,
+                            discountpercent = x.DiscountPercent,
+                            qty = x.Qty,
+                            description = x.Item.Description,
+                            itemtypeid = x.Item.ItemTypeID,
+                            itemtypename = x.Item.ItemType.ItemTypeName
+                        }).ToList()
 		}).OrderBy(o => o.branchid).ToList();
 
 		if (!resItemBranch.Any())

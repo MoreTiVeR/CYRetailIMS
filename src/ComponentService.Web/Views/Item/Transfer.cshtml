@@ -1,85 +1,166 @@
-﻿
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+
 @{
     ViewData["Title"] = "Transfer";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@model TransferItemViewModel
 
 <div class="page-header">
 	<div class="page-title">
-		<h4>ทรานเฟอร์สินค้า</h4>
-		<h6>ทรานเฟอร์สินค้าไปยังสาขา</h6>
+		<h4>โอนสินค้า</h4>
+		<h6>โอนสินค้าไปยังสาขา</h6>
 	</div>
 </div>
 <div class="card">
 	<div class="card-body">
+        <div class="row">
+            <div class="form-group">
+                <form id="frmTransferItem" class="form repeater-default" asp-action="SaveTransaferItem" asp-controller="Item" method="post"
+                      data-ajax="true"
+                      data-ajax-update=""
+                      data-ajax-success="OnSuccess"
+                      data-ajax-failure=""
+                      data-ajax-begin="">
+                    <div class="row">
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>ประเภทการโอนสินค้า</label>
+                                <select class="ddl-select2 select2" asp-for="transfertypeid">
+                                    <option value="">-- ระบุประเภทการโอนสินค้า --</option>
+                                    <option value="1">(WTB) โอนจากคลังไปยังสาขา</option>
+                                    <option value="2">(BTB) โอนจากสาขาไปยังสาขาา</option>
+                                    <option value="3">(WTW) โอนจากคลังไปยังคลัง</option>
+                                </select>
+                                <span asp-validation-for="transfertypeid" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>จากสาขา</label>
+                                <select class="ddl-select2 select2" asp-for="source_branchid">
+                                    <option value="">Choose</option>
+                                    <option value="1">Store 1</option>
+                                    <option value="2">Store 2</option>
+                                </select>
+                                <span asp-validation-for="source_branchid" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>ไปยังสาขา</label>
+                                <select class="ddl-select2 select2" asp-for="destination_branchid">
+                                    <option value="">Choose</option>
+                                    <option value="1">Store 1</option>
+                                    <option value="2">Store 2</option>
+                                </select>
+                                <span asp-validation-for="destination_branchid" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                        </div>
+                    </div>
+                    <div class="row" id="divTransferItem">
+                        <input id="totalrow" name="totalrow" value="1" hidden />
+                        <div data-repeater-list="outer-item-group" class="outer-item-group">
+                            <div data-repeater-item class="outer-item-group">
+                                <div class="row justify-content-between">
+                                    <div class="col-md-3 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left search-box">
+                                            <select id="ddlSearchItem" name="ddlSearchItem" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
+                                                @if (ViewBag.ItemList.result)
+                                                {
+                                                    <option value="">-- เลือกสินค้าที่ต้องการโอน --</option>
+                                                    foreach (var item in ViewBag.ItemList.data as List<GetItemListResponseDTO>)
+                                                    {
+                                                        <option value="@item.itemid">@item.brandname | @item.name</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtItemPrice" name="txtItemPrice" class="form-control" placeholder="ราคาขายสินค้า" readonly>
+                                            <div class="form-control-position">
+                                                <i class="bx bxs-keyboard"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtCurrentQty" name="txtCurrentQty" class="form-control" placeholder="จำนวนคงเหลือ" readonly>
+                                            <div class="form-control-position">
+                                                <i class="bx bx-money"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtTransferQty" name="txtTransferQty" onchange="return ValidateTransferQty(this.value, this.name)" class="form-control" placeholder="ระบุจำนวนโอน">
+                                            <div class="form-control-position">
+                                                <i class="bx bx-money"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*<div class="col-md-3 col-sm-12 form-group">
+                                        <fieldset>
+                                            <div class="input-group">
+                                                <input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน" aria-label="จำนวนเงิน (บาท)" readonly>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">THB</span>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>*@
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <button id="btnDeleteRow" class="btn btn-danger text-nowrap" data-repeater-delete type="button">
+                                            <i class="fe fe-x"></i>
+                                            ลบรายการ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-lg-12 col-sm-12 col-12">
+                            <button id="btnAdd" class="btn btn-primary" data-repeater-create type="button">
+                                <i class="fe fe-plus"></i>
+                                เพิ่มรายการใหม่
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea class="form-control" asp-for="description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 		<div class="row">
-			<div class="col-lg-3 col-sm-6 col-12">
-				<div class="form-group">
-					<label>From</label>
-					<select class="select">
-						<option>Choose</option>
-						<option>Store 1</option>
-						<option>Store 2</option>
-					</select>
-				</div>
-			</div>
-			<div class="col-lg-3 col-sm-6 col-12">
-				<div class="form-group">
-					<label>To</label>
-					<select class="select">
-						<option>Choose</option>
-						<option>Store 1</option>
-						<option>Store 2</option>
-					</select>
-				</div>
-			</div>
-			<div class="col-lg-3 col-sm-6 col-12">
-				<div class="form-group">
-					<label> Status </label>
-					<select class="select">
-						<option>Select</option>
-						<option>Completed</option>
-						<option>Inprogress</option>
-					</select>
-				</div>
-			</div>
-			<div class="col-lg-12 col-sm-6 col-12">
-				<div class="row">
-					<div class="col-lg-3 col-sm-6 col-12">
-						<div class="form-group">
-							<a class="btn btn-submit w-100">Download Sample File</a>
-						</div>
-					</div>
-				</div>
-			</div>
 			<div class="col-lg-12">
-				<div class="form-group">
-					<label>	Upload CSV File</label>
-					<div class="image-upload">
-						<input type="file">
-						<div class="image-uploads">
-							<img src="assets/img/icons/upload.svg" alt="img">
-							<h4>Drag and drop a file to upload</h4>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-lg-3 col-sm-6 col-12">
-				<div class="form-group">
-					<label>Shipping</label>
-					<input type="text" value="0">
-				</div>
-			</div>
-			<div class="col-lg-12">
-				<div class="form-group">
-					<label>Description</label>
-					<textarea class="form-control"></textarea>
-				</div>
-			</div>
-			<div class="col-lg-12">
-				<a href="javascript:void(0);" class="btn btn-submit me-2">Submit</a>
-				<a href="javascript:void(0);" class="btn btn-cancel">Cancel</a>
+				<button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
+					<i class="bx bx-plus"></i>
+					ยกเลิก
+				</button>
+				<button id="btnSave" name="btnSave" class="btn btn-submit me-2">
+					<i class="bx bx-plus"></i>
+					บันทึกข้อมูล
+				</button>
 			</div>
 		</div>
 	</div>
 </div>
+<!-- /product list -->
+@section Scripts{
+
+    <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
+	<!--Page Script-->
+	<script src="~/js/view/item/item_transfer.js" asp-append-version="true"></script>
+}

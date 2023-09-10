@@ -24,8 +24,10 @@ public interface IGenericRepository<T> where T : class
 	Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null);
 
 	Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null);
+    
+	Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include4 = null);
 
-	T Add(T entity);
+    T Add(T entity);
 
 	Task<T> AddAsync(T entity);
 

@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Newtonsoft.Json;
+using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using System.Collections.Generic;
 
 namespace CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 
@@ -44,6 +47,18 @@ public class CustomAuthorize : TypeFilterAttribute
                     if (context.HttpContext.User.HasClaim("RoleName", item))
                         flagClaim = true;
                 }
+
+                #region Testing
+                //var requestPath = context.HttpContext.Request.Path.Value;
+                //RouteValueDictionary routeValues = context.HttpContext.Request.RouteValues;
+                //string controllerName = routeValues["controller"].ToString();
+                //string actionName = routeValues["action"].ToString();
+                //List<GetMenuByRoleIDResponseDTO> accessMenu = JsonConvert.DeserializeObject<List<GetMenuByRoleIDResponseDTO>>(claimsIndentity.Claims.FirstOrDefault(w => w.Type == "AccessMenu").Value);
+                //if (!accessMenu.SelectMany(s => s.submenulist).Any(a => a.cms_controllername == controllerName && a.cms_actionname == actionName))
+                //{
+                //    flagClaim = false;
+                //}
+                #endregion
 
                 if (!flagClaim)
                     context.Result = new RedirectResult("~/Permission/AccessDenied");

@@ -22,6 +22,9 @@ using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using Newtonsoft.Json.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections.Generic;
+using CYRetailIMS.ComponentService.Web.Models;
+using CYRetailIMS.Application.Common.Extensions;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -47,18 +50,9 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        //BaseResponse<List<GetItemListResponseDTO>> resItemList = await _httpClientRequest.HttpRequestToObject<List<GetItemListResponseDTO>, GetItemListQuery>(HttpMethod.Get,
-        //	new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/item/v1/getitemlist"), null);
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
-
-        //BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _httpClientRequest.HttpRequestToObject<List<GetItemTypeListResponseDTO>, GetItemTypeListQuery>(HttpMethod.Get,
-        //new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtype/v1/getitemtypelist"), null);
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
-
-        //BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _httpClientRequest.HttpRequestToObject<List<GetItemBrandListResponseDTO>, GetItemBrandListQuery>(HttpMethod.Get,
-        //    new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembrand/v1/getitembrandlist"), null);
         BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
-
         ViewBag.ItemList = resItemList;
         ViewBag.ItemTypeList = resItemTypeList;
         ViewBag.ItemBrandList = resItemBrandList;
@@ -67,19 +61,9 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> Create()
     {
-        //BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _httpClientRequest.HttpRequestToObject<List<GetItemTypeListResponseDTO>, GetItemTypeListQuery>(HttpMethod.Get,
-        //    new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtype/v1/getitemtypelist"), null);
-
-        //BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _httpClientRequest.HttpRequestToObject<List<GetItemBrandListResponseDTO>, GetItemBrandListQuery>(HttpMethod.Get,
-        //    new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembrand/v1/getitembrandlist"), null);
-
-        //BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _httpClientRequest.HttpRequestToObject<List<GetUnitOfMeasureListResponseDTO>, GetUnitOfMeasureListQuery>(HttpMethod.Get,
-        //    new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/unitofmeasure/v1/getunitofmeasure"), null);
-
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
         BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
         BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
-
         ViewBag.ItemTypeList = resItemTypeList;
         ViewBag.ItemBrandList = resItemBrandList;
         ViewBag.ItemUOMList = resUnitOfMeasureList;
@@ -96,8 +80,10 @@ public class ItemController : BaseController
         return View();
     }
 
-    public IActionResult Transfer()
+    public async Task<IActionResult> Transfer()
     {
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
+        ViewBag.ItemList = resItemList;
         return View();
     }
 
@@ -126,6 +112,127 @@ public class ItemController : BaseController
         ViewBag.ItemBrandList = resItemBrandList;
         ViewBag.ItemUOMList = resUnitOfMeasureList;
         return View(viewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ItemDataValidation(TransferItemViewModel transferItemObj)
+    {
+        try
+        {
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("data[outer-item-group]")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            #region Validate Selling Item
+            bool isValidData = form.Where(w => w.Key.Contains("data[outer-item-group]")).Any(w => !string.IsNullOrEmpty(w.Value[0]));
+            if (!isValidData)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            return Json(new { result = true, msg = "ตรวจสอบข้อมูลถูกต้อง." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = true, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveTransaferItem(TransferItemViewModel transferItemObj)
+    {
+        try
+        {
+            if (!base.UserProfile.access_branch.Any(w => w.branchid == transferItemObj.source_branchid.ToInt32()))
+            {
+                return Json(new { result = false, msg = $"{GlobalMessageModel.ErrorInvalidBranch}" });
+            }
+
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("outer-item-group")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            #region PrePare TransactionRequest
+            //List<CreateTransactionDetailCommand> createTransactionDetailCommands = new List<CreateTransactionDetailCommand>();
+            #endregion
+
+            decimal totalAmt = 0;
+            decimal totalProfitAmt = 0;
+            int idx = form.Count / 4;
+            for (int i = 0; i < idx; i++)
+            {
+                var itemid = form.Where(w => w.Key == $"outer-item-group[{i}][ddlSearchItem]").FirstOrDefault().Value[0];
+                var itemprice = form.Where(w => w.Key == $"outer-item-group[{i}][txtItemPrice]").FirstOrDefault().Value[0];
+                var qty = form.Where(w => w.Key == $"outer-item-group[{i}][txtCurrentQty]").FirstOrDefault().Value[0];
+                var amt = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferQty]").FirstOrDefault().Value[0];
+
+                if (!string.IsNullOrEmpty(itemid) &&
+                    !string.IsNullOrEmpty(itemprice) &&
+                    !string.IsNullOrEmpty(qty) &&
+                    !string.IsNullOrEmpty(amt))
+                {
+                    //createTransactionDetailCommands.Add(new CreateTransactionDetailCommand
+                    //{
+                    //    itemid = itemid.ToInt32(),
+                    //    price = itemprice.ToDecimal(),
+                    //    qty = qty.ToInt32(),
+                    //    //amount = amt.ToDecimal(),
+                    //    amount = decimal.Multiply(itemprice.ToDecimal(), qty.ToInt32()),
+                    //    isactive = true
+                    //});
+                }
+            }
+
+            #region Prepare & Create Transaction
+            //CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionCommand(sellingItemObj, createTransactionDetailCommands);
+            //BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
+            //if (!resCreateTrn.result)
+            //{
+            //    return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            //}
+            #endregion
+
+            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetItemByID(string itemId)
+    {
+        try
+        {
+            BaseResponse<GetItemListResponseDTO> res = await _itemAPI.GetItemByIdAsync(Convert.ToInt32(itemId));
+            if (res.result)
+            {
+                return Json(new { result = true, data = res.data, msg = "สำเร็จ" });
+            }
+            return Json(new { result = false, msg = res.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย, ไม่พบข้อมูลสินค้า. <br> {ex.Message}" });
+        }
     }
 
     [HttpPost]
@@ -174,28 +281,9 @@ public class ItemController : BaseController
         return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.error.error.message });
     }
 
-    //[Route("item/getitems")]
     [HttpGet]
     public async Task<IActionResult> GetItems()
     {
-        //var form = Request.Form.ToList();
-        //#region Filter
-        //string filterType = string.Empty;
-        //string filterValue = string.Empty;
-        //var frmSearch = form.Where(w => w.Key == "search[value]").FirstOrDefault(); //.Value[0];
-        //string filter = frmSearch.Value[0].ToLower().Trim();
-        //if (!string.IsNullOrEmpty(filter) && filter.Split("|").Count() > 1 && !string.IsNullOrEmpty(filter.Split("|")[1]))
-        //{
-        //    filterType = filter.Split("|")[0].Trim().ToLower();
-        //    filterValue = filter.Split("|")[1].Trim();
-        //}
-
-        //if (filter.Contains("|") == false)
-        //{
-        //    filterType = "searchbox";
-        //    filterValue = filter;
-        //}
-        //#endregion
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
         return Json(new { data = resItemList.data });
     }

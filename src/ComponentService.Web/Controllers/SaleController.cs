@@ -8,12 +8,18 @@ using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
+using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
+using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
+using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -27,20 +33,29 @@ public class SaleController : BaseController
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IItemAPI _itemAPI;
 	private readonly ITransactionAPI _transactionAPI;
+    private readonly IItemBrandAPI _itemBrandAPI;
+    private readonly IItemTypeAPI _itemTypeAPI;
+    private readonly IItemUnitOfMeasureAPI _itemUnitOfMeasureAPI;
 
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemInBranchAPI itemInBranchAPI,
         IItemAPI itemAPI,
-		ITransactionAPI transactionAPI) : base(httpClientRequest, mapper, log)
+		ITransactionAPI transactionAPI,
+        IItemBrandAPI itemBrandAPI,
+        IItemTypeAPI itemTypeAPI,
+        IItemUnitOfMeasureAPI itemUnitOfMeasureAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
         _itemAPI = itemAPI;
 		_transactionAPI = transactionAPI;
+        _itemBrandAPI = itemBrandAPI;
+        _itemTypeAPI = itemTypeAPI;
+        _itemUnitOfMeasureAPI = itemUnitOfMeasureAPI;
     }
 
     public async Task<IActionResult> IndexAsync()
     {
-        BaseResponse<List<GetItemInBranchByBranchListResponseDTO>> resItemBrandList = await _itemInBranchAPI.GetItemInBranchByBranchListAsync(new GetItemInBranchByBranchListQuery
+        BaseResponse<List<GetItemInBranchByBranchListResponseDTO>> resItemBranchList = await _itemInBranchAPI.GetItemInBranchByBranchListAsync(new GetItemInBranchByBranchListQuery
 		{
             branchid_list = base.UserProfile.access_branch.Select(s => s.branchid).ToList()
 		});
@@ -48,7 +63,7 @@ public class SaleController : BaseController
 		BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
 		ViewBag.BranchList = base.UserProfile.access_branch;
-        ViewBag.ItemBranchList = resItemBrandList.data.SelectMany(s => s.itemlist);
+        ViewBag.ItemBranchList = resItemBranchList.data.SelectMany(s => s.itemlist);
         ViewBag.TransactionList = resTransaction;
 		return View();
     }
@@ -60,9 +75,31 @@ public class SaleController : BaseController
         return View();
     }
 
-    public IActionResult Items()
+    public async Task<IActionResult> ItemsAsync()
     {
+        //Default first branch
+        BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+        
+        ViewBag.BranchList = base.UserProfile.access_branch;
+        ViewBag.ItemBranch = resItemInBranch;
         return View();
+    }
+
+    public async Task<IActionResult> Edit(int itemid)
+    {
+        //Get Item Detail
+        BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(itemid);
+        EditItemViewModel viewModel = EditItemMapping(resItem.data);
+
+        //Get Master Data
+        BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
+        BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
+        BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
+
+        ViewBag.ItemTypeList = resItemTypeList;
+        ViewBag.ItemBrandList = resItemBrandList;
+        ViewBag.ItemUOMList = resUnitOfMeasureList;
+        return View(viewModel);
     }
 
     /// <summary>
@@ -217,6 +254,32 @@ public class SaleController : BaseController
         }
     }
 
+    [HttpPost]
+    public async Task<IActionResult> EditItem([FromBody] EditItemViewModel editItemObj)
+    {
+        return Json(new JsonViewModel { result = false, message = "Not implement" });
+        //UpdateItemCommand updateItemCommand = UpdateItemCommand(editItemObj);
+        //BaseResponse<CommandResponse> resUpdateItem = await _itemAPI.UpdateItemAsync(updateItemCommand);
+        //if (resUpdateItem.result)
+        //{
+        //    return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
+        //}
+        //return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteItem([FromBody] DeleteItemViewModel delItemObj)
+    {
+        return Json(new JsonViewModel { result = false, message = "Not implement" });
+        DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.ItemID };
+        BaseResponse<CommandResponse> resDelItem = await _itemAPI.DeleteItemAsync(delItemCommand);
+        if (resDelItem.result)
+        {
+            return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.message });
+        }
+        return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.error.error.message });
+    }
+
     #region Private Method
     private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj, List<CreateTransactionDetailCommand> createTransactionDetailCommands)
     {
@@ -241,6 +304,13 @@ public class SaleController : BaseController
             transactiondetail = createTransactionDetailCommands
         };
     }
+
+    private EditItemViewModel EditItemMapping(GetItemListResponseDTO itemResponseDTO)
+    {
+        EditItemViewModel editItemViewModel = _mapper.Map<EditItemViewModel>(itemResponseDTO);
+        return editItemViewModel;
+    }
+
     #endregion
 
     #region Partial Page

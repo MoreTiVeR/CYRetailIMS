@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+
+namespace CYRetailIMS.Application.Common.Models.UI;
+
+[Serializable]
+public class TransferItemViewModel
+{
+    [Required(ErrorMessage = "* กรุณาระบุคลังสินค้า/สาขา ต้นทาง")]
+    [Display(Name = "ลังสินค้า/สาขา ต้นทาง")]
+    public string source_branchid { get; set; }
+
+    [Required(ErrorMessage = "* กรุณาระบุคลังสินค้า/สาขา ปลายทาง")]
+    [Display(Name = "ลังสินค้า/สาขา ปลายทาง")]
+    public string destination_branchid { get; set; }
+
+    [Required(ErrorMessage = "* กรุณาระบุประเภทการโอนสินค้า")]
+    [Display(Name = "ประเภทการโอนสินค้า")]
+    public int transfertypeid { get; set; }
+
+    //[Required(ErrorMessage = "* กรุณาระบุวันที่โอนสินค้า")]
+    //[Display(Name = "วันที่โอนสินค้า")]
+    public string transferdate { get; set; }
+
+    //[Required(ErrorMessage = "* กรุณาระบุจำนวนสินค้า")]
+    //[Display(Name = "จำนวนสินค้า")]
+    public int qty { get; set; }
+
+    public string description { get; set; }
+}

@@ -9,7 +9,7 @@
 <div class="page-header">
     <div class="page-title">
         <h4>แก้ไขข้อมูลสินค้า</h4>
-        <h6>ปรับปรุงข้อูลสินค้า</h6>
+        <h6>ปรับปรุงข้อูลสินค้าภายในสาขา</h6>
     </div>
 </div>
 
@@ -63,7 +63,7 @@
                                 <option value="">--เลือกแบรนด์สินค้า--</option>
                                 foreach (var item in ViewBag.ItemBrandList.data)
                                 {
-                                    if(@item.brandid == Model.BrandID)
+                                    if (@item.brandid == Model.BrandID)
                                     {
                                         <option value="@item.brandid" selected>@item.brandname</option>
                                     }
@@ -91,7 +91,7 @@
                                 <option value="">--เลือกหน่วยนับสินค้า--</option>
                                 foreach (var item in ViewBag.ItemUOMList.data)
                                 {
-                                    if(@item.unitofmeasureid == Model.UnitOfMeasureID)
+                                    if (@item.unitofmeasureid == Model.UnitOfMeasureID)
                                     {
                                         <option value="@item.unitofmeasureid" selected>@item.unitofmeasurename</option>
                                     }
@@ -99,7 +99,7 @@
                                     {
                                         <option value="@item.unitofmeasureid">@item.unitofmeasurename</option>
                                     }
-                                    
+
                                 }
                             }
                             else
@@ -168,17 +168,17 @@
                         <span asp-validation-for="IsActive" class="text-danger"></span>
                     </div>
                 </div>
-               @* <div class="col-lg-12">
-                    <div class="form-group">
-                        <label>รูปภาพสินค้า</label>
-                        <div class="image-upload">
-                            <input type="file">
-                            <div class="image-uploads">
-                                <img src="~/assets/img/icons/upload.svg" alt="img">
-                                <h4>ลาก และ ปล่อย ไฟล์ เพื่ออัพโหลด</h4>
-                            </div>
-                        </div>
-                    </div>
+                @* <div class="col-lg-12">
+                <div class="form-group">
+                <label>รูปภาพสินค้า</label>
+                <div class="image-upload">
+                <input type="file">
+                <div class="image-uploads">
+                <img src="~/assets/img/icons/upload.svg" alt="img">
+                <h4>ลาก และ ปล่อย ไฟล์ เพื่ออัพโหลด</h4>
+                </div>
+                </div>
+                </div>
                 </div>*@
                 <div class="col-lg-12">
                     <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
@@ -190,10 +190,9 @@
     </div>
 </div>
 <!-- /add -->
-
 @section Scripts{
 
     <!--Page Script-->
-    <script src="~/js/view/item/item_edit.js" asp-append-version="true"></script>
+    <script src="~/js/view/sale/sale_edit.js" asp-append-version="true"></script>
 }
 

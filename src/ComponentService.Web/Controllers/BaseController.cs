@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
+using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Infrastructure.Common.Extensions;
@@ -43,6 +44,8 @@ public class BaseController : Controller
                 new Claim("UserId", result.userid.ToString()),
                 new Claim("UserName", result.username),
                 new Claim("RoleName", result.rolename),
+                new Claim("AccessBranch", result.access_branch.ToJson()),
+                new Claim("AccessMenu", result.access_menu.ToJson())
                 //new Claim("CanRead", "CanRead"),
                 //new Claim("CanWrite", "CanWrite")
             };

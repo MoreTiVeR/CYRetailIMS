@@ -1,33 +1,37 @@
 ﻿
-function AddItem(form) {
+function EditItem(form) {
 
     $("#global-loader").css('display', '');
 
-    var frmAddItem = $("#frmAddItem");
-    frmAddItem.validate();
-    var isValid = frmAddItem.valid();
+    var frmEditItem = $("#frmEditItem");
+    frmEditItem.validate();
+    var isValid = frmEditItem.valid();
     if (isValid) {
-        console.log('Call => AddItem');
+        console.log('Call => EditItem');
         $.validator.unobtrusive.parse(form);
         var data = $(form).serializeJSON();
+        console.log(data);
         data = JSON.stringify(data);
         $.ajax({
             type: 'POST',
-            url: '/Item/AddItem',
+            url: '/Sale/EditItem',
             data: data,
             contentType: 'application/json',
             success: function (data) {
                 if (data.result) {
                     //popup.dialog('close');
 
-                    AlertSuccess("เพิ่มสินค้าสำเร็จ");
-                    $("#frmAddItem")[0].reset();
+                    console.log(data);
+                    AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');
+                    $("#frmEditItem")[0].reset();
                     $("#global-loader").css('display', 'none');
+                    //ShowMessageSuccess(data.message);
 
                     //To do next?
                     //window.location = data.url;
                 }
                 else {
+                    //ShowMessageError(data.message);
                     AlertError(data.message);
                     $("#global-loader").css('display', 'none');
                 }

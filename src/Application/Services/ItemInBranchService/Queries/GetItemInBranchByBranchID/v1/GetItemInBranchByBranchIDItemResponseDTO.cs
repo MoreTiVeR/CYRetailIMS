@@ -15,13 +15,23 @@ public class GetItemInBranchByBranchIDItemResponseDTO
 
 	public string itemname { get; set; }
 
-	public string brandname { get; set; }
+    public int itemtypeid { get; set; }
+
+    public string itemtypename { get; set; }
+
+    public string brandname { get; set; }
 
 	public string brandshortname { get; set; }
 
-	public decimal? price { get; set; }
+    public string description { get; set; }
+
+    public decimal? price { get; set; }
 
 	public double? discountpercent { get; set; }
 
 	public int? qty { get; set; }
+
+    //public int branhid { get; set; }
+    //public string branchname { get; set; }
+
 }
