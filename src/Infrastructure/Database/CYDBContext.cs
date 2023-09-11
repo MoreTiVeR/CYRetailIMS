@@ -96,7 +96,7 @@ public partial class CYDBContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        //optionsBuilder.UseSqlServer("Server=.\\;Data Source=localhost;Initial Catalog=CYDB;Persist Security Info=True;User ID=cyuser;Password=#pakdum?0104;TrustServerCertificate=True");
+
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -159,12 +159,9 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMItemInBranch>(entity =>
         {
-			entity.Property(e => e.DiscountPercent).HasDefaultValueSql("((0))");
-			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
-			entity.Property(e => e.Price).HasDefaultValueSql("((0))");
-			entity.Property(e => e.Qty).HasDefaultValueSql("((0))");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
 
-			entity.HasOne(d => d.Branch).WithMany(p => p.TMItemInBranches).HasConstraintName("FK_TMItemInBranch_TMBranch");
+            entity.HasOne(d => d.Branch).WithMany(p => p.TMItemInBranches).HasConstraintName("FK_TMItemInBranch_TMBranch");
 
             entity.HasOne(d => d.Item).WithMany(p => p.TMItemInBranches).HasConstraintName("FK_TMItemInBranch_TMItem");
         });
@@ -288,6 +285,13 @@ public partial class CYDBContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
+        modelBuilder.Entity<TMTransactionType>(entity =>
+        {
+            entity.HasKey(e => e.TransactionTypeID).HasName("PK_TMTTTransactionType");
+
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+        });
+
         modelBuilder.Entity<TMTransferType>(entity =>
         {
             entity.Property(e => e.TransferTypeID).ValueGeneratedNever();
@@ -380,13 +384,6 @@ public partial class CYDBContext : DbContext
             entity.HasOne(d => d.Item).WithMany(p => p.TTStockTransactions).HasConstraintName("FK_TTStockTransaction_TMItem");
 
             entity.HasOne(d => d.StockType).WithMany(p => p.TTStockTransactions).HasConstraintName("FK_TTStockTransaction_TMStockType");
-        });
-
-        modelBuilder.Entity<TMTransactionType>(entity =>
-        {
-            entity.HasKey(e => e.TransactionTypeID).HasName("PK_TMTTTransactionType");
-
-            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TTTransaction>(entity =>

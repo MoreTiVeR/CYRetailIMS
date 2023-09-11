@@ -25,6 +25,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.Generic;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Application.Common.Extensions;
+using CYRetailIMS.Application.ExternalService.BranchAPI;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Logging;
+using static CYRetailIMS.ComponentService.Web.Models.EnumModel;
+using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -35,17 +41,23 @@ public class ItemController : BaseController
     private readonly IItemBrandAPI _itemBrandAPI;
     private readonly IItemTypeAPI _itemTypeAPI;
     private readonly IItemUnitOfMeasureAPI _itemUnitOfMeasureAPI;
+    private readonly IBranchAPI _branchAPI;
+    private readonly IItemTransferAPI _itemTransferAPI;
 
     public ItemController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemAPI itemAPI,
         IItemBrandAPI itemBrandAPI,
         IItemTypeAPI itemTypeAPI,
-        IItemUnitOfMeasureAPI itemUnitOfMeasureAPI) : base(httpClientRequest, mapper, log)
+        IItemUnitOfMeasureAPI itemUnitOfMeasureAPI,
+        IBranchAPI branchAPI, 
+        IItemTransferAPI itemTransferAPI) : base(httpClientRequest, mapper, log)
     {
         _itemAPI = itemAPI;
         _itemTypeAPI = itemTypeAPI;
         _itemBrandAPI = itemBrandAPI;
         _itemUnitOfMeasureAPI = itemUnitOfMeasureAPI;
+        _branchAPI = branchAPI;
+        _itemTransferAPI = itemTransferAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -84,6 +96,7 @@ public class ItemController : BaseController
     {
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
         ViewBag.ItemList = resItemList;
+        ViewBag.BranchList = await PrepareSelectBranc();
         return View();
     }
 
@@ -152,10 +165,10 @@ public class ItemController : BaseController
     {
         try
         {
-            if (!base.UserProfile.access_branch.Any(w => w.branchid == transferItemObj.source_branchid.ToInt32()))
-            {
-                return Json(new { result = false, msg = $"{GlobalMessageModel.ErrorInvalidBranch}" });
-            }
+            //if (!base.UserProfile.access_branch.Any(w => w.branchid == transferItemObj.source_branchid.ToInt32()))
+            //{
+            //    return Json(new { result = false, msg = $"{GlobalMessageModel.ErrorInvalidBranch}" });
+            //}
 
             #region Get form value
             List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
@@ -169,8 +182,8 @@ public class ItemController : BaseController
             }
             #endregion
 
-            #region PrePare TransactionRequest
-            //List<CreateTransactionDetailCommand> createTransactionDetailCommands = new List<CreateTransactionDetailCommand>();
+            #region PrePare ItemTransfer List
+            List<CreateItemTransferDetailCommand> itemTransferList = new List<CreateItemTransferDetailCommand>();
             #endregion
 
             decimal totalAmt = 0;
@@ -180,35 +193,30 @@ public class ItemController : BaseController
             {
                 var itemid = form.Where(w => w.Key == $"outer-item-group[{i}][ddlSearchItem]").FirstOrDefault().Value[0];
                 var itemprice = form.Where(w => w.Key == $"outer-item-group[{i}][txtItemPrice]").FirstOrDefault().Value[0];
-                var qty = form.Where(w => w.Key == $"outer-item-group[{i}][txtCurrentQty]").FirstOrDefault().Value[0];
-                var amt = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferQty]").FirstOrDefault().Value[0];
+                var currentQty = form.Where(w => w.Key == $"outer-item-group[{i}][txtCurrentQty]").FirstOrDefault().Value[0];
+                var transferQty = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferQty]").FirstOrDefault().Value[0];
 
                 if (!string.IsNullOrEmpty(itemid) &&
                     !string.IsNullOrEmpty(itemprice) &&
-                    !string.IsNullOrEmpty(qty) &&
-                    !string.IsNullOrEmpty(amt))
+                    !string.IsNullOrEmpty(currentQty) &&
+                    !string.IsNullOrEmpty(transferQty))
                 {
-                    //createTransactionDetailCommands.Add(new CreateTransactionDetailCommand
-                    //{
-                    //    itemid = itemid.ToInt32(),
-                    //    price = itemprice.ToDecimal(),
-                    //    qty = qty.ToInt32(),
-                    //    //amount = amt.ToDecimal(),
-                    //    amount = decimal.Multiply(itemprice.ToDecimal(), qty.ToInt32()),
-                    //    isactive = true
-                    //});
+                    itemTransferList.Add(new CreateItemTransferDetailCommand
+                    {
+                        itemid = itemid.ToInt32(),
+                        qty = transferQty.ToInt32()
+                    });
                 }
             }
 
             #region Prepare & Create Transaction
-            //CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionCommand(sellingItemObj, createTransactionDetailCommands);
-            //BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
-            //if (!resCreateTrn.result)
-            //{
-            //    return Json(new { result = false, msg = resCreateTrn.error.error.message });
-            //}
+            CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(transferItemObj, itemTransferList);
+            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            }
             #endregion
-
             return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
         }
         catch (Exception ex)
@@ -299,6 +307,97 @@ public class ItemController : BaseController
         return Json(new { data = resItemList.data });
     }
 
+    [HttpPost]
+    public async Task<JsonResult> FillSourceDestinationBranch(int transferTypeID)
+    {
+        List<SelectListItem> sourceList = null;
+        List<SelectListItem> destinationList = null;
+        try
+        {
+            sourceList = await GetTransferSourcehItemListAsync(transferTypeID);
+            destinationList = await GetTransferDestinationItemListAsync(transferTypeID);
+            //Set Search Data
+            //DestinationSearchData = destinationList;
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = "ไม่สามารถดึงข้อมูลสาขาได้, กรุณาลองใหม่อีกครั้ง" });
+        }
+        return Json(new { result = true, data_source = sourceList, data_destination = destinationList,  msg = "สำเร็จ" });
+    }
+
+    public async Task<List<SelectListItem>> GetTransferSourcehItemListAsync(int transferTypeID)
+    {
+        List<SelectListItem> res = new List<SelectListItem>();
+        try
+        {
+            //คลัง ไป สาขา
+            if(transferTypeID == (int)TransferType.WTB)
+            {
+                res.Add(new SelectListItem
+                {
+                    Text = "คลังสินค้าสำนักงานใหญ่",
+                    Value = "99",
+                });
+                
+            }
+            else
+            {
+                var resBranch = await _branchAPI.GetBranchListAsync();
+                res = (from a in resBranch.data
+                       select new SelectListItem
+                       {
+                           Text  = a.branchname,
+                           Value = a.branchid
+                       }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex.Message, ex);
+        }
+        return res;
+    }
+
+    public async Task<List<SelectListItem>> GetTransferDestinationItemListAsync(int transferTypeID)
+    {
+        List<SelectListItem> res = new List<SelectListItem>();
+        try
+        {
+            //คลัง ไป สาขา
+            if (transferTypeID == (int)TransferType.WTW)
+            {
+                res.Add(new SelectListItem
+                {
+                    Text = "คลังสินค้าสำนักงานใหญ่",
+                    Value = "99",
+                });
+
+            }
+            else
+            {
+                var resBranch = await _branchAPI.GetBranchListAsync();
+                res = (from a in resBranch.data
+                       select new SelectListItem
+                       {
+                           Text = a.branchname,
+                           Value = a.branchid
+                       }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex.Message, ex);
+        }
+        return res;
+    }
+
+    public async Task<List<SelectListItem>> PrepareSelectBranc()
+    {
+        var resBranch = await _branchAPI.GetBranchListAsync();
+        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid }).ToList();
+    }
+
     #region Private Method
     private CreateItemCommand CreateItemCommand(AddItemViewModel itemViewModel)
     {
@@ -344,7 +443,23 @@ public class ItemController : BaseController
         EditItemViewModel editItemViewModel = _mapper.Map<EditItemViewModel>(itemResponseDTO);
         return editItemViewModel;
     }
+
+    private CreateItemTransferCommand CreateItemTransferCommand(TransferItemViewModel reqObj, List<CreateItemTransferDetailCommand> itemsTransfer)
+    {
+        return new CreateItemTransferCommand
+        {
+            transfertypeid = reqObj.transfertypeid,
+            sourceid = reqObj.source_branchid.ToInt32(),
+            destinationid = reqObj.destination_branchid.ToInt32(),
+            description = reqObj.description,
+            createdby = base.UserProfile.username,
+            creadeddate = DateTime.Now,
+            approvestatus = 1,
+            isactive = true,
+            items = itemsTransfer
+        };
+    }
     #endregion
 
-    
+
 }

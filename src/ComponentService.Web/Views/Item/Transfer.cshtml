@@ -1,4 +1,5 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 @using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 
 @{
@@ -27,11 +28,11 @@
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>ประเภทการโอนสินค้า</label>
-                                <select class="ddl-select2 select2" asp-for="transfertypeid">
+                                <select class="ddl-select2 select2 ddl-transfertype" asp-for="transfertypeid">
                                     <option value="">-- ระบุประเภทการโอนสินค้า --</option>
-                                    <option value="1">(WTB) โอนจากคลังไปยังสาขา</option>
-                                    <option value="2">(BTB) โอนจากสาขาไปยังสาขาา</option>
-                                    <option value="3">(WTW) โอนจากคลังไปยังคลัง</option>
+                                    <option value="1">โอนจากคลังไปยังสาขา</option>
+                                    <option value="2" disabled>โอนจากสาขาไปยังสาขาา</option>
+                                    <option value="3" disabled>โอนจากคลังไปยังคลัง</option>
                                 </select>
                                 <span asp-validation-for="transfertypeid" class="text-danger"></span>
                             </div>
@@ -39,10 +40,19 @@
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>จากสาขา</label>
-                                <select class="ddl-select2 select2" asp-for="source_branchid">
-                                    <option value="">Choose</option>
-                                    <option value="1">Store 1</option>
-                                    <option value="2">Store 2</option>
+                                <select class="ddl-select2 select2 ddl-source-branch" asp-for="source_branchid" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+                                    <option value="">--เลือกสาขาต้นทาง--</option>
+                                    @*@if (ViewBag.BranchList.result)
+                                    {
+                                        foreach (var item in ViewBag.BranchList.data as List<GetBranchListResponseDTO>)
+                                        {
+                                            <option value="@item.branchid">@item.branchname</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">-- ไม่พบสาขา --</option>
+                                    }*@
                                 </select>
                                 <span asp-validation-for="source_branchid" class="text-danger"></span>
                             </div>
@@ -50,10 +60,19 @@
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>ไปยังสาขา</label>
-                                <select class="ddl-select2 select2" asp-for="destination_branchid">
-                                    <option value="">Choose</option>
-                                    <option value="1">Store 1</option>
-                                    <option value="2">Store 2</option>
+                                <select class="ddl-select2 select2 ddl-destination-branch" asp-for="destination_branchid" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+                                    <option value="">--เลือกสาขาปลายทาง--</option>
+                                    @*@if (ViewBag.BranchList.result)
+                                    {
+                                        foreach (var item in ViewBag.BranchList.data as List<GetBranchListResponseDTO>)
+                                        {
+                                            <option value="@item.branchid">@item.branchname</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">-- ไม่พบสาขา --</option>
+                                    }*@
                                 </select>
                                 <span asp-validation-for="destination_branchid" class="text-danger"></span>
                             </div>
@@ -63,8 +82,8 @@
                     </div>
                     <div class="row" id="divTransferItem">
                         <input id="totalrow" name="totalrow" value="1" hidden />
-                        <div data-repeater-list="outer-item-group" class="outer-item-group">
-                            <div data-repeater-item class="outer-item-group">
+                        <div id="repeater" data-repeater-list="outer-item-group" class="outer-item-group item-transfer-repeater">
+                            <div data-repeater-item class="outer-item-group item-transfer-repeater">
                                 <div class="row justify-content-between">
                                     <div class="col-md-3 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left search-box">
@@ -135,8 +154,18 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label>Description</label>
-                                <textarea class="form-control" asp-for="description"></textarea>
+                                <label class="form-label">หมายเหตุ</label>
+                                @Html.TextAreaFor(m => m.description, new
+                                {
+                                @class = "form-control full-width",
+                                @style = "resize: none;",
+                                @cols = 5,
+                                @rows = 3,
+                                @maxlength = 50,
+                                value = "",
+                                placeholder = Html.DisplayNameFor(n => n.description)
+                                })
+                                @*@Html.TextAreaFor(model => model.description, new { @class = "img-shadow", value = "" })*@
                             </div>
                         </div>
                     </div>
@@ -161,6 +190,9 @@
 @section Scripts{
 
     <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
+    <!--charactersRemaining-->
+    <script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
 	<!--Page Script-->
 	<script src="~/js/view/item/item_transfer.js" asp-append-version="true"></script>
 }

@@ -19,7 +19,7 @@ $(document).on('change', '.select2', function (e) {
     console.log($(this).data('name'));
     // Log the selected value for the current row (you can replace this with your desired logic)
     console.log("Row " + row + ": " + selectedValue);
-    ShowMessageInfo('Selected value :' + selectedValue);
+    //ShowMessageInfo('Selected value :' + selectedValue);
 });
 
 $("#btnSave").on('click', function () {

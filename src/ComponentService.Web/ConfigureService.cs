@@ -3,9 +3,11 @@ using AutoMapper;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
+using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
+using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
@@ -13,9 +15,11 @@ using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
+using CYRetailIMS.Infrastructure.ExternalService.BranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
 using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
@@ -81,6 +85,8 @@ public static class ConfigureService
         services.AddScoped<IItemUnitOfMeasureAPI, ItemUnitOfMeasureAPI>();
         services.AddScoped<IItemInBranchAPI, ItemInBranchAPI>();
         services.AddScoped<ITransactionAPI, TransactionAPI>();
+        services.AddScoped<IBranchAPI, BranchAPI>();
+        services.AddScoped<IItemTransferAPI, ItemTransferAPI>();
         #endregion
 
         return services;

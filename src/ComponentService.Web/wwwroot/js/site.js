@@ -121,3 +121,11 @@ function AlertError(msg) {
         buttonsStyling: false,
     });
 }
+
+function InitialCharacterRemaining() {
+    $('textarea').charactersRemaining();
+    $('textarea').charactersRemaining({
+        singleCharacterText: '## character remaining',
+        multipleCharacterText: '## characters remaining'
+    });
+}

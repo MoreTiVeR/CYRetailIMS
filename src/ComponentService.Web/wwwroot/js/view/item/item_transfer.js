@@ -3,6 +3,7 @@
 //InitialDatePicker();
 InitialNumberInput();
 InitialItemRepeater();
+InitialCharacterRemaining();
 $('.select2').select2();
 
 $(document).on('change', '.select2', function (e) {
@@ -13,11 +14,12 @@ $(document).on('change', '.select2', function (e) {
     console.log($(this).data('name'));
     // Log the selected value for the current row (you can replace this with your desired logic)
     console.log("Row " + row + ": " + selectedValue);
-    ShowMessageInfo('Selected value :' + selectedValue);
+    //ShowMessageInfo('Selected value :' + selectedValue);
 });
 
 $("#btnSave").on('click', function () {
-    if (!$("#frmTransferItem").valid()) {
+    var isValid = $('#frmTransferItem').valid();
+    if (!isValid) {
         ShowMessageError('กรุณาตรวจสอบข้อมูลก่อนบันทึกข้อมูล!');
     }
     else {
@@ -83,45 +85,77 @@ $("#btnAdd").on('click', function () {
     $("#totalrow").val(trows);
 });
 
-function ValidationEnglishKeyPress() {
-    $("input[ID='txtItemCode']").on("keypress", function (event) {
+$("#transfertypeid").on("change", function () {
+    var text = $('option:selected', $(this)).text();
+    var transfertypeid = parseInt($('option:selected', $(this)).val());
+    var request = $.ajax({
+        url: '/Item/FillSourceDestinationBranch',
+        async: true,
+        type: 'POST',
+        dataType: 'JSON',
+        data: { "transferTypeID": transfertypeid },
+        success: function (response) {
 
-        // Disallow anything not matching the regex pattern (A to Z uppercase, a to z lowercase and white space)
-        // For more on JavaScript Regular Expressions, look here: https://developer.mozilla.org/en-US/docs/JavaScript/Guide/Regular_Expressions
-        var englishAlphabetAndWhiteSpace = /[A-Za-z0-9]/g;
+            if (response.result) {
+                var selectList_source_branchid = $('#source_branchid');
+                selectList_source_branchid.html(""); // clear before appending new list
+                selectList_source_branchid.append($('<option></option>').val("").html("--เลือกสาขาต้นทาง--")); //Add first itemList
 
-        // Retrieving the key from the char code passed in event.which
-        // For more info on even.which, look here: http://stackoverflow.com/q/3050984/114029
-        var key = String.fromCharCode(event.which);
+                $.each(response.data_source, function () {
+                    $("<option />").val(this.value).text(this.text).appendTo(selectList_source_branchid);;
+                    //prevGroupName = this.group.name;
+                });
 
-        //alert(event.keyCode);
+                var selectList_destination_branchid = $('#destination_branchid');
+                selectList_destination_branchid.html(""); // clear before appending new list
+                selectList_destination_branchid.append($('<option></option>').val("").html("--เลือกสาขาปลายทาง--")); //Add first itemList
 
-        // For the keyCodes, look here: http://stackoverflow.com/a/3781360/114029
-        // keyCode == 8  is backspace
-        // keyCode == 37 is left arrow
-        // keyCode == 39 is right arrow
-        // englishAlphabetAndWhiteSpace.test(key) does the matching, that is, test the key just typed against the regex pattern
-        if (event.keyCode == 8 || event.keyCode == 37 || event.keyCode == 39 || englishAlphabetAndWhiteSpace.test(key)) {
-            return true;
+                $.each(response.data_destination, function () {
+                    $("<option />").val(this.value).text(this.text).appendTo(selectList_destination_branchid);
+                    //prevGroupName = this.group.name;
+                });
+            }
+
+
+
+        },
+        failure: function (response) {
+            ShowMessageError(response);
+        },
+        error: function (response) {
+            ShowMessageWarning(response);
         }
+    });
 
-        // If we got this far, just return false because a disallowed key was typed.
-        return false;
-    });
-    $("input[ID='txtItemCode']").on("paste", function (e) {
-        e.preventDefault();
-    });
-}
+});
 
 function InitialItemRepeater() {
     window.outerRepeater = $('.repeater-default').repeater({
         isFirstItemUndeletable: false,
-        initEmpty: false,
+        initEmpty: true,
         //defaultValues: { 'text-input': 'outer-default' },
         show: function () {
             console.log('outer show');
-            $(this).slideDown();
-            $(this).find('select').each(function () {
+
+            var seen = {}; // Object to store encountered values
+            var isDuplicate = false;
+            $(".outer-item-group :input").each(function (e) {
+                if (this.type == 'select-one') {
+                    if (this.value != '') {
+                        seen[this.value];
+                        if (seen[this.value]) {
+                            // Duplicate found
+                            isDuplicate = true;
+                        }
+                        else {
+                            seen[this.value] = true;
+                        }
+                    }
+                }
+            });
+            if (!isDuplicate) {
+                $(this).slideDown();
+                $(this).find('select').each(function () {
                 if (typeof $(this).attr('id') === "undefined") {
                     // ...
                 } else {
@@ -136,6 +170,25 @@ function InitialItemRepeater() {
                     $('.ddl-searchitem').next().next().remove();
                 }
             });
+            }
+
+            ////PREVIUOS
+            //$(this).slideDown();
+            //$(this).find('select').each(function () {
+            //    if (typeof $(this).attr('id') === "undefined") {
+            //        // ...
+            //    } else {
+            //        $('.ddl-searchitem').removeAttr("id").removeAttr("data-select2-id"); //some times id was not unique So select2 not working, so i remove id
+            //        $('.ddl-searchitem').select2();
+            //        //$('.ddl-searchitem').on('change', function (event) {
+            //        //    var selected_element = $(event.currentTarget);
+            //        //    var select_val = selected_element.val();
+            //        //    alert('InitialItemRepeater -> ' + select_val);
+            //        //});
+            //        $('.ddl-searchitem-container').css('width', '100%');
+            //        $('.ddl-searchitem').next().next().remove();
+            //    }
+            //});
         },
         hide: function (deleteElement) {
 
@@ -193,6 +246,33 @@ function InitialItemRepeater() {
 function CalculatePriceByKey(itemkey, name) {
     var res = name.split('[');
     var resIdx = res[1].split(']');
+    
+    var seen = {}; // Object to store encountered values
+    var isDuplicate = false;
+    $('.item-transfer-repeater').find('select').each(function (e) {
+        if (this.type == 'select-one') {
+            if (this.value != '') {
+                seen[this.value];
+                if (seen[this.value]) {
+                    // Duplicate found
+                    isDuplicate = true;
+                    return;
+                }
+                else {
+                    seen[this.value] = true;
+                }
+            }
+        }
+    });
+    if (isDuplicate) {
+        //ShowMessageError('ขออภัย, ไม่สามารถระบุสินค้าชนิดเดียวกันได้!');
+        $("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('').trigger('change.select2'); 
+        //$("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtCurrentQty]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val('');
+        return;
+    }
+
     var ajaxRequest = $.ajax({
         url: 'GetItemByID',
         async: true,
@@ -200,7 +280,6 @@ function CalculatePriceByKey(itemkey, name) {
         dataType: 'JSON',
         data: { "itemId": itemkey },
         success: function (response) {
-
             if (!response.result) {
                 $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
                 ShowMessageError(response.msg);
@@ -244,44 +323,34 @@ function CalculatePriceByKey(itemkey, name) {
     });
 }
 
+function ValidationEnglishKeyPress() {
+    $("input[ID='txtItemCode']").on("keypress", function (event) {
 
+        // Disallow anything not matching the regex pattern (A to Z uppercase, a to z lowercase and white space)
+        // For more on JavaScript Regular Expressions, look here: https://developer.mozilla.org/en-US/docs/JavaScript/Guide/Regular_Expressions
+        var englishAlphabetAndWhiteSpace = /[A-Za-z0-9]/g;
 
-function CalculatePriceByPrice(price, name) {
-    var res = name.split('[');
-    var resIdx = res[1].split(']');
+        // Retrieving the key from the char code passed in event.which
+        // For more info on even.which, look here: http://stackoverflow.com/q/3050984/114029
+        var key = String.fromCharCode(event.which);
 
-    var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val() | 0;
-    var total = parseFloat(price) * qty;
+        //alert(event.keyCode);
 
-    $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+        // For the keyCodes, look here: http://stackoverflow.com/a/3781360/114029
+        // keyCode == 8  is backspace
+        // keyCode == 37 is left arrow
+        // keyCode == 39 is right arrow
+        // englishAlphabetAndWhiteSpace.test(key) does the matching, that is, test the key just typed against the regex pattern
+        if (event.keyCode == 8 || event.keyCode == 37 || event.keyCode == 39 || englishAlphabetAndWhiteSpace.test(key)) {
+            return true;
+        }
 
-    //Sum total amount
-    var totalRow = parseInt($("#totalrow").val());
-    var totalAmt = 0;
-    for (var i = 0; i < totalRow; i++) {
-        var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
-        totalAmt += parseFloat(txtAmt);
-    }
-    /*$("#txtSummaryTHB").val(currencyFormat(totalAmt));*/
-}
-
-function CalculatePriceByQty(qty, name) {
-    var res = name.split('[');
-    var resIdx = res[1].split(']');
-
-    var itemPrice = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
-    var total = parseFloat(itemPrice) * qty;
-
-    $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
-
-    //Sum total amount
-    var totalRow = parseInt($("#totalrow").val());
-    var totalAmt = 0;
-    for (var i = 0; i < totalRow; i++) {
-        var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
-        totalAmt += parseFloat(txtAmt);
-    }
-    /*$("#txtSummaryTHB").val(currencyFormat(totalAmt));*/
+        // If we got this far, just return false because a disallowed key was typed.
+        return false;
+    });
+    $("input[ID='txtItemCode']").on("paste", function (e) {
+        e.preventDefault();
+    });
 }
 
 function ValidateTransferQty(transferqty, name) {
@@ -325,6 +394,20 @@ function OnSuccess(data) {
 }
 
 function ResetForm() {
+    //Reset Repeater
     $('.outer-item-group').empty();
-    $('#frmSelling')[0].reset(); // [0] gets the DOM element from the jQuery object
+
+    //Reset form
+    $('#frmTransferItem')[0].reset(); // [0] gets the DOM element from the jQuery object
+
+    //Reset select2
+    $("#transfertypeid").val('').trigger('change.select2'); 
+
+    $("#source_branchid").empty();
+    var source_option = new Option("--เลือกสาขาต้นทาง--", "", true, true);
+    $("#source_branchid").append(source_option).trigger('change');
+
+    $("#destination_branchid").empty();
+    var destination_option = new Option("--เลือกสาขาปลายทาง--", "", true, true);
+    $("#destination_branchid").append(destination_option).trigger('change');
 }

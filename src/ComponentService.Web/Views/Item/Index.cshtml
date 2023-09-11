@@ -51,7 +51,7 @@
                                         {
                                             foreach (var item in ViewBag.ItemTypeList.data)
                                             {
-                                                <option>@item.itemtypename</option>
+                                                <option value="@item.itemtypeid">@item.itemtypename</option>
                                             }
                                         }
                                         else
@@ -69,7 +69,7 @@
                                         {
                                             foreach (var item in ViewBag.ItemBrandList.data)
                                             {
-                                                <option>@item.brandname</option>
+                                                <option value="@item.brandid">@item.brandname</option>
                                             }
                                         }
                                         else

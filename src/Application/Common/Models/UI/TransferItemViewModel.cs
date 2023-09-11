@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -31,5 +32,9 @@ public class TransferItemViewModel
     //[Display(Name = "จำนวนสินค้า")]
     public int qty { get; set; }
 
-    public string description { get; set; }
+    //public string description { get; set; }
+
+    [StringLength(50, ErrorMessage = "*ความยาวไม่เกิน 50 ตัวอักษร")]
+    [DisplayName("ระบุหมายเหตุ(ถ้ามี)")]
+    public string? description { get; set; }
 }

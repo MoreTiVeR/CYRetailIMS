@@ -35,6 +35,10 @@
     <Folder Include="Services\TransactionService\Queries\GetTransactionByCreatedBy\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByItemID\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByBranchCode\" />
+    <Folder Include="Services\TransferTypeService\Commands\" />
+    <Folder Include="Services\TransferTypeService\EventHandlers\" />
+    <Folder Include="Services\TransferTypeService\Queries\GetTransferTypeByID\v1\" />
+    <Folder Include="Services\TransferTypeService\Queries\GetTransferTypeList\v1\" />
     <Folder Include="Services\UnitOfMeasureService\Commands\" />
     <Folder Include="Services\UnitOfMeasureService\EventHandlers\" />
     <Folder Include="Services\UserInBranchService\Commands\" />
