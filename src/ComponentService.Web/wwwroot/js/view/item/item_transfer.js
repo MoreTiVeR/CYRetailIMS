@@ -353,57 +353,59 @@ function CalculatePriceByKey(itemkey, name) {
         $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val('');
         return;
     }
+    else {
+        var transferTypeid = parseInt($("#transfertypeid").val());
+        var sbranchid = parseInt($("#source_branchid").val());
+        var ajaxRequest = $.ajax({
+            url: 'GetItemByID',
+            async: true,
+            type: 'POST',
+            dataType: 'JSON',
+            data: { "itemId": itemkey, "transfertypeID": transferTypeid, "sourceBranchID": sbranchid },
+            success: function (response) {
+                if (!response.result) {
+                    $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
+                    ShowMessageError(response.msg);
+                    return;
+                }
 
-    var transferTypeid = parseInt($("#transfertypeid").val());
-    var sbranchid = parseInt($("#source_branchid").val());
-    var ajaxRequest = $.ajax({
-        url: 'GetItemByID',
-        async: true,
-        type: 'POST',
-        dataType: 'JSON',
-        data: { "itemId": itemkey, "transfertypeID": transferTypeid, "sourceBranchID": sbranchid },
-        success: function (response) {
-            if (!response.result) {
-                $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
+                //Set item price
+                $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val(response.data.price);
+
+                //Set current item qty
+                $("input[name='outer-item-group[" + resIdx[0] + "][txtCurrentQty]']").val(response.data.qty);
+
+                //Get & Re-check qty if is null
+                var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val() | 0;
+                if (isNaN(qty)) {
+                    qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val();
+                }
+
+                //var curRate = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
+                var total = parseFloat(response.data.price) * qty;
+                //$("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+
+                //Sum total amount
+                var totalAmt = 0;
+
+                var totalRow = parseInt($("#totalrow").val());
+
+                //for (var i = 0; i < totalRow; i++) {
+                //    var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val();
+                //    totalAmt += parseFloat(txtAmt);
+                //}
+
+                //$("#txtSummaryTHB").val(currencyFormat(totalAmt));
+            },
+            failure: function (response) {
                 ShowMessageError(response.msg);
-                return;
+            },
+            error: function (response) {
+                ShowMessageError(response.msg);
             }
+        });
+    }
 
-            //Set item price
-            $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val(response.data.price);
-
-            //Set current item qty
-            $("input[name='outer-item-group[" + resIdx[0] + "][txtCurrentQty]']").val(response.data.qty);
-
-            //Get & Re-check qty if is null
-            var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val() | 0;
-            if (isNaN(qty)) {
-                qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val();
-            }
-
-            //var curRate = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
-            var total = parseFloat(response.data.price) * qty;
-            //$("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
-
-            //Sum total amount
-            var totalAmt = 0;
-
-            var totalRow = parseInt($("#totalrow").val());
-
-            //for (var i = 0; i < totalRow; i++) {
-            //    var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val();
-            //    totalAmt += parseFloat(txtAmt);
-            //}
-
-            //$("#txtSummaryTHB").val(currencyFormat(totalAmt));
-        },
-        failure: function (response) {
-            ShowMessageError(response.msg);
-        },
-        error: function (response) {
-            ShowMessageError(response.msg);
-        }
-    });
 }
 
 function ValidationEnglishKeyPress() {
