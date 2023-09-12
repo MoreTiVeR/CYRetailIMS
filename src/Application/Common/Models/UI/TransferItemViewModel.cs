@@ -37,4 +37,9 @@ public class TransferItemViewModel
     [StringLength(50, ErrorMessage = "*ความยาวไม่เกิน 50 ตัวอักษร")]
     [DisplayName("ระบุหมายเหตุ(ถ้ามี)")]
     public string? description { get; set; }
+
+    //[Required(ErrorMessage = "* กรุณาระบุสินค้าที่ต้องการโอน")]
+    //[Display(Name = "สินค้าโอนสินค้า")]
+    public string itembranchtransfer { get; set; }
+
 }

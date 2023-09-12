@@ -31,7 +31,7 @@
                                 <select class="ddl-select2 select2 ddl-transfertype" asp-for="transfertypeid">
                                     <option value="">-- ระบุประเภทการโอนสินค้า --</option>
                                     <option value="1">โอนจากคลังไปยังสาขา</option>
-                                    <option value="2" disabled>โอนจากสาขาไปยังสาขาา</option>
+                                    <option value="2">โอนจากสาขาไปยังสาขา</option>
                                     <option value="3" disabled>โอนจากคลังไปยังคลัง</option>
                                 </select>
                                 <span asp-validation-for="transfertypeid" class="text-danger"></span>
@@ -87,15 +87,16 @@
                                 <div class="row justify-content-between">
                                     <div class="col-md-3 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left search-box">
-                                            <select id="ddlSearchItem" name="ddlSearchItem" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
-                                                @if (ViewBag.ItemList.result)
+                                            <select id="ddlSearchItem" name="ddlSearchItem" asp-for="itembranchtransfer" asp-items="@(new SelectList(ViewBag.ItemTransferList, "Value", "Text", null, null))" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
+                                                <option value="">-- เลือกสินค้าที่ต้องการโอน --</option>
+                                                @* @if (ViewBag.ItemList.result)
                                                 {
                                                     <option value="">-- เลือกสินค้าที่ต้องการโอน --</option>
                                                     foreach (var item in ViewBag.ItemList.data as List<GetItemListResponseDTO>)
                                                     {
                                                         <option value="@item.itemid">@item.brandname | @item.name</option>
                                                     }
-                                                }
+                                                }*@
                                             </select>
                                         </div>
                                     </div>

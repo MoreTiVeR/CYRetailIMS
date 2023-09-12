@@ -2,35 +2,28 @@
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
-using CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
-using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
-using Newtonsoft.Json.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Collections.Generic;
-using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.IdentityModel.Logging;
-using static CYRetailIMS.ComponentService.Web.Models.EnumModel;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
+using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
+using static CYRetailIMS.Application.Common.Models.EnumModel;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -43,14 +36,16 @@ public class ItemController : BaseController
     private readonly IItemUnitOfMeasureAPI _itemUnitOfMeasureAPI;
     private readonly IBranchAPI _branchAPI;
     private readonly IItemTransferAPI _itemTransferAPI;
+    private readonly IItemInBranchAPI _itemInBranchAPI;
 
     public ItemController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemAPI itemAPI,
         IItemBrandAPI itemBrandAPI,
         IItemTypeAPI itemTypeAPI,
         IItemUnitOfMeasureAPI itemUnitOfMeasureAPI,
-        IBranchAPI branchAPI, 
-        IItemTransferAPI itemTransferAPI) : base(httpClientRequest, mapper, log)
+        IBranchAPI branchAPI,
+        IItemTransferAPI itemTransferAPI,
+        IItemInBranchAPI itemInBranchAPI) : base(httpClientRequest, mapper, log)
     {
         _itemAPI = itemAPI;
         _itemTypeAPI = itemTypeAPI;
@@ -58,6 +53,7 @@ public class ItemController : BaseController
         _itemUnitOfMeasureAPI = itemUnitOfMeasureAPI;
         _branchAPI = branchAPI;
         _itemTransferAPI = itemTransferAPI;
+        _itemInBranchAPI = itemInBranchAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -96,7 +92,8 @@ public class ItemController : BaseController
     {
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
         ViewBag.ItemList = resItemList;
-        ViewBag.BranchList = await PrepareSelectBranc();
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.ItemTransferList = await GetItemTransferItemListByTransferType((int)TransferType.WTB);
         return View();
     }
 
@@ -226,16 +223,32 @@ public class ItemController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> GetItemByID(string itemId)
+    public async Task<IActionResult> GetItemByID(string itemId, int transfertypeID, int sourceBranchID)
     {
         try
         {
-            BaseResponse<GetItemListResponseDTO> res = await _itemAPI.GetItemByIdAsync(Convert.ToInt32(itemId));
-            if (res.result)
+            if(transfertypeID == (int)TransferType.WTB)
             {
-                return Json(new { result = true, data = res.data, msg = "สำเร็จ" });
+                //คลัง-สาขา get from TMItem
+                BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(Convert.ToInt32(itemId));
+                if (resItem.result)
+                {
+                    return Json(new { result = true, data = resItem.data, msg = "สำเร็จ" });
+                }
+                return Json(new { result = false, msg = resItem.error.error.message });
             }
-            return Json(new { result = false, msg = res.error.error.message });
+            else
+            {
+                //สาขา-สาขา get from TMItemInBranch
+                BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(sourceBranchID);
+                var resFilterItem = resItemInBranch.data.itemlist.FirstOrDefault(w => w.itemid == itemId.ToInt32());
+                if (resFilterItem != null)
+                {
+                    return Json(new { result = true, data = resFilterItem, msg = "สำเร็จ" });
+                }
+                return Json(new { result = false, msg = "ไม่พบข้อมูลสินค้า" });
+            }
+            
         }
         catch (Exception ex)
         {
@@ -312,10 +325,12 @@ public class ItemController : BaseController
     {
         List<SelectListItem> sourceList = null;
         List<SelectListItem> destinationList = null;
+        List<SelectListItem> transferItemList = null;
         try
         {
-            sourceList = await GetTransferSourcehItemListAsync(transferTypeID);
-            destinationList = await GetTransferDestinationItemListAsync(transferTypeID);
+            sourceList = await GetTransferSourcehBranchItemListAsync(transferTypeID);
+            destinationList = await GetTransferDestinationBranchItemListAsync(transferTypeID);
+            transferItemList = await GetItemTransferItemListByTransferType(transferTypeID);
             //Set Search Data
             //DestinationSearchData = destinationList;
         }
@@ -323,23 +338,42 @@ public class ItemController : BaseController
         {
             return Json(new { result = false, msg = "ไม่สามารถดึงข้อมูลสาขาได้, กรุณาลองใหม่อีกครั้ง" });
         }
-        return Json(new { result = true, data_source = sourceList, data_destination = destinationList,  msg = "สำเร็จ" });
+        return Json(new { result = true, data_source = sourceList, data_destination = destinationList, data_itemlist = transferItemList, msg = "สำเร็จ" });
     }
 
-    public async Task<List<SelectListItem>> GetTransferSourcehItemListAsync(int transferTypeID)
+    [HttpPost]
+    public async Task<JsonResult> FillItemTransferByBranchID(int transferTypeID, int branchID)
+    {
+        List<SelectListItem> destinationList = null;
+        List<SelectListItem> transferItemList = null;
+        try
+        {
+            transferItemList = await GetItemTransferItemListByTransferType(transferTypeID, branchID);
+            destinationList = await GetTransferDestinationBranchItemListAsync(transferTypeID, branchID);
+            //Set Search Data
+            //DestinationSearchData = destinationList;
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ไม่สามารถดึงข้อมูลสาขาได้, กรุณาลองใหม่อีกครั้ง | ข้อผิดพลาด -> {ex.Message}" });
+        }
+        return Json(new { result = true, data_itemlist = transferItemList, data_destination = destinationList, msg = "สำเร็จ" });
+    }
+
+    public async Task<List<SelectListItem>> GetTransferSourcehBranchItemListAsync(int transferTypeID)
     {
         List<SelectListItem> res = new List<SelectListItem>();
         try
         {
             //คลัง ไป สาขา
-            if(transferTypeID == (int)TransferType.WTB)
+            if (transferTypeID == (int)TransferType.WTB)
             {
                 res.Add(new SelectListItem
                 {
                     Text = "คลังสินค้าสำนักงานใหญ่",
                     Value = "99",
                 });
-                
+
             }
             else
             {
@@ -347,8 +381,8 @@ public class ItemController : BaseController
                 res = (from a in resBranch.data
                        select new SelectListItem
                        {
-                           Text  = a.branchname,
-                           Value = a.branchid
+                           Text = a.branchname,
+                           Value = a.branchid.ToString()
                        }).ToList();
             }
         }
@@ -359,7 +393,7 @@ public class ItemController : BaseController
         return res;
     }
 
-    public async Task<List<SelectListItem>> GetTransferDestinationItemListAsync(int transferTypeID)
+    public async Task<List<SelectListItem>> GetTransferDestinationBranchItemListAsync(int transferTypeID, int filterOutBranchID = 0)
     {
         List<SelectListItem> res = new List<SelectListItem>();
         try
@@ -377,11 +411,20 @@ public class ItemController : BaseController
             else
             {
                 var resBranch = await _branchAPI.GetBranchListAsync();
+                if (!resBranch.result)
+                {
+                    return res;
+                }
+                //Filter out branch
+                if(filterOutBranchID > 0)
+                {
+                    resBranch.data = resBranch.data.Where(w => w.branchid != filterOutBranchID).ToList();
+                }
                 res = (from a in resBranch.data
                        select new SelectListItem
                        {
                            Text = a.branchname,
-                           Value = a.branchid
+                           Value = a.branchid.ToString()
                        }).ToList();
             }
         }
@@ -392,10 +435,47 @@ public class ItemController : BaseController
         return res;
     }
 
-    public async Task<List<SelectListItem>> PrepareSelectBranc()
+    public async Task<List<SelectListItem>> GetItemTransferItemListByTransferType(int transferTypeID, int brnchID = 0)
+    {
+        List<int> branchList = new List<int>();
+        if (transferTypeID == (int)TransferType.WTB)
+        {
+            var resItem = await _itemAPI.GetItemListAsync();
+            if (!resItem.result)
+            {
+                return new List<SelectListItem>();
+            }
+            return (from a in resItem.data
+                    select new SelectListItem
+                    {
+                        Text = a.name,
+                        Value = a.itemid.ToString()
+                    }).ToList();
+        }
+        else
+        {
+            if(brnchID == 0)
+            {
+                return new List<SelectListItem>();
+            }
+            var resItemBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(brnchID);
+            if (!resItemBranch.result)
+            {
+                return new List<SelectListItem>();
+            }
+            return (from a in resItemBranch.data.itemlist
+                    select new SelectListItem
+                    {
+                        Text = a.itemname,
+                        Value = a.itemid.ToString()
+                    }).ToList();
+        }
+    }
+
+    public async Task<List<SelectListItem>> PrepareSelectBranch()
     {
         var resBranch = await _branchAPI.GetBranchListAsync();
-        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid }).ToList();
+        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
     }
 
     #region Private Method

@@ -97,26 +97,47 @@ $("#transfertypeid").on("change", function () {
         success: function (response) {
 
             if (response.result) {
+                //สาขาต้นทาง
                 var selectList_source_branchid = $('#source_branchid');
                 selectList_source_branchid.html(""); // clear before appending new list
                 selectList_source_branchid.append($('<option></option>').val("").html("--เลือกสาขาต้นทาง--")); //Add first itemList
-
                 $.each(response.data_source, function () {
                     $("<option />").val(this.value).text(this.text).appendTo(selectList_source_branchid);;
                     //prevGroupName = this.group.name;
                 });
 
+                //สาขาปลายทาง
                 var selectList_destination_branchid = $('#destination_branchid');
                 selectList_destination_branchid.html(""); // clear before appending new list
                 selectList_destination_branchid.append($('<option></option>').val("").html("--เลือกสาขาปลายทาง--")); //Add first itemList
-
                 $.each(response.data_destination, function () {
                     $("<option />").val(this.value).text(this.text).appendTo(selectList_destination_branchid);
                     //prevGroupName = this.group.name;
                 });
+
+                //ItemList
+                //var selectList_itembranchtransfer = $('#itembranchtransfer');
+                //selectList_itembranchtransfer.html(""); // clear before appending new list
+                //selectList_itembranchtransfer.append($('<option></option>').val("").html("--เลือกสินค้าที่ต้องการโอน--")); //Add first itemList
+                //$.each(response.data_itemlist, function () {
+                //    alert(this.text);
+                //    $("<option />").val(this.value).text(this.text).appendTo(selectList_itembranchtransfer);
+                //    //prevGroupName = this.group.name;
+                //});
+
+                $('.item-transfer-repeater').find('select').html("");
+                $("<option />").val("").text("--เลือกสินค้าที่ต้องการโอน--").appendTo($('.item-transfer-repeater').find('select'));
+                $('.item-transfer-repeater').find('select').each(function (e) {
+                    if (this.type == 'select-one') {
+                        if (this.value == '') {
+                            $.each(response.data_itemlist, function () {
+                                $("<option />").val(this.value).text(this.text).appendTo($('.item-transfer-repeater').find('select'));
+                                //prevGroupName = this.group.name;
+                            });
+                        }
+                    }
+                });
             }
-
-
 
         },
         failure: function (response) {
@@ -127,6 +148,66 @@ $("#transfertypeid").on("change", function () {
         }
     });
 
+});
+
+$("#source_branchid").on("change", function () {
+    var text = $('option:selected', $(this)).text();
+    var sbranchid = parseInt($('option:selected', $(this)).val());
+    var transferTypeid = parseInt($("#transfertypeid").val());
+    //ShowMessageWarning('source_branchid - change' + 'val -> ' + sbranchid + 'text -> ' + text);
+    var request = $.ajax({
+        url: '/Item/FillItemTransferByBranchID',
+        async: true,
+        type: 'POST',
+        dataType: 'JSON',
+        data: { "transferTypeID": transferTypeid, "branchID": sbranchid },
+        success: function (response) {
+
+            if (response.result) {
+
+                //Fill destination branchid selection สาขาปลายทาง
+                var selectList_destination_branchid = $('#destination_branchid');
+                selectList_destination_branchid.html(""); // clear before appending new list
+                selectList_destination_branchid.append($('<option></option>').val("").html("--เลือกสาขาปลายทาง--")); //Add first itemList
+                $.each(response.data_destination, function () {
+                    $("<option />").val(this.value).text(this.text).appendTo(selectList_destination_branchid);
+                    //prevGroupName = this.group.name;
+                });
+
+                //Fill item transfer selection in repeater
+                $('.item-transfer-repeater').find('select').html("");
+                $("<option />").val("").text("--เลือกสินค้าที่ต้องการโอน--").appendTo($('.item-transfer-repeater').find('select'));
+                $('.item-transfer-repeater').find('select').each(function (e) {
+                    if (this.type == 'select-one') {
+                        if (this.value == '') {
+                            $.each(response.data_itemlist, function () {
+                                $("<option />").val(this.value).text(this.text).appendTo($('.item-transfer-repeater').find('select'));
+                                //prevGroupName = this.group.name;
+                            });
+                        }
+                    }
+                });
+            }
+            else {
+                ShowMessageError(response.msg);
+            }
+
+        },
+        failure: function (response) {
+            ShowMessageError(response);
+        },
+        error: function (response) {
+            ShowMessageWarning(response);
+        }
+    });
+});
+
+$("#ddlSearchItem").on("change", function () {
+    ShowMessageWarning('ddlSearchItem - change');
+});
+
+$("#itembranchtransfer").on("change", function () {
+    ShowMessageWarning('itembranchtransfer - change');
 });
 
 function InitialItemRepeater() {
@@ -156,20 +237,20 @@ function InitialItemRepeater() {
             if (!isDuplicate) {
                 $(this).slideDown();
                 $(this).find('select').each(function () {
-                if (typeof $(this).attr('id') === "undefined") {
-                    // ...
-                } else {
-                    $('.ddl-searchitem').removeAttr("id").removeAttr("data-select2-id"); //some times id was not unique So select2 not working, so i remove id
-                    $('.ddl-searchitem').select2();
-                    //$('.ddl-searchitem').on('change', function (event) {
-                    //    var selected_element = $(event.currentTarget);
-                    //    var select_val = selected_element.val();
-                    //    alert('InitialItemRepeater -> ' + select_val);
-                    //});
-                    $('.ddl-searchitem-container').css('width', '100%');
-                    $('.ddl-searchitem').next().next().remove();
-                }
-            });
+                    if (typeof $(this).attr('id') === "undefined") {
+                        // ...
+                    } else {
+                        $('.ddl-searchitem').removeAttr("id").removeAttr("data-select2-id"); //some times id was not unique So select2 not working, so i remove id
+                        $('.ddl-searchitem').select2();
+                        //$('.ddl-searchitem').on('change', function (event) {
+                        //    var selected_element = $(event.currentTarget);
+                        //    var select_val = selected_element.val();
+                        //    alert('InitialItemRepeater -> ' + select_val);
+                        //});
+                        $('.ddl-searchitem-container').css('width', '100%');
+                        $('.ddl-searchitem').next().next().remove();
+                    }
+                });
             }
 
             ////PREVIUOS
@@ -246,7 +327,7 @@ function InitialItemRepeater() {
 function CalculatePriceByKey(itemkey, name) {
     var res = name.split('[');
     var resIdx = res[1].split(']');
-    
+
     var seen = {}; // Object to store encountered values
     var isDuplicate = false;
     $('.item-transfer-repeater').find('select').each(function (e) {
@@ -266,19 +347,21 @@ function CalculatePriceByKey(itemkey, name) {
     });
     if (isDuplicate) {
         //ShowMessageError('ขออภัย, ไม่สามารถระบุสินค้าชนิดเดียวกันได้!');
-        $("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('').trigger('change.select2'); 
+        $("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('').trigger('change.select2');
         //$("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('');
         $("input[name='outer-item-group[" + resIdx[0] + "][txtCurrentQty]']").val('');
         $("input[name='outer-item-group[" + resIdx[0] + "][txtTransferQty]']").val('');
         return;
     }
 
+    var transferTypeid = parseInt($("#transfertypeid").val());
+    var sbranchid = parseInt($("#source_branchid").val());
     var ajaxRequest = $.ajax({
         url: 'GetItemByID',
         async: true,
         type: 'POST',
         dataType: 'JSON',
-        data: { "itemId": itemkey },
+        data: { "itemId": itemkey, "transfertypeID": transferTypeid, "sourceBranchID": sbranchid },
         success: function (response) {
             if (!response.result) {
                 $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
@@ -401,7 +484,7 @@ function ResetForm() {
     $('#frmTransferItem')[0].reset(); // [0] gets the DOM element from the jQuery object
 
     //Reset select2
-    $("#transfertypeid").val('').trigger('change.select2'); 
+    $("#transfertypeid").val('').trigger('change.select2');
 
     $("#source_branchid").empty();
     var source_option = new Option("--เลือกสาขาต้นทาง--", "", true, true);

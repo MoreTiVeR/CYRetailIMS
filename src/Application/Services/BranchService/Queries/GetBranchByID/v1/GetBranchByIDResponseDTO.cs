@@ -9,7 +9,7 @@ namespace CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v
 [Serializable]
 public class GetBranchByIDResponseDTO
 {
-    public string branchid { get; set; }
+    public int branchid { get; set; }
 
     public string branchcode { get; set; }
 
