@@ -27,6 +27,9 @@ public record CreateTransactionCommand : IRequest<BaseResponse<CommandResponse>>
     public decimal amountcash { get; init; }
 
     [Required(ErrorMessage = "Required field")]
+    public decimal fee { get; init; }
+
+    [Required(ErrorMessage = "Required field")]
     public decimal totalamount { get; init; }
 
     [Required(ErrorMessage = "Required field")]

@@ -3,6 +3,7 @@ using AutoMapper;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
+using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
@@ -15,6 +16,7 @@ using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
+using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
 using CYRetailIMS.Infrastructure.ExternalService.BranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
@@ -79,6 +81,7 @@ public static class ConfigureService
         #endregion
 
         #region External Service
+        services.AddScoped<IAccountAPI, AccountAPI>();
         services.AddScoped<IItemAPI, ItemAPI>();
         services.AddScoped<IItemTypeAPI, ItemTypeAPI>();
         services.AddScoped<IItemBrandAPI, ItemBrandAPI>();

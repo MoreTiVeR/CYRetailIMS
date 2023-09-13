@@ -294,6 +294,7 @@ public class SaleController : BaseController
             amountcash = reqObj.mcash,
             amountdeposit = reqObj.mdeposit,
             amounttransfer = reqObj.mtransfer,
+            fee = reqObj.mfee,
             branchid = reqObj.branch.ToInt32(),
             totalamount = toalAmt,
             isactive = true,

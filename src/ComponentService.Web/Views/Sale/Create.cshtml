@@ -83,7 +83,7 @@
                     <div class="row" id="divSellingItem">
                         <input id="totalrow" name="totalrow" value="1" hidden />
                         <div data-repeater-list="outer-item-group" class="outer-item-group">
-                            <div data-repeater-item class="outer-item-group">
+                            <div data-repeater-item class="outer-item-group item-sale-repeater">
                                 <div class="row justify-content-between">
                                     <div class="col-md-2 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left search-box">
@@ -166,7 +166,17 @@
                         </div>
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
-                                <label>ยอดเงินคงเหลือ</label>
+                                <label>ค่าธรรมเนียม</label>
+                                <div class="input-group">
+                                    <input type="text" asp-for="mfee" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                                    <span class="input-group-text">บาท</span>
+                                </div>
+                                <span asp-validation-for="mfee" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>เงินหน้าร้าน</label>
                                 <div class="input-group">
                                     <input type="text" asp-for="mcash" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
                                     <span class="input-group-text">บาท</span>

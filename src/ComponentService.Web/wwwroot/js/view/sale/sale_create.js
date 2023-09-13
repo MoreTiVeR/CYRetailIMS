@@ -265,6 +265,32 @@ function CalculatePriceByKey(itemkey, name) {
     //alert('index -> ' + resIdx[0]);
     //var curCode = $("input[name='" + name + "']").val();
     //Set new Rate
+    var seen = {}; // Object to store encountered values
+    var isDuplicate = false;
+    $('.item-sale-repeater').find('select').each(function (e) {
+        if (this.type == 'select-one') {
+            if (this.value != '') {
+                seen[this.value];
+                if (seen[this.value]) {
+                    // Duplicate found
+                    isDuplicate = true;
+                    return;
+                }
+                else {
+                    seen[this.value] = true;
+                }
+            }
+        }
+    });
+    if (isDuplicate) {
+        //ShowMessageError('ขออภัย, ไม่สามารถระบุสินค้าชนิดเดียวกันได้!');
+        $("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('').trigger('change.select2');
+        //$("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val('');
+        return;
+    }
 
     var ajaxRequest = $.ajax({
         url: 'GetItemPriceByID',

@@ -43,6 +43,10 @@ public class SellingItemViewModel
     [Display(Name = "เงินสด")]
     public decimal mcash { get; set; }
 
+    [Required(ErrorMessage = "* กรุณาระบุค่าธรรมเนียมเงินฝาก")]
+    [Display(Name = "ค่าธรรมเนียม")]
+    public decimal mfee { get; set; }
+
     [Display(Name = "เงินรวม")]
     public decimal amount { get; set; }
 }

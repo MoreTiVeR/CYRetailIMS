@@ -16,10 +16,11 @@ public class CreateTransactionValidator : AbstractValidator<CreateTransactionCom
         RuleFor(r => r.amounttransfer).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินโอน");
         RuleFor(r => r.amountdeposit).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินฝากธนาคาร");
         RuleFor(r => r.amountcash).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินคงเหลือหน้าร้าน");
+        RuleFor(r => r.fee).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุค่าธรรมเนียมเงินฝาก");
         //RuleFor(r => r.totalamount).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุยอดเงินขายสินค้าทั้งหมด");
         //RuleFor(r => r).NotNull().Must(s => s.totalamount > 0).Must(s => s.totalamount == (s.amountcash + s.amountdeposit + s.amountdeposit)).WithMessage("กรุณาระบุยอดเงินรวมทั้งหมดตรงกับยอดขาย กรุณาตรวจสอบใหม่อีกครั้ง");
         //RuleFor(command => command.totalamount).NotNull().Must((command) => IsValidTotalAmount(command));
-        
+
         RuleFor(r => r.totalamount).Must((r, totalAmount) => IsValidTotalAmount(r, totalAmount)).WithMessage("ยอดเงินรวมทั้งหมดไม่ตรงกับยอดขาย กรุณาตรวจสอบใหม่อีกครั้ง");
 
         RuleFor(r => r.createdby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");

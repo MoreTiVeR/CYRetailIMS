@@ -28,6 +28,9 @@ public partial class TTTransaction : BaseAuditableEntity
     [Column(TypeName = "decimal(8, 2)")]
     public decimal AmountCash { get; set; }
 
+    [Column(TypeName = "decimal(4, 2)")]
+    public decimal Fee { get; set; }
+
     [Column(TypeName = "decimal(8, 2)")]
     public decimal? Vat { get; set; }
 

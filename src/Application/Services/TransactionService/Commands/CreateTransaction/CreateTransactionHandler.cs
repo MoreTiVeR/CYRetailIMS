@@ -115,6 +115,7 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
             AmountTransfer = createTransactionCommand.amounttransfer,
             AmountDeposit = createTransactionCommand.amountdeposit,
             AmountCash = createTransactionCommand.amountcash,
+            Fee = createTransactionCommand.fee,
             TotalAmount = createTransactionCommand.totalamount,
             IsExcludeVAT = createTransactionCommand.isexcludevat
         };
