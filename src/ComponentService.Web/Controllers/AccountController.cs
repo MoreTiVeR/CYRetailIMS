@@ -27,6 +27,11 @@ public class AccountController : BaseController
         return View();
     }
 
+    public IActionResult Register()
+    {
+        return View();
+    }
+
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();

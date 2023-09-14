@@ -1,5 +1,6 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.BranchService.Commands.CreateBranch.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandByID.v1;
@@ -17,7 +18,23 @@ public class BranchController : BaseApiController
     {
     }
 
-	[HttpGet]
+    [HttpPost]
+    [Route("v1/create")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateBranchAsync(CreateBranchCommand createBranchCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(createBranchCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CreateBranchAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpGet]
 	[Route("v1/getbranchbyid/{branchid}")]
 	[ProducesResponseType(typeof(GetBranchByIDResponseDTO), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]

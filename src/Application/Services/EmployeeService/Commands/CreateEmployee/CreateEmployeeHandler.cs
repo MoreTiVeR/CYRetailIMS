@@ -27,10 +27,6 @@ public class CreateEmployeeHandler : BaseService, IRequestHandler<CreateEmployee
 
     public async Task<BaseResponse<CommandResponse>> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
     {
-        //TMUser userEntity = CreateUserData(request);
-        //userEntity.AddDomainEvent(new TMUsersCreateEvent(userEntity));
-        //_unitOfWork.Repository<TMUser>().Add(userEntity);
-
         TMUsers isExistUser = (from a in await _unitOfWork.Repository<TMUsers>().QueryAsync()
                               join b in await _unitOfWork.Repository<TMEmployee>().QueryAsync() on a.UserID equals b.UserID
                               where a.UserName == request.username || b.Email == request.email

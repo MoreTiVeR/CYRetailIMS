@@ -1,6 +1,7 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.Services.BranchService.Commands.CreateBranch.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 
@@ -9,6 +10,12 @@ public class BranchAPI : HttpClientService, IBranchAPI
 {
     public BranchAPI(ILog4NetLogger log, IHttpClientRequest httpClientRequest) : base(log, httpClientRequest)
     {
+    }
+
+    public async Task<BaseResponse<CommandResponse>> CreateBranchAsync(CreateBranchCommand createBranchCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse,
+            CreateBranchCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/branch/v1/create"), createBranchCommand);
     }
 
     public async Task<BaseResponse<GetBranchByIDResponseDTO>> GetBranchByIDAsync(int branchID)

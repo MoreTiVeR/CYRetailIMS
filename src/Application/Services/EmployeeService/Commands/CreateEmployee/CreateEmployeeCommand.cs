@@ -51,4 +51,10 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     [Required(ErrorMessage = "Required field")]
     [JsonPropertyName("roleid")]
     public int roleid { get; init; }
+
+    [Required(ErrorMessage = "Required field")]
+    public string createdby { get; init; }
+
+    [Required(ErrorMessage = "Required field")]
+    public DateTime creadeddate { get; init; }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
+using CYRetailIMS.Application.Services.ItemBrandService.Commands.CreateBrand.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Domain.Entities;
 
@@ -14,6 +15,12 @@ public class ItemBrandAPI : HttpClientService, IItemBrandAPI
 {
     public ItemBrandAPI(ILog4NetLogger log, IHttpClientRequest httpClientRequest) : base(log, httpClientRequest)
     {
+    }
+
+    public async Task<BaseResponse<CommandResponse>> CreateItemBrandAsync(CreateBrandCommand createBrandCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateBrandCommand>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembrand/v1/create"), createBrandCommand);
     }
 
     public async Task<BaseResponse<GetItemBrandListResponseDTO>> GetItemBrandByIDAsync(int brandid)
