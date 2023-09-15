@@ -292,12 +292,19 @@ function CalculatePriceByKey(itemkey, name) {
         return;
     }
 
+    var itemid = parseInt(itemkey) | 0;
+    var branchid = parseInt($("#ddlBranch").val()) | 0;
+
+    var searchdata = {
+        itemid: parseInt(itemkey) | 0,
+        branchid: parseInt($("#ddlBranch").val()) | 0,
+    };
     var ajaxRequest = $.ajax({
-        url: 'GetItemPriceByID',
+        url: 'GetItemPriceByCriteria',
         async: true,
         type: 'POST',
         dataType: 'JSON',
-        data: { "itemId": itemkey },
+        data: searchdata,
         success: function (response) {
 
             if (!response.result) {
@@ -307,7 +314,11 @@ function CalculatePriceByKey(itemkey, name) {
             }
 
             //Set item price
-            $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val(response.data);
+            $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val(response.data.price);
+
+            //Set item current qty
+            $("input[name='outer-item-group[" + resIdx[0] + "][txtCurrentQty]']").val(response.data.qty);
+            
 
             //Get & Re-check qty if is null
             var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val() | 0;
@@ -316,7 +327,7 @@ function CalculatePriceByKey(itemkey, name) {
             }
 
             //var curRate = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
-            var total = parseFloat(response.data) * qty;
+            var total = parseFloat(response.data.price) * qty;
             $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
 
             //Sum total amount

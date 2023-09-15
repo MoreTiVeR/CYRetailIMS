@@ -48,14 +48,11 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
         TTTransaction tranEntity = MappingTransaction(request);
         tranEntity.SetCreatedBy(request.createdby);
         tranEntity.SetCreatedDate();
-        //Mapping CreateTransactionCommand -> TTTransaction
-        //Code here
         tranEntity.TTTransactonDetails = MappingTransactionDetail(request);
         tranEntity.TTTransactonDetails.ToList().ForEach(ent =>
         {
             ent.AddDomainEvent(new TTTransactionDetailCreateEvent(ent));
         });
-        //tranEntity.AddDomainEvent(new TTTransactionDetailCreateEvent(tranEntity.TTTransactonDetails));
         tranEntity.AddDomainEvent(new TTTransactionsCreateEvent(tranEntity));
 
         _unitOfWork.Repository<TTTransaction>().Add(tranEntity);
@@ -67,22 +64,17 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
         #endregion
 
         #region Update Stock Item In Branch
+        string updatedBy = request.createdby;
+        DateTime updatedDate = DateTime.Now;
         resItemInBranch = resItemInBranch.Select(s =>
         {
             int minusQty = request.transactiondetail.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
             ? request.transactiondetail.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
             s.Qty = s.Qty - minusQty;
+            s.UpdatedBy = updatedBy;
+            s.UpdatedDate = updatedDate;
             return s;
         }).ToList();
-
-        //request.transactiondetail.ForEach(i =>
-        //{
-        //    TMItemInBranch itemBranch = _unitOfWork.Repository<TMItemInBranch>().Find(w => w.ItemID == i.itemid);
-        //    if(ValidateQtyInBranchStock(i, itemBranch))
-        //    {
-        //        itemBranch.Qty = itemBranch.Qty - i.qty;
-        //    }
-        //});
         #endregion
 
         #region Commit Tran

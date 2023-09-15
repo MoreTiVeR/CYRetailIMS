@@ -99,7 +99,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-12 form-group">
+                                    <div class="col-md-2 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left">
                                             <input type="number" id="txtItemPrice" name="txtItemPrice" onchange="return CalculatePriceByPrice(this.value, this.name)" class="form-control" placeholder="ราคาขายสินค้า" readonly>
                                             <div class="form-control-position">
@@ -109,13 +109,21 @@
                                     </div>
                                     <div class="col-md-2 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left">
-                                            <input type="number" id="txtItemQty" name="txtItemQty" onchange="return CalculatePriceByQty(this.value, this.name)" class="form-control" placeholder="ระบุจำนวน">
+                                            <input type="number" id="txtCurrentQty" name="txtCurrentQty" class="form-control" placeholder="จำนวนคงเหลือ" readonly>
+                                            <div class="form-control-position">
+                                                <i class="bx bxs-keyboard"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtItemQty" name="txtItemQty" onchange="return CalculatePriceByQty(this.value, this.name)" class="form-control" placeholder="ระบุจำนวนขาย">
                                             <div class="form-control-position">
                                                 <i class="bx bx-money"></i>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-12 form-group">
+                                    <div class="col-md-2 col-sm-12 form-group">
                                         <fieldset>
                                             <div class="input-group">
                                                 <input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน" aria-label="จำนวนเงิน (บาท)" readonly>

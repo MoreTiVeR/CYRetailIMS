@@ -27,14 +27,14 @@
                     <div class="row">
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
-                                <label>Brand Name</label>
+                                <label>ชื่อแบรนด์</label>
                                 <input type="text" asp-for="brandname">
                                 <span asp-validation-for="brandname" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
-                                <label>Brand Name</label>
+                                <label>ชื่อย่อแบรนด์</label>
                                 <input type="text" asp-for="brandshortname">
                                 <span asp-validation-for="brandshortname" class="text-danger"></span>
                             </div>
@@ -43,7 +43,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label>Description</label>
+                                <label>รายละเอียด</label>
                                 @Html.TextAreaFor(m => m.description, new
                                 {
                                 @class = "form-control full-width",
@@ -54,25 +54,34 @@
                                 value = "",
                                 placeholder = Html.DisplayNameFor(n => n.description)
                                 })
+                                <span asp-validation-for="description" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-12">
-                        <button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
-                            <i class="bx bx-plus"></i>
-                            ยกเลิก
-                        </button>
-                        <button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
-                            <i class="bx bx-plus"></i>
-                            บันทึกข้อมูล
-                        </button>
-                    </div>
                 </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
+                    <i class="bx bx-plus"></i>
+                    ยกเลิก
+                </button>
+                <button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
+                    <i class="bx bx-plus"></i>
+                    บันทึกข้อมูล
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- /add -->
-@section Scripts {
-    
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/itembrand/itembrand_create.js" asp-append-version="true"></script>
+
+    <script>
+
+    </script>
 }

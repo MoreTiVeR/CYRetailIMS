@@ -4,6 +4,7 @@ using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -65,4 +66,20 @@ public class ItemBranchController : BaseApiController
 		_log.Debug($"[{DateTime.Now}]GetItemInBranchByBranchIDListAsync Success");
 		return Ok(res.data);
 	}
+
+    [HttpPost]
+    [Route("v1/getiteminbranchbycriteria")]
+    [ProducesResponseType(typeof(GetItemInBranchByCriteriaResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemInBranchByCriteriaAsync(GetItemInBranchByCriteriaQuery itemInBranchByBranchListQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<GetItemInBranchByCriteriaResponseDTO> res = await Mediator.Send(itemInBranchByBranchListQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemInBranchByCriteriaAsync Success");
+        return Ok(res.data);
+    }
 }

@@ -14,6 +14,7 @@ using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
@@ -194,7 +195,7 @@ public class SaleController : BaseController
 
             decimal totalAmt = 0;
             decimal totalProfitAmt = 0;
-            int idx = form.Count / 4;
+            int idx = form.Count / 5;
             for (int i = 0; i < idx; i++)
             {
                 var itemid = form.Where(w => w.Key == $"outer-item-group[{i}][ddlSearchItem]").FirstOrDefault().Value[0];
@@ -244,7 +245,29 @@ public class SaleController : BaseController
             var res = await _itemAPI.GetItemByIdAsync(Convert.ToInt32(itemId));
             if (res.result)
             {
-                return Json(new { result = true, data = res.data.price, msg = "สำเร็จ" });
+                return Json(new { result = true, price = res.data.price, curqty = res.data.qty, msg = "สำเร็จ" });
+            }
+            return Json(new { result = false, msg = res.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย, ไม่พบข้อมูลสินค้า. <br> {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetItemPriceByCriteria(SearchItemByCriteriaViewModel searchItem)
+    {
+        try
+        {
+            if (!IsValidSearchCriteria(searchItem))
+            {
+                return Json(new { result = false, msg = $"ข้อมูลค้นหาไม่ถูกต้อง, กรุณาลองใหม่อีกครั้ง" });
+            }
+            var res = await _itemInBranchAPI.GetItemInBranchByCriteriaAsync(new GetItemInBranchByCriteriaQuery { branchid = searchItem.branchid, itemid = searchItem.itemid });
+            if (res.result)
+            {
+                return Json(new { result = true, data = res.data.item, msg = "สำเร็จ" });
             }
             return Json(new { result = false, msg = res.error.error.message });
         }
@@ -320,6 +343,15 @@ public class SaleController : BaseController
         BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(UserProfile.access_branch.FirstOrDefault().branchid);
         ViewBag.ItemInBranch = resItemInBranch.data.itemlist;
         return PartialView("_PartialPage/_SellingItemPartialPage");
+    }
+
+    private bool IsValidSearchCriteria(SearchItemByCriteriaViewModel reqObj)
+    {
+        if(reqObj.branchid == 0 || reqObj.itemid == 0)
+        {
+            return false;
+        }
+        return true;
     }
     #endregion
 }

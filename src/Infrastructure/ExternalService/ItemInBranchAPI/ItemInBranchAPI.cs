@@ -9,6 +9,7 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
@@ -35,4 +36,10 @@ public class ItemInBranchAPI : HttpClientService, IItemInBranchAPI
 		return await _httpClientRequest.HttpRequestToObject<List<GetItemInBranchByBranchListResponseDTO>, object>(HttpMethod.Post,
 			new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/getiteminbranchbybranchidlist"), queryCommand);
 	}
+
+    public async Task<BaseResponse<GetItemInBranchByCriteriaResponseDTO>> GetItemInBranchByCriteriaAsync(GetItemInBranchByCriteriaQuery criteriaQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetItemInBranchByCriteriaResponseDTO, GetItemInBranchByCriteriaQuery>(HttpMethod.Post,
+              new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/getiteminbranchbycriteria"), criteriaQuery);
+    }
 }

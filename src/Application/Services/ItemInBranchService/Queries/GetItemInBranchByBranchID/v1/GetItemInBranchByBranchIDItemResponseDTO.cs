@@ -31,7 +31,4 @@ public class GetItemInBranchByBranchIDItemResponseDTO
 
 	public int? qty { get; set; }
 
-    //public int branhid { get; set; }
-    //public string branchname { get; set; }
-
 }
