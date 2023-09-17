@@ -93,7 +93,7 @@
             <table class="table datanew">
                 <thead>
                     <tr>
-                        <th>
+                        <th hidden>
                             <label class="checkboxs">
                                 <input type="checkbox" id="select-all">
                                 <span class="checkmarks"></span>
@@ -101,7 +101,7 @@
                         </th>
                         <th>วันที่ทำรายการ</th>
                         <th>สาขา</th>
-                        <th>ประเภทรายการ</th>
+                        <th>ยอดเงินรวม</th>
                         <th>เงินโอน</th>
                         <th>เงินฝาก</th>
                         <th>เงินหน้าร้าน</th>
@@ -115,7 +115,7 @@
                         foreach (var item in (List<GetTransactionByBranchIDResponseDTO>)ViewBag.TransactionList.data)
                         {
                             <tr>
-                                <td>
+                                <td hidden>
                                     <label class="checkboxs">
                                         <input type="checkbox">
                                         <span class="checkmarks"></span>
@@ -123,11 +123,11 @@
                                 </td>
                                 <td>@item.transactiondate</td>
                                 <td><span class="badges bg-lightgreen">@item.branchname</span></td>
-                                <td><span class="badges bg-lightgreen">@item.transactiontypedesc</span></td>
+                                <td>@item.totalamount</td>
                                 <td>@item.amounttransfer</td>
                                 <td>@item.amountdeposit</td>
                                 <td>@item.amountcash</td>
-                                <td>@item.createdby</td>
+                                <td>@item.createdbystaff</td>
                                 <td class="text-center">
                                     <a class="action-set" href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="true">
                                         <i class="fa fa-ellipsis-v" aria-hidden="true"></i>

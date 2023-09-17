@@ -70,6 +70,9 @@ public class EditItemViewModel
     [DisplayName("ระบุจำนวนหน่วยสินค้า")]
     public int Qty { get; set; }
 
+    [DisplayName("ระบุจำนวนสินค้าขั้นต่ำ")]
+    public int NotifyMinQty { get; set; }
+
     //[Required(ErrorMessage = "*กรุณาระบุจำนวนหน่วยสินค้า")]
     [DisplayName("ระบุส่วนลดสินค้า")]
     public double DiscountPercent { get; set; }

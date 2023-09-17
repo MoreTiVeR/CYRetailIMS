@@ -60,7 +60,7 @@ public class CustomAuthorize : TypeFilterAttribute
                 //}
                 #endregion
 
-                if (!flagClaim)
+                if (!flagClaim || context.HttpContext.Session.GetString("userprofile") is null)
                     context.Result = new RedirectResult("~/Permission/AccessDenied");
             }
             else

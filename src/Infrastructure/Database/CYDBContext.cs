@@ -144,7 +144,7 @@ public partial class CYDBContext : DbContext
         modelBuilder.Entity<TMItem>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
-
+            entity.Property(e => e.NotifyMinQty).HasDefaultValueSql("((0))");
             entity.HasOne(d => d.Brand).WithMany(p => p.TMItems).HasConstraintName("FK_TMItem_TMItemBrand");
 
             entity.HasOne(d => d.ItemType).WithMany(p => p.TMItems).HasConstraintName("FK_TMItem_TMItemType");

@@ -76,13 +76,13 @@
             <table id="tbItems" class="table datanew">
                 <thead>
                     <tr>
-                        <th>
+                        <th hidden>
                             <label class="checkboxs">
                                 <input type="checkbox" id="select-all">
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
-                        <th>สาขา</th>
+                        @*<th>สาขา</th>*@
                         <th>รหัสสินค้า</th>
                         <th>ชื่อสินค้า</th>
                         <th>ประเภท</th>
@@ -90,7 +90,7 @@
                         <th>จำนวน</th>
                         <th>ราคา</th>
                         <th>รายละเอียด</th>
-                        <th class="text-center">ดำเนินการ</th>
+                        <th class="text-center">แก้ไข</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -102,13 +102,13 @@
                             string rName = $"rowid{@item.itemid}";
                             Dictionary<string, string> aItemID = new Dictionary<string, string> { { "itemid", item.itemid.ToString() } };
                             <tr>
-                                <td>
+                                <td hidden>
                                     <label class="checkboxs">
                                         <input type="checkbox">
                                         <span class="checkmarks"></span>
                                     </label>
                                 </td>
-                                <td>@branchName</td>
+                                @*<td>@branchName</td>*@
                                 <td>@item.itemcode</td>
                                 <td><span class="badges bg-lightgreen">@item.itemname</span></td>
                                 <td>@item.itemtypename</td>
@@ -120,9 +120,9 @@
                                     <a class="me-3" asp-action="Edit" asp-controller="Sale" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">
                                     </a>
-                                    <a href="#" id="@rName" class="me-3" title="ลบข้อมูลสินค้า" onclick="deleteItem(@item.itemid)">
+                                    @*<a href="#" id="@rName" class="me-3" title="ลบข้อมูลสินค้า" onclick="deleteItem(@item.itemid)">
                                         <img src="~/assets/img/icons/delete.svg" alt="img">
-                                    </a>
+                                    </a>*@
                                 </td>
                             </tr>
                         }

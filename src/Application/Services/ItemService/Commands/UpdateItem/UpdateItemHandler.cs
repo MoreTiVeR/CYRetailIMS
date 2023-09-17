@@ -40,6 +40,7 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
         itemEnt.Description = request.description;
         itemEnt.Price = request.price;
         itemEnt.Qty = request.qty;
+        itemEnt.NotifyMinQty = request.notifyqty;
         itemEnt.DiscountPercent = request.discountpercent;
         itemEnt.ItemImageUrl = !string.IsNullOrEmpty(request.itemimageurl) ? request.itemimageurl : null;
         itemEnt.SetUpdatedBy();

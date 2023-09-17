@@ -42,6 +42,9 @@ public record CreateItemCommand : IRequest<BaseResponse<CommandResponse>>
     [Required]
     public int qty { get; init; }
 
+    [Required]
+    public int notifyminqty { get; set; }
+
     /// <summary>
     /// Item image path
     /// </summary>

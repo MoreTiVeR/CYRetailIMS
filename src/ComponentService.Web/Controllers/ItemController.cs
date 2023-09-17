@@ -260,18 +260,9 @@ public class ItemController : BaseController
     public async Task<IActionResult> AddItem([FromBody] AddItemViewModel addItemObj)
     {
         CreateItemCommand createItemCommand = CreateItemCommand(addItemObj);
-        //BaseResponse<CommandResponse> resCreateItem = await _httpClientRequest.HttpRequestToObject<CommandResponse, 
-        //    CreateItemCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/item/v1/create"), createItemCommand);
         BaseResponse<CommandResponse> resCreateItem = await _itemAPI.CreateItemAsync(createItemCommand);
         if (resCreateItem.result)
         {
-            #region Set Profile
-            //UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);
-            //base.UserProfile = userProfile;
-            //var principal = CreatePrincipal(userProfile);
-            //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-            #endregion
-
             return Json(new JsonViewModel { result = resCreateItem.result, message = resCreateItem.message });
         }
 
@@ -281,7 +272,7 @@ public class ItemController : BaseController
     [HttpPost]
     public async Task<IActionResult> EditItem([FromBody] EditItemViewModel editItemObj)
     {
-        UpdateItemCommand updateItemCommand = UpdateItemCommand(editItemObj);
+        UpdateItemCommand updateItemCommand = PrepareUpdateItemCommand(editItemObj);
         BaseResponse<CommandResponse> resUpdateItem = await _itemAPI.UpdateItemAsync(updateItemCommand);
         if (resUpdateItem.result)
         {
@@ -493,13 +484,14 @@ public class ItemController : BaseController
             shortname = !string.IsNullOrEmpty(itemViewModel.ShortName) ? itemViewModel.ShortName : itemViewModel.Name,
             itemimageurl = !string.IsNullOrEmpty(itemViewModel.ItemImageUrl) ? itemViewModel.ItemImageUrl : "../assets/img/product/noimage.png",
             price = itemViewModel.Price,
+            qty = itemViewModel.Qty,
+            notifyminqty = itemViewModel.NotifyMinQty,
             createdby = base.UserProfile.rolename,
             isactive = bool.TryParse(itemViewModel.IsActive, out bool isactive) && isactive,
-            //isactive = itemViewModel.IsActive,
         };
     }
 
-    private UpdateItemCommand UpdateItemCommand(EditItemViewModel itemViewModel)
+    private UpdateItemCommand PrepareUpdateItemCommand(EditItemViewModel itemViewModel)
     {
         return new UpdateItemCommand
         {
@@ -510,11 +502,11 @@ public class ItemController : BaseController
             shortname = !string.IsNullOrEmpty(itemViewModel.ShortName) ? itemViewModel.ShortName : itemViewModel.Name,
             itemimageurl = !string.IsNullOrEmpty(itemViewModel.ItemImageUrl) ? itemViewModel.ItemImageUrl : "../assets/img/product/noimage.png",
             qty = itemViewModel.Qty,
+            notifyqty = itemViewModel.NotifyMinQty,
             discountpercent = itemViewModel.DiscountPercent,
             price = itemViewModel.Price,
             updatedby = base.UserProfile.rolename,
             isactive = bool.TryParse(itemViewModel.IsActive, out bool isactive) && isactive
-            //isactive = itemViewModel.IsActive
         };
     }
 

@@ -47,6 +47,11 @@ public class GetItemByIDResponseDTO
 
     public int qty { get; set; }
 
+    /// <summary>
+    /// จำนวน QTY แจ้งเตือนขั้นต่ำ
+    /// </summary>
+    public int notifyminqty { get; set; }
+
     public double discountpercent { get; init; }
 
     public string createdby { get; set; }

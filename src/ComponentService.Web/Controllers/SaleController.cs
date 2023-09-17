@@ -54,7 +54,7 @@ public class SaleController : BaseController
         _itemUnitOfMeasureAPI = itemUnitOfMeasureAPI;
     }
 
-    public async Task<IActionResult> IndexAsync()
+    public async Task<IActionResult> Index()
     {
         BaseResponse<List<GetItemInBranchByBranchListResponseDTO>> resItemBranchList = await _itemInBranchAPI.GetItemInBranchByBranchListAsync(new GetItemInBranchByBranchListQuery
 		{

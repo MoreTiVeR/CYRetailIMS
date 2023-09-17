@@ -22,13 +22,15 @@ public class GetTransactionByBranchIDHandler : BaseService, IRequestHandler<GetT
 	{
 		List<GetTransactionByBranchIDResponseDTO> resTransaction = (from tran in await _unitOfWork.Repository<TTTransaction>().FindWithInclude(w => w.BranchID == request.branchid 
 																	&& (w.TransactionDate.Date >= DateTime.Now.Date && w.TransactionDate.Date <= DateTime.Now.Date) 
-																	&& w.IsActive, 
-																	i => i.Include(ii => ii.TransactionType), idetail => idetail.Include(d => d.TTTransactonDetails))
+																	&& w.IsActive, i => i.Include(ii => ii.TransactionType), idetail => idetail.Include(d => d.TTTransactonDetails))
 																	join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
 																	join trantype in await _unitOfWork.Repository<TMTransactionType>().QueryAsync() on tran.TransactionTypeID equals trantype.TransactionTypeID
 																	//join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
 																	//where tran.BranchID == request.branchid
-																	select new GetTransactionByBranchIDResponseDTO
+																	join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User)) on tran.CreatedBy equals emp.User.UserName
+																	into tUser
+																	from jUser in tUser.DefaultIfEmpty()
+                                                                    select new GetTransactionByBranchIDResponseDTO
 																	{
 																		transactionid = tran.TransactionID,
 																		transactiondate = tran.TransactionDate,
@@ -43,6 +45,7 @@ public class GetTransactionByBranchIDHandler : BaseService, IRequestHandler<GetT
 																		totalamount = tran.TotalAmount,
 																		creadeddate = tran.CreadedDate,
 																		createdby = tran.CreatedBy,
+																		createdbystaff = jUser != null ? jUser.FirstName : "N/A",
 																		isactive = tran.IsActive,
 																		updateddate = tran.UpdatedDate,
 																		updatedby = tran.UpdatedBy,

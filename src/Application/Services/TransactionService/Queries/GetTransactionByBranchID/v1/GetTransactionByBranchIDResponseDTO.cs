@@ -28,7 +28,8 @@ public class GetTransactionByBranchIDResponseDTO
 	public decimal amountdeposit { get; set; }
 	public decimal amountcash { get; set; }
 	public decimal totalamount { get; set; }
-	public string createdby { get; set; }
+    public string createdbystaff { get; set; }
+    public string createdby { get; set; }
 	public DateTime creadeddate { get; set; }
 	public string updatedby { get; set; }
 	public DateTime? updateddate { get; set; }

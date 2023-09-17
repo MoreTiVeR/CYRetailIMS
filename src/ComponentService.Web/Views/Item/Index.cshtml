@@ -98,7 +98,7 @@
             <table class="table datanew">
                 <thead>
                     <tr>
-                        <th>
+                        <th hidden>
                             <label class="checkboxs">
                                 <input type="checkbox" id="select-all">
                                 <span class="checkmarks"></span>
@@ -111,7 +111,8 @@
                         <th>จำนวน</th>
                         <th>ต้นทุน</th>
                         <th>ราคาขาย</th>
-                        <th>รายละเอียด</th>
+                        <th>จำนวนขั้นต่ำ</th>
+                        <th class="text-center">รายละเอียด</th>
                         <th>สร้างโดย</th>
                         <th>แก้ไขโดย</th>
                         <th>วันที่แก้ไข</th>
@@ -126,24 +127,28 @@
                             string rName = $"rowid{@item.itemid}";
                             Dictionary<string, string> aItemID = new Dictionary<string, string> { { "itemid", item.itemid.ToString() } };
                             <tr>
-                                <td>
+                                <td hidden>
                                     <label class="checkboxs">
                                         <input type="checkbox">
                                         <span class="checkmarks"></span>
                                     </label>
                                 </td>
-                                <td class="productimgname">
+                                @*<td class="productimgname">
                                     <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="คลิกเพื่อดูรายละเอียด" class="product-img">
                                         <img src="@item.itemimageurl" alt="product">
                                     </a>
-                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="@item.description">@item.name</a>
+                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="@item.itemcode">@item.name</a>
+                                </td>*@
+                                <td>
+                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="สินค้า @item.itemcode รหัส @item.itemcode">@item.itemcode</a>
                                 </td>
-                                <td>@item.itemcode</td>
+                                <td>@item.name</td>
                                 <td>@item.itemtypename</td>
                                 <td>@item.brandname</td>
                                 <td>@item.qty</td>
                                 <td>@item.cost</td>
                                 <td>@item.price</td>
+                                <td>@item.notifyminqty</td>
                                 <td>@item.description</td>
                                 <td>@item.createdby</td>
                                 <td>@item.updatedby</td>

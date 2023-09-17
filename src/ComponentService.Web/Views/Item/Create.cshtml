@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <!--ROW2-->
-                <div class="col-lg-4 col-sm-6 col-12">
+                <div class="col-lg-3 col-sm-6 col-12">
                     <div class="form-group">
                         <label>หน่วยนับสินค้า</label>
                         <select class="select" asp-for="UnitOfMeasureID">
@@ -86,18 +86,25 @@
                         <span asp-validation-for="UnitOfMeasureID" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-4 col-sm-6 col-12">
+                <div class="col-lg-3 col-sm-6 col-12">
                     <div class="form-group">
                         <label>รหัสสินค้า</label>
                         <input type="text" asp-for="ItemCode">
                         <span asp-validation-for="ItemCode" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-4 col-sm-6 col-12">
+                <div class="col-lg-3 col-sm-6 col-12">
                     <div class="form-group">
                         <label>จำนวนสินค้า</label>
                         <input type="number" class="form-control" asp-for="Qty">
                         <span asp-validation-for="Qty" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>จำนวนสินค้าขั้นต่ำ</label>
+                        <input type="number" class="form-control" asp-for="NotifyMinQty">
+                        <span asp-validation-for="NotifyMinQty" class="text-danger"></span>
                     </div>
                 </div>
                 <!--ROW3-->
@@ -148,7 +155,6 @@
                 <div class="col-lg-12">
                     <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
                     <button id="btnCancel" type="reset" class="btn btn-cancel me-2">ยกเลิก</button>
-                    @*<a class="btn btn-cancel">ยกเลิก</a>*@
                 </div>
             </div>
         </form>
