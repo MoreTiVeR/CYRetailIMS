@@ -91,7 +91,7 @@ function deleteItem(itemid) {
             $.ajax({
                 type: 'POST',
                 url: '/Item/DeleteItem',
-                data: JSON.stringify({ ItemID: itemid }),
+                data: JSON.stringify({ itemid: itemid }),
                 contentType: 'application/json',
                 success: function (data) {
                     if (data.result) {

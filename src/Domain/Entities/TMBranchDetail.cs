@@ -13,29 +13,21 @@ public partial class TMBranchDetail : BaseAuditableEntity
     [Key]
     public int BranchID { get; set; }
 
-    [StringLength(50)]
+    [StringLength(200)]
     [Unicode(false)]
     public string Address1 { get; set; } = null!;
 
-    [StringLength(50)]
+    [StringLength(200)]
     [Unicode(false)]
     public string? Address2 { get; set; }
 
-    [StringLength(50)]
-    [Unicode(false)]
-    public string SubDistrictCode { get; set; } = null!;
+    public int? SubDistrictID { get; set; }
 
-    [StringLength(50)]
-    [Unicode(false)]
-    public string DistrictCode { get; set; } = null!;
+    public int? DistrictID { get; set; }
 
-    [StringLength(50)]
-    [Unicode(false)]
-    public string ProvinceCode { get; set; } = null!;
+    public int? ProvinceID { get; set; }
 
-    [StringLength(5)]
-    [Unicode(false)]
-    public string ZipCode { get; set; } = null!;
+    public int? ZipCode { get; set; }
 
     [ForeignKey("BranchID")]
     [InverseProperty("TMBranchDetail")]

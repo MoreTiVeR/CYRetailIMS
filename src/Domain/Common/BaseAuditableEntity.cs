@@ -29,10 +29,10 @@ public abstract class BaseAuditableEntity : BaseEntity
     public void DeActiveStatus() => IsActive = false;
 
     public void SetCreatedDate() => CreadedDate = DateTime.Now;
-
+    public void SetCreatedDate(DateTime creatDate) => CreadedDate = creatDate;
     public void SetCreatedBy(string userName = "") => CreatedBy = !string.IsNullOrEmpty(userName) ? CreatedBy = userName : CreatedBy = "SYSTEM";
 
     public void SetUpdatedDate() => UpdatedDate = DateTime.Now;
-
+    public void SetUpdatedDate(DateTime updateDate) => UpdatedDate = updateDate;
     public void SetUpdatedBy(string userName = "") => UpdatedBy = !string.IsNullOrEmpty(userName) ? UpdatedBy = userName : UpdatedBy = "SYSTEM";
 }

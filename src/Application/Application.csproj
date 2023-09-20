@@ -12,8 +12,6 @@
     <Folder Include="Caching\" />
     <Folder Include="Services\AccountService\Commands\" />
     <Folder Include="Services\AccountService\EventHandlers\" />
-    <Folder Include="Services\BranchService\Commands\DeleteBranch\v1\" />
-    <Folder Include="Services\BranchService\Commands\UpdateBranch\v1\" />
     <Folder Include="Services\EmployeeService\Commands\DeleteEmployee\" />
     <Folder Include="Services\EmployeeService\Commands\UpdateEmployee\" />
     <Folder Include="Services\DepartmentService\" />

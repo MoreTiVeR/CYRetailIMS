@@ -94,6 +94,11 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTTransactonDetail> TTTransactonDetails { get; set; }
 
+    public virtual DbSet<TMGeography> TMGeographies { get; set; }
+    public virtual DbSet<TMProvince> TMProvinces { get; set; }
+    public virtual DbSet<TMDistrict> TMDistricts { get; set; }
+    public virtual DbSet<TMSubDistrict> TMSubDistricts { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -403,6 +408,29 @@ public partial class CYDBContext : DbContext
 
             entity.HasOne(d => d.Transaction).WithMany(p => p.TTTransactonDetails).HasConstraintName("FK_TTTransactonDetail_TTTransactions");
         });
+
+        modelBuilder.Entity<TMGeography>(entity =>
+        {
+            entity.HasKey(e => e.GeoID).HasName("PK_Geography");
+
+            entity.Property(e => e.GeoID).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<TMProvince>(entity =>
+        {
+            entity.HasKey(e => new { e.ProvinceID, e.ProvinceCode, e.GeoID }).HasName("PK_Province");
+        });
+
+        modelBuilder.Entity<TMDistrict>(entity =>
+        {
+            entity.HasKey(e => new { e.SubDistrictID, e.SubDistrictCode, e.GeoID, e.ProvinceID }).HasName("PK_Amphur_1");
+        });
+
+        modelBuilder.Entity<TMSubDistrict>(entity =>
+        {
+            entity.HasKey(e => new { e.DistrictID, e.DistrictCode, e.SubDistrictID, e.ProvinceID, e.GeoID }).HasName("PK_District");
+        });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

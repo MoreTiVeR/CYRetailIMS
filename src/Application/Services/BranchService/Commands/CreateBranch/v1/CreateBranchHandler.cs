@@ -7,6 +7,7 @@ using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMBranchs;
+using CYRetailIMS.Domain.Events.TMBranchsDetail;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,8 @@ public class CreateBranchHandler : BaseService, IRequestHandler<CreateBranchComm
         }
 
         TMBranch entData = PrepareBranchData(request);
+        entData.TMBranchDetail = PrepareBranchDetailData(request);
+        entData.TMBranchDetail.AddDomainEvent(new TMBranchDetailCreateEvent(entData.TMBranchDetail));
         entData.AddDomainEvent(new TMBranchCreateEvent(entData));
         await _unitOfWork.Repository<TMBranch>().AddAsync(entData);
 
@@ -49,6 +52,17 @@ public class CreateBranchHandler : BaseService, IRequestHandler<CreateBranchComm
         {
             BranchCode = req.branchcode.Trim().ToUpper(),
             BranchName = req.branchname,
+            CreadedDate = req.creadeddate,
+            CreatedBy = req.createdby,
+            IsActive = req.isactive
+        };
+    }
+
+    private TMBranchDetail PrepareBranchDetailData(CreateBranchCommand req)
+    {
+        return new TMBranchDetail
+        {
+            Address1 = req.address,
             CreadedDate = req.creadeddate,
             CreatedBy = req.createdby,
             IsActive = req.isactive

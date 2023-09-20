@@ -23,7 +23,9 @@ function EditItem(form) {
                     //popup.dialog('close');
 
                     console.log(data);
-                    AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');
+                    //AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');
+                    ShowMessageSuccess('ปรับปรุงข้อมูลสำเร็จ');
+
                     $("#frmEditItem")[0].reset();
                     $("#global-loader").css('display', 'none');
                     //ShowMessageSuccess(data.message);
@@ -32,8 +34,8 @@ function EditItem(form) {
                     //window.location = data.url;
                 }
                 else {
-                    //ShowMessageError(data.message);
-                    AlertError(data.message);
+                    //AlertError(response.message);
+                    ShowMessageError(response.message);
                     $("#global-loader").css('display', 'none');
                 }
             }

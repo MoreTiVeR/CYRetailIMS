@@ -17,9 +17,9 @@ public class GetBranchListMappingProfile : Profile
 			.ForMember(w => w.branchname, f => f.MapFrom(x => x.BranchName))
 			.ForMember(w => w.address1, f => f.MapFrom(x => x.TMBranchDetail.Address1))
 			.ForMember(w => w.address2, f => f.MapFrom(x => x.TMBranchDetail.Address2))
-			.ForMember(w => w.subdistrictcode, f => f.MapFrom(x => x.TMBranchDetail.SubDistrictCode))
-			.ForMember(w => w.districtcode, f => f.MapFrom(x => x.TMBranchDetail.DistrictCode))
-			.ForMember(w => w.provincecode, f => f.MapFrom(x => x.TMBranchDetail.ProvinceCode))
+			.ForMember(w => w.subdistrictid, f => f.MapFrom(x => x.TMBranchDetail.SubDistrictID))
+			.ForMember(w => w.districtid, f => f.MapFrom(x => x.TMBranchDetail.DistrictID))
+			.ForMember(w => w.provinceid, f => f.MapFrom(x => x.TMBranchDetail.ProvinceID))
 			.ForMember(w => w.zipcode, f => f.MapFrom(x => x.TMBranchDetail.ZipCode));
 	}
 }

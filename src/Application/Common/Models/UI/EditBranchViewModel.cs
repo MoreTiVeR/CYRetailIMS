@@ -9,15 +9,18 @@ using System.Xml.Linq;
 namespace CYRetailIMS.Application.Common.Models.UI;
 
 [Serializable]
-public class CreateBranchViewModel
+public class EditBranchViewModel
 {
-	[Required(ErrorMessage = "* กรุณาระบุรหัสสาขาาขา")]
-	[Display(Name = "รหัสสาขา")]
-	public string branchcode { get; set; }
+    [Required(ErrorMessage = "* กรุณาระบุไอดีสาขา")]
+    public int branchid { get; set; }
 
-	[Required(ErrorMessage = "* กรุณาระบุเชื่อสาขา")]
-	[Display(Name = "ชื่อสาขา")]
-	public string branchname { get; set; }
+    [Required(ErrorMessage = "* กรุณาระบุรหัสสาขาาขา")]
+    [Display(Name = "รหัสสาขา")]
+    public string branchcode { get; set; }
+
+    [Required(ErrorMessage = "* กรุณาระบุเชื่อสาขา")]
+    [Display(Name = "ชื่อสาขา")]
+    public string branchname { get; set; }
 
     [Required(ErrorMessage = "* กรุณาระบุที่อยู่สาขา")]
     [Display(Name = "ที่อยู่สาขา")]

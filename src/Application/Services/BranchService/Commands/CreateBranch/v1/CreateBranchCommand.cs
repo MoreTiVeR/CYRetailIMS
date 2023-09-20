@@ -17,6 +17,9 @@ public record CreateBranchCommand : IRequest<BaseResponse<CommandResponse>>
     public string branchname { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
+    public string address { get; set; }
+
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     public string createdby { get; init; }
 
     [Required(ErrorMessage = "Required field")]

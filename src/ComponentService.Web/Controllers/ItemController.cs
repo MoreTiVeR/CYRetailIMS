@@ -284,7 +284,7 @@ public class ItemController : BaseController
     [HttpPost]
     public async Task<IActionResult> DeleteItem([FromBody] DeleteItemViewModel delItemObj)
     {
-        DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.ItemID };
+        DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid };
         BaseResponse<CommandResponse> resDelItem = await _itemAPI.DeleteItemAsync(delItemCommand);
         if (resDelItem.result)
         {

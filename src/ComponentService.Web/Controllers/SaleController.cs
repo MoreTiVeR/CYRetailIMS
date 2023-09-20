@@ -293,8 +293,7 @@ public class SaleController : BaseController
     [HttpPost]
     public async Task<IActionResult> DeleteItem([FromBody] DeleteItemViewModel delItemObj)
     {
-        return Json(new JsonViewModel { result = false, message = "Not implement" });
-        DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.ItemID };
+        DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid };
         BaseResponse<CommandResponse> resDelItem = await _itemAPI.DeleteItemAsync(delItemCommand);
         if (resDelItem.result)
         {

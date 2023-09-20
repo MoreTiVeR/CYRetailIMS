@@ -19,12 +19,12 @@ public class GetBranchByIDResponseDTO
 
 	public string address2 { get; set; }
 
-	public string subdistrictcode { get; set; }
+	public int subdistrictid { get; set; }
 
-	public string districtcode { get; set; }
+	public int districtid { get; set; }
 
-	public string provincecode { get; set; }
+	public int provinceid { get; set; }
 
-	public string zipcode { get; set; }
+	public int zipcode { get; set; }
 
 }
