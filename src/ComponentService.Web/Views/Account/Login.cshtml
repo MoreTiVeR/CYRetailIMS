@@ -9,74 +9,49 @@
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
 
-<div class="account-content">
-    <div class="login-wrapper">
-        <div class="login-content">
-            <div class="login-userset">
-                <div class="login-logo logo-normal">
-                    <img src="assets/img/logo_cy.png" alt="img">
-                </div>
-                <a href="index.html" class="login-logo logo-white">
-                    <img src="assets/img/logo-white.png" alt="">
-                </a>
-                <div class="login-userheading">
-                    <h3>เข้าสู่ระบบ</h3>
-                </div>
-                <form id="frmLogin" class="form-login" onsubmit="return Login(this)">
-                    <div class="form-login">
-                        <label>UserName</label>
-                        <div class="form-addons">
-                            <input type="text" asp-for="UserName" placeholder="@Html.DisplayNameFor(f => f.UserName)" required>
-                            <img src="../assets/img/icons/mail.svg" alt="img">
-                        </div>
-                        <span asp-validation-for="UserName" class="text-danger"></span>
-                    </div>
-                    <div class="form-login">
-                        <label>Password</label>
-                        <div class="pass-group">
-                            <input type="password" asp-for="Password" class="pass-input" placeholder="@Html.DisplayNameFor(f => f.Password)" required>
-                            <span class="fas toggle-password fa-eye-slash text-danger"></span>
-                        </div>
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    <div class="form-login">
-                        <div class="alreadyuser">
-                            <h4><a href="forgetpassword.html" class="hover-a">Forgot Password?</a></h4>
-                        </div>
-                    </div>
-                    <div class="form-login">
-                        <button id="btnLogin" type="submit" class="btn btn-login">ล็อกอิน</button>
-                    </div>
-                </form>
-                <div class="signinform text-center">
-                    <h4>ยังไม่มีบัญชีผู้ใช้งาน? <a href="signup.html" class="hover-a">คลิกเพื่อลงทะเบียน</a></h4>
-                </div>
-                <div class="form-setlogin">
-                    <h4>หรือ เข้าสู่ระบบด้วย</h4>
-                </div>
-                <div class="form-sociallink">
-                    <ul>
-                        <li>
-                            <a href="javascript:void(0);">
-                                <img src="assets/img/icons/google.png" class="me-2" alt="google">
-                                เข้าสู่ระบบด้วย Google
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);">
-                                <img src="assets/img/icons/facebook.png" class="me-2" alt="google">
-                                เข้าสู่ระบบด้วย Facebook
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="text-center">
-                    <span class="text-secondary">ver. @Assembly.GetEntryAssembly().GetName().Version</span>
-                </div>
+<div class="login-userset">
+    <div class="login-logo logo-normal">
+        <img src="~/assets/img/logo_cy.png" alt="img">
+    </div>
+    <a href="index.html" class="login-logo logo-white">
+        <img src="~/assets/img/logo-white.png" alt="">
+    </a>
+    <div class="login-userheading">
+        <h3>เข้าสู่ระบบ</h3>
+    </div>
+    <form id="frmLogin" class="form-login" onsubmit="return Login(this)">
+        <div class="form-login">
+            <label>ชื่อผู้ใช้งาน</label>
+            <div class="form-addons">
+                <input type="text" asp-for="UserName" placeholder="@Html.DisplayNameFor(f => f.UserName)" required>
+                <img src="~/assets/img/icons/mail.svg" alt="img">
+            </div>
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div class="form-login">
+            <label>รหัสผ่าน</label>
+            <div class="pass-group">
+                <input type="password" asp-for="Password" class="pass-input" placeholder="@Html.DisplayNameFor(f => f.Password)" required>
+                <span class="fas toggle-password fa-eye-slash text-danger"></span>
+            </div>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-login">
+            <div class="alreadyuser">
+                <h4><a href="forgetpassword.html" class="hover-a">ลืมรหัสผ่าน?</a></h4>
             </div>
         </div>
-        <div class="login-img">
-            <img src="~/assets/img/login.jpg" alt="img">
+        <div class="form-login">
+            <button id="btnLogin" type="submit" class="btn btn-login">ล็อกอิน</button>
         </div>
+    </form>
+    <div class="signinform text-center">
+        <h4>ยังไม่มีบัญชีผู้ใช้งาน? <a asp-action="Register" asp-controller="Account" class="hover-a">คลิกเพื่อลงทะเบียน</a></h4>
     </div>
 </div>
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/account/account_index.js" asp-append-version="true"></script>
+
+}

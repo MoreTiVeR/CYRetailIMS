@@ -1,14 +1,11 @@
 ﻿using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.ItemBrandService.Commands.CreateBrand.v1;
 using Microsoft.AspNetCore.Mvc;
 using CYRetailIMS.Application.Common.Interfaces;
 using AutoMapper;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.Services.BranchService.Commands.CreateBranch.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
-using System.Collections.Generic;
-using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Commands.UpdateBranch.v1;
 using CYRetailIMS.Application.Services.BranchService.Commands.DeleteBranch.v1;

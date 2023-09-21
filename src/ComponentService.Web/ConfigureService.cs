@@ -5,6 +5,7 @@ using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.ExternalService.EmployeeAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
@@ -18,6 +19,7 @@ using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
 using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
 using CYRetailIMS.Infrastructure.ExternalService.BranchAPI;
+using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
 using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
@@ -82,6 +84,7 @@ public static class ConfigureService
 
         #region External Service
         services.AddScoped<IAccountAPI, AccountAPI>();
+        services.AddScoped<IEmployeeAPI, EmployeeAPI>();
         services.AddScoped<IItemAPI, ItemAPI>();
         services.AddScoped<IItemTypeAPI, ItemTypeAPI>();
         services.AddScoped<IItemBrandAPI, ItemBrandAPI>();

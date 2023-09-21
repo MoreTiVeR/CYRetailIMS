@@ -9,6 +9,7 @@ using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMEmployees;
+using CYRetailIMS.Domain.Events.TMUserInBranchs;
 using CYRetailIMS.Domain.Events.TMUsers;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
@@ -34,9 +35,10 @@ public class CreateEmployeeHandler : BaseService, IRequestHandler<CreateEmployee
 
         if (isExistUser != null)
         {
-            throw new Exception("มีชื่อผู้ใช้งานนี้ในระบบแล้ว กรุณาลองใหม่อีกครั้ง");
+            throw new Exception("มีชื่อผู้ใช้งาน/อีเมลนี้ในระบบแล้ว กรุณาลองใหม่อีกครั้ง");
         }
 
+        //Create TMEmployee, TMUsers
         TMEmployee empEntity = _mapper.Map<TMEmployee>(request);
         empEntity.ActiveStatus();
         empEntity.SetCreatedDate();
@@ -45,6 +47,19 @@ public class CreateEmployeeHandler : BaseService, IRequestHandler<CreateEmployee
         empEntity.User.AddDomainEvent(new TMUsersCreateEvent(empEntity.User));
         empEntity.AddDomainEvent(new TMEmployeeCreateEvent(empEntity));
         _unitOfWork.Repository<TMEmployee>().Add(empEntity);
+        await _unitOfWork.SaveChangesAsync();
+
+        //Create TMUserInBranchs
+        TMUserInBranch userInBranch = new TMUserInBranch
+        {
+            UserID = empEntity.UserID,
+            BranchID = request.userinbranchid
+        };
+        userInBranch.SetCreatedBy();
+        userInBranch.SetCreatedDate();
+        userInBranch.ActiveStatus();
+        userInBranch.AddDomainEvent(new TMUserInBranchCreateEvent(userInBranch));
+        _unitOfWork.Repository<TMUserInBranch>().Add(userInBranch);
 
         await _unitOfWork.SaveChangesAsync();
 

@@ -57,4 +57,7 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
 
     [Required(ErrorMessage = "Required field")]
     public DateTime creadeddate { get; init; }
+
+    [Required(ErrorMessage = "Required field")]
+    public int userinbranchid { get; set; }
 }
