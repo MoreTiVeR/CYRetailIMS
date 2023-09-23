@@ -126,26 +126,26 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await Task.Run(() => result);
     }
 
-	public async Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null
+    public async Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null
         , Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null)
-	{
-		var result = _context.Set<T>().Where(predicate).AsQueryable();
+    {
+        var result = _context.Set<T>().Where(predicate).AsQueryable();
 
-		if (include != null)
-			result = include(result);
+        if (include != null)
+            result = include(result);
 
-		if (include2 != null)
-			result = include2(result);
+        if (include2 != null)
+            result = include2(result);
 
-		if (include3 != null)
-			result = include3(result);
+        if (include3 != null)
+            result = include3(result);
 
-		return await Task.Run(() => result);
-	}
+        return await Task.Run(() => result);
+    }
 
-    public async Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate, 
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, 
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null, 
+    public async Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null,
         Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null,
         Func<IQueryable<T>, IIncludableQueryable<T, object>> include4 = null)
     {
@@ -162,6 +162,64 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         if (include4 != null)
             result = include4(result);
+
+        return await Task.Run(() => result);
+    }
+
+    public async Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate,
+    Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+    Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null,
+    Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null,
+    Func<IQueryable<T>, IIncludableQueryable<T, object>> include4 = null,
+    Func<IQueryable<T>, IIncludableQueryable<T, object>> include5 = null)
+    {
+        var result = _context.Set<T>().Where(predicate).AsQueryable();
+
+        if (include != null)
+            result = include(result);
+
+        if (include2 != null)
+            result = include2(result);
+
+        if (include3 != null)
+            result = include3(result);
+
+        if (include4 != null)
+            result = include4(result);
+
+        if (include5 != null)
+            result = include5(result);
+
+        return await Task.Run(() => result);
+    }
+
+    public async Task<IQueryable<T>> FindWithInclude(Expression<Func<T, bool>> predicate,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include2 = null, 
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include3 = null,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include4 = null,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include5 = null,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include6 = null)
+    {
+        var result = _context.Set<T>().Where(predicate).AsQueryable();
+
+        if (include != null)
+            result = include(result);
+
+        if (include2 != null)
+            result = include2(result);
+
+        if (include3 != null)
+            result = include3(result);
+
+        if (include4 != null)
+            result = include4(result);
+
+        if (include5 != null)
+            result = include5(result);
+
+        if (include6 != null)
+            result = include6(result);
 
         return await Task.Run(() => result);
     }

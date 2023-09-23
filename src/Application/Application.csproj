@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Folder Include="Caching\" />
+    <Folder Include="Common\Mappings\UI\Sale\" />
     <Folder Include="Services\AccountService\Commands\" />
     <Folder Include="Services\AccountService\EventHandlers\" />
     <Folder Include="Services\EmployeeService\Commands\DeleteEmployee\" />
@@ -17,8 +18,7 @@
     <Folder Include="Services\DepartmentService\" />
     <Folder Include="Services\EmployeeService\Queries\v1\" />
     <Folder Include="Services\ItemBrandService\Commands\UpdateBrand\v1\" />
-    <Folder Include="Services\ItemInBranchService\Commands\" />
-    <Folder Include="Services\ItemInBranchService\EventHandlers\" />
+    <Folder Include="Services\ItemInBranchService\Commands\CreateItemInBranch\v1\" />
     <Folder Include="Services\ItemTypeService\EventHandlers\" />
     <Folder Include="Services\ItemTypeService\Commands\" />
     <Folder Include="Services\MenuService\Commands\" />

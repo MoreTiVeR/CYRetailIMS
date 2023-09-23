@@ -25,5 +25,13 @@ public static class EnumModel
         /// </summary>
         WTW = 3,
     }
+
+    public enum UserRole
+    {
+        Admin = 1,
+        Staff = 2,
+        Manager = 3,
+        AccountingOfficer = 4,
+    }
 }
 

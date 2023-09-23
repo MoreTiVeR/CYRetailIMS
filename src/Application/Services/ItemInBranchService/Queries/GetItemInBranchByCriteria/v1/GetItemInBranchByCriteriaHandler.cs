@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
@@ -26,7 +27,45 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                     i => i.Include(x => x.Branch),
                     i => i.Include(x => x.Item),
                     i => i.Include(x => x.Item.Brand),
-                    i => i.Include(x => x.Item.ItemType));
+                    i => i.Include(x => x.Item.ItemType),
+                    i => i.Include(x => x.Item.UnitOfMeasure));
+
+        //GetItemInBranchByCriteriaResponseDTO? resItemBranch2 = (from itembranch in await _unitOfWork.Repository<TMItemInBranch>().QueryAsync()
+        //                                                        join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync(w => w.IsActive) on itembranch.BranchID equals branch.BranchID
+        //                                                        join item in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.IsActive) on itembranch.ItemID equals item.ItemID
+        //                                                        join itemtype in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on item.ItemTypeID equals itemtype.ItemTypeID
+        //                                                        join itembrand in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on item.BrandID equals itembrand.BrandID
+        //                                                        join itemmou in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on item.UnitOfMeasureID equals itemmou.UnitOfMeasureID
+        //                                                        where itembranch.ItemID == request.itemid
+        //                                                        && itembranch.IsActive
+        //                                                        && itembranch.BranchID == request.branchid
+        //                                                        select new GetItemInBranchByCriteriaResponseDTO
+        //                                                        {
+        //                                                            branchid = itembranch.BranchID,
+        //                                                            branchname = branch.BranchName,
+        //                                                            item = new GetItemInBranchByBranchIDItemResponseDTO
+        //                                                            {
+        //                                                                itemid = itembranch.ItemID,
+        //                                                                itemname = item.Name,
+        //                                                                itemcode = item.ItemCode,
+        //                                                                cost = item.Cost,
+        //                                                                brandid = itembrand.BrandID,
+        //                                                                brandname = itembrand.BrandName,
+        //                                                                brandshortname = itembrand.BrandShortName,
+        //                                                                price = itembranch.Price,
+        //                                                                discountpercent = itembranch.DiscountPercent,
+        //                                                                qty = itembranch.Qty,
+        //                                                                description = item.Description,
+        //                                                                itemtypeid = itemtype.ItemTypeID,
+        //                                                                itemtypename = itemtype.ItemTypeName,
+        //                                                                isactive = itembranch.IsActive,
+        //                                                                itemimageurl = item.ItemImageUrl,
+        //                                                                shortname = item.ShortName,
+        //                                                                unitofmeasureid = itemmou.UnitOfMeasureID,
+        //                                                                unitofmeasurename = itemmou.UnitOfMeasureName,
+        //                                                            }
+        //                                                        }).FirstOrDefault();
+
         if (!resItemBranch.Any())
         {
             throw new Exception("Data not found");
@@ -42,6 +81,8 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                         itemid = x.ItemID,
                         itemname = x.Item.Name,
                         itemcode = x.Item.ItemCode,
+                        cost = x.Item.Cost,
+                        brandid = x.Item.BrandID,
                         brandname = x.Item.Brand.BrandName,
                         brandshortname = x.Item.Brand.BrandShortName,
                         price = x.Price,
@@ -49,11 +90,16 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                         qty = x.Qty,
                         description = x.Item.Description,
                         itemtypeid = x.Item.ItemTypeID,
-                        itemtypename = x.Item.ItemType.ItemTypeName
+                        itemtypename = x.Item.ItemType.ItemTypeName,
+                        isactive = x.IsActive,
+                        itemimageurl = x.Item.ItemImageUrl,
+                        shortname = x.Item.ShortName,
+                        unitofmeasureid = x.Item.UnitOfMeasure.UnitOfMeasureID,
+                        unitofmeasurename = x.Item.UnitOfMeasure.UnitOfMeasureName
                     }).FirstOrDefault()
         }).OrderBy(o => o.branchid).FirstOrDefault();
 
-        if (!resItemBranch.Any())
+        if (resData == null)
         {
             throw new Exception("Data not found");
         }

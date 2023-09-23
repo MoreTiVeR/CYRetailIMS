@@ -38,6 +38,11 @@ public class AccountController : BaseController
         return View();
     }
 
+    public IActionResult LoginV2()
+    {
+        return View();
+    }
+
     public async Task<IActionResult> Register()
     {
         BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();

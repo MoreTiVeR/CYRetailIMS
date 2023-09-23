@@ -67,10 +67,10 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
 
         #region Validate Item in Destination Branch
         resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid && itemList.Contains(w.ItemID) && w.IsActive);
-        if (resItemInDestinationBranch.Count() != itemList.Count)
-        {
-            throw new Exception("ขออภัย, ไม่พบสินค้าที่ต้องการโอนในสาขาปลายทาง! กรุณาตรวจสอบรายการโอนสินค้าใหม่อีกครั้ง");
-        }
+        //if (resItemInDestinationBranch.Count() != itemList.Count)
+        //{
+        //    throw new Exception("ขออภัย, ไม่พบสินค้าที่ต้องการโอนในสาขาปลายทาง! กรุณาตรวจสอบรายการโอนสินค้าใหม่อีกครั้ง");
+        //}
         #endregion
 
         #region Craete TTItemTransfer
@@ -87,68 +87,69 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
         if (request.transfertypeid == (int)TransferType.WTB)
         {
             //คลัง-สาขา
-            //resItemInWarehouse = resItemInWarehouse.Select(s =>
-            //{
-            //    int minusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
-            //    ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
-            //    s.Qty = s.Qty - minusQty;
-            //    return s;
-            //}).ToList();
             resItemInWarehouse.ToList().ForEach(s =>
             {
                 int minusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
                 ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
                 s.Qty = s.Qty - minusQty;
+                s.SetUpdatedDate(request.creadeddate);
+                s.SetUpdatedBy(request.createdby);
                 s.AddDomainEvent(new TMItemUpdateEvent(s));
             });
         }
         else
         {
             //สาขา-สาขา
-            //resItemInSourceBranch = resItemInSourceBranch.Select(s =>
-            //{
-            //    int minusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
-            //    ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
-            //    s.Qty = s.Qty - minusQty;
-            //    //s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
-            //    return s;
-            //}).ToList();
-
-            //resItemInSourceBranch.ToList().ForEach(e =>
-            //{
-            //    e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
-            //});
             resItemInSourceBranch.ToList().ForEach(s =>
             {
                 int minusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
                 ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
                 s.Qty = s.Qty - minusQty;
+                s.SetUpdatedDate(request.creadeddate);
+                s.SetUpdatedBy(request.createdby);
                 s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
             });
         }
 
         #endregion
 
-        #region Update Destination Branch Stock | ตัด Stock สาขาปลายทาง
-        //resItemInDestinationBranch = resItemInDestinationBranch.Select(s =>
-        //{
-        //    int plusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
-        //    ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
-        //    s.Qty = s.Qty + plusQty;
-        //    //s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
-        //    return s;
-        //}).ToList();
-        //resItemInDestinationBranch.ToList().ForEach(e =>
-        //{
-        //    e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
-        //});
-        resItemInDestinationBranch.ToList().ForEach(s =>
+        #region Add, Update Destination Branch Stock | เพิ่ม, อัพเดท Stock สาขาปลายทาง
+        if(resItemInDestinationBranch.Count() == 0)
         {
-            int plusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
-            ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
-            s.Qty = s.Qty + plusQty;
-            s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
-        });
+            List<TMItemInBranch> tmItemInDestinationBranch = new List<TMItemInBranch>();
+            //Add  Destination Stock
+            request.items.ForEach(e =>
+            {
+                TMItem item = resItemInWarehouse.FirstOrDefault(w => w.ItemID == e.itemid);
+                TMItemInBranch tmItemBranch = new TMItemInBranch()
+                {
+                    BranchID = request.destinationid,
+                    ItemID = e.itemid,
+                    DiscountPercent = 0,
+                    Qty = e.qty,
+                    Price = item.Price
+                };
+                tmItemBranch.SetCreatedDate(request.creadeddate);
+                tmItemBranch.SetCreatedBy(request.createdby);
+                tmItemBranch.ActiveStatus();
+                tmItemBranch.AddDomainEvent(new TMItemInBranchCreateEvent(tmItemBranch));
+                tmItemInDestinationBranch.Add(tmItemBranch);
+            });
+            await _unitOfWork.Repository<TMItemInBranch>().AddRangeAsync(tmItemInDestinationBranch);
+        }
+        else
+        {
+            //Update Destination Stock
+            resItemInDestinationBranch.ToList().ForEach(s =>
+            {
+                int plusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
+                ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
+                s.Qty = s.Qty + plusQty;
+                s.SetUpdatedDate(request.creadeddate);
+                s.SetUpdatedBy(request.createdby);
+                s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
+            });
+        }
         #endregion
 
         #region Commit Tran

@@ -12,6 +12,7 @@ using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
@@ -24,6 +25,7 @@ using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMea
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -89,8 +91,15 @@ public class SaleController : BaseController
     public async Task<IActionResult> Edit(int itemid)
     {
         //Get Item Detail
-        BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(itemid);
-        EditItemViewModel viewModel = EditItemMapping(resItem.data);
+        BaseResponse<GetItemInBranchByCriteriaResponseDTO> resItemBranch = await _itemInBranchAPI.GetItemInBranchByCriteriaAsync(new GetItemInBranchByCriteriaQuery
+        {
+            branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+            itemid = itemid
+        });
+        EditItemViewModel viewModel = EditItemMapping(resItemBranch.data.item);
+
+        //BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(itemid);
+        //EditItemViewModel viewModel = EditItemMapping(resItem.data);
 
         //Get Master Data
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
@@ -280,26 +289,36 @@ public class SaleController : BaseController
     [HttpPost]
     public async Task<IActionResult> EditItem([FromBody] EditItemViewModel editItemObj)
     {
-        return Json(new JsonViewModel { result = false, message = "Not implement" });
-        //UpdateItemCommand updateItemCommand = UpdateItemCommand(editItemObj);
-        //BaseResponse<CommandResponse> resUpdateItem = await _itemAPI.UpdateItemAsync(updateItemCommand);
-        //if (resUpdateItem.result)
-        //{
-        //    return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
-        //}
-        //return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
+        if(base.UserProfile.roleid != (int)UserRole.Admin)
+        {
+            return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });
+        }
+        UpdateItemInBranchCommand updateItemCommand = PrepareUpdateItemInBranch(editItemObj);
+        BaseResponse<CommandResponse> resUpdateItem = await _itemInBranchAPI.UpdateItemInBranchAsync(updateItemCommand);
+        if (resUpdateItem.result)
+        {
+            return Json(new JsonViewModel { result = resUpdateItem.result, message = "ปรับปรุงข้อมูลสินค้าสำเร็จ" });
+        }
+        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
     }
 
     [HttpPost]
     public async Task<IActionResult> DeleteItem([FromBody] DeleteItemViewModel delItemObj)
     {
-        DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid };
-        BaseResponse<CommandResponse> resDelItem = await _itemAPI.DeleteItemAsync(delItemCommand);
-        if (resDelItem.result)
+        if (base.UserProfile.roleid != (int)UserRole.Admin)
         {
-            return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.message });
+            return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });
         }
-        return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.error.error.message });
+        BaseResponse<CommandResponse> resUpdateItem = await _itemInBranchAPI.UpdateItemInBranchAsync(new UpdateItemInBranchCommand
+        {
+            branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+            itemid = delItemObj.itemid
+        });
+        if (resUpdateItem.result)
+        {
+            return Json(new JsonViewModel { result = resUpdateItem.result, message = "ลบสินค้าสำเร็จ" });
+        }
+        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
     }
 
     #region Private Method
@@ -328,7 +347,27 @@ public class SaleController : BaseController
         };
     }
 
+    private UpdateItemInBranchCommand PrepareUpdateItemInBranch(EditItemViewModel reqData)
+    {
+        return new UpdateItemInBranchCommand
+        {
+            itemid = reqData.ItemID,
+            branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+            //isactive = reqData.IsActive.ToBool(),
+            price = reqData.Price,
+            qty = reqData.Qty,
+            updatedby = base.UserProfile.rolename,
+            updateddate = DateTime.Now
+        };
+    }
+
     private EditItemViewModel EditItemMapping(GetItemListResponseDTO itemResponseDTO)
+    {
+        EditItemViewModel editItemViewModel = _mapper.Map<EditItemViewModel>(itemResponseDTO);
+        return editItemViewModel;
+    }
+
+    private EditItemViewModel EditItemMapping(GetItemInBranchByBranchIDItemResponseDTO itemResponseDTO)
     {
         EditItemViewModel editItemViewModel = _mapper.Map<EditItemViewModel>(itemResponseDTO);
         return editItemViewModel;

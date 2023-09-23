@@ -7,6 +7,8 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
@@ -17,6 +19,18 @@ public class ItemInBranchAPI : HttpClientService, IItemInBranchAPI
 {
     public ItemInBranchAPI(ILog4NetLogger log, IHttpClientRequest httpClientRequest) : base(log, httpClientRequest)
     {
+    }
+
+    public async Task<BaseResponse<CommandResponse>> UpdateItemInBranchAsync(UpdateItemInBranchCommand updateCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, UpdateItemInBranchCommand>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/update"), updateCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> DeleteItemInBranchAsync(DeleteItemInBranchCommand deleteCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, DeleteItemInBranchCommand>(HttpMethod.Post,
+     new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/delete"), deleteCommand);
     }
 
     public async Task<BaseResponse<List<GetItemInBranchListResponseDTO>>> GetItemInBranchAsync()
@@ -42,4 +56,6 @@ public class ItemInBranchAPI : HttpClientService, IItemInBranchAPI
         return await _httpClientRequest.HttpRequestToObject<GetItemInBranchByCriteriaResponseDTO, GetItemInBranchByCriteriaQuery>(HttpMethod.Post,
               new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/getiteminbranchbycriteria"), criteriaQuery);
     }
+
+
 }

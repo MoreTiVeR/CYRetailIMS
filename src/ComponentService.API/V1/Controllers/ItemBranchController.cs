@@ -2,6 +2,8 @@
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
@@ -19,7 +21,39 @@ public class ItemBranchController : BaseApiController
     {
     }
 
-	[HttpGet]
+    [HttpPost]
+    [Route("v1/update")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateItemInBranchByCriteriaAsync(UpdateItemInBranchCommand updateItemInBranchCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(updateItemInBranchCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]UpdateItemInBranchByCriteriaAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/delete")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteItemInBranchByCriteriaAsync(DeleteItemInBranchCommand deleteItemInBranchCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(deleteItemInBranchCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]DeleteItemInBranchByCriteriaAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpGet]
 	[Route("v1/getiteminbranchbybranchid/{branchid}")]
 	[ProducesResponseType(typeof(GetItemInBranchByBranchIDResponseDTO), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
@@ -82,4 +116,6 @@ public class ItemBranchController : BaseApiController
         _log.Debug($"[{DateTime.Now}]GetItemInBranchByCriteriaAsync Success");
         return Ok(res.data);
     }
+
+    
 }

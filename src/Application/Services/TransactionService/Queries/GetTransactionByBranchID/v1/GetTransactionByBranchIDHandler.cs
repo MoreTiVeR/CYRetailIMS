@@ -20,13 +20,12 @@ public class GetTransactionByBranchIDHandler : BaseService, IRequestHandler<GetT
 
 	public async Task<BaseResponse<List<GetTransactionByBranchIDResponseDTO>>> Handle(GetTransactionByBranchIDQuery request, CancellationToken cancellationToken)
 	{
-		List<GetTransactionByBranchIDResponseDTO> resTransaction = (from tran in await _unitOfWork.Repository<TTTransaction>().FindWithInclude(w => w.BranchID == request.branchid 
-																	&& (w.TransactionDate.Date >= DateTime.Now.Date && w.TransactionDate.Date <= DateTime.Now.Date) 
-																	&& w.IsActive, i => i.Include(ii => ii.TransactionType), idetail => idetail.Include(d => d.TTTransactonDetails))
+		List<GetTransactionByBranchIDResponseDTO> resTransaction = (from tran in await _unitOfWork.Repository<TTTransaction>().FindWithInclude(w => w.BranchID == request.branchid
+                                                                    //&& (w.TransactionDate.Date >= DateTime.Now.Date && w.TransactionDate.Date <= DateTime.Now.Date) 
+                                                                    && w.TransactionDate.Month >= DateTime.Now.Month
+                                                                    && w.IsActive, i => i.Include(ii => ii.TransactionType), idetail => idetail.Include(d => d.TTTransactonDetails))
 																	join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
 																	join trantype in await _unitOfWork.Repository<TMTransactionType>().QueryAsync() on tran.TransactionTypeID equals trantype.TransactionTypeID
-																	//join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
-																	//where tran.BranchID == request.branchid
 																	join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User)) on tran.CreatedBy equals emp.User.UserName
 																	into tUser
 																	from jUser in tUser.DefaultIfEmpty()

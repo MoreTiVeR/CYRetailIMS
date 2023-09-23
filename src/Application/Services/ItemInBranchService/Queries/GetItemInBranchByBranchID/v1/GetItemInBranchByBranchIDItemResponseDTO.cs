@@ -15,9 +15,15 @@ public class GetItemInBranchByBranchIDItemResponseDTO
 
 	public string itemname { get; set; }
 
+    public string shortname { get; set; }
+
+    public decimal cost { get; set; }
+
     public int itemtypeid { get; set; }
 
     public string itemtypename { get; set; }
+
+    public int brandid { get; set; }
 
     public string brandname { get; set; }
 
@@ -30,5 +36,13 @@ public class GetItemInBranchByBranchIDItemResponseDTO
 	public double? discountpercent { get; set; }
 
 	public int? qty { get; set; }
+
+    public int unitofmeasureid { get; set; }
+
+    public string unitofmeasurename { get; set; }
+
+    public string itemimageurl { get; set; }
+
+    public bool isactive { get; set; }
 
 }

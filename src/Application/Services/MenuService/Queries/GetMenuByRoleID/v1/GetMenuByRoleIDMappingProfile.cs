@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Domain.Entities;
 
 namespace CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;

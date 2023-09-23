@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+    <!-- BEGIN: Vendor CSS-->
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/vendors.min.css">
+    <!-- END: Vendor CSS-->
+    <!-- BEGIN: Theme CSS-->
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/bootstrap-extended.css">
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/colors.css">
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/components.css">
+
+    <!-- END: Theme CSS-->
+    <!-- BEGIN: Page CSS-->
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/vertical-menu.css">
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/pages/authentication.css">
+    <!-- END: Page CSS-->
+    <!-- BEGIN: Custom CSS-->
+    <link rel="stylesheet" type="text/css" href="~/assets-login/css/style.css">
+    <!-- END: Custom CSS-->
+    <link href="~/assets/css/bundle/loginlayout.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body class="vertical-layout vertical-menu-modern 1-column  navbar-sticky footer-static bg-full-screen-image  blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
+    <div>
+        <!-- BEGIN: Content-->
+        <div class="app-content content">
+            <div class="content-overlay"></div>
+            <div class="content-wrapper">
+                <div class="content-header row">
+                </div>
+                <div class="content-body">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+        <!-- END: Content-->
+    </div>
+</body>
+</html>

@@ -5,26 +5,23 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Infrastructure;
 using CYRetailIMS.Infrastructure.Common.Middleware;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.OpenApi.Models;
-
-
 namespace CYRetailIMS.ComponentService.API;
 
 public class Program
 {
-    private static IConfiguration _configuration;
+    
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         var env = builder.Environment.EnvironmentName;
-        _configuration = builder.Configuration;
+        IConfiguration Configuration = builder.Configuration;
 
         #region Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddApplicationServices();
-        builder.Services.AddComponentServices(_configuration, builder.Environment.EnvironmentName);
-        builder.Services.AddInfrastructureServices(_configuration);
-        builder.Services.Configure<ExceptionSettings>(_configuration.GetSection("ExceptionSettings"));
+        builder.Services.AddComponentServices(Configuration, builder.Environment.EnvironmentName);
+        builder.Services.AddInfrastructureServices(Configuration);
+        builder.Services.Configure<ExceptionSettings>(Configuration.GetSection("ExceptionSettings"));
         #endregion
 
         #region Add Swagger
