@@ -1,6 +1,7 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
@@ -62,6 +63,22 @@ public class ItemTransferController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetItemTransferListAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/getitemtransferbybranch")]
+    [ProducesResponseType(typeof(List<GetItemTransferResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemTransferByCriteriaAsync(GetItemTransferByDestinationBranchIDQuery getItemTransferByDestinationBranchIDQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetItemTransferResponseDTO>> res = await Mediator.Send(getItemTransferByDestinationBranchIDQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemTransferByCriteriaAsync Success");
         return Ok(res.data);
     }
 }

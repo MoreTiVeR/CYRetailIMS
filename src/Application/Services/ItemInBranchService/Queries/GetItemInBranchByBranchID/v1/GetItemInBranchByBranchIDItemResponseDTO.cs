@@ -44,5 +44,6 @@ public class GetItemInBranchByBranchIDItemResponseDTO
     public string itemimageurl { get; set; }
 
     public bool isactive { get; set; }
+    public int approvestatus { get; set; }
 
 }

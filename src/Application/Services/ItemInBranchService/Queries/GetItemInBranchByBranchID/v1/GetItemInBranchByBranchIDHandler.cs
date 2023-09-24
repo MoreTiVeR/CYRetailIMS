@@ -49,7 +49,8 @@ public class GetItemInBranchByBranchIDHandler : BaseService, IRequestHandler<Get
 							qty = x.Qty,
 							description = x.Item.Description,
 							itemtypeid = x.Item.ItemTypeID,
-							itemtypename = x.Item.ItemType.ItemTypeName
+							itemtypename = x.Item.ItemType.ItemTypeName,
+							isactive = x.IsActive
 						}).ToList()
 		}).OrderBy(o => o.branchid).FirstOrDefault();
 

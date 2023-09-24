@@ -222,6 +222,8 @@ public partial class CYDBContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.TMRoleInMenus).HasConstraintName("FK_TMRoleInMenus_TMRoles");
 
             entity.HasOne(d => d.SubMenu).WithMany(p => p.TMRoleInMenus).HasConstraintName("FK_TMRoleInMenus_TMSubMenu");
+
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
         modelBuilder.Entity<TMShipmentType>(entity =>

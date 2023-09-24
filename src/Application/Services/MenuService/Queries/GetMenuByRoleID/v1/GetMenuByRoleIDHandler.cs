@@ -23,7 +23,7 @@ public class GetMenuByRoleIDHandler : BaseService, IRequestHandler<GetMenuByRole
     {
         #region Get RoleMenu Data
         IQueryable<TMRoleInMenu> resMenu = await _unitOfWork.Repository<TMRoleInMenu>()
-                    .FindWithInclude(w => w.RoleID == request.roleid, x => x.Include(ss => ss.Menu), x2 => x2.Include(ss2 => ss2.SubMenu));
+                    .FindWithInclude(w => w.RoleID == request.roleid && w.IsActive, x => x.Include(ss => ss.Menu), x2 => x2.Include(ss2 => ss2.SubMenu));
         resMenu = resMenu.Where(w => w.Menu.IsActive == true && w.SubMenu.IsActive == true);
         if (resMenu?.Count() == 0)
         {

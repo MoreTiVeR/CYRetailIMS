@@ -94,7 +94,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if(ViewBag.ItemBranch.result)
+                    @if (ViewBag.ItemBranch.result)
                     {
                         string branchName = ViewBag.ItemBranch.data.branchname;
                         foreach (var item in (List<GetItemInBranchByBranchIDItemResponseDTO>)ViewBag.ItemBranch.data.itemlist)
@@ -116,13 +116,15 @@
                                 <td><span class="badges bg-lightgreen">@item.qty</span></td>
                                 <td><span class="badges bg-lightgreen">@item.price</span></td>
                                 <td>@item.description</td>
-                                <td>
+                                <td class="text-center">
                                     <a class="me-3" asp-action="Edit" asp-controller="Sale" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">
+                                        @*<span class="fe fe-edit"></span>*@
                                     </a>
-                                    @*<a href="#" id="@rName" class="me-3" title="ลบข้อมูลสินค้า" onclick="deleteItem(@item.itemid)">
-                                        <img src="~/assets/img/icons/delete.svg" alt="img">
-                                    </a>*@
+                                    <a class="me-3" asp-action="Edit" asp-controller="Sale" title="รับโอนสินค้า" asp-all-route-data="aItemID">
+                                        <img src="~/assets/img/icons/transfer1.svg" alt="img">
+                                        @*<span class="fe fe-truck"></span>*@
+                                    </a>
                                 </td>
                             </tr>
                         }

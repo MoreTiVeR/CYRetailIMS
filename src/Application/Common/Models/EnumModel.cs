@@ -8,6 +8,19 @@ namespace CYRetailIMS.Application.Common.Models;
 
 public static class EnumModel
 {
+    public enum TransferSource
+    {
+        WAREHOUSE = 99
+    }
+
+    public enum ApproveStatus
+    {
+        WaitingApprove = 0,
+        Approve = 1,
+        NotApprove = 2,
+        Cancel = 99
+    }
+
     public enum TransferType
     {
         /// <summary>

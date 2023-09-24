@@ -1880,7 +1880,7 @@ button.toast-close-button {
   -ms-flex-pack: space-between;
 }
 
-.customizer-links ul li a, .align-center {
+/*.customizer-links ul li a, .align-center {
   display: flex;
   display: -webkit-flex;
   align-items: center;
@@ -1888,7 +1888,7 @@ button.toast-close-button {
   justify-content: center;
   -webkit-justify-content: center;
 }
-
+*/
 .activity .activity-list, .notifications .notification-list, .sidebar .sidebar-right ul {
   list-style: none;
   padding: 0;
@@ -2153,14 +2153,14 @@ strong {
   -ms-flex-pack: space-between;
 }
 
-.customizer-links ul li a, .align-center {
+/*.customizer-links ul li a, .align-center {
   display: flex;
   display: -webkit-flex;
   align-items: center;
   -webkit-align-items: center;
   justify-content: center;
   -webkit-justify-content: center;
-}
+}*/
 
 .activity .activity-list, .notifications .notification-list, .sidebar .sidebar-right ul {
   list-style: none;
@@ -7342,7 +7342,7 @@ span.select2-container.select2-container--default.select2-container--open {
   color: #212B36;
 }
 
-.account-page .customizer-links {
+/*.account-page .customizer-links {
   box-shadow: 0px 4px 18px rgba(77, 76, 76, 0.25);
 }
 
@@ -7383,7 +7383,7 @@ span.select2-container.select2-container--default.select2-container--open {
 }
 .customizer-links ul li a img {
   height: 18px;
-}
+}*/
 
 .sidebar-settings {
   width: 450px;
@@ -8417,7 +8417,7 @@ span.select2-container.select2-container--default.select2-container--open {
   height: 100vh;
 }
 .login-wrapper .login-content {
-  width: 40%;
+  width: 100%;
   height: 100vh;
   padding: 30px;
   overflow: auto;
@@ -8645,7 +8645,7 @@ span.select2-container.select2-container--default.select2-container--open {
   background: #FF9F43;
   color: #fff;
 }
-.login-wrapper .login-img {
+/*.login-wrapper .login-img {
   width: 60%;
 }
 @media (max-width: 991.98px) {
@@ -8656,7 +8656,7 @@ span.select2-container.select2-container--default.select2-container--open {
 .login-wrapper .login-img img {
   width: 100%;
   height: 100vh;
-}
+}*/
 
 .hover-a {
   position: relative;

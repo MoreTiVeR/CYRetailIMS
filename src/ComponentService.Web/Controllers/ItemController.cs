@@ -526,7 +526,7 @@ public class ItemController : BaseController
             description = reqObj.description,
             createdby = base.UserProfile.username,
             creadeddate = DateTime.Now,
-            approvestatus = 1,
+            approvestatus = (int)ApproveStatus.NotApprove,
             isactive = true,
             items = itemsTransfer
         };

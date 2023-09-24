@@ -53,10 +53,18 @@ public class CustomAuthorize : TypeFilterAttribute
                 //RouteValueDictionary routeValues = context.HttpContext.Request.RouteValues;
                 //string controllerName = routeValues["controller"].ToString();
                 //string actionName = routeValues["action"].ToString();
-                //List<GetMenuByRoleIDResponseDTO> accessMenu = JsonConvert.DeserializeObject<List<GetMenuByRoleIDResponseDTO>>(claimsIndentity.Claims.FirstOrDefault(w => w.Type == "AccessMenu").Value);
-                //if (!accessMenu.SelectMany(s => s.submenulist).Any(a => a.cms_controllername == controllerName && a.cms_actionname == actionName))
+                //if(actionName.Equals("Index") && controllerName.Equals("Home"))
                 //{
-                //    flagClaim = false;
+                //    flagClaim = true;
+                //}
+                //else
+                //{
+                //    List<GetMenuByRoleIDResponseDTO> accessMenu = JsonConvert.DeserializeObject<List<GetMenuByRoleIDResponseDTO>>(claimsIndentity.Claims.FirstOrDefault(w => w.Type == "AccessMenu").Value);
+                //    var menu = accessMenu.SelectMany(s => s.submenulist).FirstOrDefault(w => w.cms_actionname == actionName && w.cms_controllername == controllerName);
+                //    if (!accessMenu.SelectMany(s => s.submenulist).Any(a => a.cms_controllername == controllerName && a.cms_actionname == actionName))
+                //    {
+                //        flagClaim = false;
+                //    }
                 //}
                 #endregion
 

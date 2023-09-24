@@ -113,42 +113,45 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
 
         #endregion
 
-        #region Add, Update Destination Branch Stock | เพิ่ม, อัพเดท Stock สาขาปลายทาง
-        if(resItemInDestinationBranch.Count() == 0)
+        #region Approvestatus = Approve thne Add, Update Destination Branch Stock | เพิ่ม, อัพเดท Stock สาขาปลายทาง
+        if (request.approvestatus == (int)ApproveStatus.Approve)
         {
-            List<TMItemInBranch> tmItemInDestinationBranch = new List<TMItemInBranch>();
-            //Add  Destination Stock
-            request.items.ForEach(e =>
+            if (resItemInDestinationBranch.Count() == 0)
             {
-                TMItem item = resItemInWarehouse.FirstOrDefault(w => w.ItemID == e.itemid);
-                TMItemInBranch tmItemBranch = new TMItemInBranch()
+                List<TMItemInBranch> tmItemInDestinationBranch = new List<TMItemInBranch>();
+                //Add  Destination Stock
+                request.items.ForEach(e =>
                 {
-                    BranchID = request.destinationid,
-                    ItemID = e.itemid,
-                    DiscountPercent = 0,
-                    Qty = e.qty,
-                    Price = item.Price
-                };
-                tmItemBranch.SetCreatedDate(request.creadeddate);
-                tmItemBranch.SetCreatedBy(request.createdby);
-                tmItemBranch.ActiveStatus();
-                tmItemBranch.AddDomainEvent(new TMItemInBranchCreateEvent(tmItemBranch));
-                tmItemInDestinationBranch.Add(tmItemBranch);
-            });
-            await _unitOfWork.Repository<TMItemInBranch>().AddRangeAsync(tmItemInDestinationBranch);
-        }
-        else
-        {
-            //Update Destination Stock
-            resItemInDestinationBranch.ToList().ForEach(s =>
+                    TMItem item = resItemInWarehouse.FirstOrDefault(w => w.ItemID == e.itemid);
+                    TMItemInBranch tmItemBranch = new TMItemInBranch()
+                    {
+                        BranchID = request.destinationid,
+                        ItemID = e.itemid,
+                        DiscountPercent = 0,
+                        Qty = e.qty,
+                        Price = item.Price
+                    };
+                    tmItemBranch.SetCreatedDate(request.creadeddate);
+                    tmItemBranch.SetCreatedBy(request.createdby);
+                    tmItemBranch.ActiveStatus();
+                    tmItemBranch.AddDomainEvent(new TMItemInBranchCreateEvent(tmItemBranch));
+                    tmItemInDestinationBranch.Add(tmItemBranch);
+                });
+                await _unitOfWork.Repository<TMItemInBranch>().AddRangeAsync(tmItemInDestinationBranch);
+            }
+            else
             {
-                int plusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
-                ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
-                s.Qty = s.Qty + plusQty;
-                s.SetUpdatedDate(request.creadeddate);
-                s.SetUpdatedBy(request.createdby);
-                s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
-            });
+                //Update Destination Stock
+                resItemInDestinationBranch.ToList().ForEach(s =>
+                {
+                    int plusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
+                    ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
+                    s.Qty = s.Qty + plusQty;
+                    s.SetUpdatedDate(request.creadeddate);
+                    s.SetUpdatedBy(request.createdby);
+                    s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
+                });
+            }
         }
         #endregion
 
