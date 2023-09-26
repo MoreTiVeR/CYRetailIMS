@@ -1,0 +1,220 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+@using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+@using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
+@using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatusByID.v1;
+@using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
+
+@model ReceiveTransferItemViewModel
+@{
+    ViewData["Title"] = "ReceiveItemTransfer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>รับโอนสินค้า</h4>
+        <h6>รับโอนสินค้าจากคลัง/สาขา</h6>
+    </div>
+</div>
+<!-- /transfer edit -->
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="form-group">
+                <form id="frmTransferItem" class="form-receive-tranferitem" onsubmit="return SaveItemTransfer(this)">
+                    <input type="hidden" asp-for="TransferID" readonly>
+                    <div class="row">
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>ประเภทการโอนสินค้า</label>
+                                <select class="ddl-select2 select2 ddl-transfertype" asp-for="TransferTypeID" readonly >
+                                    @if (ViewBag.TransferTypeList.result)
+                                    {
+                                        <option value="">-- ระบุประเภทการโอนสินค้า --</option>
+                                        foreach (var item in (List<GetTransferTypeListResponseDTO>)ViewBag.TransferTypeList.data)
+                                        {
+                                            if (item.transfertypeid == Model.TransferTypeID)
+                                            {
+                                                <option value="@item.transfertypeid" selected>@item.description</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.transfertypeid">@item.description</option>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">-- ไม่พบประเภทการโอน --</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="TransferTypeID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>จากสาขา</label>
+                                <select class="ddl-select2 select2 ddl-source-branch" asp-for="SourceID" readonly >
+                                    @if (ViewBag.SourceBranchList.result)
+                                    {
+                                        <option value="">-- ระบุสาขาต้นทาง --</option>
+                                        foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.SourceBranchList.data)
+                                        {
+                                            if (item.branchid == Model.SourceID)
+                                            {
+                                                <option value="@item.branchid" selected>@item.branchname</option>
+                                            }
+                                            <option value="@item.branchid">@item.branchname</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">-- ไม่พบสาขา--</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="SourceID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>ไปยังสาขา</label>
+                                <select class="ddl-select2 select2 ddl-destination-branch" asp-for="DestinationID" readonly >
+                                    @if (ViewBag.DestinationBranchList.result)
+                                    {
+                                        <option value="">-- ระบุสาขาปลายทาง --</option>
+                                        foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.DestinationBranchList.data)
+                                        {
+                                            if (item.branchid == Model.DestinationID)
+                                            {
+                                                <option value="@item.branchid" selected>@item.branchname</option>
+                                            }
+                                            <option value="@item.branchid">@item.branchname</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">-- ไม่พบสาขา--</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="DestinationID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>สินค้าโอน</label>
+                                <select class="ddl-select2 select2 ddl-transferitem" asp-for="ItemID" readonly >
+                                    <option value="">-- เลือกสินค้าที่ต้องการโอน --</option>
+                                    @if (ViewBag.TransferItem.result)
+                                    {
+                                        GetItemListResponseDTO item = (GetItemListResponseDTO)ViewBag.TransferItem.data;
+                                        <option value="@item.itemid">@item.brandname | @item.name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ItemID" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>จำนวนโอน</label>
+                                <input type="number" class="form-control" placeholder="@Html.DisplayNameFor(s => s.QTY)" asp-for="QTY" readonly >
+                                <span asp-validation-for="QTY" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>จำนวนรับ</label>
+                                <input type="number" class="form-control" placeholder="@Html.DisplayNameFor(s => s.ReceiveQTY)" asp-for="ReceiveQTY">
+                                <span asp-validation-for="ReceiveQTY" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>จำนวนคืน</label>
+                                <input type="number" class="form-control" placeholder="@Html.DisplayNameFor(s => s.ReturnQTY)" asp-for="ReturnQTY">
+                                <span asp-validation-for="ReturnQTY" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>สถานะโอนสินค้า</label>
+                                <select class="ddl-select2 select2 ddl-transferstatus" asp-for="TransferStatusID">
+                                    @if (Model.TransferStatusID == 0)
+                                    {
+                                        foreach (var item in (List<GetItemTransferStatusResponseDTO>)ViewBag.TransferStatusList.data)
+                                        {
+                                            <option value="@item.transferstatusid">@item.transferstatusname_th</option>
+                                        }
+                                        <option value="" selected>-- ระบุสถานะการโอน --</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="">-- ระบุสถานะการโอน --</option>
+                                        if (ViewBag.TransferStatusList.result)
+                                        {
+                                            foreach (var item in (List<GetItemTransferStatusResponseDTO>)ViewBag.TransferStatusList.data)
+                                            {
+                                                if (item.transferstatusid == Model.TransferStatusID)
+                                                {
+                                                    <option value="@item.transferstatusid" selected>@item.transferstatusname_th</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@item.transferstatusid">@item.transferstatusname_th</option>
+                                                }
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="TransferStatusID" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="form-label">หมายเหตุ</label>
+                                @Html.TextAreaFor(m => m.Description, new
+                                {
+                                @class = "form-control full-width",
+                                @style = "resize: none;",
+                                @cols = 5,
+                                @rows = 3,
+                                @maxlength = 50,
+                                value = "",
+                                placeholder = Html.DisplayNameFor(n => n.Description)
+                                })
+                            </div>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
+                                <i class="bx bx-plus"></i>
+                                ยกเลิก
+                            </button>
+                            <button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
+                                <i class="bx bx-plus"></i>
+                                บันทึกข้อมูล
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /transfer edit -->
+@section Scripts{
+
+    <!--charactersRemaining-->
+    <script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
+    <!--Page Script-->
+    <script src="~/js/view/item/item_receivetransfer.js" asp-append-version="true"></script>
+}
+

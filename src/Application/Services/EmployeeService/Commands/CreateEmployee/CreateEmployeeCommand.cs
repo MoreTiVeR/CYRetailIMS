@@ -38,19 +38,19 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     [JsonPropertyName("startworkingdate")]
     public DateTime startworkingdate { get; init; }
 
-    [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
-    [MaxLength(20, ErrorMessage = "Maximum length 20")]
-    [JsonPropertyName("username")]
-    public string username { get; init; }
+    //[Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
+    //[MaxLength(20, ErrorMessage = "Maximum length 20")]
+    //[JsonPropertyName("username")]
+    //public string username { get; init; }
 
-    [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
-    [MaxLength(20, ErrorMessage = "Maximum length 50")]
-    [JsonPropertyName("password")]
-    public string password { get; init; }
+    //[Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
+    //[MaxLength(20, ErrorMessage = "Maximum length 50")]
+    //[JsonPropertyName("password")]
+    //public string password { get; init; }
 
-    [Required(ErrorMessage = "Required field")]
-    [JsonPropertyName("roleid")]
-    public int roleid { get; init; }
+    //[Required(ErrorMessage = "Required field")]
+    //[JsonPropertyName("roleid")]
+    //public int roleid { get; init; }
 
     [Required(ErrorMessage = "Required field")]
     public string createdby { get; init; }
@@ -58,6 +58,6 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     [Required(ErrorMessage = "Required field")]
     public DateTime creadeddate { get; init; }
 
-    [Required(ErrorMessage = "Required field")]
-    public int userinbranchid { get; set; }
+    //[Required(ErrorMessage = "Required field")]
+    //public int userinbranchid { get; set; }
 }

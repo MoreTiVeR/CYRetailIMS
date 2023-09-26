@@ -9,4 +9,5 @@ namespace CYRetailIMS.Application.Common.Confiuration;
 public interface IAppConfig
 {
     string GetConnectionStringDefault();
+    string GetUserSecretKey();
 }

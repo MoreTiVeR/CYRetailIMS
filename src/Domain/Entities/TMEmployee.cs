@@ -13,9 +13,13 @@ public partial class TMEmployee : BaseAuditableEntity
     [Key]
     public int EmpID { get; set; }
 
-    public int UserID { get; set; }
+	[StringLength(6)]
+	[Unicode(false)]
+	public string? EmpCode { get; set; }
 
-    public int DepartmentID { get; set; }
+	public int? UserID { get; set; }
+
+	public int DepartmentID { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]
@@ -43,7 +47,7 @@ public partial class TMEmployee : BaseAuditableEntity
     [InverseProperty("TMEmployees")]
     public virtual TMDepartment Department { get; set; } = null!;
 
-    [ForeignKey("UserID")]
-    [InverseProperty("TMEmployees")]
-    public virtual TMUsers User { get; set; } = null!;
+	[ForeignKey("UserID")]
+	[InverseProperty("TMEmployees")]
+	public virtual TMUsers? User { get; set; }
 }

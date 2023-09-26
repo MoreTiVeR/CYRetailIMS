@@ -13,12 +13,16 @@
     <Folder Include="Common\Mappings\UI\Sale\" />
     <Folder Include="Services\AccountService\Commands\" />
     <Folder Include="Services\AccountService\EventHandlers\" />
+    <Folder Include="Services\ApproveStatusService\Commands\" />
+    <Folder Include="Services\ApproveStatusService\EventHandlers\" />
     <Folder Include="Services\EmployeeService\Commands\DeleteEmployee\" />
     <Folder Include="Services\EmployeeService\Commands\UpdateEmployee\" />
     <Folder Include="Services\DepartmentService\" />
     <Folder Include="Services\EmployeeService\Queries\v1\" />
     <Folder Include="Services\ItemBrandService\Commands\UpdateBrand\v1\" />
     <Folder Include="Services\ItemInBranchService\Commands\CreateItemInBranch\v1\" />
+    <Folder Include="Services\ItemTransferStatusService\Commands\" />
+    <Folder Include="Services\ItemTransferStatusService\EventHandlers\" />
     <Folder Include="Services\ItemTypeService\EventHandlers\" />
     <Folder Include="Services\ItemTypeService\Commands\" />
     <Folder Include="Services\MenuService\Commands\" />
@@ -35,13 +39,14 @@
     <Folder Include="Services\TransactionService\Queries\GetTransactionByBranchCode\" />
     <Folder Include="Services\TransferTypeService\Commands\" />
     <Folder Include="Services\TransferTypeService\EventHandlers\" />
-    <Folder Include="Services\TransferTypeService\Queries\GetTransferTypeByID\v1\" />
-    <Folder Include="Services\TransferTypeService\Queries\GetTransferTypeList\v1\" />
     <Folder Include="Services\UnitOfMeasureService\Commands\" />
     <Folder Include="Services\UnitOfMeasureService\EventHandlers\" />
     <Folder Include="Services\UserInBranchService\Commands\" />
     <Folder Include="Services\UserInBranchService\EventHandlers\" />
-    <Folder Include="Services\UserService\" />
+    <Folder Include="Services\UserService\Commands\DeleteUser\" />
+    <Folder Include="Services\UserService\Commands\UpdateUser\" />
+    <Folder Include="Services\UserService\EventHandlers\" />
+    <Folder Include="Services\UserService\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

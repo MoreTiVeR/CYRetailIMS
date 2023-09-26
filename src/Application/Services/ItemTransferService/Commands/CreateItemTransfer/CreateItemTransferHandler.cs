@@ -113,8 +113,8 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
 
         #endregion
 
-        #region Approvestatus = Approve thne Add, Update Destination Branch Stock | เพิ่ม, อัพเดท Stock สาขาปลายทาง
-        if (request.approvestatus == (int)ApproveStatus.Approve)
+        #region เพิ่ม, อัพเดท Stock สาขาปลายทาง | Approvestatus = Approve thne Add, Update Destination Branch Stock
+        if (request.transferstatus == (int)TransferStatus.Received)
         {
             if (resItemInDestinationBranch.Count() == 0)
             {
@@ -186,7 +186,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
                     CreatedBy = t.createdby,
                     CreadedDate = itemTransferCommand.creadeddate,
                     IsActive = t.isactive,
-                    ApproveStatus = t.approvestatus
+                    TransferStatus = t.transferstatus
                 }).ToList();
     }
 

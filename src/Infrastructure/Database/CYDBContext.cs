@@ -139,12 +139,14 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMEmployee>(entity =>
         {
-            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
 
-            entity.HasOne(d => d.Department).WithMany(p => p.TMEmployees).HasConstraintName("FK_TMEmployee_TMDepartments");
+			entity.HasOne(d => d.Department).WithMany(p => p.TMEmployees).HasConstraintName("FK_TMEmployee_TMDepartments");
 
-            entity.HasOne(d => d.User).WithMany(p => p.TMEmployees).HasConstraintName("FK_TMEmployee_TMUsers");
-        });
+			entity.HasOne(d => d.User).WithMany(p => p.TMEmployees)
+				.OnDelete(DeleteBehavior.Cascade)
+				.HasConstraintName("FK_TMEmployee_TMUsers");
+		});
 
         modelBuilder.Entity<TMItem>(entity =>
         {
@@ -188,7 +190,13 @@ public partial class CYDBContext : DbContext
             entity.HasOne(d => d.Promotion).WithMany(p => p.TMItemPromotionDetails).HasConstraintName("FK_TMItemPromotionDetail_TMItemPromotion");
         });
 
-        modelBuilder.Entity<TMItemType>(entity =>
+		modelBuilder.Entity<TMItemTransferStatus>(entity =>
+		{
+			entity.Property(e => e.TransferStatusID).ValueGeneratedNever();
+			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+		});
+
+		modelBuilder.Entity<TMItemType>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });

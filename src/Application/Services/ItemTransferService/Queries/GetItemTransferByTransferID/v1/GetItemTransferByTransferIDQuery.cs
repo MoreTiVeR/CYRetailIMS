@@ -7,6 +7,8 @@ using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
 namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
+
+[Serializable]
 public record GetItemTransferByTransferIDQuery : IRequest<BaseResponse<GetItemTransferResponseDTO>>
 {
     public int transferid { get; init; }

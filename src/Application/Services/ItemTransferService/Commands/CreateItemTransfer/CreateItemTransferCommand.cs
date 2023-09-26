@@ -26,7 +26,7 @@ public record CreateItemTransferCommand : IRequest<BaseResponse<CommandResponse>
 
     public bool isactive { get; init; }
 
-    public int approvestatus { get; init; }
+    public int transferstatus { get; init; }
 
     public List<CreateItemTransferDetailCommand> items { get; set; }
 }

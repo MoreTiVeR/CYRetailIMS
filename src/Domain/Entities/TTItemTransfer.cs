@@ -32,11 +32,15 @@ public partial class TTItemTransfer : BaseAuditableEntity
 
     public int Qty { get; set; }
 
+    public int? ReceiveQTY { get; set; }
+
+    public int? ReturnQTY { get; set; }
+
     [StringLength(50)]
     [Unicode(false)]
     public string? Description { get; set; }
 
-    public int ApproveStatus { get; set; }
+    public int TransferStatus { get; set; }
 
     [ForeignKey("TransferTypeID")]
     [InverseProperty("TTItemTransfers")]

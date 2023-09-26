@@ -24,10 +24,15 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTr
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
+using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Staff)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.Stock)]
 public class ItemController : BaseController
 {
     private readonly IItemAPI _itemAPI;
@@ -97,9 +102,27 @@ public class ItemController : BaseController
         return View();
     }
 
-    public IActionResult TransferHistory()
+    public async Task<IActionResult> TransferHistory()
     {
+        ViewBag.ItemTransferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery { destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid });
+        ViewBag.ItemTransferStatus = await _itemTransferAPI.GetItemTransferStatusAsync();
         return View();
+    }
+
+    public async Task<IActionResult> ReceiveItemTransfer(int transferid)
+    {
+        BaseResponse<GetItemTransferResponseDTO> resTransferData = await _itemTransferAPI.GetItemTransferByIDAsync(transferid);
+        ReceiveTransferItemViewModel viewModel = ReceiveTransferMapping(resTransferData.data);
+
+        BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
+        BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(resTransferData.data.itemid);
+
+        ViewBag.TransferTypeList = await _itemTransferAPI.GetItemTransferTypeAsync();
+        ViewBag.TransferStatusList = await _itemTransferAPI.GetItemTransferStatusAsync();
+        ViewBag.SourceBranchList = resBrachList;
+        ViewBag.DestinationBranchList = resBrachList;
+        ViewBag.TransferItem = resItem;
+        return View(viewModel);
     }
 
     public IActionResult Detail(int itemid)
@@ -227,7 +250,7 @@ public class ItemController : BaseController
     {
         try
         {
-            if(transfertypeID == (int)TransferType.WTB)
+            if (transfertypeID == (int)TransferType.WTB)
             {
                 //คลัง-สาขา get from TMItem
                 BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(Convert.ToInt32(itemId));
@@ -248,7 +271,7 @@ public class ItemController : BaseController
                 }
                 return Json(new { result = false, msg = "ไม่พบข้อมูลสินค้า" });
             }
-            
+
         }
         catch (Exception ex)
         {
@@ -291,6 +314,26 @@ public class ItemController : BaseController
             return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.message });
         }
         return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.error.error.message });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> TransferItem([FromBody] ReceiveTransferItemViewModel model)
+    {
+        #region Validate QTY
+        var resValidateQTY = ValidateQTYItemTransfer(model);
+        if (!resValidateQTY.result)
+        {
+            return Json(new { result = false, message = resValidateQTY .message});
+        }
+        #endregion
+
+        UpdateItemTransferCommand updateItemCommand = PrepareReceiveItemTransferCommand(model);
+        BaseResponse<CommandResponse> resUpdateItem = await _itemTransferAPI.ReceiveItemTransferAsync(updateItemCommand);
+        if (resUpdateItem.result)
+        {
+            return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
+        }
+        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
     }
 
     [HttpGet]
@@ -407,7 +450,7 @@ public class ItemController : BaseController
                     return res;
                 }
                 //Filter out branch
-                if(filterOutBranchID > 0)
+                if (filterOutBranchID > 0)
                 {
                     resBranch.data = resBranch.data.Where(w => w.branchid != filterOutBranchID).ToList();
                 }
@@ -445,7 +488,7 @@ public class ItemController : BaseController
         }
         else
         {
-            if(brnchID == 0)
+            if (brnchID == 0)
             {
                 return new List<SelectListItem>();
             }
@@ -516,6 +559,12 @@ public class ItemController : BaseController
         return editItemViewModel;
     }
 
+    private ReceiveTransferItemViewModel ReceiveTransferMapping(GetItemTransferResponseDTO itemTransferDTO)
+    {
+        ReceiveTransferItemViewModel receiveTransferItemView = _mapper.Map<ReceiveTransferItemViewModel>(itemTransferDTO);
+        return receiveTransferItemView;
+    }
+
     private CreateItemTransferCommand CreateItemTransferCommand(TransferItemViewModel reqObj, List<CreateItemTransferDetailCommand> itemsTransfer)
     {
         return new CreateItemTransferCommand
@@ -526,10 +575,43 @@ public class ItemController : BaseController
             description = reqObj.description,
             createdby = base.UserProfile.username,
             creadeddate = DateTime.Now,
-            approvestatus = (int)ApproveStatus.NotApprove,
+            transferstatus = (int)TransferStatus.Pending,
             isactive = true,
             items = itemsTransfer
         };
+    }
+
+    private BaseResponse<bool> ValidateQTYItemTransfer(ReceiveTransferItemViewModel viewModel)
+    {
+        if(viewModel.QTY == 0)
+        {
+            return new BaseResponse<bool> { message = "ไม่สามารถทำรายการได้ เนื่องจากจำนวนโอนสินค้าไม่ถูกต้อง" };
+        }
+
+        if(viewModel.QTY != (viewModel.ReceiveQTY + viewModel.ReturnQTY))
+        {
+            return new BaseResponse<bool> { message = "ไม่สามารถทำรายการได้ เนื่องจากจำนวนรับโอนสินค้าไม่ถูกต้อง" };
+        }
+        return new BaseResponse<bool> { result = true, message = "Success" };
+    }
+
+    private UpdateItemTransferCommand PrepareReceiveItemTransferCommand(ReceiveTransferItemViewModel viewModel)
+    {
+        UpdateItemTransferCommand updateItemTransferCommand = new UpdateItemTransferCommand
+        {
+            transferid = viewModel.TransferID,
+            sourceid = viewModel.SourceID,
+            destinationid = viewModel.DestinationID,
+            itemid = viewModel.ItemID,
+            qty = viewModel.QTY,
+            receiveqty = viewModel.ReceiveQTY,
+            returnqty = viewModel.ReturnQTY,
+            description = viewModel.Description,
+            updatedby = base.UserProfile.username,
+            updateddate = DateTime.Now,
+            transferstatusid = viewModel.TransferStatusID
+        };
+        return updateItemTransferCommand;
     }
     #endregion
 

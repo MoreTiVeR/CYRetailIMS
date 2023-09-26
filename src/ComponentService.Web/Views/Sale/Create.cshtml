@@ -88,13 +88,17 @@
                                     <div class="col-md-2 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left search-box">
                                             <select id="ddlSearchItem" name="ddlSearchItem" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
-                                                @if (ViewBag.ItemInBranch is not null)
+                                                @if (ViewBag.ItemInBranch.result)
                                                 {
                                                     <option value="">-- เลือกสินค้าขาย --</option>
-                                                    foreach (var item in ViewBag.ItemInBranch as List<GetItemInBranchByBranchIDItemResponseDTO>)
+                                                    foreach (var item in ViewBag.ItemInBranch.data as List<GetItemInBranchByBranchIDItemResponseDTO>)
                                                     {
                                                         <option value="@item.itemid">@item.brandname | @item.itemname</option>
                                                     }
+                                                }
+                                                else
+                                                {
+                                                    <option value="">-- ไม่พบข้อมูล --</option>
                                                 }
                                             </select>
                                         </div>

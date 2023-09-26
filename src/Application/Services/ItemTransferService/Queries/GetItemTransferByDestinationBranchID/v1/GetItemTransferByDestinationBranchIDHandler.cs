@@ -24,9 +24,9 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
     {
         List<GetItemTransferResponseDTO> resItemTransfer = (from a in await _unitOfWork.Repository<TTItemTransfer>().QueryAsync()
                                                             join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals item.ItemID
-                                                            join b in await _unitOfWork.Repository<TMApproveStatus>().QueryAsync() on a.ApproveStatus equals b.ApproveStatusID
+                                                            join b in await _unitOfWork.Repository<TMItemTransferStatus>().QueryAsync() on a.TransferStatus equals b.TransferStatusID
                                                             join c in await _unitOfWork.Repository<TMTransferType>().QueryAsync() on a.TransferTypeID equals c.TransferTypeID
-                                                            where a.DestinationID == request.destinationbranchid && a.ItemID == request.itemid
+                                                            where a.DestinationID == request.destinationbranchid
                                                             && a.IsActive
                                                             select new GetItemTransferResponseDTO
                                                             {
@@ -38,9 +38,9 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
                                                                 destinationid = a.DestinationID,
                                                                 creadeddate = a.CreadedDate,
                                                                 createdby = a.CreatedBy,
-                                                                approvestatusid = b.ApproveStatusID,
-                                                                approvestatusname_th = b.ApproveStatusName_TH,
-                                                                approvestatusname_en = b.ApproveStatusName_EN,
+                                                                transferstatusid = b.TransferStatusID,
+                                                                transferstatusname_th = b.TransferStatusName_TH,
+                                                                transferstatusname_en = b.TransferStatusName_EN,
                                                                 itemid = a.ItemID,
                                                                 itemname = item.Name,
                                                                 qty = a.Qty
@@ -67,7 +67,7 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
         return new BaseResponse<List<GetItemTransferResponseDTO>>
         {
             result = true,
-            data = resItemTransfer,
+            data = resItemTransfer.OrderByDescending(w => w.creadeddate).ToList(),
             message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()

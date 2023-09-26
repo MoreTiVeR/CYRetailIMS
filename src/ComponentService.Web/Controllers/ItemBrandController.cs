@@ -10,7 +10,7 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Staff)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale)]
 public class ItemBrandController : BaseController
 {
     private readonly IItemBrandAPI _itemBrandAPI;

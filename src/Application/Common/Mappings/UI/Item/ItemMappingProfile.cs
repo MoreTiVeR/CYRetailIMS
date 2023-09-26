@@ -7,6 +7,7 @@ using AutoMapper;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 
 namespace CYRetailIMS.Application.Common.Mappings.UI.Item;
 public class ItemMappingProfile : Profile
@@ -43,5 +44,16 @@ public class ItemMappingProfile : Profile
 			.ForMember(x => x.Cost, f => f.MapFrom(ff => ff.cost))
 			.ForMember(x => x.IsActive, f => f.MapFrom(ff => ff.isactive))
 			.ForMember(x => x.Name, f => f.MapFrom(ff => ff.itemname));
+
+		CreateMap<GetItemTransferResponseDTO, ReceiveTransferItemViewModel>()
+			.ForMember(x => x.TransferID, f => f.MapFrom(ff => ff.transferid))
+			.ForMember(x => x.TransferTypeID, f => f.MapFrom(ff => ff.transfertypeid))
+			.ForMember(x => x.SourceID, f => f.MapFrom(ff => ff.sourceid))
+			.ForMember(x => x.DestinationID, f => f.MapFrom(ff => ff.destinationid))
+			.ForMember(x => x.Description, f => f.MapFrom(ff => ff.description))
+			.ForMember(x => x.ItemID, f => f.MapFrom(ff => ff.itemid))
+            //.ForMember(x => x.ItemName, f => f.MapFrom(ff => ff.itemname))
+            .ForMember(x => x.QTY, f => f.MapFrom(ff => ff.qty))
+			.ForMember(x => x.TransferStatusID, f => f.MapFrom(ff => ff.transferstatusid));
     }
 }

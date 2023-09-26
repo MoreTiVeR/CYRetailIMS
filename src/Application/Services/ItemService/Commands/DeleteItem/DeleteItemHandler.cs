@@ -31,6 +31,13 @@ public class DeleteItemHandler : BaseService, IRequestHandler<DeleteItemCommand,
             throw new Exception("ไม่พบข้อมูลสินค้าในระบบ");
         }
 
+        #region Check if qty > 0 then can't delete
+        if(itemEnt.Qty > 0)
+        {
+            throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีสต๊อกคงเหลือในระบบ");
+        }
+        #endregion
+
         #region Update
         //itemEnt = _mapper.Map<TMItem>(request);
         itemEnt.IsActive = false;

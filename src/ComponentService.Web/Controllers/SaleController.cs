@@ -30,7 +30,7 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Staff)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
 public class SaleController : BaseController
 {
     private readonly IItemInBranchAPI _itemInBranchAPI;
@@ -66,7 +66,7 @@ public class SaleController : BaseController
 		BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
 		ViewBag.BranchList = base.UserProfile.access_branch;
-        ViewBag.ItemBranchList = resItemBranchList.data.SelectMany(s => s.itemlist);
+        ViewBag.ItemBranchList = resItemBranchList;
         ViewBag.TransactionList = resTransaction;
 		return View();
     }
@@ -74,7 +74,7 @@ public class SaleController : BaseController
     public async Task<IActionResult> Create()
     {
         BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(UserProfile.access_branch.FirstOrDefault().branchid);
-        ViewBag.ItemInBranch = resItemInBranch.data.itemlist;
+        ViewBag.ItemInBranch = resItemInBranch;
         return View();
     }
 
@@ -85,6 +85,11 @@ public class SaleController : BaseController
         
         ViewBag.BranchList = base.UserProfile.access_branch;
         ViewBag.ItemBranch = resItemInBranch;
+        return View();
+    }
+
+    public IActionResult ReceiveItem()
+    {
         return View();
     }
 

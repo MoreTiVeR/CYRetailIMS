@@ -13,5 +13,4 @@ namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTr
 public record GetItemTransferByDestinationBranchIDQuery : IRequest<BaseResponse<List<GetItemTransferResponseDTO>>>
 {
     public int destinationbranchid { get; init; }
-    public int itemid { get; init; }
 }

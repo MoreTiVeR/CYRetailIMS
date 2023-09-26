@@ -4,6 +4,8 @@ using System.Security.Claims;
 using Newtonsoft.Json;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using static CYRetailIMS.Application.Common.Models.EnumModel;
 
 namespace CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 
@@ -16,9 +18,10 @@ public class CustomAuthorize : TypeFilterAttribute
     public static class RoleName
     {
         public const string Admin = "Admin";
-        public const string Staff = "Staff";
-        public const string Manager = "Manager";
-        public const string AccountingOfficer = "Accounting";
+        public const string Sale = "Sale";
+        public const string Stock = "Stock";
+        public const string AccountingOfficer = "Accounting Officer";
+        public const string AreaSale = "Area Sale";
     }
 
     public CustomAuthorize(params string[] claim) : base(typeof(AuthorizeFilter))
@@ -39,6 +42,21 @@ public class CustomAuthorize : TypeFilterAttribute
         {
             var IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
             var claimsIndentity = context.HttpContext.User.Identity as ClaimsIdentity;
+
+            // Retrieve the user's role and requested resource URL
+            //string userRole = /* Get the user's role */;
+            //string resourceUrl = context.HttpContext.Request.Path;
+            //Query the database for matching authorization rules
+            //using (var dbContext = new ApplicationDbContext())
+            //{
+            //    bool isAuthorized = dbContext.AuthorizationRules
+            //        .Any(rule => rule.Role == userRole &&
+            //                     rule.ResourceUrl == resourceUrl &&
+            //                     rule.Permission == "Allow");
+
+            //    return isAuthorized;
+            //}
+
             if (IsAuthenticated)
             {
                 bool flagClaim = false;

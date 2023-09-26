@@ -57,7 +57,7 @@ public class GetMenuByRoleIDHandler : BaseService, IRequestHandler<GetMenuByRole
                                                                cms_link = s.SubMenu.CMS_Link,
                                                                isactive = s.SubMenu.IsActive
 
-                                                           }).ToList()
+                                                           }).OrderBy(o => o.seq).ToList()
                                                        }).ToList();
         #endregion
 

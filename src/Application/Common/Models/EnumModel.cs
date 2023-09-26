@@ -21,6 +21,14 @@ public static class EnumModel
         Cancel = 99
     }
 
+    public enum TransferStatus
+    {
+        Pending = 0,
+        Received = 1,
+        Reject = 2,
+        Cancel = 99
+    }
+
     public enum TransferType
     {
         /// <summary>

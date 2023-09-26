@@ -80,7 +80,7 @@ public class AccountController : BaseController
                 var principal = CreatePrincipal(userProfile);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                 #endregion
-                return Json(new JsonViewModel { result = resLogin.result, message = "เข้าสู่ระบบสำเร็จ", url = Url.Action("Index", "Home") });
+                return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = Url.Action("Index", "Home") });
             }
             return Json(new JsonViewModel { result = resLogin.result, message = resLogin.error.error.message });
         }
@@ -115,12 +115,8 @@ public class AccountController : BaseController
             email = regisData.email,
             salary = 10000,
             startworkingdate = DateTime.Now,
-            username = regisData.username,
-            password = regisData.password,
-            roleid = regisData.roleid,
             creadeddate = DateTime.Now,
             createdby = "SYSTEM",
-            userinbranchid = regisData.branchid
         };
     }
 

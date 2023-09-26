@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Behaviours;
 using CYRetailIMS.Application.Common.Mappings.UI;
+using CYRetailIMS.Application.Services.ApproveStatusService.Queries.GetApproveStatus.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
@@ -19,12 +20,17 @@ using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
+using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatusByID.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeByID.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeByID.v1;
+using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureByID.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.Application.Services.UserInBranchService.Queries.GetUserInBranchByUserID.v1;
+using CYRetailIMS.Application.Services.UserService.Commands.CreateUser.v1;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,6 +74,16 @@ public static class ConfigureService
             mc.AddProfile<GetItemInBranchListMappingProfile>();
 
             mc.AddProfile<GetUserInBranchByUserIDMappingProfile>();
+
+            mc.AddProfile<GetApproveStatusMappingProfile>();
+
+            mc.AddProfile<GetItemTransferStatusMappingProfiel>();
+
+            mc.AddProfile<CreateUserMappingProfile>();
+
+            mc.AddProfile<GetTransferTypeByIDMappingProfile>();
+            mc.AddProfile<GetTransferTypeListMappingProfile>();
+            mc.AddProfile<GetItemTransferStatusByIDMappigProfile>();
 
             #endregion
         });

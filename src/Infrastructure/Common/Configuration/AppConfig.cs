@@ -20,8 +20,7 @@ public class AppConfig : IAppConfig
         }
     }
 
-    public string GetConnectionStringDefault()
-    {
-        throw new NotImplementedException();
-    }
+    public string GetConnectionStringDefault() => Configuration.GetSection("ConnectionStrings:DefaultConnection").Get<string>();
+
+    public string GetUserSecretKey() => Configuration.GetSection("AppSettings:SECRET_KEY").Get<string>();
 }

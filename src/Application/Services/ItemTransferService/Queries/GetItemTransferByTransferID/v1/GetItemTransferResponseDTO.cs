@@ -27,7 +27,7 @@ public class GetItemTransferResponseDTO
     public string itemname { get; set; }
     public int qty { get; set; }
 
-    public int approvestatusid { get; set; }
-    public string approvestatusname_th { get; set; }
-    public string approvestatusname_en { get; set; }
+    public int transferstatusid { get; set; }
+    public string transferstatusname_th { get; set; }
+    public string transferstatusname_en { get; set; }
 }
