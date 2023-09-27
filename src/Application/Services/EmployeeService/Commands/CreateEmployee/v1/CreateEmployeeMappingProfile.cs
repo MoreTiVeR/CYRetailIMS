@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Domain.Entities;
 
-namespace CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
+namespace CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 public class CreateEmployeeMappingProfile : Profile
 {
     public CreateEmployeeMappingProfile()

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CYRetailIMS.Application.Common.Interfaces;
+﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
-using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
-using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.UpdateEmployee.v1;
+using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
 public class EmployeeAPI : HttpClientService, IEmployeeAPI
@@ -20,5 +16,23 @@ public class EmployeeAPI : HttpClientService, IEmployeeAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse,
             CreateEmployeeCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/employee/v1/create"), createEmployeeCommand);
+    }
+
+    public async Task<BaseResponse<GetEmployeeResponseDTO>> GetEmployeeByIDAsync(int empid)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetEmployeeResponseDTO,
+            object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/employee/v1/getemployeebyid/{empid}"), null);
+    }
+
+    public async Task<BaseResponse<List<GetEmployeeResponseDTO>>> GetEmployeesAsync()
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetEmployeeResponseDTO>,
+            object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/employee/v1/getemployees"), null);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> UpdateEmployee(UpdateEmployeeCommand updateEmployeeCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse,
+                    UpdateEmployeeCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/employee/v1/update"), updateEmployeeCommand);
     }
 }

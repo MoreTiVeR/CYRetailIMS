@@ -25,6 +25,9 @@ public partial class TMUsers : BaseAuditableEntity
     public string? ProfilePicture { get; set; }
 
     [Column(TypeName = "datetime")]
+    public DateTime? LastLogin { get; set; }
+
+    [Column(TypeName = "datetime")]
     public DateTime? LastLogout { get; set; }
 
     public int? ApproveStatus { get; set; }
@@ -38,4 +41,9 @@ public partial class TMUsers : BaseAuditableEntity
 
     [InverseProperty("User")]
     public virtual ICollection<TMUserInBranch> TMUserInBranches { get; set; } = new List<TMUserInBranch>();
+
+    public virtual void SetLoginTime()
+    {
+        LastLogin = DateTime.Now;
+    }
 }

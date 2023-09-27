@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using AutoMapper;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
-using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class AccountController : BaseController

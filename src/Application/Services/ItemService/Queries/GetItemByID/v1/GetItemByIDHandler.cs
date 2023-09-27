@@ -53,7 +53,7 @@ public class GetItemByIDHandler : BaseService, IRequestHandler<GetItemByIDQuery,
                                                        }).AsEnumerable();
         if(!resData.Any())
         {
-            throw new Exception("Data not found");
+            throw new Exception("ไม่พบข้อมูลสินค้า");
         }
         return new BaseResponse<GetItemByIDResponseDTO>
         {

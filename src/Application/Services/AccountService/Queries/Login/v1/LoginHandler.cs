@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
 using CYRetailIMS.Application.Services.UserInBranchService.Queries.GetUserInBranchByUserID.v1;
 using CYRetailIMS.Domain.Entities;
+using CYRetailIMS.Domain.Events.TMUsers;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -19,22 +21,23 @@ using Microsoft.Extensions.Configuration;
 namespace CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
 public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseResponse<UserProfileResponseDTO>>
 {
-    private readonly IConfiguration _configuration;
+    private readonly IAppConfig _appConfig;
     private readonly GetMenuByRoleIDHandler _getMenuByRoleIDHandler;
     private readonly GetUserInBranchByUserIDHandler _getUserInBranchByUserIDHandler;
-	public LoginHandler(IMapper mapper, IUnitOfWork unitOfWork, IConfiguration configuration) : base(mapper, unitOfWork)
+    private readonly string _secretKey = string.Empty;
+
+    public LoginHandler(IMapper mapper, IUnitOfWork unitOfWork, IAppConfig appConfig) : base(mapper, unitOfWork)
     {
-        _configuration = configuration;
+        _appConfig = appConfig;
         _getMenuByRoleIDHandler = new GetMenuByRoleIDHandler(_mapper, unitOfWork);
 		_getUserInBranchByUserIDHandler = new GetUserInBranchByUserIDHandler(_mapper, unitOfWork);
-
-	}
+        _secretKey = _appConfig.GetUserSecretKey();
+    }
 
     public async Task<BaseResponse<UserProfileResponseDTO>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        string secretKey = _configuration.GetSection("AppSettings")["SECRET_KEY"];
-        byte[] bytePass = $"{request.username.Trim().ToLower()}{secretKey}{request.password}".ToMD5Password();
-        IQueryable<TMUsers> resUser = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == request.username && w.Password == bytePass && w.IsActive, 
+        byte[] bytePass = $"{request.username.Trim().ToLower()}{_secretKey}{request.password}".ToMD5Password();
+        IEnumerable<TMUsers> resUser = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == request.username && w.Password == bytePass && w.IsActive, 
             i => i.Include(x => x.TMEmployees),
             ii => ii.Include(xx => xx.Role));
         if(!resUser.Any())
@@ -76,7 +79,14 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
 		}
         #endregion
 
-		return new BaseResponse<UserProfileResponseDTO>
+        #region Update LastLogin
+        TMUsers userEnt = resUser.FirstOrDefault();
+        userEnt.SetLoginTime();
+        userEnt.AddDomainEvent(new TMUsersUpdateEvent(userEnt));
+        await _unitOfWork.SaveChangesAsync();
+        #endregion
+
+        return new BaseResponse<UserProfileResponseDTO>
         {
             result = true,
             data = resData,

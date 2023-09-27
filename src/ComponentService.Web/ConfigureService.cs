@@ -5,6 +5,7 @@ using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
@@ -13,12 +14,15 @@ using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
+using CYRetailIMS.Application.ExternalService.UserAPI;
+using CYRetailIMS.Application.ExternalService.UserRoleAPI;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
 using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
 using CYRetailIMS.Infrastructure.ExternalService.BranchAPI;
+using CYRetailIMS.Infrastructure.ExternalService.DepartmentAPI;
 using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
@@ -27,6 +31,8 @@ using CYRetailIMS.Infrastructure.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
+using CYRetailIMS.Infrastructure.ExternalService.UserAPI;
+using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace CYRetailIMS.ComponentService.Web;
@@ -93,6 +99,9 @@ public static class ConfigureService
         services.AddScoped<ITransactionAPI, TransactionAPI>();
         services.AddScoped<IBranchAPI, BranchAPI>();
         services.AddScoped<IItemTransferAPI, ItemTransferAPI>();
+        services.AddScoped<IDepartmentAPI, DepartmentAPI>();
+        services.AddScoped<IUserAPI, UserAPI>();
+        services.AddScoped<IUserRoleAPI, UserRoleAPI>();
         #endregion
 
         return services;

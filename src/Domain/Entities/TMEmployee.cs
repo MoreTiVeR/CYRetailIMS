@@ -40,7 +40,12 @@ public partial class TMEmployee : BaseAuditableEntity
     [Column(TypeName = "decimal(8, 2)")]
     public decimal? Salary { get; set; }
 
-    [Column(TypeName = "date")]
+	[StringLength(10)]
+	[Unicode(false)]
+	public string? MobileNo { get; set; }
+
+
+	[Column(TypeName = "date")]
     public DateTime? StartWorkingDate { get; set; }
 
     [ForeignKey("DepartmentID")]

@@ -15,10 +15,9 @@
     <Folder Include="Services\AccountService\EventHandlers\" />
     <Folder Include="Services\ApproveStatusService\Commands\" />
     <Folder Include="Services\ApproveStatusService\EventHandlers\" />
+    <Folder Include="Services\DepartmentService\Commands\" />
+    <Folder Include="Services\DepartmentService\EventHandlers\" />
     <Folder Include="Services\EmployeeService\Commands\DeleteEmployee\" />
-    <Folder Include="Services\EmployeeService\Commands\UpdateEmployee\" />
-    <Folder Include="Services\DepartmentService\" />
-    <Folder Include="Services\EmployeeService\Queries\v1\" />
     <Folder Include="Services\ItemBrandService\Commands\UpdateBrand\v1\" />
     <Folder Include="Services\ItemInBranchService\Commands\CreateItemInBranch\v1\" />
     <Folder Include="Services\ItemTransferStatusService\Commands\" />
@@ -29,7 +28,8 @@
     <Folder Include="Services\MenuService\EventHandlers\" />
     <Folder Include="Services\MenuService\Queries\GetMenuList\v1\" />
     <Folder Include="Services\RoleInMenuService\Queries\" />
-    <Folder Include="Services\RoleService\" />
+    <Folder Include="Services\RoleService\Commands\" />
+    <Folder Include="Services\RoleService\EventHandlers\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByTransactionID\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByCriteria\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByTransactionTypeID\" />
@@ -44,9 +44,6 @@
     <Folder Include="Services\UserInBranchService\Commands\" />
     <Folder Include="Services\UserInBranchService\EventHandlers\" />
     <Folder Include="Services\UserService\Commands\DeleteUser\" />
-    <Folder Include="Services\UserService\Commands\UpdateUser\" />
-    <Folder Include="Services\UserService\EventHandlers\" />
-    <Folder Include="Services\UserService\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

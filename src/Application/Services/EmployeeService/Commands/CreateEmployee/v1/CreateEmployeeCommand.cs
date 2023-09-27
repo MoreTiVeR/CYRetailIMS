@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
-namespace CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
+namespace CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 
 [Serializable]
 public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
@@ -18,7 +18,7 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     public int departmentid { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
-    [MaxLength(50, ErrorMessage ="Maximum length 50")]
+    [MaxLength(50, ErrorMessage = "Maximum length 50")]
     [JsonPropertyName("firstname")]
     public string firstname { get; init; }
 
@@ -31,6 +31,10 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     [MaxLength(50, ErrorMessage = "Maximum length 50")]
     [JsonPropertyName("email")]
     public string email { get; init; }
+
+    [MaxLength(10, ErrorMessage = "Maximum length 50")]
+    [JsonPropertyName("mobileno")]
+    public string mobileno { get; init; }
 
     [JsonPropertyName("salary")]
     public decimal salary { get; init; }

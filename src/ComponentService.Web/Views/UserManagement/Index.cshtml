@@ -1,0 +1,131 @@
+﻿@using CYRetailIMS.Application.Services.UserService.Queries.GetUser.v1;
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>ผู้ใช้งาน</h4>
+		<h6>จัดการข้อมูลผู้ใช้งาน</h6>
+	</div>
+	<div class="page-btn">
+		<a asp-action="Create" asp-controller="UserManagement" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img">เพิ่มบัญชีผู้ใช้งาน</a>
+	</div>
+</div>
+
+<!-- /product list -->
+<div class="card">
+	<div class="card-body">
+		<div class="table-top">
+			<div class="search-set">
+				<div class="search-path">
+					<a class="btn btn-filter" id="filter_search">
+						<img src="~/assets/img/icons/filter.svg" alt="img">
+						<span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
+					</a>
+				</div>
+				<div class="search-input">
+					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+				</div>
+			</div>
+			<div class="wordset">
+				<ul>
+					<li>
+						<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!-- /Filter -->
+		<div class="card" id="filter_inputs">
+			<div class="card-body pb-0">
+				<div class="row">
+					<div class="col-lg col-sm-6 col-12">
+						<div class="form-group">
+							<select id="ddlSearchType" class="select">
+								<option value="" selected>-- ระบุประเภทการค้นหา --</option>
+								<option value="">ชื่อบัญชีผู้ใช้งาน</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg col-sm-6 col-12">
+						<div class="form-group">
+							<input type="text" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
+						</div>
+					</div>
+					<div class="col-lg-1 col-sm-6 col-12">
+						<div class="form-group">
+							<a id="btnSearch" class="btn btn-filters ms-auto" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+						</div>
+					</div>
+					<div class="col-lg col-sm-6 col-12">
+					</div>
+					<div class="col-lg col-sm-6 col-12">
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Filter -->
+		<div class="table-responsive">
+			<table class="table datanew">
+				<thead>
+					<tr>
+						<th hidden>
+							<label class="checkboxs">
+								<input type="checkbox">
+								<span class="checkmarks"></span>
+							</label>
+						</th>
+						<th>ชื่อบัญชี</th>
+						<th>สิทธิ์เข้าใช้งาน</th>
+						<th>เข้าสู่ระบบล่าสุด</th>
+						<th>ออกจากระบบล่าสุด</th>
+						<th>วันที่สร้าง</th>
+						<th>สถานะ</th>
+						<th>ดำเนินการ</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (ViewBag.UserList.result)
+					{
+						foreach (var item in (List<GetUserResponseDTO>)ViewBag.UserList.data)
+						{
+							@*string bingingRegisterCss = item.isregister ? "badges bg-lightgreen" : "badges bg-lightred";
+							string bingingRegisterName = item.isregister ? "ผูกบัญชีแล้ว" : "ยังไม่ผูกบัญชี";*@
+							string userStatusCss = item.isactive ? "badges bg-lightgreen" : "badges bg-lightred";
+							string userStatusName = item.isactive ? "ปกติ" : "ยกเลิก";
+							string rName = $"rowid{item.userid}";
+							Dictionary<string, string> aUserID = new Dictionary<string, string> { { "userid", item.userid.ToString() } };
+							<tr>
+								<td hidden>
+									<label class="checkboxs">
+										<input type="checkbox">
+										<span class="checkmarks"></span>
+									</label>
+								</td>
+								<td>@item.username</td>
+								<td>@item.rolename</td>
+								<td>@item.lastlogin</td>
+								<td>@item.lastlogout</td>
+								<td>@item.creadeddate</td>
+								<td><span class="@userStatusCss">@userStatusName</span></td>
+								<td>
+									<a class="me-3" >
+										<img src="~/assets/img/icons/edit.svg" alt="img">
+									</a>
+									<a class="me-3 confirm-text" href="javascript:void(0);">
+										<img src="~/assets/img/icons/delete.svg" alt="img">
+									</a>
+								</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- /product list -->
+

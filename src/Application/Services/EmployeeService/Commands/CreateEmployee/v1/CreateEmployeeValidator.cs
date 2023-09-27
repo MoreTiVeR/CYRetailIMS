@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 
-namespace CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee;
+namespace CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 public class CreateEmployeeValidator : AbstractValidator<CreateEmployeeCommand>
 {
     public CreateEmployeeValidator()
