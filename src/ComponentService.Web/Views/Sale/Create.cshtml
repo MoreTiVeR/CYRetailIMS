@@ -90,8 +90,9 @@
                                             <select id="ddlSearchItem" name="ddlSearchItem" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
                                                 @if (ViewBag.ItemInBranch.result)
                                                 {
+                                                    GetItemInBranchByBranchIDResponseDTO itemBranch = ViewBag.ItemInBranch.data;
                                                     <option value="">-- เลือกสินค้าขาย --</option>
-                                                    foreach (var item in ViewBag.ItemInBranch.data as List<GetItemInBranchByBranchIDItemResponseDTO>)
+                                                    foreach (var item in itemBranch.itemlist)
                                                     {
                                                         <option value="@item.itemid">@item.brandname | @item.itemname</option>
                                                     }

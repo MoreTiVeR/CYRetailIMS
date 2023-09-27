@@ -25,7 +25,6 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
-using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
@@ -323,7 +322,7 @@ public class ItemController : BaseController
         var resValidateQTY = ValidateQTYItemTransfer(model);
         if (!resValidateQTY.result)
         {
-            return Json(new { result = false, message = resValidateQTY .message});
+            return Json(new { result = false, message = resValidateQTY.message });
         }
         #endregion
 
@@ -399,19 +398,31 @@ public class ItemController : BaseController
         List<SelectListItem> res = new List<SelectListItem>();
         try
         {
+            BaseResponse<List<GetBranchListResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+            if (!resBranch.result)
+            {
+                return res;
+            }
+
             //คลัง ไป สาขา
             if (transferTypeID == (int)TransferType.WTB)
             {
-                res.Add(new SelectListItem
-                {
-                    Text = "คลังสินค้าสำนักงานใหญ่",
-                    Value = "99",
-                });
+                res = (from a in resBranch.data
+                       where a.branchid == 1
+                       select new SelectListItem
+                       {
+                           Text = a.branchname,
+                           Value = a.branchid.ToString()
+                       }).ToList();
 
+                //res.Add(new SelectListItem
+                //{
+                //    Text = "คลังสินค้าสำนักงานใหญ่",
+                //    Value = "99",
+                //});
             }
             else
             {
-                var resBranch = await _branchAPI.GetBranchListAsync();
                 res = (from a in resBranch.data
                        select new SelectListItem
                        {
@@ -432,23 +443,29 @@ public class ItemController : BaseController
         List<SelectListItem> res = new List<SelectListItem>();
         try
         {
+            BaseResponse<List<GetBranchListResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+            if (!resBranch.result)
+            {
+                return res;
+            }
             //คลัง ไป สาขา
             if (transferTypeID == (int)TransferType.WTW)
             {
-                res.Add(new SelectListItem
-                {
-                    Text = "คลังสินค้าสำนักงานใหญ่",
-                    Value = "99",
-                });
-
+                res = (from a in resBranch.data
+                       where a.branchid == 1
+                       select new SelectListItem
+                       {
+                           Text = a.branchname,
+                           Value = a.branchid.ToString()
+                       }).ToList();
+                //res.Add(new SelectListItem
+                //{
+                //    Text = "คลังสินค้าสำนักงานใหญ่",
+                //    Value = "99",
+                //});
             }
             else
             {
-                var resBranch = await _branchAPI.GetBranchListAsync();
-                if (!resBranch.result)
-                {
-                    return res;
-                }
                 //Filter out branch
                 if (filterOutBranchID > 0)
                 {
@@ -583,12 +600,12 @@ public class ItemController : BaseController
 
     private BaseResponse<bool> ValidateQTYItemTransfer(ReceiveTransferItemViewModel viewModel)
     {
-        if(viewModel.QTY == 0)
+        if (viewModel.QTY == 0)
         {
             return new BaseResponse<bool> { message = "ไม่สามารถทำรายการได้ เนื่องจากจำนวนโอนสินค้าไม่ถูกต้อง" };
         }
 
-        if(viewModel.QTY != (viewModel.ReceiveQTY + viewModel.ReturnQTY))
+        if (viewModel.QTY != (viewModel.ReceiveQTY + viewModel.ReturnQTY))
         {
             return new BaseResponse<bool> { message = "ไม่สามารถทำรายการได้ เนื่องจากจำนวนรับโอนสินค้าไม่ถูกต้อง" };
         }

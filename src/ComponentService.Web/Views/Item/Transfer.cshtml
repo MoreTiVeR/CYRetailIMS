@@ -42,17 +42,6 @@
                                 <label>จากสาขา</label>
                                 <select class="ddl-select2 select2 ddl-source-branch" asp-for="source_branchid" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
                                     <option value="">--เลือกสาขาต้นทาง--</option>
-                                    @*@if (ViewBag.BranchList.result)
-                                    {
-                                        foreach (var item in ViewBag.BranchList.data as List<GetBranchListResponseDTO>)
-                                        {
-                                            <option value="@item.branchid">@item.branchname</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option value="">-- ไม่พบสาขา --</option>
-                                    }*@
                                 </select>
                                 <span asp-validation-for="source_branchid" class="text-danger"></span>
                             </div>
@@ -62,17 +51,6 @@
                                 <label>ไปยังสาขา</label>
                                 <select class="ddl-select2 select2 ddl-destination-branch" asp-for="destination_branchid" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
                                     <option value="">--เลือกสาขาปลายทาง--</option>
-                                    @*@if (ViewBag.BranchList.result)
-                                    {
-                                        foreach (var item in ViewBag.BranchList.data as List<GetBranchListResponseDTO>)
-                                        {
-                                            <option value="@item.branchid">@item.branchname</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option value="">-- ไม่พบสาขา --</option>
-                                    }*@
                                 </select>
                                 <span asp-validation-for="destination_branchid" class="text-danger"></span>
                             </div>
@@ -89,14 +67,6 @@
                                         <div class="position-relative has-icon-left search-box">
                                             <select id="ddlSearchItem" name="ddlSearchItem" asp-for="itembranchtransfer" asp-items="@(new SelectList(ViewBag.ItemTransferList, "Value", "Text", null, null))" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
                                                 <option value="">-- เลือกสินค้าที่ต้องการโอน --</option>
-                                                @* @if (ViewBag.ItemList.result)
-                                                {
-                                                    <option value="">-- เลือกสินค้าที่ต้องการโอน --</option>
-                                                    foreach (var item in ViewBag.ItemList.data as List<GetItemListResponseDTO>)
-                                                    {
-                                                        <option value="@item.itemid">@item.brandname | @item.name</option>
-                                                    }
-                                                }*@
                                             </select>
                                         </div>
                                     </div>

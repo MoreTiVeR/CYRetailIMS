@@ -58,15 +58,12 @@ public class SaleController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        BaseResponse<List<GetItemInBranchByBranchListResponseDTO>> resItemBranchList = await _itemInBranchAPI.GetItemInBranchByBranchListAsync(new GetItemInBranchByBranchListQuery
-		{
-            branchid_list = base.UserProfile.access_branch.Select(s => s.branchid).ToList()
-		});
+        BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemBranch= await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
 		BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
 		ViewBag.BranchList = base.UserProfile.access_branch;
-        ViewBag.ItemBranchList = resItemBranchList;
+        ViewBag.ItemBranch = resItemBranch;
         ViewBag.TransactionList = resTransaction;
 		return View();
     }
