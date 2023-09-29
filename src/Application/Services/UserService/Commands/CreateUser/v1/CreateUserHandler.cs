@@ -96,7 +96,7 @@ public class CreateUserHandler : BaseService, IRequestHandler<CreateUserCommand,
 			ProfilePicture = request.profilepicture,
 			CreatedBy = request.createdby,
 			CreadedDate = request.creadeddate,
-			IsActive = true,
+			IsActive = request.isactive,
 			ApproveStatus = request.approvestatus
 		};
 		return userData;

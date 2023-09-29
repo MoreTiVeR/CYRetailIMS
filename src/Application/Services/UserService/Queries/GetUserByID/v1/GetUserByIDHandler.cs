@@ -24,6 +24,10 @@ public class GetUserByIDHandler : BaseService, IRequestHandler<GetUserByIDQuery,
         GetUserResponseDTO resUsers = (from a in await _unitOfWork.Repository<TMUsers>().QueryAsync()
                                        join b in await _unitOfWork.Repository<TMRole>().QueryAsync() on a.RoleID equals b.RoleID
                                        join c in await _unitOfWork.Repository<TMApproveStatus>().QueryAsync() on a.ApproveStatus equals c.ApproveStatusID
+                                       join d in await _unitOfWork.Repository<TMUserInBranch>().QueryAsync() on a.UserID equals d.UserID into jUserBranch
+                                       from usrinbranch in jUserBranch.DefaultIfEmpty()
+                                       join e in await _unitOfWork.Repository<TMBranch>().QueryAsync() on usrinbranch.BranchID equals e.BranchID into jBranch
+                                       from branch in jBranch.DefaultIfEmpty()
                                        where a.UserID == request.userid 
                                        && a.IsActive && a.ApproveStatus == (int)ApproveStatus.Approve
                                        select new GetUserResponseDTO
@@ -39,7 +43,9 @@ public class GetUserByIDHandler : BaseService, IRequestHandler<GetUserByIDQuery,
                                            creadeddate = a.CreadedDate,
                                            isactive = a.IsActive,
                                            approvestatus = a.ApproveStatus,
-                                           approvestatusname = c.ApproveStatusName_TH
+                                           approvestatusname = c.ApproveStatusName_TH,
+                                           branchid = usrinbranch != null ? usrinbranch.BranchID : 0,
+                                           branchname = branch != null ? branch.BranchName : string.Empty
                                        }).FirstOrDefault();
 
         if (resUsers == null)

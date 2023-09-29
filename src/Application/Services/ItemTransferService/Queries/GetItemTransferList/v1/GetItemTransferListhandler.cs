@@ -26,7 +26,7 @@ public class GetItemTransferListhandler : BaseService, IRequestHandler<GetItemTr
                                                             join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals item.ItemID
                                                             join b in await _unitOfWork.Repository<TMItemTransferStatus>().QueryAsync() on a.TransferStatus equals b.TransferStatusID
                                                             join c in await _unitOfWork.Repository<TMTransferType>().QueryAsync() on a.TransferTypeID equals c.TransferTypeID
-                                                            where a.IsActive
+                                                            where a.IsActive && a.CreadedDate.Month == DateTime.Now.Month
                                                             select new GetItemTransferResponseDTO
                                                             {
                                                                 transferid = a.TransferID,

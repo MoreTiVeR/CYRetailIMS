@@ -42,6 +42,11 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     [JsonPropertyName("startworkingdate")]
     public DateTime startworkingdate { get; init; }
 
+    public string nickname { get; set; }
+
+    [Required(ErrorMessage = "Required field")]
+    public bool IsActive { get; set; }
+
     //[Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     //[MaxLength(20, ErrorMessage = "Maximum length 20")]
     //[JsonPropertyName("username")]

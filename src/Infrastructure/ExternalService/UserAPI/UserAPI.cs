@@ -2,6 +2,8 @@
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
+using CYRetailIMS.Application.Services.UserService.Commands.CreateUser.v1;
+using CYRetailIMS.Application.Services.UserService.Commands.DeleteUser.v1;
 using CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 using CYRetailIMS.Application.Services.UserService.Queries.GetUser.v1;
 
@@ -12,10 +14,16 @@ public class UserAPI : HttpClientService, IUserAPI
     {
     }
 
-    public async Task<BaseResponse<CommandResponse>> CreateUser(CreateEmployeeCommand createEmployeeCommand)
+    public async Task<BaseResponse<CommandResponse>> CreateUser(CreateUserCommand createEmployeeCommand)
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse,
-                    CreateEmployeeCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/user/v1/create"), createEmployeeCommand);
+                    CreateUserCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/user/v1/create"), createEmployeeCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> DeleteUser(DeleteUserCommand deleteUserCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, 
+            DeleteUserCommand>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/user/v1/delete"), deleteUserCommand);
     }
 
     public async Task<BaseResponse<GetUserResponseDTO>> GetUserByIDAsync(int userid)

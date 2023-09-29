@@ -2,7 +2,9 @@
 using AutoMapper;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI.Account;
+using CYRetailIMS.Application.Common.Mappings.UI.Employee;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
+using CYRetailIMS.Application.Common.Mappings.UI.User;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
@@ -16,6 +18,7 @@ using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
@@ -74,6 +77,14 @@ public static class ConfigureService
             #region UI/WEB
             mc.AddProfile<AcountMappingProfile>();
             mc.AddProfile<ItemMappingProfile>();
+            #endregion
+
+            #region Employee
+            mc.AddProfile<EmployeeMappingProfile>();
+            #endregion
+
+            #region User
+            mc.AddProfile<UserMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

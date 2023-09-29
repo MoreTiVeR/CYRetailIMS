@@ -26,6 +26,15 @@ public class UpdateEmployeeHandler : BaseService, IRequestHandler<UpdateEmployee
             throw new Exception("ไม่พบข้อมูลพนักงาน");
         }
 
+        #region Check dupplicate Name & LastName, Email
+        var resExistEmp = await _unitOfWork.Repository<TMEmployee>().AnyAsync(w => w.Email == request.email
+        || (w.FirstName.Trim() == request.firstname.Trim() && w.LastName.Trim() == request.lastname.Trim()));
+        if(resExistEmp)
+        {
+			throw new Exception("มีชื่อ/นามสกลุลหรืออีเมล ซ้ำในระบบ");
+		}
+        #endregion
+
         #region Update properties
         resEmp.DepartmentID = request.departmentid;
         resEmp.FirstName = request.firstname;

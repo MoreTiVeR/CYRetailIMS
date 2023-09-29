@@ -17,6 +17,25 @@ public static class ObjectExtensions
         catch { return false; }
     }
 
+    public static bool ToBool(this int value)
+    {
+        try
+        {
+            bool.TryParse(value.ToString(), out var res);
+            return res;
+        }
+        catch { return false; }
+    }
+
+    public static int ToInt32(this bool value)
+    {
+        try
+        {
+            return value ? 1 : 0;
+        }
+        catch { return 0; }
+    }
+
     public static int ToInt32(this string obj)
     {
         int.TryParse(obj, out int result);

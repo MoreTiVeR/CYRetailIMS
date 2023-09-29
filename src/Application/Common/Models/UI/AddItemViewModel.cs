@@ -26,7 +26,7 @@ public class AddItemViewModel
 
     [Required(ErrorMessage = "*กรุณาระบุหน่วยนับสินค้า")]
     [DisplayName("ระบุหน่วยนับสินค้า")]
-    public int UnitOfMeasureID { get; set; }
+    public int UnitOfMeasureID => 1;
 
     [Required(ErrorMessage = "*กรุณาระบุแบรนด์สินค้า")]
     [DisplayName("ระบุแบรนด์สินค้า")]

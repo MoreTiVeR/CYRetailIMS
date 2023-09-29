@@ -31,4 +31,8 @@ public class GetUserResponseDTO
     public int? approvestatus { get; set; }
 
     public string approvestatusname { get; set; }
+
+    public int branchid { get; set; }
+    public string branchname { get; set; }
+
 }

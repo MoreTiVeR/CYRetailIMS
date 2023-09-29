@@ -25,7 +25,7 @@ public class GetEmployeeHandler : BaseService, IRequestHandler<GetEmployeeQuery,
                                                join c in await _unitOfWork.Repository<TMUsers>().QueryAsync() on emp.UserID equals c.UserID
                                                into jUser
                                                from user in jUser.DefaultIfEmpty()
-                                               where emp.IsActive
+                                               //where emp.IsActive
                                                select new { emp, department, user }).ToList().Select(s => new GetEmployeeResponseDTO
                                                {
                                                    empid = s.emp.EmpID,

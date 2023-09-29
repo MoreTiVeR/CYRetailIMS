@@ -1,6 +1,8 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI;
 @using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
-@model AccountRegisterViewModel
+@using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
+@using CYRetailIMS.Application.Services.RoleService.Queries.GetRoles.v1;
+@model CreateUserViewModel
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -15,91 +17,115 @@
 <!-- /add -->
 <div class="card">
     <div class="card-body">
-        <form id="frmRegister" class="form-login" onsubmit="return Register(this)">
+        <form id="frmRegisterAccount" class="form-register-account" onsubmit="return RegisterAccount(this)">
             <div class="row">
-                <div class="form-login col-lg-6 col-sm-6 col-12">
-                    <label>ชื่อผู้ใช้งาน</label>
-                    <div class="form-addons">
-                        <input type="text" placeholder="@Html.DisplayNameFor(d => d.username)" asp-for="username">
-                        <img src="~/assets/img/icons/mail.svg" alt="img">
-                        <span asp-validation-for="username" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-login col-lg-6 col-sm-6 col-12">
-                    <label>รหัสผ่าน</label>
-                    <div class="pass-group">
-                        <input type="password" class="pass-input" placeholder="@Html.DisplayNameFor(d => d.password)" asp-for="password">
-                        <span class="fas toggle-password fa-eye-slash"></span>
-                        <span asp-validation-for="password" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-login col-lg-6 col-sm-6 col-12">
-                    <label>ชื่อ</label>
-                    <div class="form-addons">
-                        <input type="text" placeholder="@Html.DisplayNameFor(d => d.firstname)" asp-for="firstname">
-                        <img src="~/assets/img/icons/users1.svg" alt="img">
-                        <span asp-validation-for="firstname" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-login col-lg-6 col-sm-6 col-12">
-                    <label>นามสกุล</label>
-                    <div class="form-addons">
-                        <input type="text" placeholder="@Html.DisplayNameFor(d => d.lastname)" asp-for="lastname">
-                        <img src="~/assets/img/icons/users1.svg" alt="img">
-                        <span asp-validation-for="lastname" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-login col-lg-12 col-sm-12 col-12">
-                    <label>อีเมล</label>
-                    <div class="form-addons">
-                        <input type="text" placeholder="@Html.DisplayNameFor(d => d.email)" asp-for="email">
-                        <img src="~/assets/img/icons/mail.svg" alt="img">
-                        <span asp-validation-for="email" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-login col-lg-6 col-sm-6 col-12">
-                    <label>สาขา</label>
-                    <select class="select" asp-for="branchid">
-                        @if (ViewBag.BranchList.result)
-                        {
-                            <option value="">--กรุณาระบุสาขาที่เข้าใช้งาน--</option>
-                            foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.BranchList.data)
-                            {
-                                <option value="@item.branchid">@item.branchname</option>
-                            }
-                        }
-                        else
-                        {
-                            <option>--ไม่พบข้อมูลสาขา-</option>
-                        }
-                    </select>
-                    <span asp-validation-for="branchid" class="text-danger"></span>
-                </div>
-                <div class="form-login col-lg-6 col-sm-6 col-12">
+                <div class="col-lg-3 col-sm-6 col-12">
                     <div class="form-group">
-                        <label>สิทธิ์การใช้งาน</label>
-                        <select id="roleid" name="roleid" class="select select2" asp-for="roleid">
-                            <option value="">--กรุณาระบุสิทธิ์การเข้าใช้งาน--</option>
-                            <option value="1">ผู้ดูแลระบบ</option>
-                            <option value="2">พนักงานทั่วไป</option>
-                            <option value="3">ผู้จัดการทั่วไป</option>
-                            <option value="4">เจ้าหน้าที่ฝ่ายบัญชี</option>
+                        <label>พนักงาน</label>
+                        <select class="ddl-select2 select2 ddl-employee" asp-for="EmpID">
+                            @if (ViewBag.EmpList.result)
+                            {
+                                List<GetEmployeeResponseDTO> empList = (List<GetEmployeeResponseDTO>)ViewBag.EmpList.data;
+                                if (empList.Count > 0)
+                                {
+                                    <option value="" selected>-- กรุณาเลือกพนักงาน --</option>
+                                    foreach (var item in (List<GetEmployeeResponseDTO>)ViewBag.EmpList.data)
+                                    {
+                                        <option value="@item.empid">@item.firstname</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="" selected>-- ไม่พบข้อมูล --</option>
+                                }
+                            }
                         </select>
-                        <span asp-validation-for="roleid" class="text-danger"></span>
+                        <span asp-validation-for="EmpID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ชื่อบัญชี</label>
+                        <input type="text" asp-for="UserName">
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>รหัสผ่าน</label>
+                        <div class="pass-group">
+                            <input type="password" class=" pass-input" asp-for="Password">
+                            <span class="fas toggle-password fa-eye-slash"></span>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>สิทธิ์เข้าใช้งาน</label>
+                        <select class="select" asp-for="RoleID">
+                            @if (ViewBag.RoleList.result)
+                            {
+                                <option value="" selected>-- กรุณาเลือกสิทธิ์เข้าใช้งาน --</option>
+                                foreach (var item in (List<GetRolesResponseDTO>)ViewBag.RoleList.data)
+                                {
+                                    <option value="@item.roleid">@item.description</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="RoleID" class="text-danger"></span>
                     </div>
                 </div>
             </div>
-            <div class="form-login col-lg-12 col-sm-12 col-12">
-                <button id="btnRegister" type="submit" class="btn btn-login">ลงทะเบียน</button>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ประจำสาขา</label>
+                        <select class="select" asp-for="BranchID">
+                            @if (ViewBag.BranchList.result)
+                            {
+                                <option value="" selected>-- กรุณาเลือกสาขา --</option>
+                                foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.BranchList.data)
+                                {
+                                    <option value="@item.branchid">@item.branchname</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="BranchID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>สถานะ</label>
+                        <select class="select" asp-for="IsActive">
+                            <option value="1" selected>ใช้งาน</option>
+                            <option value="0">ไม่ใช้งาน</option>
+                        </select>
+                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12"></div>
+                <div class="col-lg-3 col-sm-6 col-12"></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                   @* <button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
+                        <i class="bx bx-plus"></i>
+                        ยกเลิก
+                    </button>*@
+                    <a asp-action="Index" asp-controller="UserManagement" class="btn btn-cancel me-2">ยกเลิก</a>
+                    <button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
+                        <i class="bx bx-plus"></i>
+                        บันทึกข้อมูล
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
 <!-- /add -->
+@section Scripts{
 
+    <!--Page Script-->
+    <script src="~/js/view/user/user_create.js" asp-append-version="true"></script>
+}

@@ -36,5 +36,8 @@ public record CreateUserCommand : IRequest<BaseResponse<CommandResponse>>
     public int userinbranchid { get; set; }
 
     [Required(ErrorMessage = "Required field")]
+    public bool isactive { get; set; }
+
+    [Required(ErrorMessage = "Required field")]
     public int approvestatus { get; set; }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CYRetailIMS.Application.Common.Confiuration;
+using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMUserInBranchs;
@@ -15,8 +17,10 @@ using Microsoft.AspNetCore.Http;
 namespace CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 public class UpdateUserHandler : BaseService, IRequestHandler<UpdateUserCommand, BaseResponse<CommandResponse>>
 {
-    public UpdateUserHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
+    private readonly IAppConfig _appConfig;
+    public UpdateUserHandler(IMapper mapper, IUnitOfWork unitOfWork, IAppConfig appConfig) : base(mapper, unitOfWork)
     {
+        _appConfig = appConfig;
     }
 
     public async Task<BaseResponse<CommandResponse>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -29,6 +33,12 @@ public class UpdateUserHandler : BaseService, IRequestHandler<UpdateUserCommand,
 
         #region Update TMUser
         resUser.RoleID = request.roleid;
+        if (!string.IsNullOrEmpty(request.password))
+        {
+            string secretKey = _appConfig.GetUserSecretKey();
+            byte[] newBytePass = $"{resUser.UserName.Trim().ToLower()}{secretKey}{request.password}".ToMD5Password();
+            resUser.Password = newBytePass;
+        }
         //resUser.ProfilePicture = request.profilepicture;
         resUser.IsActive = request.isactive;
         resUser.SetUpdatedBy(request.updatedby);
@@ -40,7 +50,7 @@ public class UpdateUserHandler : BaseService, IRequestHandler<UpdateUserCommand,
         TMUserInBranch resUserInBranch = await _unitOfWork.Repository<TMUserInBranch>().FirstOrDefaultAsync(w => w.UserID == request.userid);
         if (resUserInBranch != null && (request.isactive != resUserInBranch.IsActive))
         {
-            //resUserInBranch.BranchID = request.userinbranchid;
+            resUserInBranch.BranchID = request.userinbranchid;
             resUserInBranch.IsActive = request.isactive;
             resUserInBranch.SetUpdatedBy(request.updatedby);
             resUserInBranch.SetUpdatedDate(request.updateddate);

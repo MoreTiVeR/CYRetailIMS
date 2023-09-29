@@ -3,6 +3,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartmentByID.v1;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartments.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.DeleteEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.UpdateEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployeeByID.v1;
@@ -50,7 +51,6 @@ public class EmployeeController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]CreateEmployeeAsync Success");
-
         return Ok(res.data);
     }
 
@@ -67,7 +67,22 @@ public class EmployeeController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]UpdateEmployeeAsync Success");
+        return Ok(res.data);
+    }
 
+    [HttpPost]
+    [Route("v1/delete")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteEmployeeAsync(DeleteEmployeeCommand deleteEmployeeCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(deleteEmployeeCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]DeleteEmployeeAsync Success");
         return Ok(res.data);
     }
 

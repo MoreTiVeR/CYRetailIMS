@@ -28,6 +28,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransf
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
+using System.Collections.Generic;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -103,7 +104,20 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> TransferHistory()
     {
-        ViewBag.ItemTransferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery { destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid });
+        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
+        if (base.UserProfile.roleid == (int)UserRole.Admin)
+        {
+            transferHistory = await _itemTransferAPI.GetItemTransferListAsync();
+        }
+        else
+        {
+            transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
+            {
+                destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid
+            });
+        }
+
+        ViewBag.ItemTransferHistory = transferHistory;
         ViewBag.ItemTransferStatus = await _itemTransferAPI.GetItemTransferStatusAsync();
         return View();
     }

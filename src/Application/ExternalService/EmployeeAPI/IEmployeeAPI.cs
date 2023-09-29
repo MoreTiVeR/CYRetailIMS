@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.DeleteEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.UpdateEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
 
@@ -18,4 +19,6 @@ public interface IEmployeeAPI
     Task<BaseResponse<GetEmployeeResponseDTO>> GetEmployeeByIDAsync(int empid);
 
     Task<BaseResponse<CommandResponse>> UpdateEmployee(UpdateEmployeeCommand updateEmployeeCommand);
+
+    Task<BaseResponse<CommandResponse>> DeleteEmployee(DeleteEmployeeCommand deleteEmployeeCommand);
 }

@@ -32,7 +32,7 @@ public class EditItemViewModel
 
     [Required(ErrorMessage = "*กรุณาระบุหน่วยนับสินค้า")]
     [DisplayName("ระบุหน่วยนับสินค้า")]
-    public int UnitOfMeasureID { get; set; }
+    public int UnitOfMeasureID => 1;
 
     [ReadOnly(true)]
     [Required(ErrorMessage = "*กรุณาระบุแบรนด์สินค้า")]

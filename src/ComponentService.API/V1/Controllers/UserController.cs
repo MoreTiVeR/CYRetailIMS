@@ -4,6 +4,7 @@ using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v
 using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployeeByID.v1;
 using CYRetailIMS.Application.Services.UserService.Commands.CreateUser.v1;
+using CYRetailIMS.Application.Services.UserService.Commands.DeleteUser.v1;
 using CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 using CYRetailIMS.Application.Services.UserService.Queries.GetUser.v1;
 using CYRetailIMS.Application.Services.UserService.Queries.GetUserByID.v1;
@@ -51,6 +52,21 @@ public class UserController : BaseApiController
         return Ok(res.data);
     }
 
+    [HttpPost]
+    [Route("v1/delete")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteUserAsync(DeleteUserCommand deleteUserCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(deleteUserCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]DeleteUserAsync Success");
+        return Ok(res.data);
+    }
 
     /// <summary>
     /// 

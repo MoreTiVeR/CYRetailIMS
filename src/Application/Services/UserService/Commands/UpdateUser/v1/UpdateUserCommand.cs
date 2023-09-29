@@ -15,6 +15,8 @@ public record UpdateUserCommand : IRequest<BaseResponse<CommandResponse>>
     [Required(ErrorMessage = "Required field")]
     public int userid { get; set; }
 
+    public string password { get; set; }
+
     public string profilepicture { get; set; }
 
     [Required(ErrorMessage = "Required field")]

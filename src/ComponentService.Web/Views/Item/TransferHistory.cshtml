@@ -33,13 +33,13 @@
                     </a>
                 </div>
             </div>
-            <div class="wordset">
+            @*<div class="wordset">
                 <ul>
                     <li>
                         <a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
                     </li>
                 </ul>
-            </div>
+            </div>*@
         </div>
         <!-- /Filter -->
         <div class="card" id="filter_inputs">
@@ -96,6 +96,7 @@
                         <th>สาขาต้นทาง</th>
                         <th>สาขาปลายทาง</th>
                         <th>ชนิดสินค้าโอน</th>
+                        <th>จำนวนโอน</th>
                         <th>รายละเอียด</th>
                         <th>สถานะรับสินค้า</th>
                         @*<th>คำเนินการ</th>*@
@@ -119,6 +120,7 @@
                                 <td>@item.sourcename</td>
                                 <td>@item.destinationname</td>
                                 <td>@item.itemname</td>
+                                <td>@item.qty</td>
                                 <td>@item.description</td>
                                 <td>
                                     @if (item.transferstatusid == (int)TransferStatus.Received)

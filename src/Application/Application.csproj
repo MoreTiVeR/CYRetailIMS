@@ -17,7 +17,6 @@
     <Folder Include="Services\ApproveStatusService\EventHandlers\" />
     <Folder Include="Services\DepartmentService\Commands\" />
     <Folder Include="Services\DepartmentService\EventHandlers\" />
-    <Folder Include="Services\EmployeeService\Commands\DeleteEmployee\" />
     <Folder Include="Services\ItemBrandService\Commands\UpdateBrand\v1\" />
     <Folder Include="Services\ItemInBranchService\Commands\CreateItemInBranch\v1\" />
     <Folder Include="Services\ItemTransferStatusService\Commands\" />
@@ -43,7 +42,6 @@
     <Folder Include="Services\UnitOfMeasureService\EventHandlers\" />
     <Folder Include="Services\UserInBranchService\Commands\" />
     <Folder Include="Services\UserInBranchService\EventHandlers\" />
-    <Folder Include="Services\UserService\Commands\DeleteUser\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,8 +1,126 @@
-﻿
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartments.v1;
+@model EditEmployeeViewModel
+
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="page-header">
+    <div class="page-title">
+        <h4>แก้ไขข้อมูล</h4>
+        <h6>แก้ไขข้อมูลพนักงาน</h6>
+    </div>
+</div>
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <form id="frmEditEmployee" class="form-edit-employee" onsubmit="return EditEmployee(this)">
+            <input type="hidden" asp-for="EmpID" readonly>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ชื่อ</label>
+                        <input type="text" asp-for="FirstName">
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>นามสกุล</label>
+                        <input type="text" asp-for="LastName">
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>อีเมล</label>
+                        <input type="text" asp-for="Email">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>เบอร์โทร</label>
+                        <input type="text" asp-for="MobileNo">
+                        <span asp-validation-for="MobileNo" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>แผนก</label>
+                        <select class="select" asp-for="DepartmentID">
+                            @if (ViewBag.DepartmentList.result)
+                            {
+                                <option value="" selected>-- กรุณาเลือกแผนก --</option>
+                                foreach (var item in (List<GetDepartmentsResponseDTO>)ViewBag.DepartmentList.data)
+                                {
+                                    if(Model.DepartmentID == item.departmentid)
+                                    {
+                                        <option value="@item.departmentid" selected>@item.departmentname</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.departmentid">@item.departmentname</option>
+                                    }
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="DepartmentID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>สถานะ</label>
+                        <select class="select" asp-for="IsActive">
+                            @if (Model.IsActive == 1)
+                            {
+                                <option value="1" selected>ใช้งาน</option>
+                                <option value="0">ไม่ใช้งาน</option>
+                            }
+                            else
+                            {
+                                <option value="1">ใช้งาน</option>
+                                <option value="0" selected>ไม่ใช้งาน</option>
+                            }
+                        </select>
+                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ชื่อเล่น</label>
+                        <input type="text" asp-for="NickName">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    @*<button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
+                        <i class="bx bx-plus"></i>
+                        ยกเลิก
+                    </button>*@
+                    <a asp-action="Index" asp-controller="EmployeeManagement" class="btn btn-cancel me-2">ยกเลิก</a>
+                    <button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
+                        <i class="bx bx-plus"></i>
+                        บันทึกข้อมูล
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- /add -->
 
+@section Scripts{
+
+    <script>
+    </script>
+    <!--Page Script-->
+    <script src="~/js/view/employee/employee_edit.js" asp-append-version="true"></script>
+}

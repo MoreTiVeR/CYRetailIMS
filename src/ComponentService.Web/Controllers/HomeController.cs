@@ -8,7 +8,7 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AccountingOfficer, RoleName.AreaSale)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AccountingOfficer, RoleName.AreaSale, RoleName.Stock)]
 public class HomeController : BaseController
 {
     public HomeController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log) 

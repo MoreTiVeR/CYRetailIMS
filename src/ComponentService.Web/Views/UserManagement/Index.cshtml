@@ -30,16 +30,16 @@
 					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
 				</div>
 			</div>
-			<div class="wordset">
+			@*<div class="wordset">
 				<ul>
 					<li>
 						<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
 					</li>
 				</ul>
-			</div>
+			</div>*@
 		</div>
 		<!-- /Filter -->
-		<div class="card" id="filter_inputs">
+		@*<div class="card" id="filter_inputs">
 			<div class="card-body pb-0">
 				<div class="row">
 					<div class="col-lg col-sm-6 col-12">
@@ -66,10 +66,10 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>*@
 		<!-- /Filter -->
 		<div class="table-responsive">
-			<table class="table datanew">
+			<table id="tbUsers" class="table datanew">
 				<thead>
 					<tr>
 						<th hidden>
@@ -95,7 +95,7 @@
 							@*string bingingRegisterCss = item.isregister ? "badges bg-lightgreen" : "badges bg-lightred";
 							string bingingRegisterName = item.isregister ? "ผูกบัญชีแล้ว" : "ยังไม่ผูกบัญชี";*@
 							string userStatusCss = item.isactive ? "badges bg-lightgreen" : "badges bg-lightred";
-							string userStatusName = item.isactive ? "ปกติ" : "ยกเลิก";
+							string userStatusName = item.isactive ? "ใช้งาน" : "ไม่ใช้งาน";
 							string rName = $"rowid{item.userid}";
 							Dictionary<string, string> aUserID = new Dictionary<string, string> { { "userid", item.userid.ToString() } };
 							<tr>
@@ -112,10 +112,10 @@
 								<td>@item.creadeddate</td>
 								<td><span class="@userStatusCss">@userStatusName</span></td>
 								<td>
-									<a class="me-3" >
+									<a class="me-3" asp-action="Edit" asp-controller="UserManagement" title="แก้ไขข้อมูลบัญชีผู้ใช้งาน" asp-all-route-data="aUserID">
 										<img src="~/assets/img/icons/edit.svg" alt="img">
 									</a>
-									<a class="me-3 confirm-text" href="javascript:void(0);">
+									<a href="#" id="@rName" class="me-3" title="ลบข้อมูลบัญชีผู้ใช้งาน" onclick="deleteUser(@item.userid)">
 										<img src="~/assets/img/icons/delete.svg" alt="img">
 									</a>
 								</td>
@@ -128,4 +128,8 @@
 	</div>
 </div>
 <!-- /product list -->
+@section Scripts{
 
+	<!--Page Script-->
+	<script src="~/js/view/user/user_index.js" asp-append-version="true"></script>
+}

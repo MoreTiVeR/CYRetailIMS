@@ -2,6 +2,7 @@
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
+using CYRetailIMS.Application.Services.EmployeeService.Commands.DeleteEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.UpdateEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
 
@@ -16,6 +17,12 @@ public class EmployeeAPI : HttpClientService, IEmployeeAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse,
             CreateEmployeeCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/employee/v1/create"), createEmployeeCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> DeleteEmployee(DeleteEmployeeCommand deleteEmployeeCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse,
+            DeleteEmployeeCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/employee/v1/delete"), deleteEmployeeCommand);
     }
 
     public async Task<BaseResponse<GetEmployeeResponseDTO>> GetEmployeeByIDAsync(int empid)
