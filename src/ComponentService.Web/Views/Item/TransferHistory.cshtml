@@ -99,6 +99,10 @@
                         <th>จำนวนโอน</th>
                         <th>รายละเอียด</th>
                         <th>สถานะรับสินค้า</th>
+                        <th>จำนวนรับ</th>
+                        <th>จำนวนคืน</th>
+                        <th>วันที่รับโอน</th>
+                        <th>ผู้รับโอน</th>
                         @*<th>คำเนินการ</th>*@
                     </tr>
                 </thead>
@@ -129,6 +133,12 @@
                                             @item.transferstatusname_th
                                         </span>
                                     }
+                                    else if (item.transferstatusid == (int)TransferStatus.Cancel || item.transferstatusid == (int)TransferStatus.Reject)
+                                    {
+                                        <span class="badges bg-lightred">
+                                            @item.transferstatusname_th
+                                        </span>
+                                    }
                                     else
                                     {
                                         <a class="me-3" asp-action="ReceiveItemTransfer" asp-controller="Item" title="คลิก เพื่อตรวจรับสินค้า" asp-all-route-data="aTransferID">
@@ -139,6 +149,10 @@
                                     }
                                    
                                 </td>
+                                <td>@item.receiveqty</td>
+                                <td>@item.returnqty</td>
+                                <td>@item.updateddate</td>
+                                <td>@item.updatedby</td>
                                 @*<td>
                                     <a class="me-3" href="edittransfer.html">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">

@@ -22,12 +22,18 @@ public class GetItemTransferResponseDTO
     public string description { get; set; }
     public string createdby { get; set; }
     public DateTime creadeddate { get; set; }
+    public string? updatedby { get; set; }
+    public DateTime? updateddate { get; set; }
 
     public int itemid { get; set; }
     public string itemname { get; set; }
     public int qty { get; set; }
+    public int? receiveqty { get; set; }
+    public int? returnqty { get; set; }
 
     public int transferstatusid { get; set; }
     public string transferstatusname_th { get; set; }
     public string transferstatusname_en { get; set; }
+
+    
 }

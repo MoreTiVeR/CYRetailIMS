@@ -11,4 +11,19 @@ public class ReportController : Controller
     {
         return View();
     }
+
+    public IActionResult SaleReport()
+    {
+        return View();
+    }
+
+    public IActionResult SaleSummaryReport()
+    {
+        return View();
+    }
+
+    public IActionResult AuditReport()
+    {
+        return View();
+    }
 }

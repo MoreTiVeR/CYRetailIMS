@@ -43,7 +43,11 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
                                                                 transferstatusname_en = b.TransferStatusName_EN,
                                                                 itemid = a.ItemID,
                                                                 itemname = item.Name,
-                                                                qty = a.Qty
+                                                                qty = a.Qty,
+                                                                receiveqty = a.ReceiveQTY,
+                                                                returnqty = a.ReturnQTY,
+                                                                updatedby = a.UpdatedBy,
+                                                                updateddate = a.UpdatedDate
                                                             }).ToList();
 
         if (!resItemTransfer.Any())
