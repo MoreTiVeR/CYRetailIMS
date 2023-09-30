@@ -1,9 +1,11 @@
 
 using System.Configuration;
+using System.Globalization;
 using CYRetailIMS.Application;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Infrastructure;
 using CYRetailIMS.Infrastructure.Common.Middleware;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 namespace CYRetailIMS.ComponentService.API;
 
@@ -31,7 +33,22 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
-        ILoggerFactory loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+		#region Set Current Culture
+		var ci = new CultureInfo("en-US");
+		//var th = new CultureInfo("th-TH");
+		//CultureInfo.DefaultThreadCurrentCulture = ci;
+		//CultureInfo.DefaultThreadCurrentUICulture = ci;
+		// Configure the Localization middleware
+		app.UseRequestLocalization(new RequestLocalizationOptions
+		{
+			DefaultRequestCulture = new RequestCulture(ci),
+			SupportedCultures = new List<CultureInfo> { ci },
+			SupportedUICultures = new List<CultureInfo> { ci }
+		});
+		#endregion
+
+		ILoggerFactory loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
         IApiVersionDescriptionProvider provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
         app.UseStaticFiles();
         // Configure the HTTP request pipeline.

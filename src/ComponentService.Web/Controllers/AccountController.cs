@@ -14,6 +14,7 @@ using CYRetailIMS.Application.ExternalService.EmployeeAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
+using CYRetailIMS.Application.Services.AccountService.Queries.Logout.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class AccountController : BaseController
@@ -50,10 +51,11 @@ public class AccountController : BaseController
         return View();
     }
 
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
-        HttpContext.Session.Clear();
-        HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await _accountAPI.LogoutAsync(new LogoutQuery { username = base.UserProfile.username });
+		HttpContext.Session.Clear();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         return RedirectToAction("Login", "Account");
     }

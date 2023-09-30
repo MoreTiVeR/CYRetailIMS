@@ -9,62 +9,49 @@ namespace CYRetailIMS.Domain.Entities;
 
 public partial class TTTransaction : BaseAuditableEntity
 {
-    [Key]
-    public int TransactionID { get; set; }
+	[Key]
+	public int TransactionID { get; set; }
 
-    public int TransactionTypeID { get; set; }
+	public int TransactionTypeID { get; set; }
 
-    [Column(TypeName = "datetime")]
-    public DateTime TransactionDate { get; set; }
+	public int BranchID { get; set; }
 
-    public int BranchID { get; set; }
+	[Column(TypeName = "datetime")]
+	public DateTime TransactionDate { get; set; }
 
-    [Column(TypeName = "decimal(8, 2)")]
-    public decimal AmountTransfer { get; set; }
+	[Column(TypeName = "decimal(8, 2)")]
+	public decimal AmountTransfer { get; set; }
 
-    [Column(TypeName = "decimal(8, 2)")]
-    public decimal AmountDeposit { get; set; }
+	[Column(TypeName = "decimal(8, 2)")]
+	public decimal AmountDeposit { get; set; }
 
-    [Column(TypeName = "decimal(8, 2)")]
-    public decimal AmountCash { get; set; }
+	[Column(TypeName = "decimal(8, 2)")]
+	public decimal AmountCash { get; set; }
 
-    [Column(TypeName = "decimal(4, 2)")]
-    public decimal Fee { get; set; }
+	[Column(TypeName = "decimal(4, 2)")]
+	public decimal Fee { get; set; }
 
-    [Column(TypeName = "decimal(8, 2)")]
-    public decimal? Vat { get; set; }
+	[Column(TypeName = "decimal(8, 2)")]
+	public decimal? Vat { get; set; }
 
-    [Column(TypeName = "decimal(8, 2)")]
-    public decimal? Discount { get; set; }
+	[Column(TypeName = "decimal(8, 2)")]
+	public decimal? Discount { get; set; }
 
-    public double? DiscountPercent { get; set; }
+	public double? DiscountPercent { get; set; }
 
-    [Column(TypeName = "decimal(8, 2)")]
-    public decimal TotalAmount { get; set; }
+	[Column(TypeName = "decimal(8, 2)")]
+	public decimal TotalAmount { get; set; }
 
-    public bool IsExcludeVAT { get; set; }
+	public bool IsExcludeVAT { get; set; }
 
-    //[StringLength(10)]
-    //[Unicode(false)]
-    //public string CreatedBy { get; set; } = null!;
 
-    //[Column(TypeName = "datetime")]
-    //public DateTime CreadedDate { get; set; }
+	[InverseProperty("Transaction")]
+	public virtual ICollection<TTTransactionAudit> TTTransactionAudits { get; set; } = new List<TTTransactionAudit>();
 
-    //[StringLength(10)]
-    //[Unicode(false)]
-    //public string? UpdatedBy { get; set; }
+	[InverseProperty("Transaction")]
+	public virtual ICollection<TTTransactonDetail> TTTransactonDetails { get; set; } = new List<TTTransactonDetail>();
 
-    //[Column(TypeName = "datetime")]
-    //public DateTime? UpdatedDate { get; set; }
-
-    //[Required]
-    //public bool? IsActive { get; set; }
-
-    [InverseProperty("Transaction")]
-    public virtual ICollection<TTTransactonDetail> TTTransactonDetails { get; set; } = new List<TTTransactonDetail>();
-
-    [ForeignKey("TransactionTypeID")]
-    [InverseProperty("TTTransactions")]
-    public virtual TMTransactionType TransactionType { get; set; } = null!;
+	[ForeignKey("TransactionTypeID")]
+	[InverseProperty("TTTransactions")]
+	public virtual TMTransactionType TransactionType { get; set; } = null!;
 }

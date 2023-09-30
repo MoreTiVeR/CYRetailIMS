@@ -26,6 +26,8 @@
     <Folder Include="Services\MenuService\Commands\" />
     <Folder Include="Services\MenuService\EventHandlers\" />
     <Folder Include="Services\MenuService\Queries\GetMenuList\v1\" />
+    <Folder Include="Services\ReportService\Commands\" />
+    <Folder Include="Services\ReportService\EventHandlers\" />
     <Folder Include="Services\RoleInMenuService\Queries\" />
     <Folder Include="Services\RoleService\Commands\" />
     <Folder Include="Services\RoleService\EventHandlers\" />

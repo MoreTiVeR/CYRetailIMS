@@ -46,4 +46,9 @@ public partial class TMUsers : BaseAuditableEntity
     {
         LastLogin = DateTime.Now;
     }
+
+	public virtual void SetLastLogoutTime()
+	{
+		LastLogout = DateTime.Now;
+	}
 }

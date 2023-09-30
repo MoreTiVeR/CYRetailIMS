@@ -1,0 +1,65 @@
+﻿using CYRetailIMS.Application.Common.Interfaces;
+using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CYRetailIMS.ComponentService.API.V1.Controllers;
+[Route("api/v{version:apiVersion}/report")]
+[ApiController]
+public class ReportController : BaseApiController
+{
+	public ReportController(ILog4NetLogger log) : base(log)
+	{
+	}
+
+	[HttpPost]
+	[Route("v1/salereport")]
+	[ProducesResponseType(typeof(List<SaleReportResponseDTO>), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> SaleReportAsync(SaleReportQuery saleReportQuery)
+	{
+		DateTime dtStart = DateTime.Now;
+		BaseResponse<List<SaleReportResponseDTO>> res = await Mediator.Send(saleReportQuery);
+		Response.Headers.Add("responsecode", res.status);
+		Response.Headers.Add("responsedatasource", res.soruce);
+		Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+		_log.Debug($"[{DateTime.Now}]SaleReportAsync Success");
+		return Ok(res.data);
+	}
+
+	[HttpPost]
+	[Route("v1/salesummaryreport")]
+	[ProducesResponseType(typeof(List<SaleSummaryReportResponseDTO>), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> SaleSummaryReportAsync(SaleSummaryReportQuery saleSummaryReportQuery)
+	{
+		DateTime dtStart = DateTime.Now;
+		BaseResponse<List<SaleSummaryReportResponseDTO>> res = await Mediator.Send(saleSummaryReportQuery);
+		Response.Headers.Add("responsecode", res.status);
+		Response.Headers.Add("responsedatasource", res.soruce);
+		Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+		_log.Debug($"[{DateTime.Now}]SaleSummaryReportAsync Success");
+		return Ok(res.data);
+	}
+
+
+	[HttpPost]
+	[Route("v1/auditreport")]
+	[ProducesResponseType(typeof(List<AuditReportResponseDTO>), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> AuditReportAsync(AuditReportQuery summaryReportQuery)
+	{
+		DateTime dtStart = DateTime.Now;
+		BaseResponse<List<AuditReportResponseDTO>> res = await Mediator.Send(summaryReportQuery);
+		Response.Headers.Add("responsecode", res.status);
+		Response.Headers.Add("responsedatasource", res.soruce);
+		Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+		_log.Debug($"[{DateTime.Now}]AuditReportAsync Success");
+		return Ok(res.data);
+	}
+}

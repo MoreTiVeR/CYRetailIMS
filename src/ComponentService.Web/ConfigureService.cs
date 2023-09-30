@@ -15,6 +15,7 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Application.ExternalService.Report;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
@@ -33,6 +34,7 @@ using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 using CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
@@ -113,6 +115,7 @@ public static class ConfigureService
         services.AddScoped<IDepartmentAPI, DepartmentAPI>();
         services.AddScoped<IUserAPI, UserAPI>();
         services.AddScoped<IUserRoleAPI, UserRoleAPI>();
+        services.AddScoped<IReportAPI, ReportAPI>();
         #endregion
 
         return services;

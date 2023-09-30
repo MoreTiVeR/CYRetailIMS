@@ -92,7 +92,9 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTTransaction> TTTransactions { get; set; }
 
-    public virtual DbSet<TTTransactonDetail> TTTransactonDetails { get; set; }
+	public virtual DbSet<TTTransactionAudit> TTTransactionAudits { get; set; }
+
+	public virtual DbSet<TTTransactonDetail> TTTransactonDetails { get; set; }
 
     public virtual DbSet<TMGeography> TMGeographies { get; set; }
     public virtual DbSet<TMProvince> TMProvinces { get; set; }
@@ -410,7 +412,14 @@ public partial class CYDBContext : DbContext
             entity.HasOne(d => d.TransactionType).WithMany(p => p.TTTransactions).HasConstraintName("FK_TTTransactions_TMTransactionType");
         });
 
-        modelBuilder.Entity<TTTransactonDetail>(entity =>
+		modelBuilder.Entity<TTTransactionAudit>(entity =>
+		{
+			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+			entity.HasOne(d => d.Transaction).WithMany(p => p.TTTransactionAudits).HasConstraintName("FK_TTTransactionAudit_TTTransactions");
+		});
+
+		modelBuilder.Entity<TTTransactonDetail>(entity =>
         {
             entity.HasKey(e => e.TransactionDetailID).HasName("PK_TTSaleTransactonDetail");
 

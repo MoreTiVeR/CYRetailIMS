@@ -17,7 +17,7 @@ public class CreateTransactionValidator : AbstractValidator<CreateTransactionCom
         RuleFor(r => r.amountdeposit).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินฝากธนาคาร");
         RuleFor(r => r.amountcash).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุยอดเงินคงเหลือหน้าร้าน");
         RuleFor(r => r.fee).NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุค่าธรรมเนียมเงินฝาก");
-        RuleFor(r => r.totalamount).Must((r, totalAmount) => IsValidTotalAmount(r, totalAmount)).WithMessage("ยอดเงินรวมทั้งหมดไม่ตรงกับยอดขาย กรุณาตรวจสอบใหม่อีกครั้ง");
+        RuleFor(r => r.totalamount).Must((r, totalAmount) => IsValidTotalAmount(r, totalAmount)).WithMessage("ไม่สามารถทำรายการได้, เนื่องจากยอดเงินรวมทั้งหมดไม่ตรงกับยอดขาย (หากมีเงินฝากกรุณาระบุค่าธรรมเนียม)");
         RuleFor(r => r.createdby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
         RuleFor(r => r.isactive).NotNull().Must(x => x == true || x == false).WithMessage("ระบุสถานะการทำรายการ เปิดใช้งาน|ไม่ใช้งาน");
         
@@ -33,8 +33,17 @@ public class CreateTransactionValidator : AbstractValidator<CreateTransactionCom
 
     private bool IsValidTotalAmount(CreateTransactionCommand command, decimal totalAmount)
     {
-        // Calculate the sum of Amount Cash and Amount Deposit
-        decimal calculatedTotal = command.amounttransfer + command.amountdeposit + command.amountcash + command.fee;
+		//If have amountdeposit (Back Deposit) must have fee
+        if(command.amountdeposit > 0)
+        {
+            if(command.fee <= 0)
+            {
+                return false;
+            }
+        }
+
+		// Calculate the sum of Amount Cash and Amount Deposit
+		decimal calculatedTotal = command.amounttransfer + command.amountdeposit + command.amountcash + command.fee;
 
         // Compare the calculated total with the provided Total Amount
         return totalAmount == calculatedTotal;

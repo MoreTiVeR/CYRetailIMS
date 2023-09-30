@@ -1,4 +1,5 @@
-﻿
+﻿@using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
+
 @{
     ViewData["Title"] = "SaleReport";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -7,7 +8,7 @@
 <div class="page-header">
 	<div class="page-title">
 		<h4>รายงานขาย</h4>
-		<h6>สรุปรายงานขายแบ่งตามสาขา, สินค้า</h6>
+		<h6>รายงานขายแบ่งตามสาขา, สินค้า</h6>
 	</div>
 </div>
 <!-- /product list -->
@@ -32,9 +33,6 @@
 					</li>
 					<li>
 						<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-					</li>
-					<li>
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="print"><img src="~/assets/img/icons/printer.svg" alt="img"></a>
 					</li>
 				</ul>
 			</div>
@@ -82,33 +80,50 @@
 								<span class="checkmarks"></span>
 							</label>
 						</th>
-						<th>Product Name</th>
-						<th>SKU</th>
-						<th>Category</th>
-						<th>Brand</th>
-						<th>Sold amount</th>
-						<th>Sold qty</th>
-						<th>Instock qty</th>
+						<th>รหัสสินค้า</th>
+						<th>ชื่อสินค้า</th>
+						<th>แบรนด์</th>
+						<th>สาขา</th>
+						<th>จำนวน</th>
+						<th>ราคาต่อหน่วย</th>
+						<th>ยอดเงินรวม</th>
+						<th>เงินโอน</th>
+						<th>เงินฝาก</th>
+						<th>เงินหน้าร้าน</th>
+						<th>ค่าธรรมเนียม</th>
+						<th>วันที่ทำรายการ</th>
+						<th>พนักงาน</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td hidden>
-							<label class="checkboxs">
-								<input type="checkbox">
-								<span class="checkmarks"></span>
-							</label>
-						</td>
-						<td>PT001</td>
-						<td>Computer</td>
-						<td>N/D</td>
-						<td>1500.00</td>
-						<td>1</td>
-						<td>1356</td>
-						<td>22</td>
-					</tr>
+					@if (ViewBag.SaleReportList.result)
+					{
+						foreach (var item in (List<SaleReportResponseDTO>)ViewBag.SaleReportList.data)
+						{
+							<tr>
+								<td hidden>
+									<label class="checkboxs">
+										<input type="checkbox">
+										<span class="checkmarks"></span>
+									</label>
+								</td>
+								<td>@item.itemcode</td>
+								<td>@item.itemname</td>
+								<td>@item.brandname</td>
+								<td>@item.branchname</td>
+								<td>@item.qty</td>
+								<td>@item.unitprice</td>
+								<td>@item.totalamount</td>
+								<td>@item.amounttransfer</td>
+								<td>@item.amountdeposit</td>
+								<td>@item.amountcash</td>
+								<td>@item.depositfee</td>
+								<td>@item.createddate</td>
+								<td>@item.createdbystaff</td>
+							</tr>
+						}
+					}
 				</tbody>
-
 			</table>
 		</div>
 	</div>

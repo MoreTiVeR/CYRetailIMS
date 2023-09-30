@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
+using CYRetailIMS.Application.Services.AccountService.Queries.Logout.v1;
 
 namespace CYRetailIMS.Application.ExternalService.AccountAPI;
 public interface IAccountAPI
 {
     Task<BaseResponse<UserProfileResponseDTO>> LoginAsync(LoginQuery loginQuery);
+	Task<BaseResponse<CommandResponse>> LogoutAsync(LogoutQuery logoutQuery);
 }
