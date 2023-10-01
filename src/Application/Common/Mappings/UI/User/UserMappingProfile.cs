@@ -22,7 +22,7 @@ public class UserMappingProfile : Profile
             .ForMember(w => w.userinbranchid, f => f.MapFrom(w => w.BranchID))
             .ForMember(w => w.isactive, f => f.MapFrom(w => w.IsActive))
             .ForMember(w => w.createdby, f => f.MapFrom(w => w.CreatedBy))
-            .ForMember(w => w.creadeddate, f => f.MapFrom(w => w.CreatedDate));
+            .ForMember(w => w.createddate, f => f.MapFrom(w => w.CreatedDate));
 
         CreateMap<EditUserViewModel, UpdateUserCommand>()
             .ForMember(w => w.userid, f => f.MapFrom(w => w.UserID))

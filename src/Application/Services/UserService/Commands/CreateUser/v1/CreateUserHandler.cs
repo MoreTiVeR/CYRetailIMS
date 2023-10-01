@@ -41,7 +41,7 @@ public class CreateUserHandler : BaseService, IRequestHandler<CreateUserCommand,
 			throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากพนักงานได้ลงทะเบียนใช้งานระบบแล้ว");
 		}
 
-		IEnumerable<TMUsers> isExistUser = await _unitOfWork.Repository<TMUsers>().QueryAsync(w => w.UserName == request.username);
+		IEnumerable<TMUsers> isExistUser = await _unitOfWork.Repository<TMUsers>().QueryAsync(w => w.UserName.ToLower() == request.username.Trim().ToLower());
 		if (isExistUser.Any())
 		{
 			throw new Exception($"ไม่สามารถทำรายการได้ เนื่องจากมีชื่อผู้ใช้งาน {request.username} ในระบบแล้ว");
@@ -70,7 +70,7 @@ public class CreateUserHandler : BaseService, IRequestHandler<CreateUserCommand,
 		resEmp.UserID = userEnt.UserID;
 		resEmp.AddDomainEvent(new TMEmployeeUpdateEvent(resEmp));
 		resEmp.SetUpdatedBy(request.createdby);
-		resEmp.SetUpdatedDate(request.creadeddate);
+		resEmp.SetUpdatedDate(request.createddate);
 		await _unitOfWork.SaveChangesAsync();
 		#endregion
 
@@ -87,15 +87,15 @@ public class CreateUserHandler : BaseService, IRequestHandler<CreateUserCommand,
 	private TMUsers CreateUserData(CreateUserCommand request)
 	{
 		string secretKey = _appConfig.GetUserSecretKey();
-		byte[] bytePass = $"{request.username.Trim().ToLower()}{secretKey}{request.password}".ToMD5Password();
+		byte[] bytePass = $"{request.username.Trim()}{secretKey}{request.password.Trim()}".ToMD5Password();
 		TMUsers userData = new TMUsers
 		{
 			RoleID = request.roleid,
-			UserName = request.username,
+			UserName = request.username.Trim(),
 			Password = bytePass,
 			ProfilePicture = request.profilepicture,
 			CreatedBy = request.createdby,
-			CreadedDate = request.creadeddate,
+			CreadedDate = request.createddate,
 			IsActive = request.isactive,
 			ApproveStatus = request.approvestatus
 		};
@@ -109,7 +109,7 @@ public class CreateUserHandler : BaseService, IRequestHandler<CreateUserCommand,
 		{
 			BranchID = request.userinbranchid,
 			CreatedBy = request.createdby,
-			CreadedDate = request.creadeddate,
+			CreadedDate = request.createddate,
 			IsActive = true
 		});
 		return usersInBranch;

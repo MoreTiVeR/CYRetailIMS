@@ -101,6 +101,10 @@ public partial class CYDBContext : DbContext
     public virtual DbSet<TMDistrict> TMDistricts { get; set; }
     public virtual DbSet<TMSubDistrict> TMSubDistricts { get; set; }
 
+    public virtual DbSet<TMAdjustItemType> TMAdjustItemTypes { get; set; }
+    public virtual DbSet<TTAdjustItemTransaction> TTAdjustItemTransactions { get; set; }
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -108,6 +112,13 @@ public partial class CYDBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<TMAdjustItemType>(entity =>
+        {
+            entity.HasKey(e => e.AdjustTypeID).HasName("PK_TMAdjustType");
+
+            entity.Property(e => e.AdjustTypeID).ValueGeneratedNever();
+        });
+
         modelBuilder.Entity<TMApproveStatus>(entity =>
         {
             entity.Property(e => e.ApproveStatusID).ValueGeneratedNever();
@@ -448,6 +459,11 @@ public partial class CYDBContext : DbContext
         modelBuilder.Entity<TMSubDistrict>(entity =>
         {
             entity.HasKey(e => new { e.DistrictID, e.DistrictCode, e.SubDistrictID, e.ProvinceID, e.GeoID }).HasName("PK_District");
+        });
+
+        modelBuilder.Entity<TTAdjustItemTransaction>(entity =>
+        {
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
 

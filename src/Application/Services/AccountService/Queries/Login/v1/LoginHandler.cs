@@ -36,8 +36,8 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
 
     public async Task<BaseResponse<UserProfileResponseDTO>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        byte[] bytePass = $"{request.username.Trim().ToLower()}{_secretKey}{request.password}".ToMD5Password();
-        IEnumerable<TMUsers> resUser = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == request.username && w.Password == bytePass && w.IsActive, 
+        byte[] bytePass = $"{request.username.Trim()}{_secretKey}{request.password.Trim()}".ToMD5Password();
+        IEnumerable<TMUsers> resUser = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == request.username.Trim() && w.Password == bytePass && w.IsActive, 
             i => i.Include(x => x.TMEmployees),
             ii => ii.Include(xx => xx.Role));
         if(!resUser.Any())

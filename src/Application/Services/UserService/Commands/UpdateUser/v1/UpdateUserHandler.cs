@@ -36,7 +36,7 @@ public class UpdateUserHandler : BaseService, IRequestHandler<UpdateUserCommand,
         if (!string.IsNullOrEmpty(request.password))
         {
             string secretKey = _appConfig.GetUserSecretKey();
-            byte[] newBytePass = $"{resUser.UserName.Trim().ToLower()}{secretKey}{request.password}".ToMD5Password();
+            byte[] newBytePass = $"{resUser.UserName.Trim()}{secretKey}{request.password.Trim()}".ToMD5Password();
             resUser.Password = newBytePass;
         }
         //resUser.ProfilePicture = request.profilepicture;

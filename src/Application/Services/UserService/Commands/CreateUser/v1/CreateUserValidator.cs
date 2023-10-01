@@ -17,7 +17,7 @@ public class CreateUserValidator : AbstractValidator<CreateUserCommand>
 		RuleFor(r => r.password).MinimumLength(5).MaximumLength(20).WithMessage("รหัสผ่านมีความยาวขั้นต่ำ8ตัวอักษร แต่ไม่เกิน20ตัวอักษร");
 		RuleFor(r => r.roleid).NotNull().Must(s => s > 0).WithMessage("กรุณาระบุสิทธิ์ในเข้าใช้งานระบบ");
 		RuleFor(r => r.createdby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
-		RuleFor(r => r.creadeddate).NotNull().WithMessage("กรุณาระบุวันที่สร้าง");
+		RuleFor(r => r.createddate).NotNull().WithMessage("กรุณาระบุวันที่สร้าง");
 		RuleFor(r => r.userinbranchid).NotEmpty().NotNull().Must(s => s > 0).WithMessage("กรุณาระบุสาขาผู้ใช้งาน");
 	}
 }

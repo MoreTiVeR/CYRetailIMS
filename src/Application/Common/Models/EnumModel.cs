@@ -54,5 +54,11 @@ public static class EnumModel
         Manager = 3,
         AccountingOfficer = 4,
     }
+
+    public enum AdjustItemType
+    {
+        Add = 1,
+        Delete = 2
+    }
 }
 

@@ -12,7 +12,7 @@ public class EditUserViewModel
     public int UserID { get; set; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "*กรุณาระบุชื่อผู้ใช้งาน")]
-    [RegularExpression("^[A-Za-z0-9].{4,20}$", ErrorMessage = "รูปแบบชื่อผู้ใช้งานไม่ถูกต้อง, ตัวอักษรภาษาอังกฤษและตัวเลข ความยาวไม่เกิน20ตัวอักษร")]
+    [RegularExpression("^[A-Za-z0-9]{4,20}$", ErrorMessage = "รูปแบบชื่อผู้ใช้งานไม่ถูกต้อง, ตัวอักษรภาษาอังกฤษและตัวเลข ความยาวไม่เกิน20ตัวอักษร")]
     [DisplayName("ระบุชื่อผู้ใช้งาน")]
     public string UserName { get; set; }
 
