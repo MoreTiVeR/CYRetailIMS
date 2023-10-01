@@ -28,6 +28,7 @@ public class GetTransactionByBranchIDResponseDTO
 	public decimal amountdeposit { get; set; }
 	public decimal amountcash { get; set; }
 	public decimal totalamount { get; set; }
+    public decimal depositfee { get; set; }
     public string createdbystaff { get; set; }
     public string createdby { get; set; }
 	public DateTime creadeddate { get; set; }

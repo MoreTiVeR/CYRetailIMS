@@ -4,6 +4,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Employee;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
+using CYRetailIMS.Application.Common.Mappings.UI.Report;
 using CYRetailIMS.Application.Common.Mappings.UI.User;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
@@ -87,6 +88,10 @@ public static class ConfigureService
 
             #region User
             mc.AddProfile<UserMappingProfile>();
+            #endregion
+
+            #region Report
+            mc.AddProfile<ReportMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

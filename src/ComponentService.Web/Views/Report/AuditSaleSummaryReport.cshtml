@@ -1,0 +1,161 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@model AuditSaleSummaryReportViewModel
+@{
+    ViewData["Title"] = "AuditSaleSummaryReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
+
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>ตรวจสอบยอด</h4>
+        <h6>ตรวจสอบยอดสินวัน</h6>
+    </div>
+</div>
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <form id="frmAutiSaleSummaryReport" class="form-audit-salesummaryreport" onsubmit="return SaveAutiSaleSummaryReport(this)">
+            <input type="hidden" asp-for="TransactionID" readonly>
+            <input type="hidden" asp-for="BranchName" readonly>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>สาขา</label>
+                        <div class="row">
+                            <div class="col-lg-12 col-sm-10 col-12">
+                                <select id="ddlBranch" class="form-control select2 ddl-ddlBranch" asp-for="BranchID" readonly>
+                                    <option value="">-- ระบุสาขา --</option>
+                                    <option value="@Model.BranchID" selected>@Model.BranchName</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="BranchID" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>วันที่ขาย</label>
+                        <div class="input-groupicon">
+                            <input id="txtTransactionDate" type="text" placeholder="กรุณาเลือกวันที่ขายสินค้า" class="pickadate-saledate" asp-for="TransactionDate" readonly>
+                            <a class="addonset">
+                                <img src="~/assets/img/icons/calendars.svg" alt="img">
+                            </a>
+                            <span asp-validation-for="TransactionDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>พนักงานขาย</label>
+                        <input type="text" asp-for="CreatedbyStaff" readonly>
+                        <span asp-validation-for="CreatedbyStaff" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ยอดเงินรวม</label>
+                        <input type="text" asp-for="TotalAmount" class="form-control allownumericwithdecimal" readonly>
+                        <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ยอดเงินโอน</label>
+                        <input type="text" asp-for="AmountTransfer" class="form-control allownumericwithdecimal" readonly>
+                        <span asp-validation-for="AmountTransfer" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ยอดเงินฝาก</label>
+                        <input type="text" asp-for="AmountDeposit" class="form-control allownumericwithdecimal" readonly>
+                        <span asp-validation-for="AmountDeposit" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ยอดเงินหน้าร้าน</label>
+                        <input type="text" asp-for="AmountCash" class="form-control allownumericwithdecimal" readonly>
+                        <span asp-validation-for="AmountCash" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ค่าธรรมเนียม</label>
+                        <input type="text" asp-for="DepositFee" class="form-control allownumericwithdecimal" readonly>
+                        <span asp-validation-for="DepositFee" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    @*<div class="form-group">
+                        <label>ยอดเงินบัญชี</label>
+                        <input type="text" asp-for="TotalAuditAmount" class="form-control allownumericwithdecimal">
+                        <span asp-validation-for="TotalAuditAmount" class="text-danger"></span>
+                    </div>*@
+                    <div class="form-group">
+                        <label>ยอดเงินบัญชี</label>
+                        <div class="input-group">
+                            <input type="text" asp-for="TotalAuditAmount" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                            <span class="input-group-text">บาท</span>
+                        </div>
+                        <span asp-validation-for="TotalAuditAmount" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12"></div>
+                <div class="col-lg-3 col-sm-6 col-12"></div>
+                <div class="col-lg-3 col-sm-6 col-12"></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-label">หมายเหตุ</label>
+                        @Html.TextAreaFor(m => m.AuditDescription, new
+                        {
+                        @class = "form-control full-width",
+                        @style = "resize: none;",
+                        @cols = 5,
+                        @rows = 3,
+                        @maxlength = 200,
+                        value = "",
+                        placeholder = Html.DisplayNameFor(n => n.AuditDescription)
+                        })
+                    </div>
+                    <span asp-validation-for="AuditDescription" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <a asp-action="Index" asp-controller="UserManagement" class="btn btn-cancel me-2">ยกเลิก</a>
+                    <button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
+                        <i class="bx bx-plus"></i>
+                        บันทึกข้อมูล
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+
+    <!--charactersRemaining-->
+    <script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
+
+    <!--Page Script-->
+    <script src="~/js/view/report/report_auditsummary.js" asp-append-version="true"></script>
+}
+

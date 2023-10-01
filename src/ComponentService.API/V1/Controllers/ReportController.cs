@@ -4,6 +4,8 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using Microsoft.AspNetCore.Mvc;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByTransID.v1;
+using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -14,7 +16,23 @@ public class ReportController : BaseApiController
 	{
 	}
 
-	[HttpPost]
+    [HttpPost]
+    [Route("v1/createaudittransaction")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateAuditTransactionReportAsync(CreateAuditReportCommand createAuditReportCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(createAuditReportCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CreateAuditTransactionReportAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
 	[Route("v1/salereport")]
 	[ProducesResponseType(typeof(List<SaleReportResponseDTO>), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
@@ -46,8 +64,24 @@ public class ReportController : BaseApiController
 		return Ok(res.data);
 	}
 
+    [HttpGet]
+    [Route("v1/salesummaryreportbytransid/{transactionid:int}")]
+    [ProducesResponseType(typeof(List<SaleSummaryReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SaleSummaryReportByTransIDAsync(int transactionid)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<SaleSummaryReportResponseDTO> res = await Mediator.Send(new SaleSummaryReportByTransIDQuery { transactionid = transactionid });
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]SaleSummaryReportByTransIDAsync Success");
+        return Ok(res.data);
+    }
 
-	[HttpPost]
+
+    [HttpPost]
 	[Route("v1/auditreport")]
 	[ProducesResponseType(typeof(List<AuditReportResponseDTO>), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
@@ -62,4 +96,6 @@ public class ReportController : BaseApiController
 		_log.Debug($"[{DateTime.Now}]AuditReportAsync Success");
 		return Ok(res.data);
 	}
+
+   
 }

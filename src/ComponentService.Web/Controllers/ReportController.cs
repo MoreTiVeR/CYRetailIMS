@@ -1,10 +1,16 @@
 ﻿using AutoMapper;
+using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Common.Models.UI;
+using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.Report;
+using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
+using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
+using CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
@@ -15,10 +21,12 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class ReportController : BaseController
 {
     private readonly IReportAPI _reportAPI;
+    private readonly IBranchAPI _branchAPI;
     public ReportController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
-		IReportAPI reportAPI) : base(httpClientRequest, mapper, log)
+		IReportAPI reportAPI, IBranchAPI branchAPI) : base(httpClientRequest, mapper, log)
     {
         _reportAPI = reportAPI;
+        _branchAPI = branchAPI;
     }
 
     public IActionResult Index()
@@ -28,7 +36,7 @@ public class ReportController : BaseController
 
     public async Task<IActionResult> SaleReport()
     {
-		BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReport(new SaleReportQuery
+		BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
         {
             transaction_startdate = DateTime.Now,
             transaction_enddate = DateTime.Now
@@ -40,7 +48,7 @@ public class ReportController : BaseController
 
     public async Task<IActionResult> SaleSummaryReportAsync()
     {
-        BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReport(new SaleSummaryReportQuery
+        BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
 		{
             transactiondate  = DateTime.Now
         });
@@ -50,7 +58,7 @@ public class ReportController : BaseController
 
     public async Task<IActionResult> AuditReportAsync()
 	{
-		BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReport(new AuditReportQuery
+		BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
 		{
 			transaction_startdate = DateTime.Now,
 			transaction_enddate = DateTime.Now
@@ -58,5 +66,39 @@ public class ReportController : BaseController
 
 		ViewBag.AuditReportList = resAuditReport;
 		return View();
+    }
+
+    public async Task<IActionResult> AuditSaleSummaryReport(int transactionid)
+    {
+        BaseResponse<SaleSummaryReportResponseDTO> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportByTransIDAsync(transactionid);
+        AuditSaleSummaryReportViewModel auditReportViewData = _mapper.Map<AuditSaleSummaryReportViewModel>(resSaleSummaryReport.data);
+        return View(auditReportViewData);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveAuditSaleSummaryReport([FromBody] AuditSaleSummaryReportViewModel reportData)
+    {
+        try
+        {
+            CreateAuditReportCommand auditReportCommand = MappingCreateAuditReportCommand(reportData);
+            BaseResponse<CommandResponse> res = await _reportAPI.CreateAuditTransactionReportAsync(auditReportCommand);
+            return Json(new { result = res.result, message = res.result ? "บันทึกข้อมูลสำเร็จ" : $"ไม่สามารถทำรายการได้, {res.error.error.message}" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    private CreateAuditReportCommand MappingCreateAuditReportCommand(AuditSaleSummaryReportViewModel reportData)
+    {
+        return new CreateAuditReportCommand
+        {
+            transactionid = reportData.TransactionID,
+            description = reportData.AuditDescription,
+            totalamountaudit = reportData.TotalAuditAmount.Value,
+            createdby = base.UserProfile.rolename,
+            createddate = reportData.TransactionDate.ToDateTime(),
+        };
     }
 }

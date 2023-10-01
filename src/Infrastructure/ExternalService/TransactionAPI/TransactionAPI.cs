@@ -4,6 +4,7 @@ using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByTransactionID.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
 public class TransactionAPI : HttpClientService, ITransactionAPI
@@ -21,6 +22,12 @@ public class TransactionAPI : HttpClientService, ITransactionAPI
     public async Task<BaseResponse<List<GetTransactionByBranchIDResponseDTO>>> GetTransactionByBranchIDAsync(int branchid)
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetTransactionByBranchIDResponseDTO>,
-			CreateTransactionCommand>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/transaction/v1/transactionbybranchid/{branchid}"), null);
+            GetTransactionByBranchIDQuery>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/transaction/v1/transactionbybranchid/{branchid}"), null);
 	}
+
+    public async Task<BaseResponse<GetTransactionByBranchIDResponseDTO>> GetTransactionByIDAsync(int transactionid)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetTransactionByBranchIDResponseDTO,
+            object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/transaction/v1/transactionbyid/{transactionid}"), null);
+    }
 }

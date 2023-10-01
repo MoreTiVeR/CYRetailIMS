@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
@@ -11,9 +12,13 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v
 namespace CYRetailIMS.Application.ExternalService.Report;
 public interface IReportAPI
 {
-	Task<BaseResponse<List<SaleReportResponseDTO>>> GetSaleReport(SaleReportQuery saleReportQuery);
+	Task<BaseResponse<CommandResponse>> CreateAuditTransactionReportAsync(CreateAuditReportCommand createAuditReportCommand);
 
-	Task<BaseResponse<List<SaleSummaryReportResponseDTO>>> GetSaleSummaryReport(SaleSummaryReportQuery saleSummaryReportQuery);
+    Task<BaseResponse<List<SaleReportResponseDTO>>> GetSaleReportAsync(SaleReportQuery saleReportQuery);
 
-	Task<BaseResponse<List<AuditReportResponseDTO>>> GetAuditReport(AuditReportQuery auditReportQuery);
+	Task<BaseResponse<List<SaleSummaryReportResponseDTO>>> GetSaleSummaryReportAsync(SaleSummaryReportQuery saleSummaryReportQuery);
+
+	Task<BaseResponse<List<AuditReportResponseDTO>>> GetAuditReportAsync(AuditReportQuery auditReportQuery);
+
+    Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByTransIDAsync(int transactionid);
 }

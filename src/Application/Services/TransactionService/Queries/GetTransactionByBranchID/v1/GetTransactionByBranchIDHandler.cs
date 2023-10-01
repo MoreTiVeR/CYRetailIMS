@@ -42,6 +42,7 @@ public class GetTransactionByBranchIDHandler : BaseService, IRequestHandler<GetT
 																		amountdeposit = tran.AmountDeposit,
 																		amounttransfer = tran.AmountTransfer,
 																		totalamount = tran.TotalAmount,
+																		depositfee = tran.Fee,
 																		creadeddate = tran.CreadedDate,
 																		createdby = tran.CreatedBy,
 																		createdbystaff = jUser != null ? jUser.FirstName : "N/A",
