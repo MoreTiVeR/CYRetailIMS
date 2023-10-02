@@ -9,9 +9,10 @@ using MediatR;
 namespace CYRetailIMS.Application.Services.AdjustItemTransactionService.Commands.CreateAdjustItem.v1;
 public record CreateAdjustItemCommand : IRequest<BaseResponse<CommandResponse>>
 {
-    public int adjusttypeid { get; set; }
-    public int itemid { get; set; }
-    public int qty { get; set; }
-    public string createdby { get; set; }
-    public DateTime createddate { get; set; }
+    public int adjusttypeid { get; init; }
+    public int itemid { get; init; }
+    public int qty { get; init; }
+    public string remark { get; init; }
+    public string createdby { get; init; }
+    public DateTime createddate { get; init; }
 }
