@@ -14,8 +14,8 @@
     <Folder Include="Services\AccountService\Commands\" />
     <Folder Include="Services\AccountService\EventHandlers\" />
     <Folder Include="Services\AdjustItemTransactionService\Commands\DeleteAdjustItem\" />
-    <Folder Include="Services\AdjustItemTransactionService\Queries\GetAdjustItemTransactions\" />
-    <Folder Include="Services\AdjustItemTransactionService\Queries\GetAdjustItemTransactionByID\" />
+    <Folder Include="Services\AdjustItemTypeService\Commands\" />
+    <Folder Include="Services\AdjustItemTypeService\EventHandlers\" />
     <Folder Include="Services\ApproveStatusService\Commands\" />
     <Folder Include="Services\ApproveStatusService\EventHandlers\" />
     <Folder Include="Services\DepartmentService\Commands\" />

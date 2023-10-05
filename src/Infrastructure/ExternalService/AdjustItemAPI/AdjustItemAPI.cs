@@ -8,6 +8,8 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.AdjustItemAPI;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Commands.CreateAdjustItem.v1;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Commands.UpdateAdjustItem;
+using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactionByID.v1;
+using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactions.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.AdjustItemAPI;
@@ -27,5 +29,17 @@ public class AdjustItemAPI : HttpClientService, IAdjustItemAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, UpdateAdjustItemCommand>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/adjustitem/v1/update"), updateAdjustItemCommand);
+    }
+
+    public async Task<BaseResponse<List<GetAdjustItemTransactionsResponseDTO>>> GetAdjustItemTransactionAsync()
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetAdjustItemTransactionsResponseDTO>, object>(HttpMethod.Get,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/adjustitem/v1/adjusttransactions"), null);
+    }
+
+    public async Task<BaseResponse<GetAdjustItemTransactionByIDResponseDTO>> GetAdjustItemTransactionByIDAsync(int adjusttransactionid)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetAdjustItemTransactionByIDResponseDTO, object>(HttpMethod.Get,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/adjustitem/v1/adjusttransaction/{adjusttransactionid}"), null);
     }
 }

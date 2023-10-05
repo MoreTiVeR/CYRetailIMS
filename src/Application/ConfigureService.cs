@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Behaviours;
 using CYRetailIMS.Application.Common.Mappings.UI;
+using CYRetailIMS.Application.Services.AdjustItemTypeService.Queries.GetAdjustItemType.v1;
+using CYRetailIMS.Application.Services.AdjustItemTypeService.Queries.GetAdjustItemTypeByID.v1;
 using CYRetailIMS.Application.Services.ApproveStatusService.Queries.GetApproveStatus.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
@@ -93,6 +95,10 @@ public static class ConfigureService
             mc.AddProfile<GetDepartmentByIDMappingProfile>();
             mc.AddProfile<GetRolesMappingProfile>();
             mc.AddProfile<GetRoleByIDMappingProfile>();
+
+
+            mc.AddProfile<GetAdjustItemTypeMappingProfile>();
+            mc.AddProfile<GetAdjustItemTypeByIDMappingProfile>();
 
             #endregion
         });
