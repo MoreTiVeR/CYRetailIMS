@@ -152,7 +152,7 @@
                                 <td>@item.description</td>
                                 <td>@item.createdby</td>
                                 <td>@item.updatedby</td>
-                                <td>@item.updateddate</td>
+                                <td>@($"{@item.updateddate:ddMMyyyy}")</td>
                                 <td>
                                     <a class="me-3" asp-action="Edit" asp-controller="Item" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">

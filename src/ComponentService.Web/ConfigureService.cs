@@ -7,6 +7,8 @@ using CYRetailIMS.Application.Common.Mappings.UI.Item;
 using CYRetailIMS.Application.Common.Mappings.UI.Report;
 using CYRetailIMS.Application.Common.Mappings.UI.User;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
+using CYRetailIMS.Application.ExternalService.AdjustItemAPI;
+using CYRetailIMS.Application.ExternalService.AdjustItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
@@ -26,6 +28,8 @@ using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
 using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
+using CYRetailIMS.Infrastructure.ExternalService.AdjustItemAPI;
+using CYRetailIMS.Infrastructure.ExternalService.AdjustItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.BranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.DepartmentAPI;
 using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
@@ -121,6 +125,8 @@ public static class ConfigureService
         services.AddScoped<IUserAPI, UserAPI>();
         services.AddScoped<IUserRoleAPI, UserRoleAPI>();
         services.AddScoped<IReportAPI, ReportAPI>();
+        services.AddScoped<IAdjustItemAPI, AdjustItemAPI>();
+        services.AddScoped<IAdjustItemTypeAPI, AdjustItemTypeAPI>();
         #endregion
 
         return services;

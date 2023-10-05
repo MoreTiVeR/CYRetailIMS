@@ -1,0 +1,102 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@model CreateAdjustItemViewModel
+@{
+    ViewData["Title"] = "Adjust";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>เพิ่ม/ลดสตีอก</h4>
+        <h6>ทำรายการเพิ่ม-ลดสตีอกสินค้า</h6>
+    </div>
+</div>
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <form id="frmAdjustItem" class="form-adjust-item" onsubmit="return SaveAdjustItem(this)">
+            <div class="row">
+                <!--ROW1-->
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ปรับเภทการปรับสต๊อก</label>
+                        <select class="select" asp-for="AdjustTypeID">
+                            @if (ViewBag.AdjustItemType.result)
+                            {
+                                <option value="">--เลือกประเภทสินค้า--</option>
+                                foreach (var item in ViewBag.AdjustItemType.data)
+                                {
+                                    <option value="@item.adjusttypeid">@item.adjusttypename</option>
+                                }
+                            }
+                            else
+                            {
+                                <option>--ไม่พบข้อมูลประเภทสินค้า--</option>
+                            }
+                        </select>
+                        <span asp-validation-for="AdjustTypeID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>สินค้า</label>
+                        <select class="select" asp-for="ItemID">
+                            @if (ViewBag.ItemList.result)
+                            {
+                                <option value="">--เลือกประเภทสินค้า--</option>
+                                foreach (var item in ViewBag.ItemList.data)
+                                {
+                                    <option value="@item.itemid">@item.name</option>
+                                }
+                            }
+                            else
+                            {
+                                <option>--ไม่พบข้อมูลประเภทสินค้า--</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ItemID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>จำนวนสินค้า</label>
+                        <input type="number" class="form-control" asp-for="Qty">
+                        <span asp-validation-for="Qty" class="text-danger"></span>
+                    </div>
+                </div>
+                <!--ROW3-->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>หมายเหตุ</label>
+                            @Html.TextAreaFor(m => m.Remark, new
+                            {
+                            @class = "form-control full-width",
+                            @style = "resize: none;",
+                            @cols = 5,
+                            @rows = 3,
+                            @maxlength = 200,
+                            value = "",
+                            placeholder = Html.DisplayNameFor(n => n.Remark)
+                            })
+                            <span asp-validation-for="Remark" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <!--ROW4-->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <a asp-action="Index" asp-controller="AdjustItem" class="btn btn-cancel me-2">ยกเลิก</a>
+                        <button id="btnSaveAdjustItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- /add -->
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/adjustitem/adjustitem_create.js" asp-append-version="true"></script>
+}

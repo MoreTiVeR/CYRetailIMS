@@ -1,0 +1,142 @@
+﻿@using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactions.v1;
+@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>ปรับสตีอก</h4>
+        <h6>รายการปรับสตีอกสินค้า</h6>
+    </div>
+    <div class="page-btn">
+        <a asp-action="Adjust" asp-controller="AdjustItem" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img">ปรับเพิ่ม/ลดสต๊อก</a>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-top">
+            <div class="search-set">
+                <div class="search-path">
+                    <a class="btn btn-filter" id="filter_search">
+                        <img src="~/assets/img/icons/filter.svg" alt="img">
+                        <span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
+                    </a>
+                </div>
+                <div class="search-input">
+                    <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+                </div>
+            </div>
+           @* <div class="wordset">
+                <ul>
+                    <li>
+                        <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+                    </li>
+                </ul>
+            </div>*@
+        </div>
+        <!-- /Filter -->
+        <div class="card mb-0" id="filter_inputs">
+            <div class="card-body pb-0">
+                <div class="row">
+                    <div class="col-lg-12 col-sm-12">
+                        <div class="row">
+                            <div class="col-lg col-sm-3 col-12">
+                                <div class="form-group">
+                                    <select id="ddlItemType" class="select">
+                                        <option>เลือกสาขาที่ต้องการค้นหา</option>
+                                        @if (ViewBag.BranchList.result)
+                                        {
+                                            foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.BranchList.data)
+                                            {
+                                                <option value="@item.branchid">@item.branchname</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="">--ไม่พบข้อมูล--</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-1 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <a id="btnSearch" class="btn btn-filters ms-auto" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                                </div>
+                            </div>
+                            <div class="col-lg col-sm-6 col-12">
+                            </div>
+                            <div class="col-lg col-sm-6 col-12">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Filter -->
+        <div class="table-responsive">
+            <table id="tbItems" class="table datanew">
+                <thead>
+                    <tr>
+                        <th hidden>
+                            <label class="checkboxs">
+                                <input type="checkbox" id="select-all">
+                                <span class="checkmarks"></span>
+                            </label>
+                        </th>
+                        <th class="text-center">ประเภทปรับสตีอก</th>
+                        <th>รหัสสินค้า</th>
+                        <th>ชื่อสินค้า</th>
+                        <th>ประเภท</th>
+                        <th>แบรนด์</th>
+                        <th>จำนวน</th>
+                        <th>รายละเอียด</th>
+                        <th>สร้างโดย</th>
+                        <th>วันที่สร้าง</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.AdjustItemTransactions.result)
+                    {
+                        foreach (var item in (List<GetAdjustItemTransactionsResponseDTO>)ViewBag.AdjustItemTransactions.data)
+                        {
+                            string rName = $"rowid{@item.adjustid}";
+                            Dictionary<string, string> aAdjustItemID = new Dictionary<string, string> { { "adjustid", item.adjustid.ToString() } };
+                            <tr>
+                                <td hidden>
+                                    <label class="checkboxs">
+                                        <input type="checkbox">
+                                        <span class="checkmarks"></span>
+                                    </label>
+                                </td>
+                                <td class="text-center">@item.adjusttypename</td>
+                                <td>@item.itemcode</td>
+                                <td><span class="badges bg-lightgreen">@item.itemname</span></td>
+                                <td>@item.itemtypename</td>
+                                <td>@item.itembrandname</td>
+                                <td><span class="badges bg-lightgreen">@item.qty</span></td>
+                                <td>@item.remark</td>
+                                <td>@item.createdby</td>
+                                <td>@($"{@item.creadeddate:ddMMyyyy}")</td>
+                                @*<td class="text-center">
+                                    <a class="me-3" asp-action="Edit" asp-controller="AdjustItem" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aAdjustItemID">
+                                        <img src="~/assets/img/icons/edit.svg" alt="img">
+                                    </a>
+                                </td>*@
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/adjustitem/adjustitem_index.js" asp-append-version="true"></script>
+}
+
+

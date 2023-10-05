@@ -33,6 +33,7 @@ public class GetAdjustItemTransactionByIDHandler : BaseService, IRequestHandler<
                                                                adjusttypeid = a.AdjustTypeID,
                                                                adjusttypename = b.AdjustTypeName,
                                                                itemid = c.ItemID,
+                                                               itemcode = c.ItemCode,
                                                                itemname = c.Name,
                                                                itemtypeid = c.ItemTypeID,
                                                                itemtypename = c.ItemType.ItemTypeName,
