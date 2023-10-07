@@ -14,6 +14,8 @@ public partial class TTAdjustItemTransaction : BaseAuditableEntity
 
     public int AdjustTypeID { get; set; }
 
+    public int BranchID { get; set; }
+
     public int ItemID { get; set; }
 
     public int Qty { get; set; }

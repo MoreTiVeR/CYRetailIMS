@@ -102,7 +102,7 @@ $("#transfertypeid").on("change", function () {
                 selectList_source_branchid.html(""); // clear before appending new list
                 selectList_source_branchid.append($('<option></option>').val("").html("--เลือกสาขาต้นทาง--")); //Add first itemList
                 $.each(response.data_source, function () {
-                    $("<option />").val(this.value).text(this.text).appendTo(selectList_source_branchid);;
+                    $("<option />").val(this.value).text(this.text).appendTo(selectList_source_branchid);
                     //prevGroupName = this.group.name;
                 });
 
