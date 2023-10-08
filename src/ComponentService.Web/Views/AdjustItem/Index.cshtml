@@ -8,8 +8,8 @@
 
 <div class="page-header">
     <div class="page-title">
-        <h4>ปรับสตีอก</h4>
-        <h6>รายการปรับสตีอกสินค้า</h6>
+        <h4>ปรับสต๊อก</h4>
+        <h6>รายการปรับสต๊อกสินค้า</h6>
     </div>
     <div class="page-btn">
         <a asp-action="Adjust" asp-controller="AdjustItem" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img">ปรับเพิ่ม/ลดสต๊อก</a>
@@ -119,7 +119,7 @@
                                 <td><span class="badges bg-lightgreen">@item.qty</span></td>
                                 <td>@item.remark</td>
                                 <td>@item.createdby</td>
-                                <td>@($"{@item.creadeddate:ddMMyyyy}")</td>
+                                <td>@($"{@item.creadeddate:dd/MM/yyyy}")</td>
                                 @*<td class="text-center">
                                     <a class="me-3" asp-action="Edit" asp-controller="AdjustItem" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aAdjustItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">

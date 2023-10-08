@@ -17,7 +17,7 @@
                             <select class="select" asp-for="nbranchid">
                                 @if (ViewBag.BranchList.result)
                                 {
-                                    <option value="">--เลือกสาขา-</option>
+                                    <option value="">-- เลือกสาขา --</option>
                                     foreach (var item in ViewBag.BranchList.data)
                                     {
                                         <option value="@item.branchid">@item.branchname</option>
@@ -25,7 +25,7 @@
                                 }
                                 else
                                 {
-                                    <option>--ไม่พบข้อมูลสาขา--</option>
+                                    <option>-- ไม่พบข้อมูลสาขา --</option>
                                 }
                             </select>
                             <span asp-validation-for="nbranchid" class="text-danger"></span>
@@ -37,7 +37,7 @@
                             <select class="select" asp-for="nadjusttypeid">
                                 @if (ViewBag.AdjustItemType.result)
                                 {
-                                    <option value="">--เลือกประเภทปรับสต๊อก--</option>
+                                    <option value="">-- เลือกประเภทสต๊อก --</option>
                                     foreach (var item in ViewBag.AdjustItemType.data)
                                     {
                                         <option value="@item.adjusttypeid">@item.adjusttypename</option>
@@ -45,7 +45,7 @@
                                 }
                                 else
                                 {
-                                    <option>--ไม่พบข้อมูลประเภทปรับสต๊อก--</option>
+                                    <option>--ไม่พบข้อมูลประเภทสต๊อก--</option>
                                 }
                             </select>
                             <span asp-validation-for="nadjusttypeid" class="text-danger"></span>
@@ -57,7 +57,7 @@
                             <select class="select" asp-for="nitemid">
                                 @if (ViewBag.ItemList.result)
                                 {
-                                    <option value="">--เลือกสินค้า--</option>
+                                    <option value="">-- เลือกสินค้า --</option>
                                     foreach (var item in ViewBag.ItemList.data)
                                     {
                                         <option value="@item.itemid">@item.name</option>
@@ -65,7 +65,7 @@
                                 }
                                 else
                                 {
-                                    <option>--ไม่พบข้อมูลสินค้า--</option>
+                                    <option>-- ไม่พบข้อมูลสินค้า --</option>
                                 }
                             </select>
                             <span asp-validation-for="nitemid" class="text-danger"></span>
@@ -82,8 +82,8 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-submit">Submit</button>
+                <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">ปิด</button>
+                <button type="submit" class="btn btn-submit">เพิ่ม</button>
             </div>
         </div>
     </div>

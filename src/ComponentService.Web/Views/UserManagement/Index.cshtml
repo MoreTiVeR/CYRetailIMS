@@ -107,9 +107,9 @@
 								</td>
 								<td>@item.username</td>
 								<td>@item.rolename</td>
-								<td>@(@item.lastlogin.HasValue ? $"{@item.lastlogin.Value:ddMMyyyy}" : string.Empty)</td>
-								<td>@(@item.lastlogout.HasValue ? $"{@item.lastlogout.Value:ddMMyyyy}" : string.Empty)</td>
-								<td>@($"{@item.creadeddate:ddMMyyyy}")</td>
+								<td>@(@item.lastlogin.HasValue ? $"{@item.lastlogin.Value:dd/MM/yyyy}" : string.Empty)</td>
+								<td>@(@item.lastlogout.HasValue ? $"{@item.lastlogout.Value:dd/MM/yyyy}" : string.Empty)</td>
+								<td>@($"{@item.creadeddate:dd/MM/yyyy}")</td>
 								<td><span class="@userStatusCss">@userStatusName</span></td>
 								<td>
 									<a class="me-3" asp-action="Edit" asp-controller="UserManagement" title="แก้ไขข้อมูลบัญชีผู้ใช้งาน" asp-all-route-data="aUserID">

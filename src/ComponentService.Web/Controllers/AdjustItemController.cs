@@ -117,7 +117,9 @@ public class AdjustItemController : BaseController
             List<AdjustItemViewModel> tempAdjustItemList = HttpContext.Session.GetDataFromSession<List<AdjustItemViewModel>>("TEMP_ADJUST_ITEM_DATA");
 
             #region Update when Already added
-            var existData = tempAdjustItemList.FirstOrDefault(w => w.nbranchid == adjustItemData.nbranchid && w.nitemid == adjustItemData.nitemid);
+            var existData = tempAdjustItemList.FirstOrDefault(w => w.nbranchid == adjustItemData.nbranchid 
+            && w.nitemid == adjustItemData.nitemid 
+            && w.nadjusttypeid == adjustItemData.nadjusttypeid);
             if(existData != null)
             {
                 //tempAdjustItemList = tempAdjustItemList.Where(w => w.nbranchid == adjustItemData.nbranchid && w.nitemid == adjustItemData.nitemid).Select(s =>
@@ -125,7 +127,9 @@ public class AdjustItemController : BaseController
                 //    s.ntqy = s.nseq + adjustItemData.ntqy;
                 //    return s;
                 //}).ToList();
-                tempAdjustItemList.Where(w => w.nbranchid == adjustItemData.nbranchid && w.nitemid == adjustItemData.nitemid).ForEach(e =>
+                tempAdjustItemList.Where(w => w.nbranchid == adjustItemData.nbranchid 
+                && w.nitemid == adjustItemData.nitemid 
+                && w.nadjusttypeid == adjustItemData.nadjusttypeid).ForEach(e =>
                 {
                     e.nqty = e.nqty + adjustItemData.nqty;
                 });
@@ -150,7 +154,7 @@ public class AdjustItemController : BaseController
 
             //test get
             //var res = HttpContext.Session.GetDataFromSession<List<AdjustItemViewModel>>("TEMP_ADJUST_ITEM_DATA");
-            return Json(new { result = true, message = "Add new data success." });
+            return Json(new { result = true, message = "เพิ่มข้อมูลปรับสต๊อกสำเร็จ" });
 
         }
         catch (Exception ex)
@@ -263,13 +267,8 @@ public class AdjustItemController : BaseController
     }
 
     [HttpPost]
-    public IActionResult DeleteTempItem([FromRoute] int seq)
+    public JsonResult DeleteTempItem(int seq)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try
         {
             List<AdjustItemViewModel> res = HttpContext.Session.GetDataFromSession<List<AdjustItemViewModel>>("TEMP_ADJUST_ITEM_DATA");
@@ -281,10 +280,7 @@ public class AdjustItemController : BaseController
 
             res.Remove(todo);
             HttpContext.Session.SetDataToSession("TEMP_ADJUST_ITEM_DATA", res);
-
-            //var resDeleted = HttpContext.Session.GetDataFromSession<List<AdjustItemViewModel>>("TEMP_ADJUST_ITEM_DATA");
-
-            return Json(new { success = true, message = "Delete success." });
+            return Json(new { result = true, message = "Delete success." });
         }
         catch (Exception ex)
         {
@@ -318,6 +314,11 @@ public class AdjustItemController : BaseController
             {
                 //Branch
                 BaseResponse<GetItemInBranchByBranchIDResponseDTO> reItemList = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
+                if(reItemList.data == null)
+                {
+                    return Json(new { result = false, message = "ไม่พข้อมูลสินค้าในสาขาดังกล่าว" });
+                    //throw new Exception("ไม่พบข้อมูลสินค้า");
+                }
                 itemList = (from a in reItemList.data.itemlist
                             select new SelectListItem
                             {

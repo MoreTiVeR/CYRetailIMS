@@ -29,6 +29,8 @@ using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using System.Collections.Generic;
+using OfficeOpenXml;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -407,7 +409,183 @@ public class ItemController : BaseController
         return Json(new { result = true, data_itemlist = transferItemList, data_destination = destinationList, msg = "สำเร็จ" });
     }
 
-    public async Task<List<SelectListItem>> GetTransferSourcehBranchItemListAsync(int transferTypeID)
+	[HttpPost]
+	public async Task<ActionResult> UploadFilesAsync()
+	{
+		int Error = 0;
+		try
+		{
+			List<AddItemViewModel> ModelImprt = new List<AddItemViewModel>();
+			if (Request.Form.Files.Count > 0)
+			{
+				List<int> errRow = new List<int>();
+				List<ImportItemViewModel> itemList = new List<ImportItemViewModel>();
+
+				IFormFile file = Request.Form.Files[0];
+
+				using var stream = new MemoryStream();
+				await file.CopyToAsync(stream);
+
+				using var package = new ExcelPackage(stream);
+				ExcelWorksheet worksheet = package.Workbook.Worksheets[1]; // Assuming the first worksheet
+
+				//var file = Request.Form.Files[0];
+				//var fileName = Path.GetFileName(file.FileName);
+
+				////SET FOLDER TO COPY FILE, CREATE IF FOLDER DOES NOT EXISTS
+				//var reportPath = Path.Combine(AppContext.BaseDirectory, "Import/Excel/Product");
+				//bool exist = System.IO.Directory.Exists(reportPath);
+				//if (!System.IO.Directory.Exists(reportPath))
+    //            {
+    //                Directory.CreateDirectory(reportPath);
+				//}
+
+				////SETUP FILENAME
+				//string dateRef = DateTime.Now.ToString("yyyyMMddhhmmss");
+				//var path = Path.Combine(reportPath, dateRef + "H-" + fileName);
+				//file.SaveAs(path);
+
+				////OPEN FILE AS EXCEL
+				//FileInfo fileInfo = new FileInfo(path);
+				//ExcelPackage package = new ExcelPackage(fileInfo);
+    //            ExcelWorksheet worksheet = package.Workbook.Worksheets.LastOrDefault();
+
+				//DO SOMETHING HERE
+				int rowCount = worksheet.Dimension.Rows;
+				int colCount = worksheet.Dimension.Columns;
+				for (int row = 3; row <= rowCount; row++)
+				{
+					try
+					{
+						var qty = worksheet.Cells[row, 1].GetValue<int>();
+						var itemtype = worksheet.Cells[row, 2].GetValue<string>();
+						var itemcode = worksheet.Cells[row, 3].GetValue<string>();
+						var itembrand = worksheet.Cells[row, 4].GetValue<string>();
+						var itemname = worksheet.Cells[row, 5].GetValue<string>();
+						var description = worksheet.Cells[row, 6].GetValue<string>();
+						itemList.Add(new ImportItemViewModel
+						{
+							qty = qty,
+							itemtype = itemtype,
+							itemcode = itemcode,
+							itembrand = itembrand,
+							itemname = itemname,
+							description = description
+                        });
+					}
+					catch (Exception ex)
+					{
+						errRow.Add(row);
+					}
+
+					//for (int col = 1; col <= colCount; col++)
+					//{
+					//	//Parse here
+					//                   var dsd = worksheet.Cells[row, col].Value;
+					//}
+				}
+
+				if (itemList.Count != (rowCount - 2))
+				{
+					return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแถวที่ -> {errRow.Aggregate((s, t) => s + ',' + t)}" });
+				}
+
+				return Json(new { result = true, message = "นำเข้าสินค้าสำเร็จ" });
+				//var cells = worksheet.Cells;
+				//var dictionary = cells
+				//	.GroupBy(c => new { c.Start.Row, c.Start.Column })
+				//	.ToDictionary(
+				//		rcg => new KeyValuePair<int, int>(rcg.Key.Row, rcg.Key.Column),
+				//		rcg => cells[rcg.Key.Row, rcg.Key.Column].Value);
+			}
+            return Json(new { result = false, message = "ไม่พบไฟล์สินค้า" });
+		}
+		catch (Exception ex)
+		{
+			return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาลองใหม่อีกครั้ง | ข้อผิดพลาด -> {ex.Message}" });
+		}
+	}
+
+	[HttpPost]
+	public async Task<IActionResult> UploadExcel(IFormFile file)
+	{
+		if (file == null || file.Length == 0)
+			return BadRequest("Please select a valid Excel file.");
+
+		try
+		{
+            List<int> errRow = new List<int>();
+			List<ImportItemViewModel> itemList = new List<ImportItemViewModel>();
+
+			using var stream = new MemoryStream();
+			await file.CopyToAsync(stream);
+
+			using var package = new ExcelPackage(stream);
+			var worksheet = package.Workbook.Worksheets[1]; // Assuming the first worksheet
+
+			int rowCount = worksheet.Dimension.Rows;
+			int colCount = worksheet.Dimension.Columns;
+			for (int row = 2; row <= rowCount; row++)
+			{
+                try
+                {
+					var qty = worksheet.Cells[row, 1].GetValue<int>();
+					var itemtype = worksheet.Cells[row, 2].GetValue<string>();
+					var itemcode = worksheet.Cells[row, 3].GetValue<string>();
+					var itembrand = worksheet.Cells[row, 4].GetValue<string>();
+					var itemname = worksheet.Cells[row, 5].GetValue<string>();
+					var description = worksheet.Cells[row, 6].GetValue<string>();
+					itemList.Add(new ImportItemViewModel
+					{
+						qty = qty,
+						itemtype = itemtype,
+						itemcode = itemcode,
+						itembrand = itembrand,
+						itemname = itemname,
+						description = description
+					});
+				}
+                catch (Exception ex)
+                {
+                    errRow.Add(row);
+				}
+
+				//for (int col = 1; col <= colCount; col++)
+				//{
+				//	//Parse here
+				//	var dsd = worksheet.Cells[row, col].Value;
+				//}
+			}
+
+            if(itemList.Count != (rowCount - 2))
+            {
+				return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแถวที่ -> {errRow.Aggregate((s, t) => s + ',' + t)}" });
+			}
+
+
+			//var cells = worksheet.Cells;
+			//var dictionary = cells
+			//	.GroupBy(c => new { c.Start.Row, c.Start.Column })
+			//	.ToDictionary(
+			//		rcg => new KeyValuePair<int, int>(rcg.Key.Row, rcg.Key.Column),
+			//		rcg => cells[rcg.Key.Row, rcg.Key.Column].Value);
+
+			// Now, you can access and process the Excel data from the worksheet.
+			// Example: Read data from Excel cells
+			//var cellValue = worksheet.Cells["A1"].Text; // Replace with the desired cell address
+
+			//return Ok($"Uploaded file successfully. Cell A1 value: {cellValue}");
+
+			return Json(new { result = true, message = $"นำเข้าสินค้าจำนวน {itemList.Count} สำเร็จ" });
+
+		}
+		catch (Exception ex)
+		{
+			return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาลองใหม่อีกครั้ง | ข้อผิดพลาด -> {ex.Message}" });
+		}
+	}
+
+	public async Task<List<SelectListItem>> GetTransferSourcehBranchItemListAsync(int transferTypeID)
     {
         List<SelectListItem> res = new List<SelectListItem>();
         try

@@ -20,11 +20,12 @@ function InitialTableAdjustItem() {
             { "data": "sbranchname" },
             { "data": "sadjusttypename" },
             { "data": "sitemname" },
-            { "data": "ntqy" },
+            { "data": "nqty" },
             {
                 "data": "nseq",
                 "render": function (data) {
-                    return "<a class='btn btn-default btn-sm' onclick=ShowPopup('" + data + "')><i class='fa fa-pencil'></i> Edit</a><a class='btn btn-danger btn-sm' style='margin-left:5px' onclick=Delete(" + data + ")><i class='fa fa-trash'></i> Delete</a>";
+                    console.log('nseq=' + data);
+                    return "<a class='me-3' style='margin-left:5px' onclick=Delete(" + data + ")><img src='../assets/img/icons/delete.svg' alt='img'></a>";
                 }
             }
         ],
@@ -157,19 +158,19 @@ function Delete(id) {
             $.ajax({
                 type: 'POST',
                 url: '/AdjustItem/DeleteTempItem',
-                data: JSON.stringify({ nseq: id }),
-                contentType: 'application/json',
-                success: function (data) {
-                    if (data.result) {
+                dataType: 'JSON',
+                data: { "seq": id },
+                success: function (response) {
+                    if (response.result) {
 
-                        AlertSuccess('ลบข้อมูลสำเร็จ');
+                        ShowMessageSuccess('ลบข้อมูลสำเร็จ');
                         $("#global-loader").css('display', 'none');
 
                         dataTable.ajax.reload();
                     }
                     else {
                         //ShowMessageError(data.message);
-                        AlertError(data.message);
+                        ShowMessageError(response.message);
                         $("#global-loader").css('display', 'none');
                     }
                 }
@@ -222,6 +223,9 @@ $("#nbranchid").on("change", function () {
                 });
             }
             else {
+                var items_selectList = $('#nitemid');
+                items_selectList.html(""); // clear before appending new list
+                items_selectList.append($('<option></option>').val("").html("--เลือกสินค้า--")); //Add first itemList
                 ShowMessageError(response.message);
             }
             
