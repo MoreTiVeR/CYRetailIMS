@@ -129,3 +129,11 @@ function InitialCharacterRemaining() {
         multipleCharacterText: '## characters remaining'
     });
 }
+
+function ShowLoading() {
+    $("#global-loader").css('display', '');
+}
+
+function HideLoading() {
+    $("#global-loader").css('display', 'none');
+}

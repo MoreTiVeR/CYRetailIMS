@@ -1,6 +1,14 @@
 ﻿
+$('#aDownloadTemplateFile').on('click', function (e) {
+    ShowMessageInfo('กำลังดาวน์โหลดไฟล์เทมเพลต...');
+    e.preventDefault();  //stop the browser from following
+    window.location.href = '../excel_template/Import_Item_temp.xlsx';
+});
+
 $('#btnUpload').on('click', function () {
+
     ShowMessageSuccess('กำลังอัพนำเข้าไฟล์สินค้า...');
+    ShowLoading();
     // Checking whether FormData is available in browser  
     if (window.FormData !== undefined) {
 
@@ -25,18 +33,21 @@ $('#btnUpload').on('click', function () {
             processData: false, // Not to process data  
             data: fileData,
             success: function (response) {
-                if (response.result) {
-                    ShowMessageSuccess(response.message);
+                if (response.result) {                    
+                    AlertSuccess(response.message);
                 }
                 else {
                     ShowMessageError(response.message);
                 }
+                HideLoading();
             },
             error: function (err) {
-                alert(err.statusText);
+                ShowMessageError(err.statusText);
+                HideLoading();
             }
         });
     } else {
         ShowMessageError('ขออภัย มีบางอย่างไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!');
+        HideLoading();
     }
 });  

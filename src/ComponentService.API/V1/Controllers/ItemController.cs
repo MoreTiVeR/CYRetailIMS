@@ -1,6 +1,7 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
+using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
@@ -35,7 +36,23 @@ public class ItemController : BaseApiController
         return Ok(res.data);
     }
 
-    [HttpPost]
+	[HttpPost]
+	[Route("v1/createlist")]
+	[ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> CreateItemListAsync(CreateItemListCommand createItemCommand)
+	{
+		DateTime dtStart = DateTime.Now;
+		BaseResponse<CommandResponse> res = await Mediator.Send(createItemCommand);
+		Response.Headers.Add("responsecode", res.status);
+		Response.Headers.Add("responsedatasource", res.soruce);
+		Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+		_log.Debug($"[{DateTime.Now}]CreateItemListAsync Success");
+		return Ok(res.data);
+	}
+
+	[HttpPost]
     [Route("v1/update")]
     [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]

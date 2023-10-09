@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using AutoMapper;
+using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Employee;
@@ -25,6 +26,7 @@ using CYRetailIMS.Application.ExternalService.UserRoleAPI;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
+using CYRetailIMS.Infrastructure.Common.Configuration;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
 using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
@@ -106,12 +108,16 @@ public static class ConfigureService
         services.AddHttpContextAccessor();
         services.AddHttpClient<IHttpClientRequest, HttpClientRequest>();
 
-        services.AddSingleton<CYRetailIMS.Application.Common.Interfaces.ILog4NetLogger, CYRetailIMS.Infrastructure.Common.Logging.Log4NetLogger>();
         services.AddTransient<IDateTimeProvider, DateTimeService>();
-        #endregion
+		#endregion
 
-        #region External Service
-        services.AddScoped<IAccountAPI, AccountAPI>();
+		#region Common
+		services.AddSingleton<IAppConfig, AppConfig>();
+		services.AddSingleton<CYRetailIMS.Application.Common.Interfaces.ILog4NetLogger, CYRetailIMS.Infrastructure.Common.Logging.Log4NetLogger>();
+		#endregion
+
+		#region External Service
+		services.AddScoped<IAccountAPI, AccountAPI>();
         services.AddScoped<IEmployeeAPI, EmployeeAPI>();
         services.AddScoped<IItemAPI, ItemAPI>();
         services.AddScoped<IItemTypeAPI, ItemTypeAPI>();

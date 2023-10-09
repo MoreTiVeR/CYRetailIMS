@@ -7,6 +7,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
+using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
@@ -25,7 +26,13 @@ public class ItemAPI : HttpClientService, IItemAPI
             CreateItemCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/item/v1/create"), createItemCommand);
     }
 
-    public async Task<BaseResponse<CommandResponse>> UpdateItemAsync(UpdateItemCommand updateItemCommand)
+	public async Task<BaseResponse<CommandResponse>> CreateItemListAsync(CreateItemListCommand createItemListCommand)
+	{
+		return await _httpClientRequest.HttpRequestToObject<CommandResponse, 
+            CreateItemListCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/item/v1/createlist"), createItemListCommand);
+	}
+
+	public async Task<BaseResponse<CommandResponse>> UpdateItemAsync(UpdateItemCommand updateItemCommand)
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse,
             UpdateItemCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/item/v1/update"), updateItemCommand);

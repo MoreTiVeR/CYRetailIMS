@@ -10,4 +10,5 @@ public interface IAppConfig
 {
     string GetConnectionStringDefault();
     string GetUserSecretKey();
+    string GetImportItemFilePath();
 }

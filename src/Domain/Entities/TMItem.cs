@@ -13,7 +13,7 @@ public partial class TMItem : BaseAuditableEntity
     [Key]
     public int ItemID { get; set; }
 
-    [StringLength(10)]
+    [StringLength(20)]
     [Unicode(false)]
     public string ItemCode { get; set; } = null!;
 
@@ -27,7 +27,7 @@ public partial class TMItem : BaseAuditableEntity
     [Unicode(false)]
     public string Name { get; set; } = null!;
 
-    [StringLength(20)]
+    [StringLength(100)]
     [Unicode(false)]
     public string? ShortName { get; set; }
 

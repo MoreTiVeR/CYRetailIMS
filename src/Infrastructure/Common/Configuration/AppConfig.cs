@@ -23,4 +23,6 @@ public class AppConfig : IAppConfig
     public string GetConnectionStringDefault() => Configuration.GetSection("ConnectionStrings:DefaultConnection").Get<string>();
 
     public string GetUserSecretKey() => Configuration.GetSection("AppSettings:SECRET_KEY").Get<string>();
+
+    public string GetImportItemFilePath() => Configuration.GetSection("AppSettings:IMPORT_FILE_PATH").Get<string>();
 }
