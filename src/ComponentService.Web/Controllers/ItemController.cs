@@ -28,11 +28,8 @@ using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransf
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
-using System.Collections.Generic;
 using OfficeOpenXml;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using CYRetailIMS.Application.Common.Confiuration;
-using System.IO;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
