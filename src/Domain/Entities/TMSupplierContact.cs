@@ -25,6 +25,10 @@ public partial class TMSupplierContact : BaseAuditableEntity
     [Unicode(false)]
     public string? ContactPerson { get; set; }
 
+	[StringLength(13)]
+	[Unicode(false)]
+	public string? MobileNo { get; set; }
+
     [StringLength(100)]
     [Unicode(false)]
     public string? Description { get; set; }

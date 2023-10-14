@@ -12,6 +12,7 @@ using CYRetailIMS.Application.Services.AdjustItemTypeService.Queries.GetAdjustIt
 using CYRetailIMS.Application.Services.ApproveStatusService.Queries.GetApproveStatus.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyList.v1;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartmentByID.v1;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartments.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
@@ -29,8 +30,12 @@ using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItem
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeByID.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using CYRetailIMS.Application.Services.PaymentTypeService.Queries.GetPaymentTypeList.v1;
+using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.CreatePurchaseOrder.v1;
+using CYRetailIMS.Application.Services.PurchaseTypeService.Queries.GetPurchaseTypeList.v1;
 using CYRetailIMS.Application.Services.RoleService.Queries.GetRoleByID.v1;
 using CYRetailIMS.Application.Services.RoleService.Queries.GetRoles.v1;
+using CYRetailIMS.Application.Services.ShipmentTypeService.Queries.GetShipmentTypeList.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureByID.v1;
@@ -100,6 +105,16 @@ public static class ConfigureService
             mc.AddProfile<GetAdjustItemTypeMappingProfile>();
             mc.AddProfile<GetAdjustItemTypeByIDMappingProfile>();
 
+
+            mc.AddProfile<CreatePurchaseOrderMappingProfile>();
+
+            mc.AddProfile<GetCurrencyListMappingProfile>();
+
+            mc.AddProfile<GetPaymentTypeListMappingProfile>();
+
+            mc.AddProfile<GetPurchaseTypeMappingProfile>();
+
+            mc.AddProfile<GetShipmentTypeMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

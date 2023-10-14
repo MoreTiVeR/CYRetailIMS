@@ -13,11 +13,11 @@ public partial class TTPurchaseOrder : BaseAuditableEntity
     [Key]
     public int PurchaseOrderID { get; set; }
 
-    [StringLength(50)]
+    [StringLength(18)]
     [Unicode(false)]
-    public string PurchaseOrderName { get; set; } = null!;
+	public string PurchaseOrderNo { get; set; } = null!;
 
-    public int PurchaseTypeID { get; set; }
+	public int PurchaseTypeID { get; set; }
 
     public int SupplierID { get; set; }
 
@@ -27,7 +27,7 @@ public partial class TTPurchaseOrder : BaseAuditableEntity
     public DateTime OrderDate { get; set; }
 
     [Column(TypeName = "datetime")]
-    public DateTime ReceivedDate { get; set; }
+    public DateTime? ReceivedDate { get; set; }
 
     public int PaymenTypeID { get; set; }
 

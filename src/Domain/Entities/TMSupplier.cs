@@ -23,7 +23,7 @@ public partial class TMSupplier : BaseAuditableEntity
 
     public int SupplierTypeID { get; set; }
 
-    [StringLength(10)]
+    [StringLength(100)]
     public string? Description { get; set; }
 
     [ForeignKey("SupplierTypeID")]
