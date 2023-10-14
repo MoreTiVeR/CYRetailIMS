@@ -27,6 +27,7 @@ public class GetPurchaseOrderResposeDTO
 	public DateTime? receiveddate { get; set; }
 
 	public int paymentypeid { get; set; }
+
     public string paymentypename { get; set; }
 
     public string remarks { get; set; }

@@ -36,12 +36,14 @@ using CYRetailIMS.Application.Services.PurchaseTypeService.Queries.GetPurchaseTy
 using CYRetailIMS.Application.Services.RoleService.Queries.GetRoleByID.v1;
 using CYRetailIMS.Application.Services.RoleService.Queries.GetRoles.v1;
 using CYRetailIMS.Application.Services.ShipmentTypeService.Queries.GetShipmentTypeList.v1;
+using CYRetailIMS.Application.Services.SupplierContactTypeService.Queries.GetSupplierContactTypeList.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureByID.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.Application.Services.UserInBranchService.Queries.GetUserInBranchByUserID.v1;
 using CYRetailIMS.Application.Services.UserService.Commands.CreateUser.v1;
+using CYRetailIMS.Application.Services.WarehouseService.Queries.GetWarehouseList.v1;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -115,6 +117,10 @@ public static class ConfigureService
             mc.AddProfile<GetPurchaseTypeMappingProfile>();
 
             mc.AddProfile<GetShipmentTypeMappingProfile>();
+
+            mc.AddProfile<GetSupplierContactTypeMappingProfile>();
+
+            mc.AddProfile<GetWarehouseMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

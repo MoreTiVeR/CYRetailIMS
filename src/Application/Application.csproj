@@ -11,14 +11,13 @@
   <ItemGroup>
     <Folder Include="Caching\" />
     <Folder Include="Common\Mappings\UI\Sale\" />
+    <Folder Include="Services\SupplierContactTypeService\Commands\" />
+    <Folder Include="Services\SupplierContactTypeService\EventHandlers\" />
     <Folder Include="Services\PaymentTypeService\Commands\" />
     <Folder Include="Services\PaymentTypeService\EventHandlers\" />
-    <Folder Include="Services\PaymentTypeService\Queries\" />
     <Folder Include="Services\PurchaseOrderService\Commands\UpdatePurchaseOrder\v1\" />
-    <Folder Include="Services\PurchaseOrderService\Queries\" />
     <Folder Include="Services\PurchaseTypeService\Commands\" />
     <Folder Include="Services\PurchaseTypeService\EventHandlers\" />
-    <Folder Include="Services\PurchaseTypeService\Queries\" />
     <Folder Include="Services\AccountService\Commands\" />
     <Folder Include="Services\AccountService\EventHandlers\" />
     <Folder Include="Services\AdjustItemTransactionService\Commands\DeleteAdjustItem\" />
@@ -28,7 +27,6 @@
     <Folder Include="Services\ApproveStatusService\EventHandlers\" />
     <Folder Include="Services\CurrencyService\Commands\" />
     <Folder Include="Services\CurrencyService\EventHandlers\" />
-    <Folder Include="Services\CurrencyService\Queries\" />
     <Folder Include="Services\DepartmentService\Commands\" />
     <Folder Include="Services\DepartmentService\EventHandlers\" />
     <Folder Include="Services\ItemBrandService\Commands\UpdateBrand\v1\" />
@@ -46,6 +44,10 @@
     <Folder Include="Services\RoleInMenuService\Queries\" />
     <Folder Include="Services\RoleService\Commands\" />
     <Folder Include="Services\RoleService\EventHandlers\" />
+    <Folder Include="Services\ShipmentTypeService\Commands\" />
+    <Folder Include="Services\ShipmentTypeService\EventHandlers\" />
+    <Folder Include="Services\SupplierService\Commands\" />
+    <Folder Include="Services\SupplierService\EventHandlers\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByCriteria\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByTransactionTypeID\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByTransactionDate\" />
@@ -58,6 +60,8 @@
     <Folder Include="Services\UnitOfMeasureService\EventHandlers\" />
     <Folder Include="Services\UserInBranchService\Commands\" />
     <Folder Include="Services\UserInBranchService\EventHandlers\" />
+    <Folder Include="Services\WarehouseService\Commands\" />
+    <Folder Include="Services\WarehouseService\EventHandlers\" />
   </ItemGroup>
 
   <ItemGroup>
