@@ -11,5 +11,5 @@ namespace CYRetailIMS.Application.Services.PaymentTypeService.Queries.PaymentTyp
 [Serializable]
 public record PaymentTypeByIDCommand : IRequest<BaseResponse<PaymentTypeByIDResponseDTO>>
 {
-    public int paymentid { get; init; }
+    public int paymenttypeid { get; init; }
 }

@@ -47,7 +47,6 @@ public class CreatePurchaseOrderHandler : BaseService, IRequestHandler<CreatePur
 		await _unitOfWork.Repository<TTPurchaseOrder>().AddAsync(tmPurchaseOrderEnt);
 		await _unitOfWork.SaveChangesAsync();
 
-
 		return new BaseResponse<CommandResponse>
         {
 			result = true,

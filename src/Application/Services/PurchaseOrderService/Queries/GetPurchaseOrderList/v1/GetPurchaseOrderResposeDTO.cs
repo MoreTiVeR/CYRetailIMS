@@ -50,8 +50,8 @@ public class GetPurchaseOrderResposeDTO
 
 	public int approvestatus { get; set; }
 
-    public List<GetPurchaseOrderDetailResponseDTO> detail { get; set; }
-
 	public GetPurchaseOrderShipmentResponseDTO shipment { get; set; }
+
+	public List<GetPurchaseOrderDetailResponseDTO> detail { get; set; }
 
 }

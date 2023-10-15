@@ -1,8 +1,179 @@
-﻿
+﻿@using CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurchaseOrderList.v1;
+@using static CYRetailIMS.Application.Common.Models.EnumModel;
+
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="page-header">
+    <div class="page-title">
+        <h4>รายการสั่งสินค้า</h4>
+        <h6>จัดการรายการสั่งสินค้า</h6>
+    </div>
+    <div class="page-btn">
+        <a asp-action="Create" asp-controller="Item" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">สร้างใบสั่งสินค้า</a>
+    </div>
+</div>
 
+<!-- /product list -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-top">
+            <div class="search-set">
+                <div class="search-path">
+                    <a class="btn btn-filter" id="filter_search">
+                        <img src="~/assets/img/icons/filter.svg" alt="img">
+                        <span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
+                    </a>
+                </div>
+                <div class="search-input">
+                    <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+                </div>
+            </div>
+            @* <div class="wordset">
+            <ul>
+            <li>
+            <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+            </li>
+            </ul>
+            </div>*@
+        </div>
+        <!-- /Filter -->
+        <div class="card" id="filter_inputs">
+            <div class="card-body pb-0">
+                <div class="row">
+                    <div class="col-lg col-sm-6 col-12">
+                        <div class="form-group">
+                            <input type="text" class="datetimepicker cal-icon" placeholder="Choose Date">
+                        </div>
+                    </div>
+                    <div class="col-lg col-sm-6 col-12">
+                        <div class="form-group">
+                            <input type="text" placeholder="Enter Reference">
+                        </div>
+                    </div>
+                    <div class="col-lg col-sm-6 col-12">
+                        <div class="form-group">
+                            <select class="select">
+                                <option>Choose Supplier</option>
+                                <option>Supplier</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg col-sm-6 col-12">
+                        <div class="form-group">
+                            <select class="select">
+                                <option>Choose Status</option>
+                                <option>Inprogress</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg col-sm-6 col-12">
+                        <div class="form-group">
+                            <select class="select">
+                                <option>Choose Payment Status</option>
+                                <option>Payment Status</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-1 col-sm-6 col-12">
+                        <div class="form-group">
+                            <a class="btn btn-filters ms-auto"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Filter -->
+        <div class="table-responsive">
+            <table class="table  datanew">
+                <thead>
+                    <tr>
+                        <th hidden>
+                            <label class="checkboxs">
+                                <input type="checkbox" id="select-all">
+                                <span class="checkmarks"></span>
+                            </label>
+                        </th>
+                        <th>เลขอ้างอิง</th>
+                        <th>ซัฟพลายเออร์</th>
+                        <th>วันที่สร้าง</th>
+                        <th>วันที่รับสินค้า</th>
+                        <th>ประเภทการจ่ายเงิน</th>
+                        <th>จำนวนเงินรวม</th>
+                        <th>ส่วนลด</th>
+                        <th>ยอดจ่าย</th>
+                        <th>สถานะรับสินค้า</th>
+                        <th>เลขพัสดุ</th>
+                        <th class="text-center">หมายเหตุ</th>
+                        <th class="text-center">สร้างโดย</th>
+                        <th class="text-center">ดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.OrderList.result)
+                    {
+                        foreach (var item in (List<GetPurchaseOrderResposeDTO>)ViewBag.OrderList.data)
+                        {
+                            string rName = $"rowid{@item.purchaseorderid}";
+                            Dictionary<string, string> aOrderID = new Dictionary<string, string> { { "orderid", item.purchaseorderid.ToString() } };
+                            string sReceiveDate = item.receiveddate.HasValue ? $"{@item.receiveddate:dd/MM/yyyy}" : string.Empty;
+                            <tr>
+                                <td hidden>
+                                    <label class="checkboxs">
+                                        <input type="checkbox">
+                                        <span class="checkmarks"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    @item.purchaseorderno
+                                </td>
+                                <td>@item.suppliername</td>
+                                <td>@($"{@item.orderdate:dd/MM/yyyy}")</td>
+                                <td>@sReceiveDate</td>
+                                <td>@item.paymentypename</td>
+                                <td>@item.amount</td>
+                                <td>@item.discount</td>
+                                <td>@item.total</td>
+                                <td>
+                                    @if (item.approvestatus == (int)ApproveStatus.Approve)
+                                    {
+                                        <span class="badges bg-lightgreen">รับสินค้าแล้ว</span>
+                                    }
+                                    else if (item.approvestatus == (int)ApproveStatus.WaitingApprove)
+                                    {
+                                        <a class="me-3" asp-action="ApproveOrder" asp-controller="Item" title="คลิก เพื่อรับสินค้า" asp-all-route-data="aOrderID">
+                                            <span class="badges bg-lightyellow">อยู่ระหว่างการขนส่ง</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badges bg-lightred">ยกเลิก</span>
+                                    }
+                                </td>
+                                <td>@item.shipment.trackingno</td>
+                                <td>@item.remarks</td>
+                                <td>@item.createdby</td>
+                                <td>
+                                    <a class="me-3" asp-action="Edit" asp-controller="Order" title="แก้ไขออเดอร์" asp-all-route-data="aOrderID">
+                                        <img src="~/assets/img/icons/edit.svg" alt="img">
+                                    </a>
+                                    <a href="#" id="@rName" class="me-3" title="ลบข้อมูลออเดอร์" onclick="deleteItem(@item.purchaseorderid)">
+                                        <img src="~/assets/img/icons/delete.svg" alt="img">
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /product list -->
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/order/order_index.js" asp-append-version="true"></script>
+}

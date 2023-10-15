@@ -5,25 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.PurchaseTypeService.Queries.GetPurchaseTypeList.v1;
+using CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurchaseOrderList.v1;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurchaseOrderList.v1;
-public class GetPurchaseOrderListHandler : BaseService, IRequestHandler<GetPurchaseOrderListCommand, BaseResponse<List<GetPurchaseOrderResposeDTO>>>
+namespace CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurchaseOrderByID.v1;
+public class GetPurchaseOrderByIDHandler : BaseService, IRequestHandler<GetPurchaseOrderByIDCommand, BaseResponse<GetPurchaseOrderResposeDTO>>
 {
-	public GetPurchaseOrderListHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
-	{
-	}
+    public GetPurchaseOrderByIDHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
+    {
+    }
 
-	public async Task<BaseResponse<List<GetPurchaseOrderResposeDTO>>> Handle(GetPurchaseOrderListCommand request, CancellationToken cancellationToken)
-	{
-		List<GetPurchaseOrderResposeDTO> resOrder = (from order in await _unitOfWork.Repository<TTPurchaseOrder>().FindWithInclude(w => w.IsActive, 
-			i => i.Include(w => w.TTPurchaseOrderDetails),
-			ii => ii.Include(w => w.TTShipments).ThenInclude(w => w.Warehouse))
+    public async Task<BaseResponse<GetPurchaseOrderResposeDTO>> Handle(GetPurchaseOrderByIDCommand request, CancellationToken cancellationToken)
+    {
+		List<GetPurchaseOrderResposeDTO> resOrder = (from order in await _unitOfWork.Repository<TTPurchaseOrder>().FindWithInclude(w => w.PurchaseOrderID == request.purchaseorderid 
+													 && w.IsActive, 
+													 i => i.Include(w => w.TTPurchaseOrderDetails), 
+													 ii => ii.Include(w => w.TTShipments).ThenInclude(w => w.Warehouse))
 													 join ordertype in await _unitOfWork.Repository<TMPurchaseType>().QueryAsync() on order.PurchaseTypeID equals ordertype.PurchaseTypeID
 													 join supp in await _unitOfWork.Repository<TMSupplier>().QueryAsync() on order.SupplierID equals supp.SupplierID
 													 join cur in await _unitOfWork.Repository<TMCurrency>().QueryAsync() on order.CurrencyID equals cur.CurrencyID
@@ -112,14 +113,13 @@ public class GetPurchaseOrderListHandler : BaseService, IRequestHandler<GetPurch
 		{
 			throw new Exception("ไม่พบข้อมูล");
 		}
-		return new BaseResponse<List<GetPurchaseOrderResposeDTO>>
+		return new BaseResponse<GetPurchaseOrderResposeDTO>
 		{
 			result = true,
-			data = resOrder,
+			data = resOrder?.FirstOrDefault(),
 			status = StatusCodes.Status200OK.ToString(),
 			message = "Success",
 			soruce = "db"
 		};
-
 	}
 }

@@ -15,7 +15,6 @@
     <Folder Include="Services\SupplierContactTypeService\EventHandlers\" />
     <Folder Include="Services\PaymentTypeService\Commands\" />
     <Folder Include="Services\PaymentTypeService\EventHandlers\" />
-    <Folder Include="Services\PurchaseOrderService\Commands\UpdatePurchaseOrder\v1\" />
     <Folder Include="Services\PurchaseTypeService\Commands\" />
     <Folder Include="Services\PurchaseTypeService\EventHandlers\" />
     <Folder Include="Services\AccountService\Commands\" />

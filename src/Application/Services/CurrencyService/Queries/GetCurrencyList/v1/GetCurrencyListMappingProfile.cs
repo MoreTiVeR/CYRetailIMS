@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyByCode.v1;
 using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyByID.v1;
 using CYRetailIMS.Domain.Entities;
 
@@ -15,5 +16,7 @@ public class GetCurrencyListMappingProfile : Profile
 		CreateMap<TMCurrency, GetCurrencyListResponseDTO>();
 
 		CreateMap<TMCurrency, GetCurrencyByIDResponseDTO>();
-	}
+
+        CreateMap<TMCurrency, GetCurrencyByCodeResponseDTO>();
+    }
 }

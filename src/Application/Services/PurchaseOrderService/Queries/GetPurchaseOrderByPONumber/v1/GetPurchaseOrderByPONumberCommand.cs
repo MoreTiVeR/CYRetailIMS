@@ -12,5 +12,5 @@ namespace CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurch
 [Serializable]
 public record GetPurchaseOrderByPONumberCommand : IRequest<BaseResponse<GetPurchaseOrderResposeDTO>>
 {
-	public int purchaseorderno { get; init; }
+	public string purchaseorderno { get; init; }
 }

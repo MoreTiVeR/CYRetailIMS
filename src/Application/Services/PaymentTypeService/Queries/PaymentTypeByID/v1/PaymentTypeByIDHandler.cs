@@ -20,7 +20,7 @@ public class PaymentTypeByIDHandler : BaseService, IRequestHandler<PaymentTypeBy
 
     public async Task<BaseResponse<PaymentTypeByIDResponseDTO>> Handle(PaymentTypeByIDCommand request, CancellationToken cancellationToken)
     {
-		IEnumerable<TMPaymentType> tmpaymentList = await _unitOfWork.Repository<TMPaymentType>().QueryAsync(w => w.PaymenTypeID == request.paymentid && w.IsActive);
+		IEnumerable<TMPaymentType> tmpaymentList = await _unitOfWork.Repository<TMPaymentType>().QueryAsync(w => w.PaymenTypeID == request.paymenttypeid && w.IsActive);
 		if (!tmpaymentList.Any())
 		{
 			throw new Exception("ไม่พบข้อมูล");

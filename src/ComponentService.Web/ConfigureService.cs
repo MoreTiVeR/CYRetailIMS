@@ -11,6 +11,7 @@ using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.AdjustItemAPI;
 using CYRetailIMS.Application.ExternalService.AdjustItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.ExternalService.CurrencyAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
@@ -19,10 +20,17 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Application.ExternalService.PaymentTypeAPI;
+using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
+using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
 using CYRetailIMS.Application.ExternalService.Report;
+using CYRetailIMS.Application.ExternalService.ShipmentTypeAPI;
+using CYRetailIMS.Application.ExternalService.SupplierAPI;
+using CYRetailIMS.Application.ExternalService.SupplierContactTypeAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
+using CYRetailIMS.Application.ExternalService.WarehouseAPI;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
@@ -33,6 +41,7 @@ using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
 using CYRetailIMS.Infrastructure.ExternalService.AdjustItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.AdjustItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.BranchAPI;
+using CYRetailIMS.Infrastructure.ExternalService.CurrencyAPI;
 using CYRetailIMS.Infrastructure.ExternalService.DepartmentAPI;
 using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
@@ -41,10 +50,17 @@ using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Infrastructure.ExternalService.PaymentTypeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.PurchaseOrderAPI;
+using CYRetailIMS.Infrastructure.ExternalService.PurchaseTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ShipmentTypeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.SupplierAPI;
+using CYRetailIMS.Infrastructure.ExternalService.SupplierContactTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
+using CYRetailIMS.Infrastructure.ExternalService.WarehouseAPI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace CYRetailIMS.ComponentService.Web;
@@ -133,8 +149,16 @@ public static class ConfigureService
         services.AddScoped<IReportAPI, ReportAPI>();
         services.AddScoped<IAdjustItemAPI, AdjustItemAPI>();
         services.AddScoped<IAdjustItemTypeAPI, AdjustItemTypeAPI>();
-        #endregion
+		services.AddScoped<IPurchaseOrderAPI, PurchaseOrderAPI>();
+		services.AddScoped<ICurrencyAPI, CurrencyAPI>();
+		services.AddScoped<IPaymentTypeAPI, PaymentTypeAPI>();
+		services.AddScoped<IPurchaseTypeAPI, PurchaseTypeAPI>();
+		services.AddScoped<IShipmentTypeAPI, ShipmentTypeAPI>();
+		services.AddScoped<ISupplierAPI, SupplierAPI>();
+		services.AddScoped<ISupplierContactTypeAPI, SupplierContactTypeAPI>();
+		services.AddScoped<IWarehouseAPI, WarehouseAPI>();
+		#endregion
 
-        return services;
+		return services;
     }
 }

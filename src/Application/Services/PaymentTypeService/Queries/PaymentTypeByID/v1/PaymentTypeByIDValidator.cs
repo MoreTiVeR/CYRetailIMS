@@ -10,6 +10,6 @@ public class PaymentTypeByIDValidator : AbstractValidator<PaymentTypeByIDCommand
 {
 	public PaymentTypeByIDValidator()
 	{
-		RuleFor(w => w.paymentid).NotNull().Must(w => w > 0).WithMessage("กรุณาระบุรหัสการจ่ายเงิน");
+		RuleFor(w => w.paymenttypeid).NotNull().Must(w => w > 0).WithMessage("กรุณาระบุรหัสการจ่ายเงิน");
 	}
 }
