@@ -1,8 +1,187 @@
-﻿
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@model CreatePurchaseOrderViewModel
+
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="page-header">
+    <div class="page-title">
+        <h4>เพิ่มรายการสั่งสินค้า</h4>
+        <h6>ทำรายการเพิ่มรายการสั่งสินค้าสำนักงานใหญ่</h6>
+    </div>
+</div>
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <form id="frmSavePurchaseOrder" class="form-save-purchase-order" onsubmit="return SavePurchaseOrder(this)">
+            <div class="row">
+                <!--ROW1-->
+                <div class="row">
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>ประเภทออเดอร์</label>
+                            <select class="select" asp-for="npurchasetypeid">
+                                @if (ViewBag.PurchaseOrderTypeList.result)
+                                {
+                                    <option value="">-- เลือกประเภทออเดอร์--</option>
+                                    foreach (var item in ViewBag.PurchaseOrderTypeList.data)
+                                    {
+                                        <option value="@item.purchasetypeid">@item.purchasetypename</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option>-- ไม่พบข้อมูล --</option>
+                                }
+                            </select>
+                            <span asp-validation-for="npurchasetypeid" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>ปรับเภทการชำระเงิน</label>
+                            <select class="select" asp-for="npaymenttypeid">
+                                @if (ViewBag.PaymentTypeList.result)
+                                {
+                                    <option value="">-- เลือกประเภทการชำระเงิน--</option>
+                                    foreach (var item in ViewBag.PaymentTypeList.data)
+                                    {
+                                        <option value="@item.paymentypeid">@item.paymentypename</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option>-- ไม่พบข้อมูล --</option>
+                                }
+                            </select>
+                            <span asp-validation-for="npaymenttypeid" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>กสุลเงินที่ชำระเงิน</label>
+                            <select class="select" asp-for="ncurrencyid">
+                                @if (ViewBag.CurrencyList.result)
+                                {
+                                    <option value="">-- เลือกสกุลเงินที่ชำระ --</option>
+                                    foreach (var item in ViewBag.CurrencyList.data)
+                                    {
+                                        <option value="@item.currencyid">@item.currencycode</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option>-- ไม่พบข้อมูล --</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ncurrencyid" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>ซัฟพลายเออร์</label>
+                            <select class="select" asp-for="nsupplierid">
+                                @if (ViewBag.SupplierList.result)
+                                {
+                                    <option value="">-- เลือกซัฟพลายเออร์--</option>
+                                    foreach (var item in ViewBag.SupplierList.data)
+                                    {
+                                        <option value="@item.supplierid">@item.suppliername_th</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option>-- ไม่พบข้อมูล --</option>
+                                }
+                            </select>
+                            <span asp-validation-for="nsupplierid" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <!--ROW2-->
+                <div class="row">
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>จำนวนเงิน</label>
+                            <input type="number" class="form-control" asp-for="amount">
+                            <span asp-validation-for="amount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>ส่วนลด</label>
+                            <input type="number" class="form-control" asp-for="discount">
+                            <span asp-validation-for="discount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>จำนวนเงินรวมทั้งหมด</label>
+                            <input type="number" class="form-control" asp-for="total">
+                            <span asp-validation-for="total" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12"></div>
+                </div>
+                <!--ROW3-->
+                <div class="row">
+                    <div class="col-lg-12 col-sm-12 col-12" style="text-align:right">
+                        @*<button id="btnAddItem" name="btnAddItem" type="button" data-bs-toggle="modal" data-bs-target="#AddAdjustItem" class="btn btn-added">เพิ่มสินค้าที่ต้องการปรับสต๊อก</button>*@
+                        @*<a data-bs-toggle="modal" data-bs-target="#AddAdjustItem"><img src="~/assets/img/icons/plus-circle.svg" class="me-2" alt="img">เพิ่มสินค้าที่ต้องการปรับสต๊อก</a>*@
+                        <a data-bs-toggle="modal" data-bs-target="#mdlPurchaseOrder"><img src="~/assets/img/icons/plus-circle.svg" class="me-2" alt="img">เพิ่มสินค้าที่ต้องการปรับสต๊อก</a>
+                    </div>
+                    <div class="col-lg-12 col-sm-12 col-12">
+                        <div class="table-responsive">
+                            <table id="tbItems" class="table table-striped table-bordered" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th style="width:10%">#</th>
+                                        <th style="width:20%">สาขา</th>
+                                        <th style="width:10%">ประเภท</th>
+                                        <th style="width:20%">สินค้า</th>
+                                        <th style="width:20%">จำนวน</th>
+                                        <th style="width:20%">ดำเนินการ</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--ROWX-->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>หมายเหตุ</label>
+                            @Html.TextAreaFor(m => m.Remark, new
+                            {
+                            @class = "form-control full-width",
+                            @style = "resize: none;",
+                            @cols = 5,
+                            @rows = 3,
+                            @maxlength = 200,
+                            value = "",
+                            placeholder = Html.DisplayNameFor(n => n.Remark)
+                            })
+                            <span asp-validation-for="Remark" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <!--ROW4-->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <a asp-action="Index" asp-controller="Order" class="btn btn-cancel me-2">ยกเลิก</a>
+                        <button id="btnSavePurchaseOrder" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Large Modal -->
+<div id="mdlPurchaseOrder" aria-labelledby="mdlPurchaseOrder" class="modal fade" tabindex="-1" aria-hidden="true">
+    <partial name="_PartialPage/_ModalPartialAddPurchaseOrder" />
+</div>
 

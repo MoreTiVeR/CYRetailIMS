@@ -1,29 +1,30 @@
 ﻿
-function AddItem(form) {
+
+
+function SavePurchaseOrder(form) {
 
     $("#global-loader").css('display', '');
-
-    var frmAddItem = $("#frmAddItem");
-    frmAddItem.validate();
-    var isValid = frmAddItem.valid();
+    var frmSavePurchaseOrder = $("#frmSavePurchaseOrder");
+    frmSavePurchaseOrder.validate();
+    var isValid = frmSavePurchaseOrder.valid();
     if (isValid) {
-        console.log('Call => AddItem');
+        console.log('Call => PurchaseOrderItem');
         $.validator.unobtrusive.parse(form);
         var data = $(form).serializeJSON();
         data = JSON.stringify(data);
         $.ajax({
             type: 'POST',
-            url: '/Item/AddItem',
+            url: '/Order/CreateAdjustItem',
             data: data,
             contentType: 'application/json',
             success: function (data) {
                 if (data.result) {
                     //popup.dialog('close');
 
-                    AlertSuccess("เพิ่มสินค้าสำเร็จ");
-                    $("#frmAddItem")[0].reset();
+                    AlertSuccess("สร้างรายการสั่งสินค้าสำเร็จ");
+                    //$("#frmSavePurchaseOrder")[0].reset();
                     $("#global-loader").css('display', 'none');
-
+                    dataTable.ajax.reload();
                     //To do next?
                     //window.location = data.url;
                 }

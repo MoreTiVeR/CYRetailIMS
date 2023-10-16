@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CYRetailIMS.Application.Common.Models.UI;
+public class PurchaseOrderItemViewModel
+{
+    public int nseq { get; set; }
+
+    [Required(ErrorMessage = "*กรุณาระบุสินค้า")]
+    [DisplayName("สินค้า")]
+    public int nitemid { get; set; }
+
+    [Required(ErrorMessage = "*กรุณาระบุจำนวนสั่งซื่อ")]
+    [DisplayName("จำนวนสั่งซื้อ")]
+    public int nqty { get; set; }
+
+    public decimal price { get; set; }
+
+    public decimal amount { get; set; }
+}

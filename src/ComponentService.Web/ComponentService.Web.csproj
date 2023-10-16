@@ -44,7 +44,6 @@
     <Folder Include="Common\Mappings\" />
     <Folder Include="Views\Home\_PartialPage\" />
     <Folder Include="Views\Item\_PartialPage\" />
-    <Folder Include="Views\Order\_PartialPage\" />
     <Folder Include="Views\Report\_PartialPage\" />
     <Folder Include="Views\Setting\_SettingPartailPage\" />
     <Folder Include="Views\Stock\_PartialPage\" />
