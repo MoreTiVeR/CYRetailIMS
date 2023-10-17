@@ -9,10 +9,19 @@ namespace CYRetailIMS.Application.Services.PurchaseOrderService.Commands.CreateP
 [Serializable]
 public record CreateShipmentCommand
 {
-	public int shipmenttypeid { get; set; }
+    /// <summary>
+    /// TMShipmentType
+    /// </summary>
+    public int shipmenttypeid { get; set; }
 
-	public int? warehouseid { get; set; }
+    /// <summary>
+    /// TMWarehouse
+    /// </summary>
+    public int? warehouseid { get; set; }
 
+    /// <summary>
+    /// TMShipmentType
+    /// </summary>
 	public string shipmentname { get; set; }
 
 	public DateTime? shipmentdate { get; set; }

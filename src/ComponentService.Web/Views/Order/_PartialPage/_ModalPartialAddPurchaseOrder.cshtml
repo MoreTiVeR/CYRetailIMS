@@ -2,7 +2,7 @@
 @model PurchaseOrderItemViewModel
 
 <!-- show payment Modal -->
-<form id="frmAddAdjustItem" onsubmit="return AddAdjustItem(this)">
+<form id="frmAddOrderItem" onsubmit="return AddOrderItem(this)">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -33,14 +33,7 @@
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
-                            <label>จำนวนสินค้า</label>
-                            <input type="number" class="form-control" asp-for="nqty">
-                            <span asp-validation-for="nqty" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-12 col-12">
-                        <div class="form-group">
-                            <label>จำนวนสินค้า</label>
+                            <label>ราคาสินค้า</label>
                             <input type="number" class="form-control" asp-for="price">
                             <span asp-validation-for="price" class="text-danger"></span>
                         </div>
@@ -48,6 +41,13 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>จำนวนสินค้า</label>
+                            <input type="number" class="form-control" asp-for="nqty">
+                            <span asp-validation-for="nqty" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>ราคารวมทั้งหมด</label>
                             <input type="number" class="form-control" asp-for="amount">
                             <span asp-validation-for="amount" class="text-danger"></span>
                         </div>

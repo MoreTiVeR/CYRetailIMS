@@ -29,10 +29,19 @@ public record CreatePurchaseOrderCommand : IRequest<BaseResponse<CommandResponse
 
     public decimal discount { get; init; }
 
+    /// <summary>
+    /// (qty*price) - discount
+    /// </summary>
     public decimal subtotal { get; init; }
 
+    /// <summary>
+    /// vat 7% of subtotal
+    /// </summary>
     public decimal tax { get; init; }
 
+    /// <summary>
+    /// subtotal - tax
+    /// </summary>
     public decimal total { get; init; }
 
     public string createdby { get; init; }

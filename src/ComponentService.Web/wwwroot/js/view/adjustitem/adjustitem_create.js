@@ -2,7 +2,6 @@
 
 InitialTableAdjustItem();
 
-
 function InitialTableAdjustItem() {
     dataTable = $('#tbItems').DataTable({
         destroy: true,

@@ -32,8 +32,8 @@ function deleteItem(orderid) {
             //Delete
             $.ajax({
                 type: 'POST',
-                url: '/Item/DeleteItem',
-                data: JSON.stringify({ itemid: itemid }),
+                url: '/Order/DeleteItem',
+                data: JSON.stringify({ purchaseorderid: orderid }),
                 contentType: 'application/json',
                 success: function (data) {
                     if (data.result) {
@@ -50,8 +50,8 @@ function deleteItem(orderid) {
                        /* $('#tbItems').DataTable().ajax.reload();*/
                         //$('#tbItems').DataTable().ajax.reload();
 
-                        console.log("#rowid" + itemid);
-                        $("#rowid" + itemid).closest("tr").remove();
+                        console.log("#rowid" + orderid);
+                        $("#rowid" + orderid).closest("tr").remove();
                         $('#tbItems').DataTable().ajax.reload();
                         //$("#rowid" + itemid).closest("tr").remove().draw(false);
                         //console.log(row);

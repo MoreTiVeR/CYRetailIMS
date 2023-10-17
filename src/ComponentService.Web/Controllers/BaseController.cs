@@ -54,4 +54,5 @@ public class BaseController : Controller
         principal.AddIdentity(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
         return principal;
     }
+
 }

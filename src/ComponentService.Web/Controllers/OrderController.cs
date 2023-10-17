@@ -12,15 +12,19 @@ using CYRetailIMS.Application.ExternalService.SupplierAPI;
 using CYRetailIMS.Application.ExternalService.SupplierContactTypeAPI;
 using CYRetailIMS.Application.ExternalService.WarehouseAPI;
 using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyList.v1;
-using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
+using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.PaymentTypeService.Queries.GetPaymentTypeList.v1;
+using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.CreatePurchaseOrder.v1;
+using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.DeletePurchaseOrder.v1;
 using CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurchaseOrderList.v1;
 using CYRetailIMS.Application.Services.PurchaseTypeService.Queries.GetPurchaseTypeList.v1;
 using CYRetailIMS.Application.Services.SupplierService.Queries.GetSupplierList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
-using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
+using CYRetailIMS.Infrastructure.Common.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NUglify.Helpers;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -37,6 +41,7 @@ public class OrderController : BaseController
     private readonly ISupplierAPI _supplierAPI;
     private readonly ISupplierContactTypeAPI _supplierContactTypeAPI;
     private readonly IWarehouseAPI _warehouseAPI;
+    private string _sessionTempDataName => "TEMP_ORDER_ITEM_DATA";
 
     public OrderController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
 		IPurchaseOrderAPI purchaseOrderAPI,
@@ -65,7 +70,10 @@ public class OrderController : BaseController
     
     public async Task<IActionResult> Create()
     {
-        BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
+        #region Get- Set Item
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        #endregion
+
         BaseResponse<List<GetPurchaseTypeResponseDTO>> resPurchaseOrderTypeList = await _purchaseTypeAPI.GetPurchaseTypeListAsync();
         BaseResponse<List<GetPaymentTypeListResponseDTO>> resPaymentTypeList = await _paymentTypeAPI.GetPaymentTypeListAsync();
         BaseResponse<List<GetCurrencyListResponseDTO>> resCurrenctList = await _currencyAPI.GetCurrencyListAsync();
@@ -85,24 +93,212 @@ public class OrderController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAdjustItem([FromBody] CreatePurchaseOrderViewModel createPurchaseOrderViewModel)
+    public async Task<IActionResult> CreatePurchaseOrderItem([FromBody] CreatePurchaseOrderViewModel createPurchaseOrderData)
     {
         try
         {
-            throw new NotImplementedException("Building...");
-            //CreateAdjustItemCommand CreateAdjustItemCommand = MappingCreateAdjustItemCommand(adjustItemData);
-            //BaseResponse<CommandResponse> res = await _adjustItemAPI.CreateAdjustItemAsync(CreateAdjustItemCommand);
-
-            //if (res.result)
-            //{
-            //    //Clear TEMP_ADJUST_ITEM_DATA
-            //    HttpContext.Session.Remove("TEMP_ADJUST_ITEM_DATA");
-            //}
-            //return Json(new { result = res.result, message = res.result ? "ปรับสต๊อกสินค้าสำเร็จ" : $"ไม่สามารถทำรายการได้, {res.error.error.message}" });
+            CreatePurchaseOrderCommand createPurchaseOrderCommand = MappingCreatePurchaseOrder(createPurchaseOrderData);
+            BaseResponse<CommandResponse> res = await _purchaseOrderAPI.CreatePurchaseOrderAsync(createPurchaseOrderCommand);
+            if (res.result)
+            {
+                //Clear TEMP_ADJUST_ITEM_DATA
+                HttpContext.Session.Remove(_sessionTempDataName);
+            }
+            return Json(new { result = res.result, message = res.result ? "สร้างใบสั่งซื้อสำเร็จ" : $"ไม่สามารถทำรายการได้, {res.error.error.message}" });
         }
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
         }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteItem([FromBody] DeletePurchaseOrderViewModel delPurchaseOrder)
+    {
+        try
+        {
+            DeletePurchaseOrderCommand delItemCommand = new DeletePurchaseOrderCommand
+            {
+                purchaseorderid = delPurchaseOrder.purchaseorderid,
+                deletedby = base.UserProfile.rolename,
+                deleteddate = DateTime.Now
+            };
+            BaseResponse<CommandResponse> resDelItem = await _purchaseOrderAPI.DeletePurchaseOrderAsync(delItemCommand);
+            if (resDelItem.result)
+            {
+                return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.message });
+            }
+            return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> GetTempItem()
+    {
+        try
+        {
+            List<PurchaseOrderItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
+
+            #region if list is null => create new list with 0 member
+            if (tempList == null)
+            {
+                tempList = new List<PurchaseOrderItemViewModel>();
+                HttpContext.Session.SetDataToSession(_sessionTempDataName, tempList);
+            }
+            #endregion
+            return Json(new { data = tempList.OrderBy(o => o.nseq).ToList() });
+        }
+        catch
+        {
+            return Json(new { data = new List<PurchaseOrderItemViewModel>() });
+        }
+
+    }
+
+    [HttpPost]
+    public IActionResult AddTempItem([FromBody] PurchaseOrderItemViewModel orderItemData)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            if (orderItemData.nqty < 0)
+            {
+                throw new Exception("กรุณาระบุจำนวนไม่น้อยกว่า 0");
+            }
+
+            //Get Current List
+            List<PurchaseOrderItemViewModel> tempOrderItemList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
+
+            #region Update when Already added
+            var existData = tempOrderItemList.FirstOrDefault(w => w.nitemid == orderItemData.nitemid);
+            if (existData != null)
+            {
+                //Update QTY
+                tempOrderItemList.Where(w =>  w.nitemid == orderItemData.nitemid).ForEach(e =>
+                {
+                    e.nqty = e.nqty + orderItemData.nqty;
+                });
+            }
+            else
+            {
+                //Add new
+                int lastId = tempOrderItemList != null && tempOrderItemList.Count > 0 ? tempOrderItemList.Last().nseq : 0;
+                lastId++;
+                orderItemData.nseq = lastId;
+                MappingPurchaseOrderItem(ref orderItemData);
+                tempOrderItemList.Add(orderItemData);
+            }
+            #endregion
+
+            HttpContext.Session.SetDataToSession(_sessionTempDataName, tempOrderItemList);
+            return Json(new { result = true, message = "เพิ่มสินค้าสั่งซื้อสำเร็จ" });
+
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public JsonResult DeleteTempItem(int seq)
+    {
+        try
+        {
+            List<PurchaseOrderItemViewModel> res = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
+            PurchaseOrderItemViewModel todo = res?.FirstOrDefault(m => m.nseq == seq);
+            if (todo == null)
+            {
+                throw new Exception("ไม่สามารถลบข้อมูลได้");
+            }
+
+            res.Remove(todo);
+            HttpContext.Session.SetDataToSession(_sessionTempDataName, res);
+            return Json(new { result = true, message = "Delete success." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    private void MappingPurchaseOrderItem(ref PurchaseOrderItemViewModel orderItem)
+    {
+        BaseResponse<List<GetItemListResponseDTO>> resItems = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");        
+        int refItemID = orderItem.nitemid;
+        orderItem.sitemname = resItems.data.FirstOrDefault(w => w.itemid == refItemID).name;
+    }
+
+    private async Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemSessionDataAsync()
+    {
+        BaseResponse<List<GetItemListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");
+        if (res != null)
+        {
+            return res;
+        }
+        res = await _itemAPI.GetItemListAsync();
+        HttpContext.Session.SetDataToSession("ITEM_DATA", res);
+        return res;
+    }
+
+    private CreatePurchaseOrderCommand MappingCreatePurchaseOrder(CreatePurchaseOrderViewModel orderViewModel)
+    {
+        List<PurchaseOrderItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
+
+        orderViewModel.createdby = base.UserProfile.rolename;
+        orderViewModel.createddate = DateTime.Now;
+        CreatePurchaseOrderCommand purchaseOrderRequest = new CreatePurchaseOrderCommand
+        {
+            purchasetypeid = orderViewModel.npurchasetypeid,
+            paymentypeid = orderViewModel.npaymenttypeid,
+            supplierid = orderViewModel.nsupplierid,
+            currencyid = orderViewModel.ncurrencyid == 0 ? 1 : orderViewModel.ncurrencyid, //THB
+            orderdate = orderViewModel.createddate.Value,
+            receiveddate = null,
+            remarks = orderViewModel.Remark,
+            amount = orderViewModel.amount,
+            discount = orderViewModel.discount,
+            subtotal = orderViewModel.amount - orderViewModel.discount,
+            tax = 0,
+            total = (orderViewModel.amount - orderViewModel.discount) - 0,
+            createdby = orderViewModel.createdby,
+            createddate = orderViewModel.createddate.Value,
+            isactive = true,
+            approvestatus = (int)EnumModel.ApproveStatus.WaitingApprove,
+            shipment = new CreateShipmentCommand
+            {
+                shipmenttypeid = 1,
+                shipmentname = "Delivery Express",
+                shipmentdate = orderViewModel.createddate.Value,
+                warehouseid = 1,
+                trackingno = !string.IsNullOrEmpty(orderViewModel.trackingno) ? orderViewModel.trackingno : null
+            },
+            detail = (from a in tempList
+                      select new CreatePurchaseOrderDetailCommand
+                      {
+                          itemid = a.nitemid,
+                          qty = a.nqty,
+                          price = a.price,
+                          amount = a.amount,
+                          discountpercentage = 0,
+                          discountamount = 0,
+                          taxpercentage = 0,
+                          taxamount = 0,
+                          //subtotal = autocalculate
+                          //total = autocalculate
+                      }).ToList()
+
+        };
+        return purchaseOrderRequest;
     }
 }

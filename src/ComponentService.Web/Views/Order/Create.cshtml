@@ -61,26 +61,6 @@
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
-                            <label>กสุลเงินที่ชำระเงิน</label>
-                            <select class="select" asp-for="ncurrencyid">
-                                @if (ViewBag.CurrencyList.result)
-                                {
-                                    <option value="">-- เลือกสกุลเงินที่ชำระ --</option>
-                                    foreach (var item in ViewBag.CurrencyList.data)
-                                    {
-                                        <option value="@item.currencyid">@item.currencycode</option>
-                                    }
-                                }
-                                else
-                                {
-                                    <option>-- ไม่พบข้อมูล --</option>
-                                }
-                            </select>
-                            <span asp-validation-for="ncurrencyid" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-12 col-12">
-                        <div class="form-group">
                             <label>ซัฟพลายเออร์</label>
                             <select class="select" asp-for="nsupplierid">
                                 @if (ViewBag.SupplierList.result)
@@ -97,6 +77,12 @@
                                 }
                             </select>
                             <span asp-validation-for="nsupplierid" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>เลขติดตามพัสดุ</label>
+                            <input type="number" class="form-control" asp-for="trackingno">
                         </div>
                     </div>
                 </div>
@@ -128,8 +114,6 @@
                 <!--ROW3-->
                 <div class="row">
                     <div class="col-lg-12 col-sm-12 col-12" style="text-align:right">
-                        @*<button id="btnAddItem" name="btnAddItem" type="button" data-bs-toggle="modal" data-bs-target="#AddAdjustItem" class="btn btn-added">เพิ่มสินค้าที่ต้องการปรับสต๊อก</button>*@
-                        @*<a data-bs-toggle="modal" data-bs-target="#AddAdjustItem"><img src="~/assets/img/icons/plus-circle.svg" class="me-2" alt="img">เพิ่มสินค้าที่ต้องการปรับสต๊อก</a>*@
                         <a data-bs-toggle="modal" data-bs-target="#mdlPurchaseOrder"><img src="~/assets/img/icons/plus-circle.svg" class="me-2" alt="img">เพิ่มสินค้าที่ต้องการปรับสต๊อก</a>
                     </div>
                     <div class="col-lg-12 col-sm-12 col-12">
@@ -138,10 +122,10 @@
                                 <thead>
                                     <tr>
                                         <th style="width:10%">#</th>
-                                        <th style="width:20%">สาขา</th>
-                                        <th style="width:10%">ประเภท</th>
                                         <th style="width:20%">สินค้า</th>
-                                        <th style="width:20%">จำนวน</th>
+                                        <th style="width:10%">จำนวนสินค้า</th>
+                                        <th style="width:20%">ราคาสินค้า</th>
+                                        <th style="width:20%">ราคารวมทั้งหมด</th>
                                         <th style="width:20%">ดำเนินการ</th>
                                     </tr>
                                 </thead>
@@ -185,3 +169,8 @@
     <partial name="_PartialPage/_ModalPartialAddPurchaseOrder" />
 </div>
 
+@section Scripts{
+
+    <!--Page Script-->
+    <script src="~/js/view/order/order_create.js" asp-append-version="true"></script>
+}
