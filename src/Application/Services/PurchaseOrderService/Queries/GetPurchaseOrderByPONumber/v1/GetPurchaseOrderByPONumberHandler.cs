@@ -69,7 +69,8 @@ public class GetPurchaseOrderByPONumberHandler : BaseService, IRequestHandler<Ge
 																		 isactive = a.IsActive
 																	 }).FirstOrDefault(),
 														 detail = (from a in order.TTPurchaseOrderDetails
-																   select new GetPurchaseOrderDetailResponseDTO
+                                                                   where a.IsActive
+                                                                   select new GetPurchaseOrderDetailResponseDTO
 																   {
 																	   purchaseorderdetailid = a.PurchaseOrderDetailID,
 																	   itemid = a.ItemID,

@@ -30,6 +30,11 @@ public class UpdatePurchaseOrderHandler : BaseService, IRequestHandler<UpdatePur
 	/// <exception cref="Exception"></exception>
 	public async Task<BaseResponse<CommandResponse>> Handle(UpdatePurchaseOrderCommand request, CancellationToken cancellationToken)
 	{
+		if(request.detail == null || request.detail?.Count == 0)
+		{
+            throw new Exception("กรุณาเพิ่มสินค้าสั่งซื้อก่อนทำรายการ");
+        }
+
 		IEnumerable<TTPurchaseOrder> resPurchaseEntity = await _unitOfWork.Repository<TTPurchaseOrder>().FindWithInclude(w =>
 		w.PurchaseOrderID == request.purchaseorderid, i => i.Include(w => w.TTPurchaseOrderDetails), ii => ii.Include(w => w.TTShipments));
 		if (!resPurchaseEntity.Any())
@@ -37,27 +42,44 @@ public class UpdatePurchaseOrderHandler : BaseService, IRequestHandler<UpdatePur
 			throw new Exception("ไม่พบข้อมูล");
 		}
 
-		resPurchaseEntity.ToList().ForEach(e =>
+		var purchaseEnt = resPurchaseEntity.FirstOrDefault();
+        if (purchaseEnt.ApproveStatus == (int)EnumModel.ApproveStatus.Approve && request.approvestatus != (int)EnumModel.ApproveStatus.Approve)
+		{
+            throw new Exception("ไม่สามารถเปลี่ยนสถานะการขนส่งได้ เนื่องจากรับสินค้านี้ไปแล้ว");
+        }
+
+		//Update PurchaseOrder
+        resPurchaseEntity.ToList().ForEach(e =>
 		{
 			e.SetCreatedBy(request.updatedby);
 			e.SetUpdatedDate(request.updateddate);
-			e.IsActive = request.isactive;
-			e.AddDomainEvent(new TTPurchaseOrderUpdateEvent(e));
+            e.ApproveStatus = request.approvestatus;
+            e.AddDomainEvent(new TTPurchaseOrderUpdateEvent(e));
 			e.TTPurchaseOrderDetails.ToList().ForEach(detail =>
 			{
-				detail.SetCreatedBy(request.updatedby);
-				detail.SetUpdatedDate(request.updateddate);
-				detail.IsActive = request.isactive;
-				detail.AddDomainEvent(new TTPurchaseOrderDetailUpdateEvent(detail));
+				var updateEnt = request.detail.FirstOrDefault(w => w.itemid == detail.ItemID);
+				if(updateEnt == null)
+				{
+                    detail.SetCreatedBy(request.updatedby);
+                    detail.SetUpdatedDate(request.updateddate);
+					detail.DeActiveStatus();
+                    detail.AddDomainEvent(new TTPurchaseOrderDetailUpdateEvent(detail));
+                }
 			});
 			e.TTShipments.ToList().ForEach(shipment =>
 			{
 				shipment.SetCreatedBy(request.updatedby);
 				shipment.SetUpdatedDate(request.updateddate);
-				shipment.IsActive = request.isactive;
+				if (!string.IsNullOrEmpty(request.trackingno))
+				{
+					shipment.TrackingNo = request.trackingno;
+                }
 				shipment.AddDomainEvent(new TTShipmentUpdateEvent(shipment));
 			});
 		});
+
+		//Update TMItem
+		//Coding
 
 		await _unitOfWork.SaveChangesAsync();
 		return new BaseResponse<CommandResponse>

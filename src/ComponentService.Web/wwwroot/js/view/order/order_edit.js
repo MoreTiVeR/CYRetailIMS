@@ -1,0 +1,187 @@
+﻿var dataTable;
+
+InitialTableOrder();
+
+
+function InitialTableOrder() {
+    dataTable = $('#tbItems').DataTable({
+        destroy: true,
+        "searching": false,
+        "paging": false,
+        "ordering": false,
+        "info": false,
+        "ajax": {
+            "url": "/Order/GetTempItem",
+            "type": "GET",
+            "datatype": "json"
+        },
+        "columns": [
+            { "data": "nseq" },
+            { "data": "sitemname" },
+            { "data": "nqty" },
+            { "data": "price" },
+            { "data": "amount" },
+            {
+                "data": "nseq",
+                "render": function (data) {
+                    console.log('nseq=' + data);
+                    return "<a class='me-3' style='margin-left:5px' onclick=Delete(" + data + ")><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                }
+            }
+        ],
+        "language": {
+            "emptyTable": "ไม่พบข้อมูล."
+        },
+        "order": [[0, "desc"]],
+        "columnDefs": [
+            {
+                "targets": [0],
+                "visible": true
+            }
+        ]
+    });
+}
+
+function EditPurchaseOrder(form) {
+
+    $("#global-loader").css('display', '');
+    var frmEditPurchaseOrder = $("#frmEditPurchaseOrder");
+    frmEditPurchaseOrder.validate();
+    var isValid = frmEditPurchaseOrder.valid();
+    if (isValid) {
+        console.log('Call => PurchaseOrderItem');
+        $.validator.unobtrusive.parse(form);
+        var data = $(form).serializeJSON();
+        data = JSON.stringify(data);
+        $.ajax({
+            type: 'POST',
+            url: '/Order/UpdatePurchaseOrderItem',
+            data: data,
+            contentType: 'application/json',
+            success: function (data) {
+                if (data.result) {
+                    //popup.dialog('close');
+
+                    AlertSuccess("ปรับปรุงรายการสั่งสินค้าสำเร็จ");
+                    //$("#frmEditPurchaseOrder")[0].reset();
+                    $("#global-loader").css('display', 'none');
+                    dataTable.ajax.reload();
+                    //To do next?
+                    //window.location = data.url;
+                }
+                else {
+                    AlertError(data.message);
+                    $("#global-loader").css('display', 'none');
+                }
+            }
+        });
+        return false;
+    }
+    else {
+        $("#global-loader").css('display', 'none');
+    }
+}
+
+function AddOrderItem(form) {
+    console.log('Call => SubmitAddOrderItem');
+    console.log(form);
+    $.validator.unobtrusive.parse(form);
+    var data = $(form).serializeJSON();
+    data = JSON.stringify(data);
+    console.log(data);
+
+    var frmAddOrderItem = $("#frmAddOrderItem");
+    frmAddOrderItem.validate();
+    var isValid = frmAddOrderItem.valid();
+    if (!isValid) {
+        ShowMessageError('กรุณาระบุข้อมูลให้ถูกต้องก่อนทำรายการ');
+        return;
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/Order/AddTempItem',
+        data: data,
+        contentType: 'application/json',
+        success: function (data) {
+            if (data.result) {
+                //popup.dialog('close');
+                ShowMessageSuccess(data.message);
+                dataTable.ajax.reload();
+                //$('#frmAddOrderItem')[0].reset();
+
+                //$('#mdlAddItem').modal('toggle');
+                //$('#mdlAddItem').modal('hide');
+                //$("#btnCloseMdl").click();
+
+                $("#amount").val(1000);
+            }
+        }
+    });
+    return false;
+}
+
+function Delete(id) {
+    //alert(id);
+    console.log('Call => Delete => ' + id);
+    Swal.fire({
+        title: "ยืนยันการลบข้อมูล?",
+        //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
+        html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!</span>",
+        icon: 'warning',
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        confirmButtonClass: "btn btn-primary",
+        cancelButtonText: "ยกเลิก",
+        cancelButtonClass: "btn btn-danger ml-1",
+        buttonsStyling: false,
+    }).then(function (t) {
+        if (t.value) {
+
+            //Delete
+            $.ajax({
+                type: 'POST',
+                url: '/Order/DeleteTempItem',
+                dataType: 'JSON',
+                data: { "seq": id },
+                success: function (response) {
+                    if (response.result) {
+
+                        ShowMessageSuccess('ลบข้อมูลสำเร็จ');
+                        $("#global-loader").css('display', 'none');
+
+                        dataTable.ajax.reload();
+                    }
+                    else {
+                        //ShowMessageError(data.message);
+                        ShowMessageError(response.message);
+                        $("#global-loader").css('display', 'none');
+                    }
+                }
+            });
+        }
+    });
+    //swal({
+    //    title: "ยืนยันการลบข้อมูล?",
+    //    text: "คุณจะไม่สามารถเรียกคืนข้อมูลที่ถูกลบไปแล้วได้!",
+    //    type: "warning",
+    //    showCancelButton: true,
+    //    confirmButtonColor: "#DD6B55",
+    //    confirmButtonText: "ยืนยัน",
+    //    cancelButtonText: "ยกเลิก",
+    //    closeOnConfirm: true
+    //}, function () {
+    //    $.ajax({
+    //        type: 'POST',
+    //        url: '/Order/DeleteItem/' + id,
+    //        success: function (data) {
+    //            if (data.success) {
+    //                ShowMessage(data.message);
+    //                dataTable.ajax.reload();
+    //            }
+    //        }
+    //    });
+    //});
+}

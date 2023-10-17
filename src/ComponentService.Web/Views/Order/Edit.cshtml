@@ -1,8 +1,8 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI;
-@model CreatePurchaseOrderViewModel
+@model EditPurchaseOrderViewModel
 
 @{
-    ViewData["Title"] = "ApproveOrder";
+    ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -15,7 +15,8 @@
 <!-- /add -->
 <div class="card">
     <div class="card-body">
-        <form id="frmSavePurchaseOrder" class="form-save-purchase-order" onsubmit="return SavePurchaseOrder(this)">
+        <form id="frmEditPurchaseOrder" class="form-edit-purchase-order" onsubmit="return EditPurchaseOrder(this)">
+            <input type="hidden" asp-for="purchaseorderid" readonly>
             <div class="row">
                 <!--ROW1-->
                 <div class="row">
@@ -109,7 +110,17 @@
                             <span asp-validation-for="total" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-sm-12 col-12"></div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>สถานะส่งสินค้า</label>
+                            <select class="select" asp-for="approvestatus">
+                                <option value="">-- สถานะส่งสินค้า--</option>
+                                <option value="0">กำลังขนส่ง</option>
+                                <option value="1">ได้รับสินค้า</option>
+                            </select>
+                            <span asp-validation-for="approvestatus" class="text-danger"></span>
+                        </div>
+                    </div>
                 </div>
                 <!--ROW3-->
                 <div class="row">
@@ -163,4 +174,8 @@
         </form>
     </div>
 </div>
+@section Scripts{
 
+    <!--Page Script-->
+    <script src="~/js/view/order/order_edit.js" asp-append-version="true"></script>
+}

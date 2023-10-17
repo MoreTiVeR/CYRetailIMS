@@ -69,6 +69,7 @@ public class GetPurchaseOrderByIDHandler : BaseService, IRequestHandler<GetPurch
 																		 isactive = a.IsActive
 																	 }).FirstOrDefault(),
 														 detail = (from a in order.TTPurchaseOrderDetails
+																   where a.IsActive
 																   select new GetPurchaseOrderDetailResponseDTO
 																   {
 																	   purchaseorderdetailid = a.PurchaseOrderDetailID,

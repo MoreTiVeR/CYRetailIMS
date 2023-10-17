@@ -17,6 +17,7 @@ using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.PaymentTypeService.Queries.GetPaymentTypeList.v1;
 using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.CreatePurchaseOrder.v1;
 using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.DeletePurchaseOrder.v1;
+using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.UpdatePurchaseOrder.v1;
 using CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurchaseOrderList.v1;
 using CYRetailIMS.Application.Services.PurchaseTypeService.Queries.GetPurchaseTypeList.v1;
 using CYRetailIMS.Application.Services.SupplierService.Queries.GetSupplierList.v1;
@@ -25,6 +26,7 @@ using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NUglify.Helpers;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -87,9 +89,25 @@ public class OrderController : BaseController
         return View();
     }
 
-    public IActionResult Edit(int orderid)
+    public async Task<IActionResult> Edit(int orderid)
     {
-        return View();
+        BaseResponse<GetPurchaseOrderResposeDTO> resPurchaseOrder = await _purchaseOrderAPI.GetPurchaseOrderByIDAsync(orderid);
+        EditPurchaseOrderViewModel editPurchaseViewModel = MappingEditViewData(resPurchaseOrder.data);
+
+        #region Get- Set Item
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        #endregion
+        BaseResponse<List<GetPurchaseTypeResponseDTO>> resPurchaseOrderTypeList = await _purchaseTypeAPI.GetPurchaseTypeListAsync();
+        BaseResponse<List<GetPaymentTypeListResponseDTO>> resPaymentTypeList = await _paymentTypeAPI.GetPaymentTypeListAsync();
+        BaseResponse<List<GetCurrencyListResponseDTO>> resCurrenctList = await _currencyAPI.GetCurrencyListAsync();
+        BaseResponse<List<GetSupplierResponseDTO>> resSupplierList = await _supplierAPI.GetSupplierListAsync();
+
+        ViewBag.ItemList = resItemList;
+        ViewBag.PurchaseOrderTypeList = resPurchaseOrderTypeList;
+        ViewBag.PaymentTypeList = resPaymentTypeList;
+        ViewBag.CurrencyList = resCurrenctList;
+        ViewBag.SupplierList = resSupplierList;
+        return View(editPurchaseViewModel);
     }
 
     [HttpPost]
@@ -105,6 +123,26 @@ public class OrderController : BaseController
                 HttpContext.Session.Remove(_sessionTempDataName);
             }
             return Json(new { result = res.result, message = res.result ? "สร้างใบสั่งซื้อสำเร็จ" : $"ไม่สามารถทำรายการได้, {res.error.error.message}" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdatePurchaseOrderItem([FromBody] EditPurchaseOrderViewModel updatetPurchaseOrderData)
+    {
+        try
+        {
+            UpdatePurchaseOrderCommand updatePurchaseOrderCommand = MappingUpdatePurchaseOrder(updatetPurchaseOrderData);
+            BaseResponse<CommandResponse> res = await _purchaseOrderAPI.UpdatePurchaseOrderAsync(updatePurchaseOrderCommand);
+            //if (res.result)
+            //{
+            //    //Clear TEMP_ADJUST_ITEM_DATA
+            //    HttpContext.Session.Remove(_sessionTempDataName);
+            //}
+            return Json(new { result = res.result, message = res.result ? "ปรับปรุงข้อมูลใบสั่งซื้อสำเร็จ" : $"ไม่สามารถทำรายการได้, {res.error.error.message}" });
         }
         catch (Exception ex)
         {
@@ -300,5 +338,70 @@ public class OrderController : BaseController
 
         };
         return purchaseOrderRequest;
+    }
+
+    private UpdatePurchaseOrderCommand MappingUpdatePurchaseOrder(EditPurchaseOrderViewModel orderViewModel)
+    {
+        List<PurchaseOrderItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
+
+        UpdatePurchaseOrderCommand updatePurchase = new UpdatePurchaseOrderCommand
+        {
+            purchaseorderid = orderViewModel.purchaseorderid,
+            isactive = true,
+            approvestatus = orderViewModel.approvestatus,
+            trackingno = !string.IsNullOrEmpty(orderViewModel.trackingno) ? orderViewModel.trackingno : null,
+            updatedby = base.UserProfile.rolename,
+            updateddate = DateTime.Now,
+            detail = (from a in tempList
+                      select new CreatePurchaseOrderDetailCommand
+                      {
+                          itemid = a.nitemid,
+                          qty = a.nqty,
+                          price = a.price,
+                          amount = a.amount,
+                          discountpercentage = 0,
+                          discountamount = 0,
+                          taxpercentage = 0,
+                          taxamount = 0,
+                          //subtotal = autocalculate
+                          //total = autocalculate
+                      }).ToList()
+        };
+        return updatePurchase;
+    }
+    private EditPurchaseOrderViewModel MappingEditViewData(GetPurchaseOrderResposeDTO orderResposeDTO)
+    {
+        EditPurchaseOrderViewModel editPurchase = new EditPurchaseOrderViewModel
+        {
+            purchaseorderid = orderResposeDTO.purchaseorderid,
+            npurchasetypeid = orderResposeDTO.purchasetypeid,
+            npaymenttypeid = orderResposeDTO.paymentypeid,
+            nsupplierid = orderResposeDTO.supplierid,
+            ncurrencyid = orderResposeDTO.currencyid,
+            Remark = orderResposeDTO.remarks,
+            discount = orderResposeDTO.discount,
+            amount = orderResposeDTO.amount,
+            total = orderResposeDTO.total,
+            trackingno = orderResposeDTO.shipment.trackingno,
+            createdby = orderResposeDTO.createdby,
+            createddate = orderResposeDTO.creadeddate,
+            approvestatus = orderResposeDTO.approvestatus
+        };
+
+        //Set OrderDetail to session temp data
+        int seq = 1;
+        List<PurchaseOrderItemViewModel> purchaseOrders = (from a in orderResposeDTO.detail
+                                                           select new PurchaseOrderItemViewModel
+                                                           {
+                                                               nseq = seq++,
+                                                               nitemid = a.itemid,
+                                                               sitemname = a.itemname,
+                                                               nqty = a.quantity,
+                                                               price = a.price,
+                                                               amount = a.amount
+                                                           }).ToList();
+        HttpContext.Session.SetDataToSession(_sessionTempDataName, purchaseOrders);
+
+        return editPurchase;
     }
 }
