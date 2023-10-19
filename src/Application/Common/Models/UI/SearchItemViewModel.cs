@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +9,7 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 
 [JsonObject]
 [Serializable]
-public class DeleteItemViewModel
+public class SearchItemViewModel
 {
-    public int itemid { get; set; }
-
-    public int searchbranchid { get; set; }
+    public int branchid { get; set; }
 }

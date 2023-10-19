@@ -50,8 +50,19 @@ public class GetItemInBranchByBranchIDHandler : BaseService, IRequestHandler<Get
 							description = x.Item.Description,
 							itemtypeid = x.Item.ItemTypeID,
 							itemtypename = x.Item.ItemType.ItemTypeName,
-							isactive = x.IsActive
-						}).ToList()
+							isactive = x.IsActive,
+
+							//20-10-2023
+							barcode = x.Item.BarCode,
+							notifyminqty = x.Item.NotifyMinQty,
+							cost = x.Item.Cost,
+                            brandid = x.Item.Brand.BrandID,
+							shortname = x.Item.ShortName,
+							createdby = x.CreatedBy,
+							createddate = x.CreadedDate,
+							updatedby = x.UpdatedBy,
+							updateddate = x.UpdatedDate
+                        }).ToList()
 		}).OrderBy(o => o.branchid).FirstOrDefault();
 
 		if (!resItemBranch.Any())

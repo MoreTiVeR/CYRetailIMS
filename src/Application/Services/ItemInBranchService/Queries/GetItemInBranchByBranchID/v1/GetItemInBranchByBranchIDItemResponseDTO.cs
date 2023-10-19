@@ -46,4 +46,17 @@ public class GetItemInBranchByBranchIDItemResponseDTO
     public bool isactive { get; set; }
     public int approvestatus { get; set; }
 
+    #region Add on 20-10-2023
+    public string barcode { get; set; }
+    public int notifyminqty { get; set; }
+    public string createdby { get; set; }
+
+    public DateTime createddate { get; set; }
+
+    public string? updatedby { get; set; }
+
+    public DateTime? updateddate { get; set; }
+    #endregion
+
+
 }

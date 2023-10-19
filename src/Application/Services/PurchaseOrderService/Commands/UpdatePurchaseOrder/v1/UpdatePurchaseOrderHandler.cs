@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
+using CYRetailIMS.Domain.Events.TMItems;
 using CYRetailIMS.Domain.Events.TTPurchaseOrderDetails;
 using CYRetailIMS.Domain.Events.TTPurchaseOrders;
 using CYRetailIMS.Domain.Events.TTShipments;
@@ -42,7 +43,7 @@ public class UpdatePurchaseOrderHandler : BaseService, IRequestHandler<UpdatePur
 			throw new Exception("ไม่พบข้อมูล");
 		}
 
-		var purchaseEnt = resPurchaseEntity.FirstOrDefault();
+        TTPurchaseOrder purchaseEnt = resPurchaseEntity.FirstOrDefault();
         if (purchaseEnt.ApproveStatus == (int)EnumModel.ApproveStatus.Approve && request.approvestatus != (int)EnumModel.ApproveStatus.Approve)
 		{
             throw new Exception("ไม่สามารถเปลี่ยนสถานะการขนส่งได้ เนื่องจากรับสินค้านี้ไปแล้ว");
@@ -80,8 +81,29 @@ public class UpdatePurchaseOrderHandler : BaseService, IRequestHandler<UpdatePur
 
 		//Update TMItem
 		//Coding
+		if(request.approvestatus == (int)EnumModel.ApproveStatus.Approve)
+		{
+            var reqItemDataList = request.detail.Select(s => new
+            {
+                itemid = s.itemid,
+                qty = s.qty,
+                price = s.price
+            }).ToList();
 
-		await _unitOfWork.SaveChangesAsync();
+            IEnumerable<TMItem> resItems = await _unitOfWork.Repository<TMItem>().FindListAsync(w => reqItemDataList.Select(s => s.itemid).Contains(w.ItemID));
+            resItems.ToList().ForEach(i =>
+            {
+                var reqItem = reqItemDataList.FirstOrDefault(w => w.itemid == i.ItemID);
+                if (reqItem != null)
+                {
+                    i.Qty = i.Qty + reqItem.qty;
+                    i.Price = reqItem.price;
+                }
+                i.AddDomainEvent(new TMItemUpdateEvent(i));
+            });
+        }
+
+        await _unitOfWork.SaveChangesAsync();
 		return new BaseResponse<CommandResponse>
 		{
 			result = true,

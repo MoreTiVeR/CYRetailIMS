@@ -1,16 +1,20 @@
-﻿@using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
-
+﻿@using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 @{
-    ViewData["Title"] = "Items";
+    ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="page-header">
     <div class="page-title">
-        <h4>สินค้าหน้าร้าน</h4>
-        <h6>รายการสินค้าหน้าร้าน</h6>
+        <h4>รายการสินค้า</h4>
+        <h6>จัดการรายการสินค้า</h6>
+    </div>
+    <div class="page-btn">
+        <a asp-action="Create" asp-controller="Item" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มสินค้าใหม่</a>
     </div>
 </div>
+
+<!-- /product list -->
 <div class="card">
     <div class="card-body">
         <div class="table-top">
@@ -39,23 +43,25 @@
                 <div class="row">
                     <div class="col-lg-12 col-sm-12">
                         <div class="row">
-                            <div class="col-lg col-sm-3 col-12">
+                            <div class="col-lg col-sm-6 col-12">
                                 <div class="form-group">
                                     <select id="ddlItemType" class="select">
-                                        <option>เลือกสาขา</option>
-                                        @if (ViewBag.BranchList != null)
+                                        <option>เลือกสาขาที่ต้องการค้นหา</option>
+                                        @if (ViewBag.BranchList.result)
                                         {
-                                            foreach (var item in ViewBag.BranchList)
+                                            foreach (var item in ViewBag.BranchList.data)
                                             {
                                                 <option value="@item.branchid">@item.branchname</option>
                                             }
                                         }
                                         else
                                         {
-                                            <option value="">--ไม่พบข้อมูล--</option>
+                                            <option value="">--ไม่พบข้อมูลสาขา--</option>
                                         }
                                     </select>
                                 </div>
+                            </div>
+                            <div class="col-lg col-sm-6 col-12">
                             </div>
                             <div class="col-lg-1 col-sm-6 col-12">
                                 <div class="form-group">
@@ -73,7 +79,7 @@
         </div>
         <!-- /Filter -->
         <div class="table-responsive">
-            <table class="table  datanew">
+            <table id="tbItems" class="table datanew">
                 <thead>
                     <tr>
                         <th hidden>
@@ -87,16 +93,20 @@
                         <th>ประเภท</th>
                         <th>แบรนด์</th>
                         <th>จำนวน</th>
-                        <th>ราคา</th>
-                        <th>รายละเอียด</th>
-                        <th class="text-center">แก้ไข</th>
+                        <th>ต้นทุน</th>
+                        <th>ราคาขาย</th>
+                        <th>จำนวนขั้นต่ำ</th>
+                        <th class="text-center">รายละเอียด</th>
+                        <th>สร้างโดย</th>
+                        <th>แก้ไขโดย</th>
+                        <th>วันที่แก้ไข</th>
+                        <th>ดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.ItemBranch.result)
+                    @if (ViewBag.ItemList.result)
                     {
-                        string branchName = ViewBag.ItemBranch.data.branchname;
-                        foreach (var item in (List<GetItemInBranchByBranchIDItemResponseDTO>)ViewBag.ItemBranch.data.itemlist)
+                        foreach (var item in (List<GetItemListResponseDTO>)ViewBag.ItemList.data)
                         {
                             string rName = $"rowid{@item.itemid}";
                             Dictionary<string, string> aItemID = new Dictionary<string, string> { { "itemid", item.itemid.ToString() } };
@@ -107,15 +117,22 @@
                                         <span class="checkmarks"></span>
                                     </label>
                                 </td>
-                                <td>@item.itemcode</td>
-                                <td><span class="badges bg-lightgreen">@item.itemname</span></td>
+                                <td>
+                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="สินค้า @item.itemcode รหัส @item.itemcode">@item.itemcode</a>
+                                </td>
+                                <td>@item.name</td>
                                 <td>@item.itemtypename</td>
                                 <td>@item.brandname</td>
-                                <td><span class="badges bg-lightgreen">@item.qty</span></td>
-                                <td><span class="badges bg-lightgreen">@item.price</span></td>
+                                <td>@item.qty</td>
+                                <td>@item.cost</td>
+                                <td>@item.price</td>
+                                <td>@item.notifyminqty</td>
                                 <td>@item.description</td>
-                                <td class="text-center">
-                                    <a class="me-3" asp-action="Edit" asp-controller="Sale" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aItemID">
+                                <td>@item.createdby</td>
+                                <td>@item.updatedby</td>
+                                <td>@($"{@item.updateddate:dd/MM/yyyy}")</td>
+                                <td>
+                                    <a class="me-3" asp-action="Edit" asp-controller="Item" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aItemID">
                                         <img src="~/assets/img/icons/edit.svg" alt="img">
                                     </a>
                                     <a href="#" id="@rName" class="me-3" title="ลบข้อมูลสินค้า" onclick="deleteItem(@item.itemid)">
@@ -130,8 +147,9 @@
         </div>
     </div>
 </div>
+<!-- /product list -->
 @section Scripts{
 
     <!--Page Script-->
-    <script src="~/js/view/sale/sale_index.js" asp-append-version="true"></script>
+    <script src="~/js/view/item/item_index.js" asp-append-version="true"></script>
 }

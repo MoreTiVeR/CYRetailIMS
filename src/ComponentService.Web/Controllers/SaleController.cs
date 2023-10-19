@@ -12,6 +12,7 @@ using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
@@ -291,36 +292,52 @@ public class SaleController : BaseController
     [HttpPost]
     public async Task<IActionResult> EditItem([FromBody] EditItemViewModel editItemObj)
     {
-        if(base.UserProfile.roleid != (int)UserRole.Admin)
+        try
         {
-            return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });
+            if (base.UserProfile.roleid != (int)UserRole.Admin)
+            {
+                return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });
+            }
+            UpdateItemInBranchCommand updateItemCommand = PrepareUpdateItemInBranch(editItemObj);
+            BaseResponse<CommandResponse> resUpdateItem = await _itemInBranchAPI.UpdateItemInBranchAsync(updateItemCommand);
+            if (resUpdateItem.result)
+            {
+                return Json(new JsonViewModel { result = resUpdateItem.result, message = "ปรับปรุงข้อมูลสินค้าสำเร็จ" });
+            }
+            return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
         }
-        UpdateItemInBranchCommand updateItemCommand = PrepareUpdateItemInBranch(editItemObj);
-        BaseResponse<CommandResponse> resUpdateItem = await _itemInBranchAPI.UpdateItemInBranchAsync(updateItemCommand);
-        if (resUpdateItem.result)
+        catch (Exception ex)
         {
-            return Json(new JsonViewModel { result = resUpdateItem.result, message = "ปรับปรุงข้อมูลสินค้าสำเร็จ" });
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
         }
-        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
     }
 
     [HttpPost]
     public async Task<IActionResult> DeleteItem([FromBody] DeleteItemViewModel delItemObj)
     {
-        if (base.UserProfile.roleid != (int)UserRole.Admin)
+        try
         {
-            return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });
+            if (base.UserProfile.roleid != (int)UserRole.Admin)
+            {
+                return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });
+            }
+            BaseResponse<CommandResponse> resDeleteItem = await _itemInBranchAPI.DeleteItemInBranchAsync(new DeleteItemInBranchCommand
+            {
+                branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+                itemid = delItemObj.itemid,
+                updatedby = base.UserProfile.rolename,
+                updateddate = DateTime.Now
+            });
+            if (resDeleteItem.result)
+            {
+                return Json(new JsonViewModel { result = resDeleteItem.result, message = "ลบสินค้าสำเร็จ" });
+            }
+            return Json(new JsonViewModel { result = resDeleteItem.result, message = resDeleteItem.error.error.message });
         }
-        BaseResponse<CommandResponse> resUpdateItem = await _itemInBranchAPI.UpdateItemInBranchAsync(new UpdateItemInBranchCommand
+        catch (Exception ex)
         {
-            branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
-            itemid = delItemObj.itemid
-        });
-        if (resUpdateItem.result)
-        {
-            return Json(new JsonViewModel { result = resUpdateItem.result, message = "ลบสินค้าสำเร็จ" });
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
         }
-        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
     }
 
     #region Private Method

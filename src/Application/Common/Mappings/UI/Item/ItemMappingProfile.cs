@@ -55,5 +55,31 @@ public class ItemMappingProfile : Profile
             //.ForMember(x => x.ItemName, f => f.MapFrom(ff => ff.itemname))
             .ForMember(x => x.QTY, f => f.MapFrom(ff => ff.qty))
 			.ForMember(x => x.TransferStatusID, f => f.MapFrom(ff => ff.transferstatusid));
+
+		CreateMap<GetItemInBranchByBranchIDItemResponseDTO, GetItemListResponseDTO>()
+			.ForMember(w => w.itemid, f => f.MapFrom(w => w.itemid))
+			.ForMember(w => w.itemcode, f => f.MapFrom(w => w.itemcode))
+			.ForMember(w => w.itemtypeid, f => f.MapFrom(w => w.itemtypeid))
+			.ForMember(w => w.itemtypename, f => f.MapFrom(w => w.itemtypename))
+			.ForMember(w => w.unitofmeasureid, f => f.MapFrom(w => w.unitofmeasureid))
+			.ForMember(w => w.unitofmeasurename, f => f.MapFrom(w => w.unitofmeasurename))
+			.ForMember(w => w.brandid, f => f.MapFrom(w => w.brandid))
+			.ForMember(w => w.brandname, f => f.MapFrom(w => w.brandname))
+			.ForMember(w => w.name, f => f.MapFrom(w => w.itemname))
+			.ForMember(w => w.shortname, f => f.MapFrom(w => w.shortname))
+			.ForMember(w => w.description, f => f.MapFrom(w => w.description))
+			.ForMember(w => w.barcode, f => f.MapFrom(w => w.barcode))
+			.ForMember(w => w.cost, f => f.MapFrom(w => w.cost))
+			.ForMember(w => w.price, f => f.MapFrom(w => w.price))
+			.ForMember(w => w.itemimageurl, f => f.MapFrom(w => w.itemimageurl))
+			.ForMember(w => w.qty, f => f.MapFrom(w => w.qty))
+			.ForMember(w => w.notifyminqty, f => f.MapFrom(w => w.notifyminqty))
+			.ForMember(w => w.discountpercent, f => f.MapFrom(w => w.discountpercent))
+			.ForMember(w => w.createdby, f => f.MapFrom(w => w.createdby))
+			.ForMember(w => w.createddate, f => f.MapFrom(w => w.createddate))
+			.ForMember(w => w.updatedby, f => f.MapFrom(w => w.updatedby))
+			.ForMember(w => w.updateddate, f => f.MapFrom(w => w.updateddate))
+			.ForMember(w => w.isactive, f => f.MapFrom(w => w.isactive));
+
     }
 }

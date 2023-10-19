@@ -29,73 +29,51 @@
                     <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
                 </div>
             </div>
-           @* <div class="wordset">
-                <ul>
-                    <li>
-                        <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-                    </li>
-                </ul>
+            @* <div class="wordset">
+            <ul>
+            <li>
+            <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+            </li>
+            </ul>
             </div>*@
         </div>
         <!-- /Filter -->
-        @*<div class="card mb-0" id="filter_inputs">
+        <div class="card mb-0" id="filter_inputs">
             <div class="card-body pb-0">
                 <div class="row">
-                    <div class="col-lg-12 col-sm-12">
-                        <div class="row">
-                            <div class="col-lg col-sm-6 col-12">
-                                <div class="form-group">
-                                    <select id="ddlItemType" class="select">
-                                        <option>เลือกประเภทสินค้า</option>
-                                        @if (ViewBag.ItemTypeList.result)
-                                        {
-                                            foreach (var item in ViewBag.ItemTypeList.data)
-                                            {
-                                                <option value="@item.itemtypeid">@item.itemtypename</option>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <option value="">--ไม่พบข้อมูล--</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg col-sm-6 col-12">
-                                <div class="form-group">
-                                    <select id="ddlItemBrand" class="select">
-                                        <option>เลือกแบรนด์สินค้า</option>
-                                        @if (ViewBag.ItemBrandList.result)
-                                        {
-                                            foreach (var item in ViewBag.ItemBrandList.data)
-                                            {
-                                                <option value="@item.brandid">@item.brandname</option>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <option value="">--ไม่พบข้อมูล--</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-sm-6 col-12">
-                                <div class="form-group">
-                                    <a id="btnSearch" class="btn btn-filters ms-auto" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
-                                </div>
-                            </div>
-                            <div class="col-lg col-sm-6 col-12">
-                            </div>
-                            <div class="col-lg col-sm-6 col-12">
-                            </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group">
+                            <select id="ddlItemType" class="select">
+                                <option>เลือกสาขา</option>
+                                @if (ViewBag.BranchList.result)
+                                {
+                                    foreach (var item in ViewBag.BranchList.data)
+                                    {
+                                        <option value="@item.branchid">@item.branchname</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="">--ไม่พบข้อมูล--</option>
+                                }
+                            </select>
                         </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group" style="text-align: left">
+                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
                     </div>
                 </div>
             </div>
-        </div>*@
+        </div>
         <!-- /Filter -->
         <div class="table-responsive">
-            <table class="table datanew">
+            <table id="tbItems" class="table">
                 <thead>
                     <tr>
                         <th hidden>
@@ -120,50 +98,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.ItemList.result)
-                    {
-                        foreach (var item in (List<GetItemListResponseDTO>)ViewBag.ItemList.data)
-                        {
-                            string rName = $"rowid{@item.itemid}";
-                            Dictionary<string, string> aItemID = new Dictionary<string, string> { { "itemid", item.itemid.ToString() } };
-                            <tr>
-                                <td hidden>
-                                    <label class="checkboxs">
-                                        <input type="checkbox">
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                @*<td class="productimgname">
-                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="คลิกเพื่อดูรายละเอียด" class="product-img">
-                                        <img src="@item.itemimageurl" alt="product">
-                                    </a>
-                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="@item.itemcode">@item.name</a>
-                                </td>*@
-                                <td>
-                                    <a asp-action="Edit" asp-controller="Item" asp-all-route-data="aItemID" title="สินค้า @item.itemcode รหัส @item.itemcode">@item.itemcode</a>
-                                </td>
-                                <td>@item.name</td>
-                                <td>@item.itemtypename</td>
-                                <td>@item.brandname</td>
-                                <td>@item.qty</td>
-                                <td>@item.cost</td>
-                                <td>@item.price</td>
-                                <td>@item.notifyminqty</td>
-                                <td>@item.description</td>
-                                <td>@item.createdby</td>
-                                <td>@item.updatedby</td>
-                                <td>@($"{@item.updateddate:dd/MM/yyyy}")</td>
-                                <td>
-                                    <a class="me-3" asp-action="Edit" asp-controller="Item" title="แก้ไขข้อมูลสินค้า" asp-all-route-data="aItemID">
-                                        <img src="~/assets/img/icons/edit.svg" alt="img">
-                                    </a>
-                                    <a href="#" id="@rName" class="me-3" title="ลบข้อมูลสินค้า" onclick="deleteItem(@item.itemid)">
-                                        <img src="~/assets/img/icons/delete.svg" alt="img">
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    }
                 </tbody>
             </table>
         </div>
@@ -171,6 +105,11 @@
 </div>
 <!-- /product list -->
 @section Scripts{
+
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <!--Page Script-->
     <script src="~/js/view/item/item_index.js" asp-append-version="true"></script>

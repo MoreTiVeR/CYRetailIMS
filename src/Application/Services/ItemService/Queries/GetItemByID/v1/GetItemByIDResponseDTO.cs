@@ -64,4 +64,8 @@ public class GetItemByIDResponseDTO
 
     public bool isactive { get; set; }
 
+    public bool isiteminbranch { get; set; }
+    public int searchbranchid { get; set; }
+
+
 }

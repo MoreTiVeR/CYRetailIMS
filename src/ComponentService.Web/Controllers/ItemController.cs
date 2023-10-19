@@ -31,6 +31,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTr
 using OfficeOpenXml;
 using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -74,9 +75,11 @@ public class ItemController : BaseController
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
         BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
+        BaseResponse<List<GetBranchListResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
         ViewBag.ItemList = resItemList;
         ViewBag.ItemTypeList = resItemTypeList;
         ViewBag.ItemBrandList = resItemBrandList;
+        ViewBag.BranchList = resBranchList;
         return View();
     }
 
@@ -341,6 +344,65 @@ public class ItemController : BaseController
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteItemInBranch([FromBody] DeleteItemViewModel delItemObj)
+    {
+        try
+        {
+            DeleteItemInBranchCommand delItemCommand = new DeleteItemInBranchCommand
+            {
+                branchid = delItemObj.searchbranchid,
+                itemid = delItemObj.itemid,
+                updatedby = base.UserProfile.rolename,
+                updateddate = DateTime.Now
+            };
+            BaseResponse<CommandResponse> resDelItem = await _itemInBranchAPI.DeleteItemInBranchAsync(delItemCommand);
+            if (resDelItem.result)
+            {
+                return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.message });
+            }
+            return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<JsonResult> SearchItemByBranch(int branchid)
+    {
+        try
+        {
+            BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItem = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
+            if (!resItem.result)
+            {
+                throw new Exception(resItem.error.error.message);
+            }
+            //Mapping Data
+            List<GetItemListResponseDTO> resData = _mapper.Map<List<GetItemListResponseDTO>>(resItem.data.itemlist);
+            resData.ForEach(s =>
+            {
+                if(branchid == 1)
+                {
+                    s.isiteminbranch = false;
+                    s.searchbranchid = branchid;
+                }
+                else
+                {
+                    s.isiteminbranch = true;
+                    s.searchbranchid = branchid;
+                }
+                
+            });
+            return Json(new { result = true, data = resData, message = "สำเร็จ" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ไม่สามารถดึงข้อมูลสินค้าได้. {ex.Message}" });
         }
     }
 
