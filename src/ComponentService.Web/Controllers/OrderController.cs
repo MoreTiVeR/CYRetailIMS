@@ -65,8 +65,8 @@ public class OrderController : BaseController
 
     public async Task<IActionResult> Index()
     {
-		BaseResponse<List<GetPurchaseOrderResposeDTO>> resOrderList = await _purchaseOrderAPI.GetPurchaseOrderListAsync();
-        ViewBag.OrderList = resOrderList;
+		//BaseResponse<List<GetPurchaseOrderResposeDTO>> resOrderList = await _purchaseOrderAPI.GetPurchaseOrderListAsync();
+        //ViewBag.OrderList = resOrderList;
 		return View();
     }
     
@@ -270,6 +270,15 @@ public class OrderController : BaseController
         }
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> GetOrders()
+    {
+        BaseResponse<List<GetPurchaseOrderResposeDTO>> resOrderList = await _purchaseOrderAPI.GetPurchaseOrderListAsync();
+        return Json(new { data = resOrderList.data });
+    }
+
+
     private void MappingPurchaseOrderItem(ref PurchaseOrderItemViewModel orderItem)
     {
         BaseResponse<List<GetItemListResponseDTO>> resItems = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");        
@@ -369,6 +378,7 @@ public class OrderController : BaseController
         };
         return updatePurchase;
     }
+
     private EditPurchaseOrderViewModel MappingEditViewData(GetPurchaseOrderResposeDTO orderResposeDTO)
     {
         EditPurchaseOrderViewModel editPurchase = new EditPurchaseOrderViewModel

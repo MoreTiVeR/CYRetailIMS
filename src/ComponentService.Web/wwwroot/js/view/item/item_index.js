@@ -47,7 +47,7 @@ datatable = $("#tbItems").DataTable({
                 console.log('data dic:' + dict);
                 if (data.isiteminbranch) {
                     //Branch
-                    return "<a href='EditItemBranch?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid +") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                    return "<a href='EditItemBranch?itemid=" + data.itemid + "&branchid=" + data.searchbranchid +"'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid +") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
                 }
                 else {
                     //Warehouse
@@ -77,18 +77,18 @@ datatable = $("#tbItems").DataTable({
     initComplete: (settings, json) => {
         $('.dataTables_filter').appendTo("#tbItems");
         $('.dataTables_filter').appendTo('.search-input');
-    },
+  update  },
     dom: 'Bfrtip',
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานขายสินค้า',
+            title: 'รายงานสต๊อกสินค้า',
             text: 'ดาวโหลดไฟล์ Excel',
-            class: 'btn-primary'
+            class: 'btn-primary',
             //Columns to export
-            //exportOptions: {
-            //     columns: [0, 1, 2, 3,4,5,6]
-            // }
+            exportOptions: {
+                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+             }
         },
         {
             extend: 'pdfHtml5',
@@ -287,22 +287,3 @@ function deleteItemInBranch(itemid, searchbranchid) {
         }
     });
 }
-//$('#searchForm').submit(function (event) {
-//    event.preventDefault(); // Prevent the default form submission
-
-//    var searchQuery = $('input[name="searchQuery"]').val();
-
-//    $.ajax({
-//        type: 'POST',
-//        url: '/your-search-endpoint', // Replace with the URL of your search API
-//        data: { searchQuery: searchQuery },
-//        success: function (data) {
-//            // Update the DataTable with the filtered data from the server
-//            dataTable.clear().rows.add(data.data).draw();
-//        },
-//        error: function (error) {
-//            console.log('Error:', error);
-//        }
-//    });
-//});
-

@@ -71,11 +71,12 @@ public class UpdatePurchaseOrderHandler : BaseService, IRequestHandler<UpdatePur
 			{
 				shipment.SetCreatedBy(request.updatedby);
 				shipment.SetUpdatedDate(request.updateddate);
-				if (!string.IsNullOrEmpty(request.trackingno))
-				{
-					shipment.TrackingNo = request.trackingno;
-                }
-				shipment.AddDomainEvent(new TTShipmentUpdateEvent(shipment));
+                //if (!string.IsNullOrEmpty(request.trackingno))
+                //{
+                //	shipment.TrackingNo = request.trackingno;
+                //            }
+                shipment.TrackingNo = request.trackingno;
+                shipment.AddDomainEvent(new TTShipmentUpdateEvent(shipment));
 			});
 		});
 

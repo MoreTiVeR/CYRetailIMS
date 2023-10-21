@@ -12,7 +12,7 @@ public static class PurchaseOrderNoGenerator
 	{
 		try
 		{
-			return  $"PO-{DateTime.Now:ddMMyyyy}-{DateTime.Now:HHmmss}";
+			return  $"PR-{DateTime.Now:ddMMyyyy}-{DateTime.Now:HHmmss}";
 		}
 		catch(Exception ex)
 		{

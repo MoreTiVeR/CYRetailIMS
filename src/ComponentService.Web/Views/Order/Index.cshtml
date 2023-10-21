@@ -87,7 +87,7 @@
         </div>
         <!-- /Filter -->
         <div class="table-responsive">
-            <table class="table  datanew">
+            <table id="tbOrders" class="table">
                 <thead>
                     <tr>
                         <th hidden>
@@ -112,60 +112,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.OrderList.result)
-                    {
-                        foreach (var item in (List<GetPurchaseOrderResposeDTO>)ViewBag.OrderList.data)
-                        {
-                            string rName = $"rowid{@item.purchaseorderid}";
-                            Dictionary<string, string> aOrderID = new Dictionary<string, string> { { "orderid", item.purchaseorderid.ToString() } };
-                            string sReceiveDate = item.receiveddate.HasValue ? $"{@item.receiveddate:dd/MM/yyyy}" : string.Empty;
-                            <tr>
-                                <td hidden>
-                                    <label class="checkboxs">
-                                        <input type="checkbox">
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>
-                                    @item.purchaseorderno
-                                </td>
-                                <td>@item.suppliername</td>
-                                <td>@($"{@item.orderdate:dd/MM/yyyy}")</td>
-                                <td>@sReceiveDate</td>
-                                <td>@item.paymentypename</td>
-                                <td>@item.amount</td>
-                                <td>@item.discount</td>
-                                <td>@item.total</td>
-                                <td>
-                                    @if (item.approvestatus == (int)ApproveStatus.Approve)
-                                    {
-                                        <span class="badges bg-lightgreen">รับสินค้าแล้ว</span>
-                                    }
-                                    else if (item.approvestatus == (int)ApproveStatus.WaitingApprove)
-                                    {
-                                        <a class="me-3" asp-action="Edit" asp-controller="Order" title="คลิก เพื่อรับสินค้า" asp-all-route-data="aOrderID">
-                                            <span class="badges bg-lightyellow">อยู่ระหว่างการขนส่ง</span>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span class="badges bg-lightred">ยกเลิก</span>
-                                    }
-                                </td>
-                                <td>@item.shipment.trackingno</td>
-                                <td>@item.remarks</td>
-                                <td>@item.createdby</td>
-                                <td>
-                                    <a class="me-3" asp-action="Edit" asp-controller="Order" title="แก้ไขออเดอร์" asp-all-route-data="aOrderID">
-                                        <img src="~/assets/img/icons/edit.svg" alt="img">
-                                    </a>
-                                    <a href="#" id="@rName" class="me-3" title="ลบข้อมูลออเดอร์" onclick="deleteItem(@item.purchaseorderid)">
-                                        <img src="~/assets/img/icons/delete.svg" alt="img">
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    }
                 </tbody>
             </table>
         </div>
@@ -173,6 +119,10 @@
 </div>
 <!-- /product list -->
 @section Scripts{
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <!--Page Script-->
     <script src="~/js/view/order/order_index.js" asp-append-version="true"></script>

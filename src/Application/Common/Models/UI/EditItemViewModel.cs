@@ -13,6 +13,8 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 [JsonObject]
 public class EditItemViewModel
 {
+    public int BranchID { get; set; }
+
     [ReadOnly(true)]
     [Required(ErrorMessage = "*กรุณาระบุไอดีสินค้า")]
     [DisplayName("ระบุไอดีสินค้า")]

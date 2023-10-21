@@ -32,6 +32,7 @@ using OfficeOpenXml;
 using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -170,6 +171,26 @@ public class ItemController : BaseController
         ViewBag.ItemUOMList = resUnitOfMeasureList;
         return View(viewModel);
     }
+
+    public async Task<IActionResult> EditItemBranch(int itemid, int branchid)
+    {
+        //Get Item Detail
+        BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItem = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
+        GetItemInBranchByBranchIDItemResponseDTO itemBranch = resItem.data.itemlist.FirstOrDefault(w => w.itemid == itemid);
+        EditItemViewModel viewModel = EditItemInBranchMapping(itemBranch);
+        viewModel.BranchID = branchid;
+
+        //Get Master Data
+        BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
+        BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
+        BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
+
+        ViewBag.ItemTypeList = resItemTypeList;
+        ViewBag.ItemBrandList = resItemBrandList;
+        ViewBag.ItemUOMList = resUnitOfMeasureList;
+        return View(viewModel);
+    }
+
 
     [HttpPost]
     public async Task<IActionResult> ItemDataValidation(TransferItemViewModel transferItemObj)
@@ -319,13 +340,39 @@ public class ItemController : BaseController
     [HttpPost]
     public async Task<IActionResult> EditItem([FromBody] EditItemViewModel editItemObj)
     {
-        UpdateItemCommand updateItemCommand = MappingUpdateItemCommand(editItemObj);
-        BaseResponse<CommandResponse> resUpdateItem = await _itemAPI.UpdateItemAsync(updateItemCommand);
-        if (resUpdateItem.result)
+        try
         {
-            return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
+            UpdateItemCommand updateItemCommand = MappingUpdateItemCommand(editItemObj);
+            BaseResponse<CommandResponse> resUpdateItem = await _itemAPI.UpdateItemAsync(updateItemCommand);
+            if (resUpdateItem.result)
+            {
+                return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
+            }
+            return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
         }
-        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditItemInBranch([FromBody] EditItemViewModel editItemObj)
+    {
+        try
+        {
+            UpdateItemInBranchCommand updateItemCommand = MappingUpdateItemInBranchCommand(editItemObj);
+            BaseResponse<CommandResponse> resUpdateItem = await _itemInBranchAPI.UpdateItemInBranchAsync(updateItemCommand);
+            if (resUpdateItem.result)
+            {
+                return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
+            }
+            return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
     }
 
     [HttpPost]
@@ -927,12 +974,30 @@ public class ItemController : BaseController
         };
     }
 
+    private UpdateItemInBranchCommand MappingUpdateItemInBranchCommand(EditItemViewModel itemViewModel)
+    {
+        return new UpdateItemInBranchCommand
+        {
+            branchid = itemViewModel.BranchID,
+            itemid = itemViewModel.ItemID,
+            price = itemViewModel.Price,
+            qty = itemViewModel.Qty,
+            updatedby = base.UserProfile.rolename,
+            updateddate = DateTime.Now
+        };
+    }
+
     private EditItemViewModel EditItemMapping(GetItemListResponseDTO itemResponseDTO)
     {
         EditItemViewModel editItemViewModel = _mapper.Map<EditItemViewModel>(itemResponseDTO);
         return editItemViewModel;
     }
 
+    private EditItemViewModel EditItemInBranchMapping(GetItemInBranchByBranchIDItemResponseDTO itemResponseDTO)
+    {
+        EditItemViewModel itemViewModel = _mapper.Map<EditItemViewModel>(itemResponseDTO);
+        return itemViewModel;
+    }
     private ReceiveTransferItemViewModel ReceiveTransferMapping(GetItemTransferResponseDTO itemTransferDTO)
     {
         ReceiveTransferItemViewModel receiveTransferItemView = _mapper.Map<ReceiveTransferItemViewModel>(itemTransferDTO);

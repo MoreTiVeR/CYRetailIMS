@@ -104,7 +104,7 @@ $(document).ready(function(){
 			"language": {
 				search: ' ',
 				sLengthMenu: '_MENU_',
-				searchPlaceholder: "ค้นหาข้อมูล...",
+				searchPlaceholder: "Search...",
 				info: "_START_ - _END_ of _TOTAL_ items",
 			 },
 			initComplete: (settings, json)=>{

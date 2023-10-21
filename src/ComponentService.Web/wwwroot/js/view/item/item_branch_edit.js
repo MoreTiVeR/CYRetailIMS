@@ -15,7 +15,7 @@ function EditItem(form) {
         data = JSON.stringify(data);
         $.ajax({
             type: 'POST',
-            url: '/Item/EditItem',
+            url: '/Item/EditItemInBranch',
             data: data,
             contentType: 'application/json',
             success: function (response) {
