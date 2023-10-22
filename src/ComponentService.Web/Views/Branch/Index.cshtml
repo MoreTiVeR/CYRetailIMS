@@ -1,4 +1,4 @@
-﻿@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+﻿@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 
 @{
     ViewData["Title"] = "Index";
@@ -76,7 +76,7 @@
 				<tbody>
 					@if (ViewBag.BranchList.result)
 					{
-						foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.BranchList.data)
+						foreach (var item in (List<GetBranchResponseDTO>)ViewBag.BranchList.data)
 						{
 							string rName = $"rowid{@item.branchid}";
 							Dictionary<string, string> aBranchID = new Dictionary<string, string> { { "branchid", item.branchid.ToString() } };

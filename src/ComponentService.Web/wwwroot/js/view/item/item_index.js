@@ -26,11 +26,24 @@ datatable = $("#tbItems").DataTable({
         //        return "<a asp-action='Detail' asp-controller='Item' asp-all-route-data='aItemID'>" + data.name + "</a>";
         //    }
         //},
+        { "data": "itemcode" },
         { "data": "name" },
         { "data": "itemtypename" },
-        { "data": "itemcode" },
         { "data": "brandname" },
-        { "data": "qty" },
+        {
+            "data": { qty: "qty", notifyminqty: "notifyminqty" },
+            "render": function (data) {
+                var _qty = parseInt(data.qty);
+                var _minqty = parseInt(data.notifyminqty);
+                if (_qty < _minqty) {
+                    return "<span class='badges bg-lightyellow'>" + data.qty +"</span>";
+                }
+                else {
+                    return "<span class='badges bg-lightgreen'>" + data.qty + "</span>";
+                }
+                
+            }
+        },
         { "data": "cost" },
         { "data": "price" },
         { "data": "notifyminqty" },

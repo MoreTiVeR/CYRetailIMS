@@ -1,5 +1,6 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI;
-@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
+
 @model AccountRegisterViewModel
 @{
     ViewData["Title"] = "Register";
@@ -71,7 +72,7 @@
                     @if (ViewBag.BranchList.result)
                     {
                         <option value="">--กรุณาระบุสาขาที่เข้าใช้งาน--</option>
-                        foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.BranchList.data)
+                        foreach (var item in (List<GetBranchResponseDTO>)ViewBag.BranchList.data)
                         {
                             <option value="@item.branchid">@item.branchname</option>
                         }

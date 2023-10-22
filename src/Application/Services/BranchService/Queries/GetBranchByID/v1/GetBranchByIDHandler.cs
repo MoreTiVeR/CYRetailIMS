@@ -12,23 +12,23 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
-public class GetBranchByIDHandler : BaseService, IRequestHandler<GetBranchByIDQuery, BaseResponse<GetBranchByIDResponseDTO>>
+public class GetBranchByIDHandler : BaseService, IRequestHandler<GetBranchByIDQuery, BaseResponse<GetBranchResponseDTO>>
 {
 	public GetBranchByIDHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
 	{
 	}
 
-	public async Task<BaseResponse<GetBranchByIDResponseDTO>> Handle(GetBranchByIDQuery request, CancellationToken cancellationToken)
+	public async Task<BaseResponse<GetBranchResponseDTO>> Handle(GetBranchByIDQuery request, CancellationToken cancellationToken)
 	{
 		IEnumerable<TMBranch> resBrach = await _unitOfWork.Repository<TMBranch>().FindWithInclude(w => w.BranchID == request.branchid && w.IsActive == true, i => i.Include(ii => ii.TMBranchDetail));
 		if (!resBrach.Any())
 		{
 			throw new Exception("Data not found");
 		}
-		return new BaseResponse<GetBranchByIDResponseDTO>
+		return new BaseResponse<GetBranchResponseDTO>
 		{
 			result = true,
-			data = _mapper.Map<GetBranchByIDResponseDTO>(resBrach.FirstOrDefault()),
+			data = _mapper.Map<GetBranchResponseDTO>(resBrach.FirstOrDefault()),
 			message = "Success",
 			soruce = "db",
 			status = StatusCodes.Status200OK.ToString()

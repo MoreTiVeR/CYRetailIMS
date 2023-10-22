@@ -1,5 +1,5 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI;
-@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 @using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 @using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 @using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatusByID.v1;
@@ -59,7 +59,7 @@
                                     @if (ViewBag.SourceBranchList.result)
                                     {
                                         <option value="">-- ระบุสาขาต้นทาง --</option>
-                                        foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.SourceBranchList.data)
+                                        foreach (var item in (List<GetBranchResponseDTO>)ViewBag.SourceBranchList.data)
                                         {
                                             if (item.branchid == Model.SourceID)
                                             {
@@ -83,7 +83,7 @@
                                     @if (ViewBag.DestinationBranchList.result)
                                     {
                                         <option value="">-- ระบุสาขาปลายทาง --</option>
-                                        foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.DestinationBranchList.data)
+                                        foreach (var item in (List<GetBranchResponseDTO>)ViewBag.DestinationBranchList.data)
                                         {
                                             if (item.branchid == Model.DestinationID)
                                             {

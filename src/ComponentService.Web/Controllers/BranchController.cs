@@ -26,7 +26,7 @@ public class BranchController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        BaseResponse<List<GetBranchListResponseDTO>> branchList = await _branchAPI.GetBranchListAsync();
+        BaseResponse<List<GetBranchResponseDTO>> branchList = await _branchAPI.GetBranchListAsync();
         ViewBag.BranchList = branchList;
         return View();
     }
@@ -38,7 +38,7 @@ public class BranchController : BaseController
 
     public async Task<IActionResult> Edit(int branchid)
     {
-        BaseResponse<GetBranchByIDResponseDTO> resBranch = await _branchAPI.GetBranchByIDAsync(branchid);
+        BaseResponse<GetBranchResponseDTO> resBranch = await _branchAPI.GetBranchByIDAsync(branchid);
         EditBranchViewModel branchDataModel = MappingEditData(resBranch.data);
         return View(branchDataModel);
     }
@@ -109,7 +109,7 @@ public class BranchController : BaseController
         };
     }
 
-    private EditBranchViewModel MappingEditData(GetBranchByIDResponseDTO resObj)
+    private EditBranchViewModel MappingEditData(GetBranchResponseDTO resObj)
     {
         return new EditBranchViewModel
         {

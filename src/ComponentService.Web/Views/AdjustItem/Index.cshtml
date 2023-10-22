@@ -1,5 +1,5 @@
 ﻿@using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactions.v1;
-@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+@using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 
 @{
     ViewData["Title"] = "Index";
@@ -49,7 +49,7 @@
                                         <option>เลือกสาขาที่ต้องการค้นหา</option>
                                         @if (ViewBag.BranchList.result)
                                         {
-                                            foreach (var item in (List<GetBranchListResponseDTO>)ViewBag.BranchList.data)
+                                            foreach (var item in (List<GetBranchResponseDTO>)ViewBag.BranchList.data)
                                             {
                                                 <option value="@item.branchid">@item.branchname</option>
                                             }

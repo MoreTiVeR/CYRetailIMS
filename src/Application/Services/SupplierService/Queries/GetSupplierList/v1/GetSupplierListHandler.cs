@@ -20,23 +20,30 @@ public class GetSupplierListHandler : BaseService, IRequestHandler<GetSupplierLi
 
 	public async Task<BaseResponse<List<GetSupplierResponseDTO>>> Handle(GetSupplierListCommand request, CancellationToken cancellationToken)
 	{
-		IEnumerable<GetSupplierResponseDTO> resSupplier = (from a in await _unitOfWork.Repository<TMSupplier>().QueryAsync()
-														   join b in await _unitOfWork.Repository<TMSupplierType>().QueryAsync() on a.SupplierTypeID equals b.SupplierTypeID
-														   where a.IsActive
-														   select new GetSupplierResponseDTO
-														   {
-															   supplierid = a.SupplierID,
-															   suppliername_th = a.SupplierName_TH,
-															   suppliername_en = a.SupplierName_EN,
-															   suppliertypeid = a.SupplierTypeID,
-															   suppliertypename = b.SupplierTypeName,
-															   description = a.Description,
-															   createdby = a.CreatedBy,
-															   creadeddate = a.CreadedDate,
-															   isactive = a.IsActive
-														   }).AsEnumerable();
+        IEnumerable<GetSupplierResponseDTO> resSupplier = (from a in await _unitOfWork.Repository<TMSupplier>().QueryAsync()
+                                                           join contact in await _unitOfWork.Repository<TMSupplierContact>().QueryAsync() on a.SupplierID equals contact.SupplierID
+                                                           join b in await _unitOfWork.Repository<TMSupplierType>().QueryAsync() on a.SupplierTypeID equals b.SupplierTypeID
+                                                           join c in await _unitOfWork.Repository<TMSupplierContactType>().QueryAsync() on contact.SupplierContactTypeID equals c.SupplierContactTypeID
+                                                           where a.IsActive
+                                                           select new GetSupplierResponseDTO
+                                                           {
+                                                               supplierid = a.SupplierID,
+                                                               suppliername_th = a.SupplierName_TH,
+                                                               suppliername_en = a.SupplierName_EN,
+                                                               suppliertypeid = a.SupplierTypeID,
+                                                               suppliertypename = b.SupplierTypeName,
+                                                               description = a.Description,
+                                                               createdby = a.CreatedBy,
+                                                               creadeddate = a.CreadedDate,
+                                                               isactive = a.IsActive,
+                                                               suppliercontacttypeid = contact.SupplierContactTypeID,
+                                                               contactaccountname = contact.ContactAccountName,
+                                                               contactperson = contact.ContactPerson,
+                                                               mobileno = contact.MobileNo,
+                                                               contactdesctiption = contact.Description
+                                                           }).AsEnumerable();
 
-		if (!resSupplier.Any())
+        if (!resSupplier.Any())
 		{
 			throw new Exception("ไม่พบข้อมูล");
 		}

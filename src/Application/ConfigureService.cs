@@ -37,6 +37,7 @@ using CYRetailIMS.Application.Services.RoleService.Queries.GetRoleByID.v1;
 using CYRetailIMS.Application.Services.RoleService.Queries.GetRoles.v1;
 using CYRetailIMS.Application.Services.ShipmentTypeService.Queries.GetShipmentTypeList.v1;
 using CYRetailIMS.Application.Services.SupplierContactTypeService.Queries.GetSupplierContactTypeList.v1;
+using CYRetailIMS.Application.Services.SupplierService.Commands.CreateSupplier.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureByID.v1;
@@ -121,6 +122,8 @@ public static class ConfigureService
             mc.AddProfile<GetSupplierContactTypeMappingProfile>();
 
             mc.AddProfile<GetWarehouseMappingProfile>();
+
+            mc.AddProfile<CreateSupplierMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

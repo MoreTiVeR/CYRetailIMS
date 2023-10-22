@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 
 [Serializable]
-public class GetBranchByIDResponseDTO
+public class GetBranchResponseDTO
 {
     public int branchid { get; set; }
 

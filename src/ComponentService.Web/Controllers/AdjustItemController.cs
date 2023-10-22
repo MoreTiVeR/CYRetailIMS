@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NUglify.Helpers;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -53,7 +54,7 @@ public class AdjustItemController : BaseController
     public async Task<IActionResult> Index()
     {
         BaseResponse<List<GetAdjustItemTransactionsResponseDTO>> resAdjustItem = await _adjustItemAPI.GetAdjustItemTransactionAsync();
-        BaseResponse<List<GetBranchListResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
+        BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
         ViewBag.AdjustItemTransactions = resAdjustItem;
         ViewBag.BranchList = resBranchList;
         return View();
@@ -64,7 +65,7 @@ public class AdjustItemController : BaseController
         #region Get- Set Item, AdjustType, Branch to Session
         BaseResponse<List<GetAdjustItemTypeResposeDTO>> resAdjustType = await GetAdjustItemTypeSessionDataAsync();
         BaseResponse<List<GetItemListResponseDTO>> resItem = await GetItemSessionDataAsync();
-        BaseResponse<List<GetBranchListResponseDTO>> resBranch = await GetBranchSessionDataAsync();
+        BaseResponse<List<GetBranchResponseDTO>> resBranch = await GetBranchSessionDataAsync();
         #endregion
 
         ViewBag.AdjustItemType = resAdjustType;
@@ -362,9 +363,9 @@ public class AdjustItemController : BaseController
         return res;
     }
 
-    private async Task<BaseResponse<List<GetBranchListResponseDTO>>> GetBranchSessionDataAsync()
+    private async Task<BaseResponse<List<GetBranchResponseDTO>>> GetBranchSessionDataAsync()
     {
-        BaseResponse<List<GetBranchListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetBranchListResponseDTO>>>("BRANCH_DATA");
+        BaseResponse<List<GetBranchResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetBranchResponseDTO>>>("BRANCH_DATA");
         if (res != null)
         {
             return res;
@@ -408,7 +409,7 @@ public class AdjustItemController : BaseController
     {
         BaseResponse<List<GetAdjustItemTypeResposeDTO>> resAdjustType = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetAdjustItemTypeResposeDTO>>>("ADJUSTITEMTYPE_DATA");
         BaseResponse<List<GetItemListResponseDTO>> resItems = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");
-        BaseResponse<List<GetBranchListResponseDTO>> resBranchs = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetBranchListResponseDTO>>>("BRANCH_DATA");
+        BaseResponse<List<GetBranchResponseDTO>> resBranchs = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetBranchResponseDTO>>>("BRANCH_DATA");
 
         var refAdjustTypeID = adjustItem.nadjusttypeid;
         var refItemID = adjustItem.nitemid;

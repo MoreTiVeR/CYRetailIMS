@@ -11,6 +11,6 @@ public interface IBranchAPI
     Task<BaseResponse<CommandResponse>> CreateBranchAsync(CreateBranchCommand createBranchCommand);
     Task<BaseResponse<CommandResponse>> UpdateBranchAsync(UpdateBranchCommand updateBranchCommand);
     Task<BaseResponse<CommandResponse>> DeleteBranchAsync(DeleteBranchCommand deleteBranchCommand);
-    Task<BaseResponse<List<GetBranchListResponseDTO>>> GetBranchListAsync();
-    Task<BaseResponse<GetBranchByIDResponseDTO>> GetBranchByIDAsync(int branchID);
+    Task<BaseResponse<List<GetBranchResponseDTO>>> GetBranchListAsync();
+    Task<BaseResponse<GetBranchResponseDTO>> GetBranchByIDAsync(int branchID);
 }

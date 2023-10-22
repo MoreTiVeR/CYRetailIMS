@@ -33,15 +33,15 @@ public class BranchAPI : HttpClientService, IBranchAPI
                     DeleteBranchCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/branch/v1/delete"), deleteBranchCommand);
     }
 
-    public async Task<BaseResponse<GetBranchByIDResponseDTO>> GetBranchByIDAsync(int branchID)
+    public async Task<BaseResponse<GetBranchResponseDTO>> GetBranchByIDAsync(int branchID)
     {
-        return await _httpClientRequest.HttpRequestToObject<GetBranchByIDResponseDTO,
+        return await _httpClientRequest.HttpRequestToObject<GetBranchResponseDTO,
             GetBranchByIDQuery>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/branch/v1/getbranchbyid/{branchID}"), null);
     }
 
-    public async Task<BaseResponse<List<GetBranchListResponseDTO>>> GetBranchListAsync()
+    public async Task<BaseResponse<List<GetBranchResponseDTO>>> GetBranchListAsync()
     {
-        return await _httpClientRequest.HttpRequestToObject<List<GetBranchListResponseDTO>, 
+        return await _httpClientRequest.HttpRequestToObject<List<GetBranchResponseDTO>, 
             GetBranchListQuery>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/branch/v1/getbranchlist"), null);
     }
 }

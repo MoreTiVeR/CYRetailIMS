@@ -7,6 +7,7 @@ using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.DeleteEmployee.v1;
@@ -53,7 +54,7 @@ public class UserManagementController : BaseController
 
 	public async Task<IActionResult> CreateAsync()
 	{
-		BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
+		BaseResponse<List<GetBranchResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
 		BaseResponse<List<GetRolesResponseDTO>> resRoleList = await _userRoleAPI.GetRolesAsync();
 		BaseResponse<List<GetEmployeeResponseDTO>> resEmpList = await _employeeAPI.GetEmployeesAsync();
 		resEmpList.data = resEmpList.data.Where(w => !w.isregister && w.isactive).ToList();
@@ -83,7 +84,7 @@ public class UserManagementController : BaseController
 		BaseResponse<GetUserResponseDTO> resEmp = await _userAPI.GetUserByIDAsync(userid);
 		EditUserViewModel userViewModel = _mapper.Map<EditUserViewModel>(resEmp.data);
 
-		BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
+		BaseResponse<List<GetBranchResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
 		BaseResponse<List<GetRolesResponseDTO>> resRoleList = await _userRoleAPI.GetRolesAsync();
 		ViewBag.BranchList = resBrachList;
 		ViewBag.RoleList = resRoleList;

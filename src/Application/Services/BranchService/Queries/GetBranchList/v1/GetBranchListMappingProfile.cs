@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Domain.Entities;
 
 namespace CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
@@ -11,7 +12,7 @@ public class GetBranchListMappingProfile : Profile
 {
 	public GetBranchListMappingProfile()
 	{
-		CreateMap<TMBranch, GetBranchListResponseDTO>()
+		CreateMap<TMBranch, GetBranchResponseDTO>()
 			.ForMember(w => w.branchid, f => f.MapFrom(x => x.BranchID))
 			.ForMember(w => w.branchcode, f => f.MapFrom(x => x.BranchCode))
 			.ForMember(w => w.branchname, f => f.MapFrom(x => x.BranchName))

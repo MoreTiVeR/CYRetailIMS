@@ -19,7 +19,7 @@ public class GetBranchByIDMappingProfile : Profile
 		//	.ForMember(w => w.provincecode, f => f.MapFrom(x => x.ProvinceCode))
 		//	.ForMember(w => w.zipcode, f => f.MapFrom(x => x.ZipCode));
 
-		CreateMap<TMBranch, GetBranchByIDResponseDTO>()
+		CreateMap<TMBranch, GetBranchResponseDTO>()
 			.ForMember(w => w.branchid, f => f.MapFrom(x => x.BranchID))
 			.ForMember(w => w.branchcode, f => f.MapFrom(x => x.BranchCode))
 			.ForMember(w => w.branchname, f => f.MapFrom(x => x.BranchName))

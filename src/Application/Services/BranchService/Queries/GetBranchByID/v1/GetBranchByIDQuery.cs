@@ -10,7 +10,7 @@ using MediatR;
 namespace CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 
 [Serializable]
-public record GetBranchByIDQuery : IRequest<BaseResponse<GetBranchByIDResponseDTO>>
+public record GetBranchByIDQuery : IRequest<BaseResponse<GetBranchResponseDTO>>
 {
 	[Required(ErrorMessage = "Branch id is required")]
 	public int branchid { get; init; }

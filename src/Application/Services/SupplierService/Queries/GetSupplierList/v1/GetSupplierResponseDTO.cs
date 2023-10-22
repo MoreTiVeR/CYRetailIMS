@@ -21,9 +21,17 @@ public class GetSupplierResponseDTO
 
 	public string description { get; set; }
 
-	public string createdby { get; set; }
+    #region Contact
+    public int suppliercontacttypeid { get; init; }
+    public string contactaccountname { get; init; }
+    public string contactperson { get; init; }
+    public string mobileno { get; init; }
+    public string contactdesctiption { get; init; }
+    #endregion
 
-	public DateTime creadeddate { get; set; }
+    public string createdby { get; set; }
 
-	public bool isactive { get; set; }
+    public DateTime creadeddate { get; set; }
+
+    public bool isactive { get; set; }
 }

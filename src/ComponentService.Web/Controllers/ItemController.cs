@@ -33,6 +33,8 @@ using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
+using Microsoft.CodeAnalysis.Operations;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -73,17 +75,41 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
-        BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
-        BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
-        BaseResponse<List<GetBranchListResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
-        ViewBag.ItemList = resItemList;
-        ViewBag.ItemTypeList = resItemTypeList;
-        ViewBag.ItemBrandList = resItemBrandList;
+        BaseResponse<List<GetBranchResponseDTO>> resBranchList = null;
+        //BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
+        //BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
+        //BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
+        if(base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
+        {
+            resBranchList = await _branchAPI.GetBranchListAsync();
+        }
+        else
+        {
+            BaseResponse<GetBranchResponseDTO> resUserBranch = await _branchAPI.GetBranchByIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+            if (resUserBranch.result)
+            {
+                resBranchList = new BaseResponse<List<GetBranchResponseDTO>>
+                {
+                    result = resUserBranch.result,
+                    data = new List<GetBranchResponseDTO>
+                    {
+                        resUserBranch.data
+                    },
+                    error = resUserBranch.error,
+                    message = resUserBranch.message,
+                    soruce = resUserBranch.soruce,
+                    status = resUserBranch.status
+                };
+            }
+        }
+        //ViewBag.ItemList = resItemList;
+        //ViewBag.ItemTypeList = resItemTypeList;
+        //ViewBag.ItemBrandList = resItemBrandList;
         ViewBag.BranchList = resBranchList;
         return View();
     }
 
+    [CustomAuthorize(RoleName.Admin, RoleName.Stock)]
     public async Task<IActionResult> Create()
     {
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
@@ -139,7 +165,7 @@ public class ItemController : BaseController
         BaseResponse<GetItemTransferResponseDTO> resTransferData = await _itemTransferAPI.GetItemTransferByIDAsync(transferid);
         ReceiveTransferItemViewModel viewModel = ReceiveTransferMapping(resTransferData.data);
 
-        BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
+        BaseResponse<List<GetBranchResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
         BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(resTransferData.data.itemid);
 
         ViewBag.TransferTypeList = await _itemTransferAPI.GetItemTransferTypeAsync();
@@ -473,11 +499,46 @@ public class ItemController : BaseController
         return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
     }
 
+
+    /// <summary>
+    /// ดึงข้อมูล Stock โดยสาขา
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> GetItems()
     {
-        BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
-        return Json(new { data = resItemList.data });
+        List<GetItemListResponseDTO> resItemList = null;
+        try
+        {
+            if(base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
+            {
+                //สินค้าคลังใหญ่
+                BaseResponse<List<GetItemListResponseDTO>> resItem = await _itemAPI.GetItemListAsync();
+                if (!resItem.result)
+                {
+                    throw new Exception(resItem.error.error.message);
+                }
+                resItemList = resItem.data;
+                
+            }
+            else
+            {
+                //สินค้าคลังสาขา
+                BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+                if (!resItemInBranch.result)
+                {
+                    throw new Exception(resItemInBranch.error.error.message);
+                }
+                //Mapping Data
+                resItemList = _mapper.Map<List<GetItemListResponseDTO>>(resItemInBranch.data.itemlist);
+            }
+            return Json(new { data = resItemList });
+        }
+        catch
+        {
+            resItemList = new List<GetItemListResponseDTO>();
+            return Json(new { data = resItemList });
+        }
     }
 
     [Route("item/search")]
@@ -741,7 +802,7 @@ public class ItemController : BaseController
         List<SelectListItem> res = new List<SelectListItem>();
         try
         {
-            BaseResponse<List<GetBranchListResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+            BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
             if (!resBranch.result)
             {
                 return res;
@@ -786,7 +847,7 @@ public class ItemController : BaseController
         List<SelectListItem> res = new List<SelectListItem>();
         try
         {
-            BaseResponse<List<GetBranchListResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+            BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
             if (!resBranch.result)
             {
                 return res;

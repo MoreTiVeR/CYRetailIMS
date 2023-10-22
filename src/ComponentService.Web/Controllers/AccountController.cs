@@ -15,6 +15,7 @@ using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.Application.Services.AccountService.Queries.Logout.v1;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class AccountController : BaseController
@@ -46,7 +47,7 @@ public class AccountController : BaseController
 
     public async Task<IActionResult> Register()
     {
-        BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
+        BaseResponse<List<GetBranchResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
         ViewBag.BranchList = resBrachList;
         return View();
     }

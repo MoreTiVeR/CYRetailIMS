@@ -71,13 +71,13 @@ public class BranchController : BaseApiController
 
     [HttpGet]
 	[Route("v1/getbranchbyid/{branchid}")]
-	[ProducesResponseType(typeof(GetBranchByIDResponseDTO), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(GetBranchResponseDTO), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetBranchByIDAsync(int branchid)
 	{
 		DateTime dtStart = DateTime.Now;
-		BaseResponse<GetBranchByIDResponseDTO> res = await Mediator.Send(new GetBranchByIDQuery { branchid = branchid });
+		BaseResponse<GetBranchResponseDTO> res = await Mediator.Send(new GetBranchByIDQuery { branchid = branchid });
 		Response.Headers.Add("responsecode", res.status);
 		Response.Headers.Add("responsedatasource", res.soruce);
 		Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
@@ -87,13 +87,13 @@ public class BranchController : BaseApiController
 
 	[HttpGet]
 	[Route("v1/getbranchlist")]
-	[ProducesResponseType(typeof(List<GetBranchByIDResponseDTO>), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(List<GetBranchResponseDTO>), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetBranchListAsync()
 	{
 		DateTime dtStart = DateTime.Now;
-		BaseResponse<List<GetBranchListResponseDTO>> res = await Mediator.Send(new GetBranchListQuery());
+		BaseResponse<List<GetBranchResponseDTO>> res = await Mediator.Send(new GetBranchListQuery());
 		Response.Headers.Add("responsecode", res.status);
 		Response.Headers.Add("responsedatasource", res.soruce);
 		Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));

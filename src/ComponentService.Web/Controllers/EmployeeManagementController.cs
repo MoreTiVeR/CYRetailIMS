@@ -1,19 +1,16 @@
 ﻿using AutoMapper;
-using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
-using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
-using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartments.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.DeleteEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.UpdateEmployee.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
-using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
@@ -45,7 +42,7 @@ public class EmployeeManagementController : BaseController
 
     public async Task<IActionResult> CreateAsync()
     {
-        BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
+        BaseResponse<List<GetBranchResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
         BaseResponse<List<GetDepartmentsResponseDTO>> resDepartmentList = await _departmentAPI.GetDepartmentsAsync();
         ViewBag.BranchList = resBrachList;
         ViewBag.DepartmentList = resDepartmentList;
@@ -71,7 +68,7 @@ public class EmployeeManagementController : BaseController
     {
         BaseResponse<GetEmployeeResponseDTO> resEmp = await _employeeAPI.GetEmployeeByIDAsync(empid);
         EditEmployeeViewModel empViewData = _mapper.Map<EditEmployeeViewModel>(resEmp.data);
-        BaseResponse<List<GetBranchListResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
+        BaseResponse<List<GetBranchResponseDTO>> resBrachList = await _branchAPI.GetBranchListAsync();
         BaseResponse<List<GetDepartmentsResponseDTO>> resDepartmentList = await _departmentAPI.GetDepartmentsAsync();
         ViewBag.BranchList = resBrachList;
         ViewBag.DepartmentList = resDepartmentList;
