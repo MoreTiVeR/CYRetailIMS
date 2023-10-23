@@ -31,7 +31,6 @@ datatable = $("#tbOrders").DataTable({
             "data": { orderdate: "orderdate" },
             "render": function (data) {
                 var _orderdate = new Date(data.orderdate).toLocaleDateString("en-US");
-                console.log(_orderdate);
                 return _orderdate;
             }
         },
@@ -39,7 +38,6 @@ datatable = $("#tbOrders").DataTable({
             "data": { receiveddate: "receiveddate" },
             "render": function (data) {
                 var _receiveddate = new Date(data.receiveddate).toLocaleDateString("en-US");
-                console.log(_receiveddate);
                 return _receiveddate;
             }
         },

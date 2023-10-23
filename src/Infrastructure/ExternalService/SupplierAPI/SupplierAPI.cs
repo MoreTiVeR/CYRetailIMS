@@ -22,19 +22,19 @@ public class SupplierAPI : HttpClientService, ISupplierAPI
     public async Task<BaseResponse<CommandResponse>> CreateSupplierAsync(CreateSupplierCommand createSupplierCommand)
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateSupplierCommand>(HttpMethod.Post,
-            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/supplier/v1/create"), null);
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/supplier/v1/create"), createSupplierCommand);
     }
 
     public async Task<BaseResponse<CommandResponse>> UpdateSupplierAsync(UpdateSupplierCommand updateSupplierCommand)
     {
-        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateSupplierCommand>(HttpMethod.Post,
-            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/supplier/v1/update"), null);
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, UpdateSupplierCommand>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/supplier/v1/update"), updateSupplierCommand);
     }
 
     public async Task<BaseResponse<CommandResponse>> DeleteSupplierAsync(DeleteSupplierCommand deleteSupplierCommand)
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, DeleteSupplierCommand>(HttpMethod.Post, 
-            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/supplier/v1/delete"), null);
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/supplier/v1/delete"), deleteSupplierCommand);
     }
 
     public async Task<BaseResponse<GetSupplierResponseDTO>> GetSupplierByIDAsync(int supplierID)

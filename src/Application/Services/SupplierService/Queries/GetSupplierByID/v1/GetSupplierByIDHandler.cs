@@ -38,7 +38,8 @@ public class GetSupplierByIDHandler : BaseService, IRequestHandler<GetSupplierBy
 															   creadeddate = a.CreadedDate,
 															   isactive = a.IsActive,
 															   suppliercontacttypeid = contact.SupplierContactTypeID,
-															   contactaccountname = contact.ContactAccountName,
+                                                               suppliercontacttypename = c.SupplierContactTypeName,
+                                                               contactaccountname = contact.ContactAccountName,
 															   contactperson = contact.ContactPerson,
 															   mobileno = contact.MobileNo,
 															   contactdesctiption = contact.Description

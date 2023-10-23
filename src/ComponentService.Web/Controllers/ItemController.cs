@@ -76,9 +76,6 @@ public class ItemController : BaseController
     public async Task<IActionResult> Index()
     {
         BaseResponse<List<GetBranchResponseDTO>> resBranchList = null;
-        //BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
-        //BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
-        //BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
         if(base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
         {
             resBranchList = await _branchAPI.GetBranchListAsync();
@@ -102,9 +99,6 @@ public class ItemController : BaseController
                 };
             }
         }
-        //ViewBag.ItemList = resItemList;
-        //ViewBag.ItemTypeList = resItemTypeList;
-        //ViewBag.ItemBrandList = resItemBrandList;
         ViewBag.BranchList = resBranchList;
         return View();
     }

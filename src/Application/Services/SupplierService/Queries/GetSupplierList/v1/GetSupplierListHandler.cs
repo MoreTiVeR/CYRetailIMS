@@ -37,6 +37,7 @@ public class GetSupplierListHandler : BaseService, IRequestHandler<GetSupplierLi
                                                                creadeddate = a.CreadedDate,
                                                                isactive = a.IsActive,
                                                                suppliercontacttypeid = contact.SupplierContactTypeID,
+                                                               suppliercontacttypename = c.SupplierContactTypeName,
                                                                contactaccountname = contact.ContactAccountName,
                                                                contactperson = contact.ContactPerson,
                                                                mobileno = contact.MobileNo,

@@ -6,6 +6,7 @@ using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Employee;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
 using CYRetailIMS.Application.Common.Mappings.UI.Report;
+using CYRetailIMS.Application.Common.Mappings.UI.Supplier;
 using CYRetailIMS.Application.Common.Mappings.UI.User;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.AdjustItemAPI;
@@ -27,6 +28,7 @@ using CYRetailIMS.Application.ExternalService.Report;
 using CYRetailIMS.Application.ExternalService.ShipmentTypeAPI;
 using CYRetailIMS.Application.ExternalService.SupplierAPI;
 using CYRetailIMS.Application.ExternalService.SupplierContactTypeAPI;
+using CYRetailIMS.Application.ExternalService.SupplierTypeAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
@@ -57,6 +59,7 @@ using CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ShipmentTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.SupplierAPI;
 using CYRetailIMS.Infrastructure.ExternalService.SupplierContactTypeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.SupplierTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
@@ -115,6 +118,10 @@ public static class ConfigureService
             #region Report
             mc.AddProfile<ReportMappingProfile>();
             #endregion
+
+            #region Supplier
+            mc.AddProfile<SupplierMappingProfile>();
+            #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();
         services.AddSingleton(mapper);
@@ -157,6 +164,7 @@ public static class ConfigureService
 		services.AddScoped<ISupplierAPI, SupplierAPI>();
 		services.AddScoped<ISupplierContactTypeAPI, SupplierContactTypeAPI>();
 		services.AddScoped<IWarehouseAPI, WarehouseAPI>();
+        services.AddScoped<ISupplierTypeAPI, SupplierTypeAPI>();
 		#endregion
 
 		return services;

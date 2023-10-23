@@ -10,7 +10,6 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v
 namespace CYRetailIMS.Application.Common.Mappings.UI.Report;
 public class ReportMappingProfile : Profile
 {
-
     public ReportMappingProfile()
     {
         CreateMap<SaleSummaryReportResponseDTO, AuditSaleSummaryReportViewModel>()

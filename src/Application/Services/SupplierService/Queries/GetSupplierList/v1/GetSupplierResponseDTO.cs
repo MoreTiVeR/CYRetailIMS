@@ -23,6 +23,7 @@ public class GetSupplierResponseDTO
 
     #region Contact
     public int suppliercontacttypeid { get; init; }
+    public string suppliercontacttypename { get; init; }
     public string contactaccountname { get; init; }
     public string contactperson { get; init; }
     public string mobileno { get; init; }

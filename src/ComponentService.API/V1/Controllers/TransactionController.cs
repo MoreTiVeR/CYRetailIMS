@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 
 [Route("api/v{version:apiVersion}/transaction")]
-//[ApiController]
 public class TransactionController : BaseApiController
 {
     public TransactionController(ILog4NetLogger log) : base(log)

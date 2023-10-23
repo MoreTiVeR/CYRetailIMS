@@ -45,6 +45,8 @@
     <Folder Include="Services\RoleService\EventHandlers\" />
     <Folder Include="Services\ShipmentTypeService\Commands\" />
     <Folder Include="Services\ShipmentTypeService\EventHandlers\" />
+    <Folder Include="Services\SupplierTypeService\Commands\" />
+    <Folder Include="Services\SupplierTypeService\EventHandlers\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByCriteria\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByTransactionTypeID\" />
     <Folder Include="Services\TransactionService\Queries\GetTransactionByTransactionDate\" />
