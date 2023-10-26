@@ -15,6 +15,7 @@ using CYRetailIMS.Application.Services.SupplierService.Queries.GetSupplierList.v
 using CYRetailIMS.Application.Services.SupplierTypeService.Queries.GetSupplierTypeList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
+using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -147,18 +148,17 @@ public class SupplierManagementController : BaseController
         var createCommand = new CreateSupplierCommand
         {
             suppliernameth = supplierData.suppliername_th,
-            suppliernameen = supplierData.suppliername_en,
-            suppliertypeid = supplierData.suppliertypeid,
-            description = supplierData.description,
+            suppliernameen = supplierData.suppliername_th,
+            suppliertypeid = (int)SupplierTypes.Wholesalers,
+            description = supplierData.description, //address
             contact = new List<CreateSupplierContact>
             {
                 new CreateSupplierContact
                 {
-                    suppliercontacttypeid = supplierData.suppliercontacttypeid,
-                    contactaccountname = supplierData.contactaccountname,
+                    suppliercontacttypeid = (int)SupplierContactTypes.Email,
+                    contactaccountname = supplierData.contactperson,
                     contactperson = supplierData.contactperson,
-                    mobileno = supplierData.mobileno,
-                    desctiption = supplierData.description
+                    mobileno = supplierData.mobileno
                 }
             },
             createdby = base.UserProfile.username,

@@ -13,6 +13,42 @@ public static class EnumModel
         WAREHOUSE = 99
     }
 
+    public enum SupplierTypes
+    {
+        /// <summary>
+        /// ผู้ผลิต
+        /// </summary>
+        Manufacturers = 1,
+
+        /// <summary>
+        /// ผู้จัดจำหน่าย
+        /// </summary>
+        Distributors = 2,
+
+        /// <summary>
+        /// ผู้ค้าส่ง
+        /// </summary>
+        Wholesalers = 3
+    }
+
+    public enum SupplierContactTypes
+    {
+        /// <summary>
+        /// ช่องทางการติดต่อผ่านทางอีเมล
+        /// </summary>
+        Email = 1,
+
+        /// <summary>
+        /// ช่องทางการติดต่อผ่านทางFacebook
+        /// </summary>
+        Facebook = 2,
+
+        /// <summary>
+        /// ช่องทางการติดต่อผ่านทางLine
+        /// </summary>
+        Line = 3
+    }
+
     public enum ApproveStatus
     {
         WaitingApprove = 0,

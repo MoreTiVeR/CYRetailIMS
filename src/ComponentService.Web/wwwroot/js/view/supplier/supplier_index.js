@@ -27,10 +27,10 @@ datatable = $("#tbSuppliers").DataTable({
         //    }
         //},
         { "data": "suppliername_th" },
-        { "data": "suppliername_en" },
-        { "data": "suppliertypename" },
-        { "data": "suppliercontacttypename" },
-        { "data": "contactaccountname" },
+        //{ "data": "suppliername_en" },
+        //{ "data": "suppliertypename" },
+        //{ "data": "suppliercontacttypename" },
+        //{ "data": "contactaccountname" },
         { "data": "contactperson" },
         { "data": "mobileno" },
         { "data": "description" },
@@ -79,7 +79,7 @@ datatable = $("#tbSuppliers").DataTable({
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                 columns: [0, 1, 2, 3, 4, 5]
              }
         },
         {
