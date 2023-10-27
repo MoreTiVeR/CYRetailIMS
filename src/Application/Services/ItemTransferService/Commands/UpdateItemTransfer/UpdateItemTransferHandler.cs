@@ -54,7 +54,7 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
             case (int)TransferStatus.Received:
                 if (request.transferstatusid == (int)TransferStatus.Received)
                 {
-                    #region Update stock in destination branch
+                    #region ปลายทางโอน ยังไม่มีสินค้าใน ItemInBranch ให้ทำการเพิ่มข้อมูลAdd/ ถ้ามีแล้ว อัพเดท Update stock in destination branch
                     if (resItemInDestinationBranch.Count() == 0)
                     {
                         //List<TMItemInBranch> tmItemInDestinationBranch = new List<TMItemInBranch>();

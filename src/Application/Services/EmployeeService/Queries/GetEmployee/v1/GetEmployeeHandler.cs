@@ -10,6 +10,7 @@ using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Application.Services.EmployeeService.Queries.GetEmployee.v1;
 public class GetEmployeeHandler : BaseService, IRequestHandler<GetEmployeeQuery, BaseResponse<List<GetEmployeeResponseDTO>>>
@@ -25,7 +26,7 @@ public class GetEmployeeHandler : BaseService, IRequestHandler<GetEmployeeQuery,
                                                join c in await _unitOfWork.Repository<TMUsers>().QueryAsync() on emp.UserID equals c.UserID
                                                into jUser
                                                from user in jUser.DefaultIfEmpty()
-                                               //where emp.IsActive
+                                               where emp.IsActive
                                                select new { emp, department, user }).ToList().Select(s => new GetEmployeeResponseDTO
                                                {
                                                    empid = s.emp.EmpID,
@@ -41,7 +42,7 @@ public class GetEmployeeHandler : BaseService, IRequestHandler<GetEmployeeQuery,
                                                    salary = s.emp.Salary,
                                                    startworkingdate = s.emp.StartWorkingDate,
                                                    createdby = s.emp.CreatedBy,
-                                                   creadeddate = s.emp.CreadedDate,
+                                                   createddate = s.emp.CreadedDate,
                                                    isactive = s.emp.IsActive,
                                                    isregister = s.user == null ? false : true
                                                }).ToList();
@@ -49,6 +50,22 @@ public class GetEmployeeHandler : BaseService, IRequestHandler<GetEmployeeQuery,
         {
             throw new Exception("ไม่พบข้อมูลพนักงาน");
         }
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = resEmp.Select(s => s.createdby).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        resEmp = resEmp.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                s.createdby = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+            }
+            return s;
+        }).ToList();
+        #endregion
+
         return new BaseResponse<List<GetEmployeeResponseDTO>>
         {
             result = true,

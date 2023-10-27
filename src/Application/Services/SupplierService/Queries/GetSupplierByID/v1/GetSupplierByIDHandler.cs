@@ -25,7 +25,10 @@ public class GetSupplierByIDHandler : BaseService, IRequestHandler<GetSupplierBy
 														   join contact in await _unitOfWork.Repository<TMSupplierContact>().QueryAsync() on a.SupplierID equals contact.SupplierID
 														   join b in await _unitOfWork.Repository<TMSupplierType>().QueryAsync() on a.SupplierTypeID equals b.SupplierTypeID
 														   join c in await _unitOfWork.Repository<TMSupplierContactType>().QueryAsync() on contact.SupplierContactTypeID equals c.SupplierContactTypeID
-														   where a.SupplierID == request.supplierid && a.IsActive
+                                                           join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User))
+                                                           on a.CreatedBy equals emp.User.UserName into tUser
+                                                           from jUser in tUser.DefaultIfEmpty()
+                                                           where a.SupplierID == request.supplierid && a.IsActive
 														   select new GetSupplierResponseDTO
 														   {
 															   supplierid = a.SupplierID,
@@ -34,8 +37,8 @@ public class GetSupplierByIDHandler : BaseService, IRequestHandler<GetSupplierBy
 															   suppliertypeid = a.SupplierTypeID,
 															   suppliertypename = b.SupplierTypeName,
 															   description = a.Description,
-															   createdby = a.CreatedBy,
-															   creadeddate = a.CreadedDate,
+															   createdby = jUser != null ? jUser.FirstName : "N/A",
+                                                               createddate = a.CreadedDate,
 															   isactive = a.IsActive,
 															   suppliercontacttypeid = contact.SupplierContactTypeID,
                                                                suppliercontacttypename = c.SupplierContactTypeName,

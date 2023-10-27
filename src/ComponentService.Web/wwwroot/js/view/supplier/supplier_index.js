@@ -38,8 +38,12 @@ datatable = $("#tbSuppliers").DataTable({
         {
             "data": { creadeddate: "creadeddate" },
             "render": function (data) {
-                var _creadeddate = new Date(data.creadeddate).toLocaleDateString("en-US");
-                return _creadeddate;
+                //var _creadeddate = new Date(data.creadeddate).toLocaleDateString("en-US");
+                //return _creadeddate;
+                if (data.createddate === null || data.createddate == null) {
+                    return data.createddate;
+                }
+                return formatDateTime(new Date(data.createddate));
             }
         },
         {
@@ -69,8 +73,8 @@ datatable = $("#tbSuppliers").DataTable({
     initComplete: (settings, json) => {
         $('.dataTables_filter').appendTo("#tbSuppliers");
         $('.dataTables_filter').appendTo('.search-input');
-  update  },
-    dom: 'Bfrtip',
+    },
+    /*dom: 'Bfrtip',*/
     buttons: [
         {
             extend: 'excelHtml5',

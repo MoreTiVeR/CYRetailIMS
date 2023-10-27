@@ -4,6 +4,7 @@ using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery, BaseResponse<List<GetItemListResponseDTO>>>
@@ -14,7 +15,6 @@ public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery,
 
     public async Task<BaseResponse<List<GetItemListResponseDTO>>> Handle(GetItemListQuery request, CancellationToken cancellationToken)
     {
-        //IEnumerable<TMItem> resItems = await _unitOfWork.Repository<TMItem>().FindListAsync(w => w.IsActive);
         IEnumerable<GetItemListResponseDTO> resItems = (from a in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.IsActive)
                                                         join b in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on a.ItemTypeID equals b.ItemTypeID
                                                         join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on a.BrandID equals c.BrandID
@@ -50,7 +50,31 @@ public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery,
         {
             throw new Exception("Data not found");
         }
+
+        //Mapping DTO
         List<GetItemListResponseDTO> items = _mapper.Map<List<GetItemListResponseDTO>>(resItems);
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = items.Select(s => s.createdby).Union(items.Select(s => s.updatedby)).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        items = items.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                s.createdby = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+            }
+
+            if (!string.IsNullOrEmpty(s.updatedby))
+            {
+                s.updatedby = empDataList.FirstOrDefault(w => w.UserName == s.updatedby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.updatedby).FirstName : s.updatedby;
+            }
+            return s;
+        }).ToList();
+        #endregion
+
         return new BaseResponse<List<GetItemListResponseDTO>>
         {
             result = true,

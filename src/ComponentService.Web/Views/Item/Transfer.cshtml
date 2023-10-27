@@ -28,11 +28,8 @@
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>ประเภทการโอนสินค้า</label>
-                                <select class="ddl-select2 select2 ddl-transfertype" asp-for="transfertypeid">
+                                <select class="ddl-select2 select2 ddl-transfertype" asp-for="transfertypeid" asp-items="@(new SelectList(ViewBag.ItemTransaferTypeList, "Value", "Text", null, null))">
                                     <option value="">-- ระบุประเภทการโอนสินค้า --</option>
-                                    <option value="1">โอนจากคลังไปยังสาขา</option>
-                                    <option value="2">โอนจากสาขาไปยังสาขา</option>
-                                    <option value="3" disabled>โอนจากคลังไปยังคลัง</option>
                                 </select>
                                 <span asp-validation-for="transfertypeid" class="text-danger"></span>
                             </div>

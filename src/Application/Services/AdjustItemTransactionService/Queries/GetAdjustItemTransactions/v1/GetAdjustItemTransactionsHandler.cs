@@ -26,6 +26,9 @@ public class GetAdjustItemTransactionsHandler : BaseService, IRequestHandler<Get
                                                               join c in await _unitOfWork.Repository<TMItem>().FindWithInclude(w => w.IsActive, 
                                                               i => i.Include(x => x.ItemType), 
                                                               ii => ii.Include(ww => ww.Brand)) on a.ItemID equals c.ItemID
+                                                              join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User)) on a.CreatedBy equals emp.User.UserName 
+                                                              into tUser
+                                                              from jUser in tUser.DefaultIfEmpty()
                                                               where a.IsActive
                                                               select new GetAdjustItemTransactionsResponseDTO
                                                               {
@@ -42,12 +45,29 @@ public class GetAdjustItemTransactionsHandler : BaseService, IRequestHandler<Get
                                                                   qty = a.Qty,
                                                                   remark = a.Remark,
                                                                   createdby = a.CreatedBy,
-                                                                  creadeddate = a.CreadedDate
+                                                                  creadeddate = a.CreadedDate,
+                                                                  isactive = a.IsActive
                                                               }).ToList();
         if(resData.Count == 0)
         {
             throw new Exception("ไม่พบข้อมูลการปรับสต๊อก");
         }
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = resData.Select(s => s.createdby).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        resData = resData.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                s.createdby = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+            }
+            return s;
+        }).ToList();
+        #endregion
+
         return new BaseResponse<List<GetAdjustItemTransactionsResponseDTO>>
         {
             result = true,

@@ -21,7 +21,7 @@ public class GetItemTransferResponseDTO
     public string destinationname { get; set; }
     public string description { get; set; }
     public string createdby { get; set; }
-    public DateTime creadeddate { get; set; }
+    public DateTime createddate { get; set; }
     public string? updatedby { get; set; }
     public DateTime? updateddate { get; set; }
 

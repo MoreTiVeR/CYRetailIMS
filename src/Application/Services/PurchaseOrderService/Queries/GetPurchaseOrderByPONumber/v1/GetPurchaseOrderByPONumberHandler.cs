@@ -29,7 +29,10 @@ public class GetPurchaseOrderByPONumberHandler : BaseService, IRequestHandler<Ge
 													 join supp in await _unitOfWork.Repository<TMSupplier>().QueryAsync() on order.SupplierID equals supp.SupplierID
 													 join cur in await _unitOfWork.Repository<TMCurrency>().QueryAsync() on order.CurrencyID equals cur.CurrencyID
 													 join paytype in await _unitOfWork.Repository<TMPaymentType>().QueryAsync() on order.PaymenTypeID equals paytype.PaymenTypeID
-													 select new GetPurchaseOrderResposeDTO
+                                                     join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User))
+                                                           on order.CreatedBy equals emp.User.UserName into tUser
+                                                     from jUser in tUser.DefaultIfEmpty()
+                                                     select new GetPurchaseOrderResposeDTO
 													 {
 														 purchaseorderid = order.PurchaseOrderID,
 														 purchaseorderno = order.PurchaseOrderNo,
@@ -108,9 +111,25 @@ public class GetPurchaseOrderByPONumberHandler : BaseService, IRequestHandler<Ge
 			});
 			return s;
 		}).ToList();
-		#endregion
+        #endregion
 
-		if (resOrder.Count == 0)
+        #region Update updatedby data from emp name
+        List<string> userNameList = resOrder.Select(s => s.createdby).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        resOrder = resOrder.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                s.createdby = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+            }
+
+            return s;
+        }).ToList();
+        #endregion
+
+        if (resOrder.Count == 0)
 		{
 			throw new Exception("ไม่พบข้อมูล");
 		}

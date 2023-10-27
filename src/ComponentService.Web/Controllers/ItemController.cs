@@ -35,6 +35,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemIn
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using Microsoft.CodeAnalysis.Operations;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
+using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -131,6 +132,7 @@ public class ItemController : BaseController
         ViewBag.ItemList = resItemList;
         ViewBag.BranchList = await PrepareSelectBranch();
         ViewBag.ItemTransferList = await GetItemTransferItemListByTransferType((int)TransferType.WTB);
+        ViewBag.ItemTransaferTypeList = await PrepareSelectItemTransferType(); ;
         return View();
     }
 
@@ -640,6 +642,10 @@ public class ItemController : BaseController
                                 description = description
                             });
                         }
+                        else
+                        {
+                            //Invalid data
+                        }
 
                     }
                     catch (Exception)
@@ -922,6 +928,13 @@ public class ItemController : BaseController
         return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
     }
 
+    public async Task<List<SelectListItem>> PrepareSelectItemTransferType()
+    {
+        BaseResponse<List<GetTransferTypeListResponseDTO>> resItemTransaferTypeList = await _itemTransferAPI.GetItemTransferTypeAsync();
+        return resItemTransaferTypeList.data.Select(s => new SelectListItem { Text = s.transfertypename, Value = s.transfertypeid.ToString() }).ToList();
+
+    }
+
     #region Private Method
     private CreateItemCommand MappingCreateItemCommand(AddItemViewModel itemViewModel)
     {
@@ -957,14 +970,14 @@ public class ItemController : BaseController
         itemViewModel.ForEach(s =>
         {
             //Check isexist itemcode
-            GetItemListResponseDTO item = resItems.data.FirstOrDefault(w => w.itemcode.Trim().ToLower() == s.itemcode.Trim().ToLower());
+            GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim().ToLower() == s.itemcode.Trim().ToLower());
             if (item != null)
             {
                 s.isupdate = true;
             }
 
             //Check isexist itemtype
-            GetItemTypeListResponseDTO itemType = resItemType.data.FirstOrDefault(w => w.itemtypename.Trim().ToLower() == s.itemtype.Trim().ToLower());
+            GetItemTypeListResponseDTO itemType = resItemType.data?.FirstOrDefault(w => w.itemtypename.Trim().ToLower() == s.itemtype.Trim().ToLower());
             if (itemType == null)
             {
                 errRow.Add(rowCount);
@@ -972,7 +985,7 @@ public class ItemController : BaseController
             }
 
             //Check isexist itembrand
-            GetItemBrandListResponseDTO itemBrand = resItemBrand.data.FirstOrDefault(w => w.brandname.Trim().ToLower() == s.itembrand.Trim().ToLower());
+            GetItemBrandListResponseDTO itemBrand = resItemBrand.data?.FirstOrDefault(w => w.brandname.Trim().ToLower() == s.itembrand.Trim().ToLower());
             if (itemBrand == null)
             {
                 errRow.Add(rowCount);

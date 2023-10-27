@@ -117,7 +117,7 @@
                                 <td>@item.mobileno</td>
                                 <td>@item.email</td>
                                 <td><span class="@bingingRegisterCss">@bingingRegisterName</span></td>
-                                <th>@($"{@item.creadeddate:dd/MM/yyyy}")</th>
+                                <th>@($"{@item.createddate:dd/MM/yyyy HH:mm:ss}")</th>
                                 <td><span class="@empStatusCss">@empStatusName</span></td>
                                 <td>
                                     <a class="me-3" asp-action="Edit" asp-controller="EmployeeManagement" title="แก้ไขข้อมูลพนักงาน" asp-all-route-data="aEmpID">

@@ -66,7 +66,7 @@ public class CreateItemListHandler : BaseService, IRequestHandler<CreateItemList
 		if(newItemEntity.Count > 0)
 		{
 			List<TMItem> newItemEntities = _mapper.Map<List<TMItem>>(newItemEntity);
-			newItemEntities.ForEach(e =>
+            newItemEntities.ForEach(e =>
 			{
 				e.SetCreatedBy(createdBy);
 				e.SetCreatedDate(createdDate);

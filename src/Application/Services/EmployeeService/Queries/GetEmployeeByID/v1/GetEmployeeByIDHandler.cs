@@ -26,7 +26,7 @@ public class GetEmployeeByIDHandler : BaseService, IRequestHandler<GetEmployeeBy
                                          into jUser
                                          from user in jUser.DefaultIfEmpty()
                                          where emp.EmpID == request.empid
-                                         //&& emp.IsActive
+                                         && emp.IsActive
                                          select new { emp, department, user }).ToList().Select(s => new GetEmployeeResponseDTO
                                          {
                                              empid = s.emp.EmpID,
@@ -42,7 +42,7 @@ public class GetEmployeeByIDHandler : BaseService, IRequestHandler<GetEmployeeBy
                                              salary = s.emp.Salary,
                                              startworkingdate = s.emp.StartWorkingDate,
                                              createdby = s.emp.CreatedBy,
-                                             creadeddate = s.emp.CreadedDate,
+                                             createddate = s.emp.CreadedDate,
                                              isactive = s.emp.IsActive,
                                              isregister = s.user == null ? false : true
                                          }).FirstOrDefault();

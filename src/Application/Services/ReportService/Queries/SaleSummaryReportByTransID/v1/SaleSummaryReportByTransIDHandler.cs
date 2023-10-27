@@ -24,9 +24,6 @@ public class SaleSummaryReportByTransIDHandler : BaseService, IRequestHandler<Sa
         IEnumerable<SaleSummaryReportResponseDTO> resSaleSummaryReport = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
                                                                           join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
                                                                           join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
-                                                                          join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User)) on tran.CreatedBy equals emp.User.UserName
-                                                                          into tEmp
-                                                                          from jEmp in tEmp.DefaultIfEmpty()
                                                                           join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync() on tran.TransactionID equals audit.TransactionID into tAudit
                                                                           from jAudit in tAudit.DefaultIfEmpty()
                                                                           where tran.IsActive
@@ -42,7 +39,7 @@ public class SaleSummaryReportByTransIDHandler : BaseService, IRequestHandler<Sa
                                                                               amountcash = tran.AmountCash,
                                                                               depositfee = tran.Fee,
                                                                               createdby = tran.CreatedBy,
-                                                                              createdbystaff = jEmp != null ? jEmp.FirstName : "N/A",
+                                                                              //createdbystaff = jEmp != null ? jEmp.FirstName : "N/A",
 
                                                                               branchid = tran.BranchID,
                                                                               branchname = branch.BranchName,
@@ -52,11 +49,27 @@ public class SaleSummaryReportByTransIDHandler : BaseService, IRequestHandler<Sa
                                                                               auditdescription = jAudit.Description
                                                                           }).AsEnumerable();
 
-
         if (!resSaleSummaryReport.Any())
         {
             throw new Exception("ไม่พบข้อมูลรายงานขายสินค้า");
         }
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = resSaleSummaryReport.ToList().Select(s => s.createdby).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        resSaleSummaryReport = resSaleSummaryReport.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                s.createdbystaff = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+            }
+
+            return s;
+        }).ToList();
+        #endregion
+
         return new BaseResponse<SaleSummaryReportResponseDTO>
         {
             result = true,

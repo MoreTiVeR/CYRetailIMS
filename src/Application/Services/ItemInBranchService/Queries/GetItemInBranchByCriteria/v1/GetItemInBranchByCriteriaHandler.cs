@@ -30,42 +30,6 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                     i => i.Include(x => x.Item.ItemType),
                     i => i.Include(x => x.Item.UnitOfMeasure));
 
-        //GetItemInBranchByCriteriaResponseDTO? resItemBranch2 = (from itembranch in await _unitOfWork.Repository<TMItemInBranch>().QueryAsync()
-        //                                                        join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync(w => w.IsActive) on itembranch.BranchID equals branch.BranchID
-        //                                                        join item in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.IsActive) on itembranch.ItemID equals item.ItemID
-        //                                                        join itemtype in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on item.ItemTypeID equals itemtype.ItemTypeID
-        //                                                        join itembrand in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on item.BrandID equals itembrand.BrandID
-        //                                                        join itemmou in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on item.UnitOfMeasureID equals itemmou.UnitOfMeasureID
-        //                                                        where itembranch.ItemID == request.itemid
-        //                                                        && itembranch.IsActive
-        //                                                        && itembranch.BranchID == request.branchid
-        //                                                        select new GetItemInBranchByCriteriaResponseDTO
-        //                                                        {
-        //                                                            branchid = itembranch.BranchID,
-        //                                                            branchname = branch.BranchName,
-        //                                                            item = new GetItemInBranchByBranchIDItemResponseDTO
-        //                                                            {
-        //                                                                itemid = itembranch.ItemID,
-        //                                                                itemname = item.Name,
-        //                                                                itemcode = item.ItemCode,
-        //                                                                cost = item.Cost,
-        //                                                                brandid = itembrand.BrandID,
-        //                                                                brandname = itembrand.BrandName,
-        //                                                                brandshortname = itembrand.BrandShortName,
-        //                                                                price = itembranch.Price,
-        //                                                                discountpercent = itembranch.DiscountPercent,
-        //                                                                qty = itembranch.Qty,
-        //                                                                description = item.Description,
-        //                                                                itemtypeid = itemtype.ItemTypeID,
-        //                                                                itemtypename = itemtype.ItemTypeName,
-        //                                                                isactive = itembranch.IsActive,
-        //                                                                itemimageurl = item.ItemImageUrl,
-        //                                                                shortname = item.ShortName,
-        //                                                                unitofmeasureid = itemmou.UnitOfMeasureID,
-        //                                                                unitofmeasurename = itemmou.UnitOfMeasureName,
-        //                                                            }
-        //                                                        }).FirstOrDefault();
-
         if (!resItemBranch.Any())
         {
             throw new Exception("Data not found");
@@ -95,7 +59,11 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                         itemimageurl = x.Item.ItemImageUrl,
                         shortname = x.Item.ShortName,
                         unitofmeasureid = x.Item.UnitOfMeasure.UnitOfMeasureID,
-                        unitofmeasurename = x.Item.UnitOfMeasure.UnitOfMeasureName
+                        unitofmeasurename = x.Item.UnitOfMeasure.UnitOfMeasureName,
+                        createdby = x.CreatedBy,
+                        createddate = x.CreadedDate,
+                        updatedby = x.UpdatedBy,
+                        updateddate = x.UpdatedDate
                     }).FirstOrDefault()
         }).OrderBy(o => o.branchid).FirstOrDefault();
 
@@ -103,6 +71,19 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
         {
             throw new Exception("Data not found");
         }
+
+        #region Update updatedby data from emp name
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.UserName == resData.item.createdby || w.UserName == resData.item.updatedby, i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        if (!string.IsNullOrEmpty(resData.item.updatedby))
+        {
+            resData.item.updatedby = empDataList.FirstOrDefault(w => w.UserName == resData.item.updatedby) != null 
+                ? empDataList.FirstOrDefault(w => w.UserName == resData.item.updatedby).FirstName : resData.item.updatedby;
+        }
+        resData.item.createdby = empDataList.FirstOrDefault(w => w.UserName == resData.item.createdby) != null
+                    ? empDataList.FirstOrDefault(w => w.UserName == resData.item.createdby).FirstName : resData.item.createdby;
+        #endregion
+
         return new BaseResponse<GetItemInBranchByCriteriaResponseDTO>
         {
             result = true,

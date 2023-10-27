@@ -69,6 +69,28 @@ public class GetTransactionByTransactionIDHandler : BaseService, IRequestHandler
         {
             throw new Exception("ไม่พบข้อมูลประวัติการขายสินค้า!");
         }
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = resTransaction.Select(s => s.createdby).Union(resTransaction.Select(s => s.updatedby)).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        resTransaction = resTransaction.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                s.createdbystaff = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+            }
+
+            if (!string.IsNullOrEmpty(s.updatedby))
+            {
+                s.updatedby = empDataList.FirstOrDefault(w => w.UserName == s.updatedby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.updatedby).FirstName : s.updatedby;
+            }
+            return s;
+        }).ToList();
+        #endregion
+
         return new BaseResponse<GetTransactionByBranchIDResponseDTO>
         {
             result = true,

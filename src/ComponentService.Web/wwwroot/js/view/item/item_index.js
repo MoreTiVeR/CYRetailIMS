@@ -35,13 +35,13 @@ datatable = $("#tbItems").DataTable({
             "render": function (data) {
                 var _qty = parseInt(data.qty);
                 var _minqty = parseInt(data.notifyminqty);
-                if (_qty < _minqty) {
-                    return "<span class='badges bg-lightyellow'>" + data.qty +"</span>";
+                if (_qty <= _minqty) {
+                    return "<span class='badges bg-lightyellow'>" + data.qty + "</span>";
                 }
                 else {
                     return "<span class='badges bg-lightgreen'>" + data.qty + "</span>";
                 }
-                
+
             }
         },
         { "data": "cost" },
@@ -49,8 +49,29 @@ datatable = $("#tbItems").DataTable({
         { "data": "notifyminqty" },
         { "data": "description" },
         { "data": "createdby" },
+        {
+            "data": { createddate: "createddate" },
+            "render": function (data) {
+                if (data.createddate === null || data.createddate == null) {
+                    return data.createddate;
+                }
+                return formatDateTime(new Date(data.createddate));
+                //var _createddate = new Date(data.createddate).toLocaleDateString("en-US");
+                //return _createddate;
+            }
+        },
         { "data": "updatedby" },
-        { "data": "updateddate" },
+        {
+            "data": { updateddate: "updateddate" },
+            "render": function (data) {
+                if (data.updateddate === null || data.updateddate == null) {
+                    return data.updateddate;
+                }
+                return formatDateTime(new Date(data.updateddate));
+                //var _updateddate = new Date(data.updateddate).toLocaleDateString("en-US");
+                //return _updateddate;
+            }
+        },
         {
             "data": { itemid: "itemid", isiteminbranch: "isiteminbranch", searchbranchid: "searchbranchid" },
             "render": function (data) {
@@ -60,7 +81,7 @@ datatable = $("#tbItems").DataTable({
                 console.log('data dic:' + dict);
                 if (data.isiteminbranch) {
                     //Branch
-                    return "<a href='EditItemBranch?itemid=" + data.itemid + "&branchid=" + data.searchbranchid +"'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid +") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                    return "<a href='EditItemBranch?itemid=" + data.itemid + "&branchid=" + data.searchbranchid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
                 }
                 else {
                     //Warehouse
@@ -90,8 +111,8 @@ datatable = $("#tbItems").DataTable({
     initComplete: (settings, json) => {
         $('.dataTables_filter').appendTo("#tbItems");
         $('.dataTables_filter').appendTo('.search-input');
-  update  },
-    dom: 'Bfrtip',
+    },
+    /*dom: 'Bfrtip',*/
     buttons: [
         {
             extend: 'excelHtml5',
@@ -100,8 +121,8 @@ datatable = $("#tbItems").DataTable({
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-             }
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+            }
         },
         {
             extend: 'pdfHtml5',
@@ -130,7 +151,7 @@ $("#btnSearch").on('click', function (event) {
 
             if (response.result) {
                 ShowMessageSuccess(response.message);
-                
+
                 //Update the DataTable with the filtered data from the server
                 console.log(response.data);
                 $("#tbItems").DataTable().clear().rows.add(response.data).draw();

@@ -30,15 +30,23 @@ datatable = $("#tbOrders").DataTable({
         {
             "data": { orderdate: "orderdate" },
             "render": function (data) {
-                var _orderdate = new Date(data.orderdate).toLocaleDateString("en-US");
-                return _orderdate;
+                //var _orderdate = new Date(data.orderdate).toLocaleDateString("en-US");
+                //return _orderdate;
+                if (data.orderdate === null || data.orderdate == null) {
+                    return data.orderdate;
+                }
+                return formatDateTime(new Date(data.orderdate));
             }
         },
         {
             "data": { receiveddate: "receiveddate" },
             "render": function (data) {
-                var _receiveddate = new Date(data.receiveddate).toLocaleDateString("en-US");
-                return _receiveddate;
+                //var _receiveddate = new Date(data.receiveddate).toLocaleDateString("en-US");
+                //return _receiveddate;
+                if (data.receiveddate === null || data.receiveddate == null) {
+                    return data.receiveddate;
+                }
+                return formatDateTime(new Date(data.receiveddate));
             }
         },
         { "data": "paymentypename" },
@@ -105,7 +113,7 @@ datatable = $("#tbOrders").DataTable({
         $('.dataTables_filter').appendTo("#tbOrders");
         $('.dataTables_filter').appendTo('.search-input');
     },
-    dom: 'Bfrtip',
+    /*dom: 'Bfrtip',*/
     buttons: [
         {
             extend: 'excelHtml5',

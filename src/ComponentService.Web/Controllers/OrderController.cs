@@ -274,8 +274,19 @@ public class OrderController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetOrders()
     {
-        BaseResponse<List<GetPurchaseOrderResposeDTO>> resOrderList = await _purchaseOrderAPI.GetPurchaseOrderListAsync();
-        return Json(new { data = resOrderList.data });
+        try
+        {
+            BaseResponse<List<GetPurchaseOrderResposeDTO>> resOrderList = await _purchaseOrderAPI.GetPurchaseOrderListAsync();
+            if (!resOrderList.result)
+            {
+                throw new Exception(resOrderList.error.error.message);
+            }
+            return Json(new { data = resOrderList.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetPurchaseOrderResposeDTO>() });
+        }
     }
 
 

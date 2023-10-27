@@ -49,15 +49,45 @@ public class GetItemInBranchByBranchListHandler : BaseService, IRequestHandler<G
                             qty = x.Qty,
                             description = x.Item.Description,
                             itemtypeid = x.Item.ItemTypeID,
-                            itemtypename = x.Item.ItemType.ItemTypeName
+                            itemtypename = x.Item.ItemType.ItemTypeName,
+                            createdby = x.CreatedBy,
+                            createddate = x.CreadedDate,
+                            updatedby = x.UpdatedBy,
+                            updateddate = x.UpdatedDate
                         }).ToList()
 		}).OrderBy(o => o.branchid).ToList();
 
-		if (!resItemBranch.Any())
+		if (!resData.Any())
 		{
 			throw new Exception("Data not found");
 		}
-		return new BaseResponse<List<GetItemInBranchByBranchListResponseDTO>>
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = resData.SelectMany(s => s.itemlist).Select(s => s.createdby).Union(resData.SelectMany(s => s.itemlist).Select(s => s.updatedby)).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        resData = resData.Select(e =>
+        {
+            e.itemlist.ForEach(s =>
+            {
+                if (!string.IsNullOrEmpty(s.createdby))
+                {
+                    s.createdby = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                    ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+                }
+
+                if (!string.IsNullOrEmpty(s.updatedby))
+                {
+                    s.updatedby = empDataList.FirstOrDefault(w => w.UserName == s.updatedby) != null
+                    ? empDataList.FirstOrDefault(w => w.UserName == s.updatedby).FirstName : s.updatedby;
+                }
+            });
+
+            return e;
+        }).ToList();
+        #endregion
+
+        return new BaseResponse<List<GetItemInBranchByBranchListResponseDTO>>
 		{
 			result = true,
 			data = resData,

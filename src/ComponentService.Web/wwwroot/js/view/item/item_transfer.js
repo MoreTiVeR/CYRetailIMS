@@ -35,8 +35,7 @@ $("#btnSave").on('click', function () {
                         //type: 'warning',
                         title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
                         icon: 'warning',
-                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>'
-                            + '<br>' + results.msg + '',
+                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
                         showCancelButton: true,
                         //showDenyButton: true,
                         confirmButtonColor: '#04B431',

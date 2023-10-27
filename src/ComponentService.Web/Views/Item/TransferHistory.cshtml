@@ -101,6 +101,7 @@
                         <th>สถานะรับสินค้า</th>
                         <th>จำนวนรับ</th>
                         <th>จำนวนคืน</th>
+                        <th>สร้างโดย</th>
                         <th>วันที่รับโอน</th>
                         <th>ผู้รับโอน</th>
                         @*<th>คำเนินการ</th>*@
@@ -120,7 +121,7 @@
                                         <span class="checkmarks"></span>
                                     </label>
                                 </td>
-                                <td>@item.creadeddate</td>
+                                <td>@($"{@item.createddate:dd/MM/yyyy HH:mm:ss}")</td>
                                 <td>@item.sourcename</td>
                                 <td>@item.destinationname</td>
                                 <td>@item.itemname</td>
@@ -150,7 +151,8 @@
                                 </td>
                                 <td>@item.receiveqty</td>
                                 <td>@item.returnqty</td>
-                                <td>@($"{@item.updateddate:dd/MM/yyyy}")</td>
+                                <td>@item.createdby</td>
+                                <td>@($"{@item.updateddate:dd/MM/yyyy HH:mm:ss}")</td>
                                 <td>@item.updatedby</td>
                                 @*<td>
                                     <a class="me-3" href="edittransfer.html">

@@ -26,6 +26,9 @@ public class GetAdjustItemTransactionByIDHandler : BaseService, IRequestHandler<
                                                            join c in await _unitOfWork.Repository<TMItem>().FindWithInclude(w => w.IsActive,
                                                            i => i.Include(x => x.ItemType),
                                                            ii => ii.Include(ww => ww.Brand)) on a.ItemID equals c.ItemID
+                                                           join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User)) 
+                                                           on a.CreatedBy equals emp.User.UserName into tUser
+                                                           from jUser in tUser.DefaultIfEmpty()
                                                            where a.IsActive && a.AdjustID == request.adjusttransactionid
                                                            select new GetAdjustItemTransactionByIDResponseDTO
                                                            {
@@ -41,8 +44,9 @@ public class GetAdjustItemTransactionByIDHandler : BaseService, IRequestHandler<
                                                                itembrandname = c.Brand.BrandName,
                                                                qty = a.Qty,
                                                                remark = a.Remark,
-                                                               createdby = a.CreatedBy,
-                                                               creadeddate = a.CreadedDate
+                                                               createdby = jUser != null ? jUser.FirstName : "N/A",
+                                                               creadeddate = a.CreadedDate,
+                                                               isactive = a.IsActive
                                                            }).FirstOrDefault();
         if (resData == null)
         {

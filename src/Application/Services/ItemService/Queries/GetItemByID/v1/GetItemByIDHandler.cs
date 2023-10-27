@@ -24,6 +24,9 @@ public class GetItemByIDHandler : BaseService, IRequestHandler<GetItemByIDQuery,
                                                        join b in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on a.ItemTypeID equals b.ItemTypeID
                                                        join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on a.BrandID equals c.BrandID
                                                        join d in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on a.UnitOfMeasureID equals d.UnitOfMeasureID
+                                                       join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User))
+                                                           on a.CreatedBy equals emp.User.UserName into tUser
+                                                       from jUser in tUser.DefaultIfEmpty()
                                                        where a.ItemID == request.itemid && a.IsActive
                                                        select new GetItemByIDResponseDTO
                                                        {
@@ -43,7 +46,7 @@ public class GetItemByIDHandler : BaseService, IRequestHandler<GetItemByIDQuery,
                                                            price = a.Price,
                                                            qty = a.Qty,
                                                            notifyminqty = a.NotifyMinQty,
-                                                           createdby = a.CreatedBy,
+                                                           createdby = jUser != null ? jUser.FirstName : "N/A",
                                                            createddate = a.CreadedDate,
                                                            cost = a.Cost,
                                                            discountpercent = a.DiscountPercent,
@@ -51,14 +54,31 @@ public class GetItemByIDHandler : BaseService, IRequestHandler<GetItemByIDQuery,
                                                            updateddate = a.UpdatedDate,
                                                            isactive = a.IsActive
                                                        }).AsEnumerable();
-        if(!resData.Any())
+
+        if (!resData.Any())
         {
             throw new Exception("ไม่พบข้อมูลสินค้า");
         }
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = resData.Select(s => s.updatedby).ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        List<GetItemByIDResponseDTO> resItems = resData.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.updatedby))
+            {
+                s.updatedby = empDataList.FirstOrDefault(w => w.UserName == s.updatedby) != null 
+                ? empDataList.FirstOrDefault(w => w.UserName == s.updatedby).FirstName : s.updatedby;
+            }
+            return s;
+        }).ToList();
+        #endregion
+
         return new BaseResponse<GetItemByIDResponseDTO>
         {
             result = true,
-            data = resData.FirstOrDefault(),
+            data = resItems.FirstOrDefault(),
             message = " Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()
