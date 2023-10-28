@@ -10,6 +10,7 @@ using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 using CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +47,28 @@ public class ReportController : BaseController
 		return View();
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetSaleReport()
+    {
+        try
+        {
+            BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
+            {
+                transaction_startdate = DateTime.Now,
+                transaction_enddate = DateTime.Now
+            });
+            if (!resReport.result)
+            {
+                throw new Exception(resReport.error.error.message);
+            }
+            return Json(new { data = resReport.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<SaleReportResponseDTO>() });
+        }
+    }
+
     public async Task<IActionResult> SaleSummaryReportAsync()
     {
         BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
@@ -55,6 +78,27 @@ public class ReportController : BaseController
 		ViewBag.SaleSummaryReportList = resSaleSummaryReport;
 		return View();
 	}
+
+    [HttpGet]
+    public async Task<IActionResult> GetSaleSummaryReport()
+    {
+        try
+        {
+            BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
+            {
+                transactiondate = DateTime.Now
+            });
+            if (!resSaleSummaryReport.result)
+            {
+                throw new Exception(resSaleSummaryReport.error.error.message);
+            }
+            return Json(new { data = resSaleSummaryReport.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<SaleSummaryReportResponseDTO>() });
+        }
+    }
 
     public async Task<IActionResult> AuditReportAsync()
 	{
@@ -68,9 +112,42 @@ public class ReportController : BaseController
 		return View();
     }
 
-    public async Task<IActionResult> AuditSaleSummaryReport(int transactionid)
+    [HttpGet]
+    public async Task<IActionResult> GetAuditReport()
+    {
+        try
+        {
+            BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
+            {
+                transaction_startdate = DateTime.Now,
+                transaction_enddate = DateTime.Now
+            });
+            if (!resAuditReport.result)
+            {
+                throw new Exception(resAuditReport.error.error.message);
+            }
+            return Json(new { data = resAuditReport.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<AuditReportResponseDTO>() });
+        }
+    }
+
+    public async Task<IActionResult> AuditSaleSummaryReportByTransaction(int transactionid)
     {
         BaseResponse<SaleSummaryReportResponseDTO> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportByTransIDAsync(transactionid);
+        AuditSaleSummaryReportViewModel auditReportViewData = _mapper.Map<AuditSaleSummaryReportViewModel>(resSaleSummaryReport.data);
+        return View(auditReportViewData);
+    }
+
+    public async Task<IActionResult> AuditSaleSummaryReportByBranch(int branchid)
+    {
+        BaseResponse<SaleSummaryReportResponseDTO> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportByBranchAsync(new SaleSummaryReportByBranchQuery
+        {
+            branchid = branchid,
+            transactiondate = DateTime.Now
+        });
         AuditSaleSummaryReportViewModel auditReportViewData = _mapper.Map<AuditSaleSummaryReportViewModel>(resSaleSummaryReport.data);
         return View(auditReportViewData);
     }
@@ -94,11 +171,16 @@ public class ReportController : BaseController
     {
         return new CreateAuditReportCommand
         {
-            transactionid = reportData.TransactionID,
+            branchid = reportData.BranchID,
             description = reportData.AuditDescription,
             totalamountaudit = reportData.TotalAuditAmount.Value,
             createdby = base.UserProfile.rolename,
-            createddate = reportData.TransactionDate.ToDateTime(),
+            createddate = $"{reportData.TransactionDate} {DateTime.Now:HH}:{DateTime.Now:mm}:{DateTime.Now:ss}".ToDateTime(),
         };
     }
+
+
+    #region Http Method
+
+    #endregion
 }

@@ -12,6 +12,6 @@ namespace CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 public record SaleReportQuery : IRequest<BaseResponse<List<SaleReportResponseDTO>>>
 {
     public int? branchid { get; init; }
-    public DateTime? transaction_startdate { get; init; }
-    public DateTime? transaction_enddate { get; init; }
+    public DateTime transaction_startdate { get; init; }
+    public DateTime transaction_enddate { get; init; }
 }

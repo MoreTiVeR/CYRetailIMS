@@ -25,12 +25,12 @@
                     <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
                 </div>
             </div>
-           @* <div class="wordset">
-                <ul>
-                    <li>
-                        <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-                    </li>
-                </ul>
+            @* <div class="wordset">
+            <ul>
+            <li>
+            <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+            </li>
+            </ul>
             </div>*@
         </div>
         <!-- /Filter -->
@@ -87,6 +87,7 @@
                         <th>ประเภท</th>
                         <th>แบรนด์</th>
                         <th>จำนวน</th>
+                        <th>สินค้าขั้นต่ำ</th>
                         <th>ราคา</th>
                         <th>รายละเอียด</th>
                         <th class="text-center">แก้ไข</th>
@@ -108,10 +109,20 @@
                                     </label>
                                 </td>
                                 <td>@item.itemcode</td>
-                                <td><span class="badges bg-lightgreen">@item.itemname</span></td>
+                                <td>@item.itemname</td>
                                 <td>@item.itemtypename</td>
                                 <td>@item.brandname</td>
-                                <td><span class="badges bg-lightgreen">@item.qty</span></td>
+                                <td>
+                                    @if (item.qty <= item.notifyminqty)
+                                    {
+                                        <span class="badges bg-lightyellow">@item.qty</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badges bg-lightgreen">@item.qty</span>
+                                    }
+                                </td>
+                                <td>@item.notifyminqty</td>
                                 <td><span class="badges bg-lightgreen">@item.price</span></td>
                                 <td>@item.description</td>
                                 <td class="text-center">

@@ -12,14 +12,14 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByTransID.v1;
-public class SaleSummaryReportByTransIDHandler : BaseService, IRequestHandler<SaleSummaryReportByTransIDQuery, BaseResponse<SaleSummaryReportResponseDTO>>
+namespace CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+public class SaleSummaryReportByBranchHandler : BaseService, IRequestHandler<SaleSummaryReportByBranchQuery, BaseResponse<SaleSummaryReportResponseDTO>>
 {
-    public SaleSummaryReportByTransIDHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
+    public SaleSummaryReportByBranchHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
     {
     }
 
-    public async Task<BaseResponse<SaleSummaryReportResponseDTO>> Handle(SaleSummaryReportByTransIDQuery request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<SaleSummaryReportResponseDTO>> Handle(SaleSummaryReportByBranchQuery request, CancellationToken cancellationToken)
     {
         IEnumerable<SaleSummaryReportResponseDTO> resSaleSummaryReport = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
                                                                           join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
@@ -27,7 +27,8 @@ public class SaleSummaryReportByTransIDHandler : BaseService, IRequestHandler<Sa
                                                                           join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync() on tran.BranchID equals audit.BranchID into tAudit
                                                                           from jAudit in tAudit.DefaultIfEmpty()
                                                                           where tran.IsActive
-                                                                          && tran.TransactionID == request.transactionid
+                                                                          && tran.BranchID == request.branchid
+                                                                          && tran.TransactionDate.Date == request.transactiondate.Date
                                                                           select new SaleSummaryReportResponseDTO
                                                                           {
                                                                               transactionid = tran.TransactionID,
@@ -48,6 +49,22 @@ public class SaleSummaryReportByTransIDHandler : BaseService, IRequestHandler<Sa
                                                                               totalauditamount = jAudit.TotalAuditAmount,
                                                                               auditdescription = jAudit.Description
                                                                           }).AsEnumerable();
+
+        resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => g.branchid).Select(s => new SaleSummaryReportResponseDTO
+        {
+            branchid = s.Key,
+            branchname = s.First(w => w.branchid == s.Key).branchname,
+            transactiondate = s.First(w => w.branchid == s.Key).transactiondate,
+            totalamount = s.Sum(x => x.totalamount),
+            amounttransfer = s.Sum(x => x.amounttransfer),
+            amountdeposit = s.Sum(x => x.amountdeposit),
+            amountcash = s.Sum(x => x.amountcash),
+            depositfee = s.Sum(x => x.depositfee),
+            createdby = s.First(w => w.branchid == s.Key).createdby,
+            auditid = s.First(w => w.branchid == s.Key).auditid,
+            totalauditamount = s.First(w => w.branchid == s.Key).totalauditamount,
+            auditdescription = s.First(w => w.branchid == s.Key).auditdescription
+        }).ToList();
 
         if (!resSaleSummaryReport.Any())
         {

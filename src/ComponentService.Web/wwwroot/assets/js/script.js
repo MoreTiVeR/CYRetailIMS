@@ -110,7 +110,21 @@ $(document).ready(function(){
 			initComplete: (settings, json)=>{
 				$('.dataTables_filter').appendTo('#tableSearch');
 				$('.dataTables_filter').appendTo('.search-input');
-			},	
+			},
+			buttons: [
+				{
+					"extend": "excelHtml5",
+					/*"text": "<i class='fa-regular fa-file-excel' data-bs-original-title='fa-regular fa-file-excel' aria-label='fa-regular fa-file-excel'></i>",*/
+					"text": "Download Excel",
+					"filename": $("#txtReportName").val(),
+					/*"className": "btn btn-primary",*/
+					"charset": "utf-8",
+					"bom": "true"
+					//init: function (api, node, config) {
+					//	$(node).removeClass("btn-default");
+					//}
+				}
+			]
 		});
 	}
 

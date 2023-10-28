@@ -26,7 +26,9 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
                                                       join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
                                                       join brand in await _unitOfWork.Repository<TMItemBrand>().QueryAsync() on item.BrandID equals brand.BrandID
                                                       where tran.IsActive
-                                                      select new SaleReportResponseDTO
+                                                      //&& tran.BranchID == request.branchid
+                                                      && (tran.TransactionDate.Date >= request.transaction_startdate.Date && tran.TransactionDate.Date <= request.transaction_enddate.Date)
+													  select new SaleReportResponseDTO
                                                       {
                                                           transactionid = tran.TransactionID,
                                                           itemcode = item.ItemCode,
@@ -51,15 +53,15 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
             resData = resData.Where(w => w.branchid == request.branchid.Value);
         }
 
-        if (request.transaction_startdate.HasValue && request.transaction_enddate.HasValue)
-        {
-            resData = resData.Where(w => w.createddate.Date >= request.transaction_startdate.Value.Date && w.createddate.Date <= request.transaction_enddate.Value.Date);
-        }
+        //if (request.transaction_startdate.HasValue && request.transaction_enddate.HasValue)
+        //{
+        //    resData = resData.Where(w => w.createddate.Date >= request.transaction_startdate.Value.Date && w.createddate.Date <= request.transaction_enddate.Value.Date);
+        //}
 
-        if (request.transaction_startdate.HasValue && !request.transaction_enddate.HasValue)
-        {
-            resData = resData.Where(w => w.createddate.Date >= request.transaction_startdate.Value.Date);
-        }
+        //if (request.transaction_startdate.HasValue && !request.transaction_enddate.HasValue)
+        //{
+        //    resData = resData.Where(w => w.createddate.Date >= request.transaction_startdate.Value.Date);
+        //}
 
         if (!resData.Any())
         {

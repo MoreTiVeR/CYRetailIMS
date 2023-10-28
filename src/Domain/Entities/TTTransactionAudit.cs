@@ -13,7 +13,10 @@ public partial class TTTransactionAudit : BaseAuditableEntity
     [Key]
     public int AuditID { get; set; }
 
-    public int TransactionID { get; set; }
+    public int BranchID { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime TransactionDate { get; set; }
 
     [Column(TypeName = "decimal(8, 2)")]
     public decimal TotalAuditAmount { get; set; }
@@ -22,7 +25,7 @@ public partial class TTTransactionAudit : BaseAuditableEntity
     [Unicode(false)]
     public string? Description { get; set; }
 
-    [ForeignKey("TransactionID")]
+    [ForeignKey("BranchID")]
     [InverseProperty("TTTransactionAudits")]
     public virtual TTTransaction Transaction { get; set; } = null!;
 }

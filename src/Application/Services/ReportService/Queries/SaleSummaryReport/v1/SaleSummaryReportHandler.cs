@@ -24,7 +24,7 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 		IEnumerable<SaleSummaryReportResponseDTO> resSaleSummaryReport = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
 																		  join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
 																		  join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
-																		  join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync() on tran.TransactionID equals audit.TransactionID into tAudit
+																		  join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync() on tran.BranchID equals audit.BranchID into tAudit
 																		  from jAudit in tAudit.DefaultIfEmpty()
 																		  where tran.IsActive
 																		  && tran.TransactionDate.Date == request.transactiondate.Date
@@ -49,7 +49,24 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 																			  auditdescription = jAudit.Description
 																		  }).AsEnumerable();
 
-		if (request.branchid.HasValue)
+		resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => g.branchid).Select(s => new SaleSummaryReportResponseDTO
+		{
+			branchid = s.Key,
+			branchname = s.First(w => w.branchid == s.Key).branchname,
+			transactiondate = s.First(w => w.branchid == s.Key).transactiondate,
+            totalamount = s.Sum(x => x.totalamount),
+            amounttransfer = s.Sum(x => x.amounttransfer),
+            amountdeposit = s.Sum(x => x.amountdeposit),
+            amountcash = s.Sum(x => x.amountcash),
+            depositfee = s.Sum(x => x.depositfee),
+            createdby = s.First(w => w.branchid == s.Key).createdby,
+            auditid = s.First(w => w.branchid == s.Key).auditid,
+            totalauditamount = s.First(w => w.branchid == s.Key).totalauditamount,
+            auditdescription = s.First(w => w.branchid == s.Key).auditdescription
+        }).ToList();
+
+
+        if (request.branchid.HasValue)
 		{
 			resSaleSummaryReport = resSaleSummaryReport.Where(w => w.branchid == request.branchid.Value);
 		}

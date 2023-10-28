@@ -20,7 +20,7 @@ public class CreateAuditReportHandler : BaseService, IRequestHandler<CreateAudit
 
     public async Task<BaseResponse<CommandResponse>> Handle(CreateAuditReportCommand request, CancellationToken cancellationToken)
     {
-        TTTransactionAudit resExist = await _unitOfWork.Repository<TTTransactionAudit>().FirstOrDefaultAsync(w => w.TransactionID == request.transactionid);
+        TTTransactionAudit resExist = await _unitOfWork.Repository<TTTransactionAudit>().FirstOrDefaultAsync(w => w.BranchID == request.branchid);
         if(resExist != null)
         {
             throw new Exception("ไม่สามารถทำรายการได้ เนื่องรายการนี้ได้ทำการตรวจสอบเรียกร้อยแล้ว");
@@ -28,9 +28,10 @@ public class CreateAuditReportHandler : BaseService, IRequestHandler<CreateAudit
 
         TTTransactionAudit autiEntity = new TTTransactionAudit
         {
-            TransactionID = request.transactionid,
+            BranchID = request.branchid,
             TotalAuditAmount = request.totalamountaudit,
-            Description = request.description
+            Description = request.description,
+            TransactionDate = request.createddate
         };
         autiEntity.SetCreatedBy(request.createdby);
         autiEntity.SetCreatedDate(request.createddate);

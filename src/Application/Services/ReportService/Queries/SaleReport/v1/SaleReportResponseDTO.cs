@@ -16,6 +16,22 @@ public class SaleReportResponseDTO
     public string brandname { get; set; }
     public int qty { get; set; }
     public decimal unitprice { get; set; }
+
+    private decimal _amount { get; set; }
+
+	public decimal amount
+    {
+        get
+        {
+            if(_amount == 0)
+            {
+                return qty * unitprice;
+            }
+            return _amount;
+        }
+        set => _amount = value;
+	}
+
     public decimal amounttransfer { get; set; }
 	public decimal amountdeposit { get; set; }
 	public decimal depositfee { get; set; }

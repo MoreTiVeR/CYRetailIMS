@@ -83,6 +83,7 @@
         </div>
         <!-- /Filter -->
         <div class="table-responsive">
+            <input type="hidden" id="txtReportName" value="รายงานประวัติการโอนสินค้า">
             <table class="table  datanew">
                 <thead>
                     <tr>
@@ -154,14 +155,6 @@
                                 <td>@item.createdby</td>
                                 <td>@($"{@item.updateddate:dd/MM/yyyy HH:mm:ss}")</td>
                                 <td>@item.updatedby</td>
-                                @*<td>
-                                    <a class="me-3" href="edittransfer.html">
-                                        <img src="~/assets/img/icons/edit.svg" alt="img">
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="~/assets/img/icons/delete.svg" alt="img">
-                                    </a>
-                                </td>*@
                             </tr>
                         }
                     }
@@ -171,3 +164,13 @@
     </div>
 </div>
 <!-- /product list -->
+@section Scripts{
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+    <!--Page Script-->
+    @*<script src="~/js/view/item/item_transferhistory.js" asp-append-version="true"></script>*@
+
+}

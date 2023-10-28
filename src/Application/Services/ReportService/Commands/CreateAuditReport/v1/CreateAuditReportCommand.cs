@@ -11,7 +11,7 @@ namespace CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditRep
 [Serializable]
 public record CreateAuditReportCommand : IRequest<BaseResponse<CommandResponse>>
 {
-    public int transactionid { get; init; }
+    public int branchid { get; init; }
     public decimal totalamountaudit { get; init; }
     public string description { get; init; }
     public string createdby { get; init; }

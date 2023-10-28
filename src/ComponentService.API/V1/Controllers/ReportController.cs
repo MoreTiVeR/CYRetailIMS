@@ -6,6 +6,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using Microsoft.AspNetCore.Mvc;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByTransID.v1;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -77,6 +78,22 @@ public class ReportController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]SaleSummaryReportByTransIDAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/salesummaryreportbybranch")]
+    [ProducesResponseType(typeof(List<SaleSummaryReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SaleSummaryReportByBranchsync(SaleSummaryReportByBranchQuery reportByBranchIDQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<SaleSummaryReportResponseDTO> res = await Mediator.Send(reportByBranchIDQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]SaleSummaryReportByBranchsync Success");
         return Ok(res.data);
     }
 

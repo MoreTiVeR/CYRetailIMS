@@ -10,6 +10,7 @@ using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 public class ReportAPI : HttpClientService, IReportAPI
@@ -48,5 +49,9 @@ public class ReportAPI : HttpClientService, IReportAPI
             object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salesummaryreportbytransid/{transactionid}"), null);
     }
 
-    
+    public async Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByBranchAsync(SaleSummaryReportByBranchQuery summaryReportByBranchQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<SaleSummaryReportResponseDTO,
+            SaleSummaryReportByBranchQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salesummaryreportbybranch"), summaryReportByBranchQuery);
+    }
 }

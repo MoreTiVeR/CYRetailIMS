@@ -30,7 +30,7 @@ public class AuditReportHandler : BaseService, IRequestHandler<AuditReportQuery,
 	{
 		IEnumerable<AuditReportResponseDTO> resSaleSummaryReport = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
 																	  join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
-																	  join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync() on tran.TransactionID equals audit.TransactionID into tAudit
+																	  join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync() on tran.BranchID equals audit.BranchID into tAudit
 																	  from jAudit in tAudit.DefaultIfEmpty()
 																	  where tran.IsActive
 																	  && (tran.TransactionDate.Date >= request.transaction_startdate.Date && tran.TransactionDate.Date <= request.transaction_enddate.Date)

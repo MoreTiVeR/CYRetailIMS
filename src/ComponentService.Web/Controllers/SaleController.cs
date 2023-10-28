@@ -343,10 +343,6 @@ public class SaleController : BaseController
     #region Private Method
     private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj, List<CreateTransactionDetailCommand> createTransactionDetailCommands)
     {
-        //DateTime.TryParseExact(reqObj.saledate, "dd/MM/yyyy", new System.Globalization.CultureInfo("en-US"), System.Globalization.DateTimeStyles.None, out DateTime dt);
-        //var dt2 = DateTime.ParseExact(reqObj.saledate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-        //var dt3 = DateTime.ParseExact(reqObj.saledate, "dd/MM/yyyy", new System.Globalization.CultureInfo("en-US"));
-
         decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
         return new CreateTransactionCommand
         {
@@ -359,7 +355,7 @@ public class SaleController : BaseController
             totalamount = toalAmt,
             isactive = true,
             isexcludevat = false,
-            transactiondate = reqObj.saledate.ToDateTime(),
+            transactiondate = reqObj.saledate.ToDate(),
             creadeddate = DateTime.Now,
             createdby = base.UserProfile.username,
             transactiondetail = createTransactionDetailCommands

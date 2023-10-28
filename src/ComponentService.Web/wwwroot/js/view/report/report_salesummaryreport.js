@@ -1,14 +1,14 @@
 ﻿
 var datatable;
 
-datatable = $("#tbSaleReport").DataTable({
+datatable = $("#tbSaleSummaryReport").DataTable({
     "destroy": true,
     "bFilter": true,
     "sDom": 'fBtlpi',
     'pagingType': 'numbers',
     "ordering": true,
     "ajax": {
-        "url": "/Report/GetSaleReport",
+        "url": "/Report/GetSaleSummaryReport",
         "type": "GET",
         "datatype": "json"
     },
@@ -27,24 +27,36 @@ datatable = $("#tbSaleReport").DataTable({
         //    }
         //},
         {
-            "data": { createddate: "createddate" },
+            "data": { transactiondate: "transactiondate" },
             "render": function (data) {
-                if (data.createddate === null || data.createddate == null) {
-                    return data.createddate;
+                if (data.transactiondate === null || data.transactiondate == null) {
+                    return data.transactiondate;
                 }
-                return formatDateTime(new Date(data.createddate));
+                return formatDateTime(new Date(data.transactiondate));
                 //var _createddate = new Date(data.createddate).toLocaleDateString("en-US");
                 //return _createddate;
             }
         },
         { "data": "branchname" },
-        { "data": "itemcode" },
-        { "data": "itemname" },
-        { "data": "brandname" },
-        { "data": "qty" },
-        { "data": "unitprice" },
-        { "data": "amount" },
-        { "data": "createdbystaff" }
+        {
+            "data": { auditid: "auditid", totalauditamount: "totalauditamount", transactionid: "transactionid" },
+            "render": function (data) {
+                var _auditid = parseInt(data.auditid);
+                if (_auditid > 0) {
+                    return "<span class='badges bg-lightgreen'>" + data.totalauditamount + "</span>";
+                }
+                else {
+                    return "<a href='AuditSaleSummaryReportByBranch?branchid=" + data.branchid + "'  class='me-3' title='คลิก เพื่อตรวจสอบ'><span class='badges bg-lightyellow'>รอตรวจสอบ</span></a>";
+                }
+            }
+        },
+        { "data": "totalamount" },
+        { "data": "amounttransfer" },
+        { "data": "amountdeposit" },
+        { "data": "amountcash" },
+        { "data": "depositfee" },
+        { "data": "createdbystaff" },
+        { "data": "auditdescription" }
     ],
     //"language": {
     //    "emptyTable": "ไม่พบข้อมูล."
@@ -64,19 +76,19 @@ datatable = $("#tbSaleReport").DataTable({
         "emptyTable": "ไม่พบข้อมูล."
     },
     initComplete: (settings, json) => {
-        $('.dataTables_filter').appendTo("#tbSaleReport");
+        $('.dataTables_filter').appendTo("#tbSaleSummaryReport");
         $('.dataTables_filter').appendTo('.search-input');
     },
     /*dom: 'Bfrtip',*/
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานขาย',
+            title: 'รายงานสรุปยอด',
             text: 'ดาวโหลดไฟล์ Excel',
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             }
         },
         {
