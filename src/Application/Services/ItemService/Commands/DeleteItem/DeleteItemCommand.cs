@@ -12,4 +12,5 @@ namespace CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 public record class DeleteItemCommand : IRequest<BaseResponse<CommandResponse>>
 {
     public int itemid { get; init; }
+    public string deletedby { get; set; }
 }

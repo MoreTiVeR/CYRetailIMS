@@ -402,7 +402,7 @@ public class ItemController : BaseController
     {
         try
         {
-            DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid };
+            DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid, deletedby = base.UserProfile.rolename };
             BaseResponse<CommandResponse> resDelItem = await _itemAPI.DeleteItemAsync(delItemCommand);
             if (resDelItem.result)
             {

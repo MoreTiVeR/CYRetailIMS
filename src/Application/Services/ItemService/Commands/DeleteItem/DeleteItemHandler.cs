@@ -41,7 +41,7 @@ public class DeleteItemHandler : BaseService, IRequestHandler<DeleteItemCommand,
         #region Update
         //itemEnt = _mapper.Map<TMItem>(request);
         itemEnt.IsActive = false;
-        itemEnt.SetUpdatedBy();
+        itemEnt.SetUpdatedBy(request.deletedby);
         itemEnt.SetUpdatedDate();
         #endregion
 
