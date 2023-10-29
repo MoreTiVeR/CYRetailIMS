@@ -97,15 +97,23 @@ public partial class CYDBContext : DbContext
 	public virtual DbSet<TTTransactonDetail> TTTransactonDetails { get; set; }
 
     public virtual DbSet<TMGeography> TMGeographies { get; set; }
+
     public virtual DbSet<TMProvince> TMProvinces { get; set; }
+
     public virtual DbSet<TMDistrict> TMDistricts { get; set; }
+
     public virtual DbSet<TMSubDistrict> TMSubDistricts { get; set; }
 
     public virtual DbSet<TMAdjustItemType> TMAdjustItemTypes { get; set; }
+
     public virtual DbSet<TTAdjustItemTransaction> TTAdjustItemTransactions { get; set; }
 
+	public virtual DbSet<TMTransportCompany> TMTransportCompanies { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	public virtual DbSet<TMTransportPrefixDetail> TMTransportPrefixDetails { get; set; }
+
+
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
     }
@@ -466,8 +474,23 @@ public partial class CYDBContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
+		modelBuilder.Entity<TMTransportCompany>(entity =>
+		{
+			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+		});
 
-        OnModelCreatingPartial(modelBuilder);
+		modelBuilder.Entity<TMTransportPrefixDetail>(entity =>
+		{
+			entity.Property(e => e.TransportPrefixID).ValueGeneratedNever();
+			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+			entity.HasOne(d => d.Transport).WithMany(p => p.TMTransportPrefixDetails)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_TMTransportPrefixDetail_TMTransportCompany");
+		});
+
+
+		OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

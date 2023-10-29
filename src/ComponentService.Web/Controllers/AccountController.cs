@@ -64,6 +64,7 @@ public class AccountController : BaseController
     [HttpPost]
     public async Task<JsonResult> Authen([FromBody] LoginViewModel loginObj)
     {
+        string defaultPage = string.Empty;
         BaseResponse<UserProfileResponseDTO> resLogin = null;
         try
         {
@@ -72,18 +73,16 @@ public class AccountController : BaseController
             {
                 #region Set Profile
                 UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);
-                #region Order SubMenu
-                //userProfile.access_menu = userProfile.access_menu.Select(e =>
-                //{
-                //    e.submenulist = e.submenulist.OrderBy(s => s.seq).ToList();
-                //    return e;
-                //}).ToList();
-                #endregion
                 base.UserProfile = userProfile;
                 var principal = CreatePrincipal(userProfile);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                 #endregion
-                return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = Url.Action("Index", "Home") });
+
+                #region Set Defaul Page by Role
+                defaultPage = GetDefaultPageByRole(userProfile.roleid);
+				#endregion
+
+				return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = defaultPage });
             }
             return Json(new JsonViewModel { result = resLogin.result, message = resLogin.error.error.message });
         }
@@ -121,6 +120,32 @@ public class AccountController : BaseController
             creadeddate = DateTime.Now,
             createdby = "SYSTEM",
         };
+    }
+
+    private string GetDefaultPageByRole(int roleID)
+    {
+        try
+        {
+            switch (roleID)
+            {
+                case (int)EnumModel.UserRole.Admin:
+					return Url.Action("Index", "Home");
+				case (int)EnumModel.UserRole.Sale:
+					return Url.Action("Items", "Sale");
+				case (int)EnumModel.UserRole.Stock:
+					return Url.Action("Index", "Item");
+				case (int)EnumModel.UserRole.AccountingOfficer:
+					return Url.Action("SaleReport", "Report");
+				case (int)EnumModel.UserRole.SaleArea:
+					return Url.Action("Index", "Sale");
+				default:
+					return Url.Action("Index", "Home");
+            }
+        }
+        catch
+        {
+            return Url.Action("Index", "Home");
+		}
     }
 
 }

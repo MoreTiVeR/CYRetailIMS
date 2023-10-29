@@ -86,9 +86,10 @@ public static class EnumModel
     public enum UserRole
     {
         Admin = 1,
-        Staff = 2,
-        Manager = 3,
-        AccountingOfficer = 4,
+		Sale = 2,
+		Stock = 3,
+		AccountingOfficer = 4,
+		SaleArea = 5
     }
 
     public enum AdjustItemType

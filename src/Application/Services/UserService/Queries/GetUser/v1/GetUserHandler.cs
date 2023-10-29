@@ -22,13 +22,13 @@ public class GetUserHandler : BaseService, IRequestHandler<GetUserQuery, BaseRes
 
     public async Task<BaseResponse<List<GetUserResponseDTO>>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
-        List<GetUserResponseDTO> resUsers = (from a in await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.IsActive && w.ApproveStatus == (int)ApproveStatus.Approve, i => i.Include(w => w.TMEmployees))
+        List<GetUserResponseDTO> resUsers = (from a in await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => w.ApproveStatus == (int)ApproveStatus.Approve, i => i.Include(w => w.TMEmployees))
                                              join b in await _unitOfWork.Repository<TMRole>().QueryAsync() on a.RoleID equals b.RoleID
                                              join c in await _unitOfWork.Repository<TMApproveStatus>().QueryAsync() on a.ApproveStatus equals c.ApproveStatusID
-                                             //join d in await _unitOfWork.Repository<TMUserInBranch>().QueryAsync() on a.UserID equals d.UserID into jUserBranch
-                                             //from usrinbranch in jUserBranch.DefaultIfEmpty()
-                                             //join e in await _unitOfWork.Repository<TMBranch>().QueryAsync() on usrinbranch.BranchID equals e.BranchID into jBranch
-                                             //from branch in jBranch.DefaultIfEmpty()
+                                             join d in await _unitOfWork.Repository<TMUserInBranch>().QueryAsync() on a.UserID equals d.UserID into jUserBranch
+                                             from usrinbranch in jUserBranch.DefaultIfEmpty()
+                                             join e in await _unitOfWork.Repository<TMBranch>().QueryAsync() on usrinbranch.BranchID equals e.BranchID into jBranch
+                                             from branch in jBranch.DefaultIfEmpty()
                                              select new GetUserResponseDTO
                                              {
                                                  userid = a.UserID,
@@ -43,8 +43,8 @@ public class GetUserHandler : BaseService, IRequestHandler<GetUserQuery, BaseRes
                                                  isactive = a.IsActive,
                                                  approvestatus = a.ApproveStatus,
                                                  approvestatusname = c.ApproveStatusName_TH,
-                                                 //branchid = usrinbranch != null ? usrinbranch.BranchID : 0,
-                                                 //branchname = branch != null ? branch.BranchName : string.Empty
+                                                 branchid = usrinbranch != null ? usrinbranch.BranchID : 0,
+                                                 branchname = branch != null ? branch.BranchName : string.Empty
                                              }).ToList();
 
         if (!resUsers.Any())

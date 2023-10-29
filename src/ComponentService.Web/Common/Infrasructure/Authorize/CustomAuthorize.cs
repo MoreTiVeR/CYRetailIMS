@@ -15,110 +15,104 @@ namespace CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 #region Authorize
 public class CustomAuthorize : TypeFilterAttribute
 {
-    public static class RoleName
-    {
-        public const string Admin = "Admin";
-        public const string Sale = "Sale";
-        public const string Stock = "Stock";
-        public const string AccountingOfficer = "Accounting Officer";
-        public const string AreaSale = "Area Sale";
-    }
+	public static class RoleName
+	{
+		public const string Admin = "Admin";
+		public const string Sale = "Sale";
+		public const string Stock = "Stock";
+		public const string AccountingOfficer = "Accounting Officer";
+		public const string AreaSale = "Area Sale";
+	}
 
-    public CustomAuthorize(params string[] claim) : base(typeof(AuthorizeFilter))
-    {
-        Arguments = new object[] { claim };
-    }
+	public CustomAuthorize(params string[] claim) : base(typeof(AuthorizeFilter))
+	{
+		Arguments = new object[] { claim };
+	}
 
-    public class AuthorizeFilter : IAuthorizationFilter
-    {
-        readonly string[] _claim;
+	public class AuthorizeFilter : IAuthorizationFilter
+	{
+		readonly string[] _claim;
 
-        public AuthorizeFilter(params string[] claim)
-        {
-            _claim = claim;
-        }
+		public AuthorizeFilter(params string[] claim)
+		{
+			_claim = claim;
+		}
 
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            var IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
-            var claimsIndentity = context.HttpContext.User.Identity as ClaimsIdentity;
+		public void OnAuthorization(AuthorizationFilterContext context)
+		{
+			var IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
+			var claimsIndentity = context.HttpContext.User.Identity as ClaimsIdentity;
 
-            // Retrieve the user's role and requested resource URL
-            //string userRole = /* Get the user's role */;
-            //string resourceUrl = context.HttpContext.Request.Path;
-            //Query the database for matching authorization rules
-            //using (var dbContext = new ApplicationDbContext())
-            //{
-            //    bool isAuthorized = dbContext.AuthorizationRules
-            //        .Any(rule => rule.Role == userRole &&
-            //                     rule.ResourceUrl == resourceUrl &&
-            //                     rule.Permission == "Allow");
+			// Retrieve the user's role and requested resource URL
+			//string userRole = /* Get the user's role */;
+			//string resourceUrl = context.HttpContext.Request.Path;
+			//Query the database for matching authorization rules
+			//using (var dbContext = new ApplicationDbContext())
+			//{
+			//    bool isAuthorized = dbContext.AuthorizationRules
+			//        .Any(rule => rule.Role == userRole &&
+			//                     rule.ResourceUrl == resourceUrl &&
+			//                     rule.Permission == "Allow");
 
-            //    return isAuthorized;
-            //}
+			//    return isAuthorized;
+			//}
 
-            if (IsAuthenticated)
-            {
-                bool flagClaim = false;
-                foreach (var item in _claim)
-                {
-                    if (context.HttpContext.User.HasClaim("RoleName", item))
-                        flagClaim = true;
-                }
+			if (IsAuthenticated)
+			{
+				bool flagClaim = false;
+				foreach (var item in _claim)
+				{
+					if (context.HttpContext.User.HasClaim("RoleName", item))
+						flagClaim = true;
+				}
 
-                #region Testing
-                //var requestPath = context.HttpContext.Request.Path.Value;
-                //RouteValueDictionary routeValues = context.HttpContext.Request.RouteValues;
-                //string controllerName = routeValues["controller"].ToString();
-                //string actionName = routeValues["action"].ToString();
-                //if(actionName.Equals("Index") && controllerName.Equals("Home"))
-                //{
-                //    flagClaim = true;
-                //}
-                //else
-                //{
-                //    List<GetMenuByRoleIDResponseDTO> accessMenu = JsonConvert.DeserializeObject<List<GetMenuByRoleIDResponseDTO>>(claimsIndentity.Claims.FirstOrDefault(w => w.Type == "AccessMenu").Value);
-                //    var menu = accessMenu.SelectMany(s => s.submenulist).FirstOrDefault(w => w.cms_actionname == actionName && w.cms_controllername == controllerName);
-                //    if (!accessMenu.SelectMany(s => s.submenulist).Any(a => a.cms_controllername == controllerName && a.cms_actionname == actionName))
-                //    {
-                //        flagClaim = false;
-                //    }
-                //}
-                #endregion
+				#region Testing
+				//var requestPath = context.HttpContext.Request.Path.Value;
+				//RouteValueDictionary routeValues = context.HttpContext.Request.RouteValues;
+				//string controllerName = routeValues["controller"].ToString();
+				//string actionName = routeValues["action"].ToString();
 
-                if (!flagClaim || context.HttpContext.Session.GetString("userprofile") is null)
-                    context.Result = new RedirectResult("~/Permission/AccessDenied");
-            }
-            else
-            {
-                context.Result = new RedirectResult("~/Permission/AccessDenied");
-            }
-            return;
-        }
-    }
+				//List<GetMenuByRoleIDResponseDTO> accessMenu = JsonConvert.DeserializeObject<List<GetMenuByRoleIDResponseDTO>>(claimsIndentity.Claims.FirstOrDefault(w => w.Type == "AccessMenu").Value);
+				//var menu = accessMenu.SelectMany(s => s.submenulist).FirstOrDefault(w => w.cms_actionname == actionName && w.cms_controllername == controllerName);
+				//if (!accessMenu.SelectMany(s => s.submenulist).Any(a => a.cms_controllername == controllerName && a.cms_actionname == actionName))
+				//{
+				//	flagClaim = false;
+				//}
+				#endregion
+
+				if (!flagClaim || context.HttpContext.Session.GetString("userprofile") is null)
+					context.Result = new RedirectResult("~/Permission/AccessDenied");
+			}
+			else
+			{
+				context.Result = new RedirectResult("~/Permission/AccessDenied");
+			}
+			return;
+		}
+	}
 
 
 
-    #region Unauthorized 
-    public class UnAuthorizedAttribute : TypeFilterAttribute
-    {
-        public UnAuthorizedAttribute() : base(typeof(UnauthorizedFilter))
-        {
-            //Empty constructor
-        }
-    }
-    public class UnauthorizedFilter : IAuthorizationFilter
-    {
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            bool IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
-            if (!IsAuthenticated)
-            {
-                context.Result = new RedirectResult("~/Home/Index");
-            }
-        }
-    }
-    #endregion
+	#region Unauthorized 
+	public class UnAuthorizedAttribute : TypeFilterAttribute
+	{
+		public UnAuthorizedAttribute() : base(typeof(UnauthorizedFilter))
+		{
+			//Empty constructor
+		}
+	}
+	public class UnauthorizedFilter : IAuthorizationFilter
+	{
+		public void OnAuthorization(AuthorizationFilterContext context)
+		{
+			bool IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
+			if (!IsAuthenticated)
+			{
+				context.Result = new RedirectResult("~/Home/Index");
+			}
+		}
+	}
+	#endregion
 
 }
 #endregion

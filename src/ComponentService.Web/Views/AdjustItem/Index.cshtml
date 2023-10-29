@@ -29,12 +29,12 @@
                     <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
                 </div>
             </div>
-           @* <div class="wordset">
-                <ul>
-                    <li>
-                        <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-                    </li>
-                </ul>
+            @* <div class="wordset">
+            <ul>
+            <li>
+            <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+            </li>
+            </ul>
             </div>*@
         </div>
         <!-- /Filter -->
@@ -87,11 +87,11 @@
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
-                        <th class="text-center">ประเภทปรับสตีอก</th>
                         <th>รหัสสินค้า</th>
                         <th>ชื่อสินค้า</th>
                         <th>ประเภท</th>
                         <th>แบรนด์</th>
+                        <th class="text-center">ปรับสตีอก</th>
                         <th>จำนวน</th>
                         <th>รายละเอียด</th>
                         <th>สร้างโดย</th>
@@ -112,11 +112,23 @@
                                         <span class="checkmarks"></span>
                                     </label>
                                 </td>
-                                <td class="text-center">@item.adjusttypename</td>
                                 <td>@item.itemcode</td>
-                                <td><span class="badges bg-lightgreen">@item.itemname</span></td>
+                                <td>@item.itemname</td>
                                 <td>@item.itemtypename</td>
                                 <td>@item.itembrandname</td>
+                                <td>
+                                    @if (item.adjusttypeid == 1)
+                                    {
+                                        //เพิ่มสินค้า
+                                        <span class="badges bg-lightgreen">@item.adjusttypename</span>
+                                        
+                                    }
+                                    else
+                                    {
+                                        //ลดสินค้า
+                                        <span class="badges bg-lightyellow">@item.adjusttypename</span>
+                                    }
+                                </td>
                                 <td><span class="badges bg-lightgreen">@item.qty</span></td>
                                 <td>@item.remark</td>
                                 <td>@item.createdby</td>
