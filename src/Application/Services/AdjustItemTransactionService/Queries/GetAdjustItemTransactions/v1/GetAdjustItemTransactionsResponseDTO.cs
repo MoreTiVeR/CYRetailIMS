@@ -12,7 +12,10 @@ public class GetAdjustItemTransactionsResponseDTO
     public int adjustid { get; set; }
 
     public int adjusttypeid { get; set; }
+
     public string adjusttypename { get; set; }
+
+    public int branchid { get; set; }
 
     public int itemid { get; set; }
 
@@ -32,7 +35,7 @@ public class GetAdjustItemTransactionsResponseDTO
 
     public string createdby { get; set; }
 
-    public DateTime creadeddate { get; set; }
+    public DateTime createddate { get; set; }
 
     public bool isactive { get; set; }
 }

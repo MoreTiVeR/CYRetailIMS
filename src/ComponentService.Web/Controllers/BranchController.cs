@@ -11,6 +11,7 @@ using CYRetailIMS.Application.Services.BranchService.Commands.UpdateBranch.v1;
 using CYRetailIMS.Application.Services.BranchService.Commands.DeleteBranch.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
+using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactions.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -26,8 +27,6 @@ public class BranchController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        BaseResponse<List<GetBranchResponseDTO>> branchList = await _branchAPI.GetBranchListAsync();
-        ViewBag.BranchList = branchList;
         return View();
     }
 
@@ -117,5 +116,24 @@ public class BranchController : BaseController
             branchname = resObj.branchname,
             address = resObj.address1
         };
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> GetBranchs()
+    {
+        try
+        {
+            BaseResponse<List<GetBranchResponseDTO>> resData = await _branchAPI.GetBranchListAsync();
+            if (!resData.result)
+            {
+                throw new Exception(resData.error.error.message);
+            }
+            return Json(new { data = resData.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetBranchResponseDTO>() });
+        }
     }
 }

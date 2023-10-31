@@ -28,52 +28,39 @@
                     <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
                 </div>
             </div>
-            @*<div class="wordset">
-                <ul>
-                    <li>
-                        <a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-                    </li>
-                </ul>
-            </div>*@
         </div>
         <!-- /Filter -->
-        @*<div class="card" id="filter_inputs">
+        <div class="card mb-0" id="filter_inputs">
             <div class="card-body pb-0">
                 <div class="row">
                     <div class="col-lg-12 col-sm-12">
                         <div class="row">
-                            <div class="col-lg col-sm-6 col-12">
+                            <div class="col-lg-3 col-sm-6 col-12">
                                 <div class="form-group">
-                                    <select id="ddlSearchType" class="select">
-                                        <option value="" selected>-- ระบุประเภทการค้นหา --</option>
-                                        <option value="">รหัสพนักงาน</option>
-                                        <option value="">ชื่อ-นามกสุล</option>
-                                        <option value="">อีเมล</option>
+                                    <select id="ddlBranch" class="select">
+                                        <option>เลือกสิทธิ์พนักงาน</option>
+                                        <option value="">--ไม่พบข้อมูล--</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg col-sm-6 col-12">
-                                <div class="form-group">
-                                    <input type="text" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
+                            <div class="col-lg-3 col-sm-6 col-12">
+                                <div class="form-group" style="text-align: left">
+                                    <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
                                 </div>
                             </div>
-                            <div class="col-lg-1 col-sm-6 col-12">
-                                <div class="form-group">
-                                    <a id="btnSearch" class="btn btn-filters ms-auto" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
-                                </div>
+                            <div class="col-lg-3 col-sm-6 col-12">
                             </div>
-                            <div class="col-lg col-sm-6 col-12">
-                            </div>
-                            <div class="col-lg col-sm-6 col-12">
+                            <div class="col-lg-3 col-sm-6 col-12">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>*@
+        </div>
         <!-- /Filter -->
         <div class="table-responsive">
-            <table id="tbEmployees" class="table datanew">
+            <input type="hidden" id="txtReportName" value="รายชื่อพนักงาน">
+            <table id="tbEmployees" class="table">
                 <thead>
                     <tr>
                         <th hidden>
@@ -82,54 +69,18 @@
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
-                        @*<th>รหัสพนักงาน</th>*@
                         <th>ชื่อ</th>
                         <th>นามกสุล</th>
                         <th>เบอร์โทร</th>
                         <th>อีเมล</th>
                         <th>บัญชีใช้งานระบบ</th>
+                        <th>สร้างโดย</th>
                         <th>วันที่สร้าง</th>
                         <th>สถานะพนักงาน</th>
                         <th>ดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.EmployeeList.result)
-                    {
-                        foreach (var item in (List<GetEmployeeResponseDTO>)ViewBag.EmployeeList.data)
-                        {
-                            string bingingRegisterCss = item.isregister ? "badges bg-lightgreen" : "badges bg-lightred";
-                            string bingingRegisterName = item.isregister ? "ผูกบัญชีแล้ว" : "ยังไม่ผูกบัญชี";
-                            string empStatusCss = item.isactive ? "badges bg-lightgreen" : "badges bg-lightred";
-                            string empStatusName = item.isactive ? "ใช้งาน" : "ไม่ใช้งาน";
-                            string rName = $"rowid{item.empid}";
-                            Dictionary<string, string> aEmpID = new Dictionary<string, string> { { "empid", item.empid.ToString() } };
-                            <tr>
-                                <td hidden>
-                                    <label class="checkboxs">
-                                        <input type="checkbox">
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                @*<td>@item.empcode</td>*@
-                                <td>@($"{item.firstname}")</td>
-                                <td>@($"{item.lastname}")</td>
-                                <td>@item.mobileno</td>
-                                <td>@item.email</td>
-                                <td><span class="@bingingRegisterCss">@bingingRegisterName</span></td>
-                                <th>@($"{@item.createddate:dd/MM/yyyy HH:mm:ss}")</th>
-                                <td><span class="@empStatusCss">@empStatusName</span></td>
-                                <td>
-                                    <a class="me-3" asp-action="Edit" asp-controller="EmployeeManagement" title="แก้ไขข้อมูลพนักงาน" asp-all-route-data="aEmpID">
-                                        <img src="~/assets/img/icons/edit.svg" alt="img">
-                                    </a>
-                                    <a href="#" id="@rName" class="me-3" title="ลบข้อมูลพนักงาน" onclick="deleteEmp(@item.empid)">
-                                        <img src="~/assets/img/icons/delete.svg" alt="img">
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    }
                 </tbody>
             </table>
         </div>
@@ -138,8 +89,10 @@
 <!-- /product list -->
 @section Scripts{
 
-    <script>
-    </script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
     <!--Page Script-->
     <script src="~/js/view/employee/employee_index.js" asp-append-version="true"></script>
 }

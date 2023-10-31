@@ -25,6 +25,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBran
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NUglify.Helpers;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
+using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactionByID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -53,9 +54,7 @@ public class AdjustItemController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        BaseResponse<List<GetAdjustItemTransactionsResponseDTO>> resAdjustItem = await _adjustItemAPI.GetAdjustItemTransactionAsync();
         BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
-        ViewBag.AdjustItemTransactions = resAdjustItem;
         ViewBag.BranchList = resBranchList;
         return View();
     }
@@ -118,18 +117,18 @@ public class AdjustItemController : BaseController
             List<AdjustItemViewModel> tempAdjustItemList = HttpContext.Session.GetDataFromSession<List<AdjustItemViewModel>>("TEMP_ADJUST_ITEM_DATA");
 
             #region Update when Already added
-            var existData = tempAdjustItemList.FirstOrDefault(w => w.nbranchid == adjustItemData.nbranchid 
-            && w.nitemid == adjustItemData.nitemid 
+            var existData = tempAdjustItemList.FirstOrDefault(w => w.nbranchid == adjustItemData.nbranchid
+            && w.nitemid == adjustItemData.nitemid
             && w.nadjusttypeid == adjustItemData.nadjusttypeid);
-            if(existData != null)
+            if (existData != null)
             {
                 //tempAdjustItemList = tempAdjustItemList.Where(w => w.nbranchid == adjustItemData.nbranchid && w.nitemid == adjustItemData.nitemid).Select(s =>
                 //{
                 //    s.ntqy = s.nseq + adjustItemData.ntqy;
                 //    return s;
                 //}).ToList();
-                tempAdjustItemList.Where(w => w.nbranchid == adjustItemData.nbranchid 
-                && w.nitemid == adjustItemData.nitemid 
+                tempAdjustItemList.Where(w => w.nbranchid == adjustItemData.nbranchid
+                && w.nitemid == adjustItemData.nitemid
                 && w.nadjusttypeid == adjustItemData.nadjusttypeid).ForEach(e =>
                 {
                     e.nqty = e.nqty + adjustItemData.nqty;
@@ -179,23 +178,6 @@ public class AdjustItemController : BaseController
                 HttpContext.Session.SetDataToSession("TEMP_ADJUST_ITEM_DATA", tempList);
             }
             #endregion
-
-            //var resColor = await _colorsService.GetColorListAsync(1);
-            //var resLockType = await _lockTypeService.GetLockTypeListAsync(1);
-            //var resModelType = await _modelTypeService.GetModelListAsync(1);
-            //var resPetType = await _petTypeService.GetPetTypeListAsync(1);
-            //var resSize = await _sizesService.GetSizeListAsync(1);
-
-            //tempList.ForEach(data =>
-            //{
-            //    data.ColorName = resColor.FirstOrDefault(w => w.ColorID == data.ColorID).ColorName;
-            //    data.LockTypeName = resLockType.FirstOrDefault(w => w.LockTypeID == data.LockTypeID).LockTypeName;
-            //    data.ModelName = resModelType.FirstOrDefault(w => w.ModelID == data.ModelID).ModelName;
-            //    data.PetTypeName = resPetType.FirstOrDefault(w => w.PetTypeID == data.PetTypeID).PetTypeName;
-            //    data.SizeName = resSize.FirstOrDefault(w => w.SizeID == data.SizeID).SizeName;
-
-            //});
-
 
             var resJson = Json(new { data = tempList.OrderBy(o => o.nseq).ToList() });
             var _resJson = resJson;
@@ -315,7 +297,7 @@ public class AdjustItemController : BaseController
             {
                 //Branch
                 BaseResponse<GetItemInBranchByBranchIDResponseDTO> reItemList = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
-                if(reItemList.data == null)
+                if (reItemList.data == null)
                 {
                     return Json(new { result = false, message = "ไม่พข้อมูลสินค้าในสาขาดังกล่าว" });
                     //throw new Exception("ไม่พบข้อมูลสินค้า");
@@ -337,6 +319,42 @@ public class AdjustItemController : BaseController
         }
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> GetAdjustItems()
+    {
+        try
+        {
+            BaseResponse<List<GetAdjustItemTransactionsResponseDTO>> resData = await _adjustItemAPI.GetAdjustItemTransactionAsync();
+            if (!resData.result)
+            {
+                throw new Exception(resData.error.error.message);
+            }
+            return Json(new { data = resData.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetAdjustItemTransactionsResponseDTO>() });
+        }
+    }
+
+    [HttpPost]
+    public async Task<JsonResult> SearchAdjustItemByBranch(int branchid)
+    {
+        try
+        {
+            BaseResponse<List<GetAdjustItemTransactionsResponseDTO>> resData = await _adjustItemAPI.GetAdjustItemTransactionByBranchIDAsync(branchid);
+            if (!resData.result)
+            {
+                throw new Exception(resData.error.error.message);
+            }
+            return Json(new { result = true, data = resData.data, message = "สำเร็จ" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ไม่สามารถทำรายการได้. {ex.Message}" });
+        }
+    }
 
     #region Private
     private async Task<BaseResponse<List<GetAdjustItemTypeResposeDTO>>> GetAdjustItemTypeSessionDataAsync()

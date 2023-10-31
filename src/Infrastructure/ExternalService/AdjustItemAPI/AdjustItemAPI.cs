@@ -37,9 +37,15 @@ public class AdjustItemAPI : HttpClientService, IAdjustItemAPI
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/adjustitem/v1/adjusttransactions"), null);
     }
 
-    public async Task<BaseResponse<GetAdjustItemTransactionByIDResponseDTO>> GetAdjustItemTransactionByIDAsync(int adjusttransactionid)
+    public async Task<BaseResponse<GetAdjustItemTransactionByIDResponseDTO>> GetAdjustItemTransactionByIDAsync(int adjusttransactionID)
     {
         return await _httpClientRequest.HttpRequestToObject<GetAdjustItemTransactionByIDResponseDTO, object>(HttpMethod.Get,
-            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/adjustitem/v1/adjusttransaction/{adjusttransactionid}"), null);
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/adjustitem/v1/adjusttransaction/{adjusttransactionID}"), null);
+    }
+
+    public async Task<BaseResponse<List<GetAdjustItemTransactionsResponseDTO>>> GetAdjustItemTransactionByBranchIDAsync(int branhID)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetAdjustItemTransactionsResponseDTO>, object>(HttpMethod.Get,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/adjustitem/v1/adjusttransactionbybranchid/{branhID}"), null);
     }
 }

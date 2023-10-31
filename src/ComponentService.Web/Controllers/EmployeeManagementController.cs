@@ -33,10 +33,8 @@ public class EmployeeManagementController : BaseController
         _departmentAPI = departmentAPI;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        BaseResponse<List<GetEmployeeResponseDTO>> resEmpList = await _employeeAPI.GetEmployeesAsync();
-        ViewBag.EmployeeList = resEmpList;
         return View();
     }
 
@@ -121,4 +119,23 @@ public class EmployeeManagementController : BaseController
         return _mapper.Map<UpdateEmployeeCommand>(empViewData);
     }
     #endregion
+
+    [HttpGet]
+    public async Task<IActionResult> GetEmployees()
+    {
+        try
+        {
+            BaseResponse<List<GetEmployeeResponseDTO>> resData = await _employeeAPI.GetEmployeesAsync();
+            if (!resData.result)
+            {
+                throw new Exception(resData.error.error.message);
+            }
+            return Json(new { data = resData.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetEmployeeResponseDTO>() });
+        }
+    }
+
 }

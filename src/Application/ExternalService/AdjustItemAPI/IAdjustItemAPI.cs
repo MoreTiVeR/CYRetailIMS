@@ -17,5 +17,8 @@ public interface IAdjustItemAPI
     Task<BaseResponse<CommandResponse>> UpdateAdjustItemAsync(UpdateAdjustItemCommand updateAdjustItemCommand);
 
     Task<BaseResponse<List<GetAdjustItemTransactionsResponseDTO>>> GetAdjustItemTransactionAsync();
-    Task<BaseResponse<GetAdjustItemTransactionByIDResponseDTO>> GetAdjustItemTransactionByIDAsync(int adjusttransactionid);
+
+    Task<BaseResponse<GetAdjustItemTransactionByIDResponseDTO>> GetAdjustItemTransactionByIDAsync(int adjusttransactionID);
+
+    Task<BaseResponse<List<GetAdjustItemTransactionsResponseDTO>>> GetAdjustItemTransactionByBranchIDAsync(int branhID);
 }

@@ -1,5 +1,85 @@
 ﻿
+var dataTable;
 
+datatable = $("#tbBranchs").DataTable({
+    "destroy": true,
+    "bFilter": true,
+    "sDom": 'fBtlpi',
+    'pagingType': 'numbers',
+    "ordering": true,
+    "ajax": {
+        "url": "/Branch/GetBranchs",
+        "type": "GET",
+        "datatype": "json"
+    },
+    "columns": [
+        {
+            "render": function () {
+                console.log('render columns : checkbox');
+                return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
+            }
+        },
+        //{
+        //    "data": { itemimageurl: "itemimageurl", name: "name" },
+        //    "render": function (data) {
+        //        console.log('columns : render => ' + data);
+        //        return "<a asp-action='Detail' asp-controller='Item' asp-all-route-data='aItemID'>" + data.name + "</a>";
+        //    }
+        //},
+        { "data": "branchcode" },
+        { "data": "branchname" },
+        { "data": "address1" },
+        {
+            "data": { branchid: "branchid" },
+            "render": function (data) {
+                return "<a href='Edit?branchid=" + data.branchid + "' class='me-3' title='แก้ไขข้อมูลสาขา'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.branchid + "' onclick=deleteBranch(" + data.branchid + ") title='ลบสาขา' class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+            }
+        }
+    ],
+    //"language": {
+    //    "emptyTable": "ไม่พบข้อมูล."
+    //},
+    "order": [[0, "desc"]],
+    "columnDefs": [
+        {
+            "targets": [0],
+            "visible": false
+        }
+    ],
+    "language": {
+        search: ' ',
+        sLengthMenu: '_MENU_',
+        searchPlaceholder: "ค้นหาข้อมูล...",
+        info: "_START_ - _END_ of _TOTAL_ items",
+        "emptyTable": "ไม่พบข้อมูล."
+    },
+    initComplete: (settings, json) => {
+        $('.dataTables_filter').appendTo("#tbBranchs");
+        $('.dataTables_filter').appendTo('.search-input');
+    },
+    /*dom: 'Bfrtip',*/
+    buttons: [
+        {
+            extend: 'excelHtml5',
+            title: 'รายชื่อสาขา',
+            text: 'ดาวโหลดไฟล์ Excel',
+            class: 'btn-primary',
+            //Columns to export
+            exportOptions: {
+                columns: [0, 1, 2, 3]
+            }
+        },
+        {
+            extend: 'pdfHtml5',
+            title: 'PDF',
+            text: 'Export to PDF'
+            //Columns to export
+            //exportOptions: {
+            //     columns: [0, 1, 2, 3, 4, 5, 6]
+            //  }
+        }
+    ]
+});
 
 $("#btnSearch").on('click', function () {
     AlertWarn('ยังไม่เปิดให้ใช้งานค้นหา');

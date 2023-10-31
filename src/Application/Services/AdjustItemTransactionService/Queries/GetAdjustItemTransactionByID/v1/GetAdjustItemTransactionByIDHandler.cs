@@ -35,6 +35,7 @@ public class GetAdjustItemTransactionByIDHandler : BaseService, IRequestHandler<
                                                                adjustid = a.AdjustTypeID,
                                                                adjusttypeid = a.AdjustTypeID,
                                                                adjusttypename = b.AdjustTypeName,
+                                                               branchid = a.BranchID,
                                                                itemid = c.ItemID,
                                                                itemcode = c.ItemCode,
                                                                itemname = c.Name,
@@ -45,7 +46,7 @@ public class GetAdjustItemTransactionByIDHandler : BaseService, IRequestHandler<
                                                                qty = a.Qty,
                                                                remark = a.Remark,
                                                                createdby = jUser != null ? jUser.FirstName : "N/A",
-                                                               creadeddate = a.CreadedDate,
+                                                               createddate = a.CreadedDate,
                                                                isactive = a.IsActive
                                                            }).FirstOrDefault();
         if (resData == null)

@@ -2,6 +2,7 @@
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Commands.CreateAdjustItem.v1;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Commands.UpdateAdjustItem;
+using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactionByBranchID.v1;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactionByID.v1;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactions.v1;
 using Microsoft.AspNetCore.Mvc;
@@ -73,11 +74,29 @@ public class AdjustItemController : BaseApiController
     public async Task<IActionResult> GetAdjustTransactionByIDAsyc(int adjusttransactionid)
     {
         DateTime dtStart = DateTime.Now;
-        BaseResponse<GetAdjustItemTransactionByIDResponseDTO> res = await Mediator.Send(new GetAdjustItemTransactionByIDQuery { adjusttransactionid = adjusttransactionid});
+        BaseResponse<GetAdjustItemTransactionByIDResponseDTO> res = await Mediator.Send(new GetAdjustItemTransactionByIDQuery { adjusttransactionid = adjusttransactionid });
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetAdjustTransactionByIDAsyc Success");
         return Ok(res.data);
     }
+
+    [HttpGet]
+    [Route("v1/adjusttransactionbybranchid/{branchid:int}")]
+    [ProducesResponseType(typeof(List<GetAdjustItemTransactionsResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAdjustTransactionByBranchIDAsyc(int branchid)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetAdjustItemTransactionsResponseDTO>> res = await Mediator.Send(new GetAdjustItemTransactionByBranchIDQuery { branchid = branchid });
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetAdjustTransactionByBranchIDAsyc Success");
+        return Ok(res.data);
+    }
+
+
 }
