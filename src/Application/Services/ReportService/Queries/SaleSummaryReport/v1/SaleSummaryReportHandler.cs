@@ -50,20 +50,20 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 																			  auditdescription = jAudit.Description
 																		  }).AsEnumerable();
 
-		resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => g.branchid).Select(s => new SaleSummaryReportResponseDTO
+        resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => new { g.branchid, g.transactionid }).Select(s => new SaleSummaryReportResponseDTO
 		{
-			branchid = s.Key,
-			branchname = s.First(w => w.branchid == s.Key).branchname,
-			transactiondate = s.First(w => w.branchid == s.Key).transactiondate,
-            totalamount = s.Sum(x => x.totalamount),
-            amounttransfer = s.Sum(x => x.amounttransfer),
-            amountdeposit = s.Sum(x => x.amountdeposit),
-            amountcash = s.Sum(x => x.amountcash),
-            depositfee = s.Sum(x => x.depositfee),
-            createdby = s.First(w => w.branchid == s.Key).createdby,
-            auditid = s.First(w => w.branchid == s.Key).auditid,
-            totalauditamount = s.First(w => w.branchid == s.Key).totalauditamount,
-            auditdescription = s.First(w => w.branchid == s.Key).auditdescription
+			branchid = s.Key.branchid,
+			branchname = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).branchname,
+			transactiondate = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).transactiondate,
+            totalamount = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).totalamount,
+            amounttransfer = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).amounttransfer,
+            amountdeposit = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).amountdeposit,
+            amountcash = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).amountcash,
+            depositfee = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).depositfee,
+            createdby = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).createdby,
+            auditid = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).auditid,
+            totalauditamount = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).totalauditamount,
+            auditdescription = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).auditdescription
         }).ToList();
 
 
