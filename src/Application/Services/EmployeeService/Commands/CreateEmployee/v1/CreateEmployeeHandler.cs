@@ -41,7 +41,7 @@ public class CreateEmployeeHandler : BaseService, IRequestHandler<CreateEmployee
         //Create TMEmployee, TMUsers
         TMEmployee empEntity = _mapper.Map<TMEmployee>(request);
         empEntity.IsActive = request.IsActive;
-        empEntity.SetCreatedDate(request.creadeddate);
+        empEntity.SetCreatedDate(request.createddate);
         empEntity.SetCreatedBy(request.createdby);
         empEntity.AddDomainEvent(new TMEmployeeCreateEvent(empEntity));
         _unitOfWork.Repository<TMEmployee>().Add(empEntity);

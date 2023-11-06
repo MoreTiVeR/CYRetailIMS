@@ -117,7 +117,7 @@ public class AccountController : BaseController
             email = regisData.email,
             salary = 10000,
             startworkingdate = DateTime.Now,
-            creadeddate = DateTime.Now,
+            createddate = DateTime.Now,
             createdby = "SYSTEM",
         };
     }

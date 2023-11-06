@@ -23,7 +23,7 @@ public record CreateBranchCommand : IRequest<BaseResponse<CommandResponse>>
     public string createdby { get; init; }
 
     [Required(ErrorMessage = "Required field")]
-    public DateTime creadeddate { get; init; }
+    public DateTime createddate { get; init; }
 
     [Required(ErrorMessage = "Required field")]
     public bool isactive { get; init; }

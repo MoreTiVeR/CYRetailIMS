@@ -36,10 +36,10 @@ datatable = $("#tbSuppliers").DataTable({
         { "data": "description" },
         { "data": "createdby" },
         {
-            "data": { creadeddate: "creadeddate" },
+            "data": { createddate: "createddate" },
             "render": function (data) {
-                //var _creadeddate = new Date(data.creadeddate).toLocaleDateString("en-US");
-                //return _creadeddate;
+                //var _createddate = new Date(data.createddate).toLocaleDateString("en-US");
+                //return _createddate;
                 if (data.createddate === null || data.createddate == null) {
                     return data.createddate;
                 }

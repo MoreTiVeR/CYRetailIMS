@@ -21,7 +21,7 @@ public class CreateEmployeeValidator : AbstractValidator<CreateEmployeeCommand>
         RuleFor(r => r.email).NotEmpty().NotNull().WithMessage("กรุณาระบุอีเมล");
         //RuleFor(r => r.salary).NotEmpty().NotNull().Must(s => s >= 0).WithMessage("กรุณาระบุเงินเดือนพนักงาน");
         RuleFor(r => r.createdby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
-        RuleFor(r => r.creadeddate).NotNull().Must(x => x > DateTime.MinValue && x <= DateTime.MaxValue).WithMessage("กรุณาระบุวันที่สร้างให้ถูกต้อง");
+        RuleFor(r => r.createddate).NotNull().Must(x => x > DateTime.MinValue && x <= DateTime.MaxValue).WithMessage("กรุณาระบุวันที่สร้างให้ถูกต้อง");
         //RuleFor(r => r.userinbranchid).NotEmpty().NotNull().Must(s => s > 0).WithMessage("กรุณาระบุสาขาผู้ใช้งาน");
     }
 }

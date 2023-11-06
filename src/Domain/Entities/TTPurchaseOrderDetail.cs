@@ -23,10 +23,10 @@ public partial class TTPurchaseOrderDetail : BaseAuditableEntity
 
     public int Quantity { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal Price { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal Amount { get; set; }
 
     [Column(TypeName = "decimal(8, 2)")]
@@ -35,7 +35,7 @@ public partial class TTPurchaseOrderDetail : BaseAuditableEntity
     [Column(TypeName = "decimal(8, 2)")]
     public decimal DiscountAmount { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal SubTotal { get; set; }
 
     [Column(TypeName = "decimal(8, 2)")]
@@ -44,7 +44,7 @@ public partial class TTPurchaseOrderDetail : BaseAuditableEntity
     [Column(TypeName = "decimal(8, 2)")]
     public decimal TaxAmount { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal Total { get; set; }
 
     [ForeignKey("PurchaseOrderID")]

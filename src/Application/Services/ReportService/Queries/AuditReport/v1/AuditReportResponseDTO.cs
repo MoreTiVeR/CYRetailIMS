@@ -17,13 +17,15 @@ public class AuditReportResponseDTO
 	public decimal amountdeposit { get; set; }
 	public decimal amountcash { get; set; }
 	public decimal depositfee { get; set; }
-	//public string createdby { get; set; }
-	//public string createdbystaff { get; set; }
-	#endregion
+    //public string createdby { get; set; }
+    //public string createdbystaff { get; set; }
+    #endregion
 
-	#region Audit
-	//public int? auditid { get; set; }
-	public decimal? totalauditamount { get; set; }
+    #region Audit
+    public int auditid { get; set; }
+    public decimal? totalauditamount { get; set; }
 	public string? auditdescription { get; set; }
-	#endregion
+    public string auditor { get; set; }
+    public string auditorname { get; set; }
+    #endregion
 }

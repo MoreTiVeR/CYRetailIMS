@@ -26,5 +26,5 @@ public class PurchaseOrderItemViewModel
 
     [Required(ErrorMessage = "*กรุณาระบุจำนวนเงินรวม")]
     [DisplayName("เงินรวม")]
-    public decimal amount { get; set; }
+    public decimal totalprice { get; set; }
 }

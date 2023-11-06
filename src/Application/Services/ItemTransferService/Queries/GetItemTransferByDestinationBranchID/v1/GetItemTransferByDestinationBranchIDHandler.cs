@@ -26,7 +26,7 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
                                                             join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals item.ItemID
                                                             join b in await _unitOfWork.Repository<TMItemTransferStatus>().QueryAsync() on a.TransferStatus equals b.TransferStatusID
                                                             join c in await _unitOfWork.Repository<TMTransferType>().QueryAsync() on a.TransferTypeID equals c.TransferTypeID
-                                                            where a.DestinationID == request.destinationbranchid && a.CreadedDate.Month == DateTime.Now.Month
+                                                            where a.DestinationID == request.destinationbranchid && a.CreatedDate.Month == DateTime.Now.Month
                                                             && a.IsActive
                                                             select new GetItemTransferResponseDTO
                                                             {
@@ -36,7 +36,7 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
                                                                 description = a.Description,
                                                                 sourceid = a.SourceID,
                                                                 destinationid = a.DestinationID,
-                                                                createddate = a.CreadedDate,
+                                                                createddate = a.CreatedDate,
                                                                 createdby = a.CreatedBy,
                                                                 transferstatusid = b.TransferStatusID,
                                                                 transferstatusname_th = b.TransferStatusName_TH,

@@ -65,7 +65,7 @@ public record CreateEmployeeCommand : IRequest<BaseResponse<CommandResponse>>
     public string createdby { get; init; }
 
     [Required(ErrorMessage = "Required field")]
-    public DateTime creadeddate { get; init; }
+    public DateTime createddate { get; init; }
 
     //[Required(ErrorMessage = "Required field")]
     //public int userinbranchid { get; set; }

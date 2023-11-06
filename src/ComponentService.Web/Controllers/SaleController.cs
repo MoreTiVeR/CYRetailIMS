@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Extensions;
@@ -36,7 +37,7 @@ public class SaleController : BaseController
 {
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IItemAPI _itemAPI;
-	private readonly ITransactionAPI _transactionAPI;
+    private readonly ITransactionAPI _transactionAPI;
     private readonly IItemBrandAPI _itemBrandAPI;
     private readonly IItemTypeAPI _itemTypeAPI;
     private readonly IItemUnitOfMeasureAPI _itemUnitOfMeasureAPI;
@@ -44,14 +45,14 @@ public class SaleController : BaseController
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemInBranchAPI itemInBranchAPI,
         IItemAPI itemAPI,
-		ITransactionAPI transactionAPI,
+        ITransactionAPI transactionAPI,
         IItemBrandAPI itemBrandAPI,
         IItemTypeAPI itemTypeAPI,
         IItemUnitOfMeasureAPI itemUnitOfMeasureAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
         _itemAPI = itemAPI;
-		_transactionAPI = transactionAPI;
+        _transactionAPI = transactionAPI;
         _itemBrandAPI = itemBrandAPI;
         _itemTypeAPI = itemTypeAPI;
         _itemUnitOfMeasureAPI = itemUnitOfMeasureAPI;
@@ -59,14 +60,14 @@ public class SaleController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemBranch= await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+        BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
-		BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+        BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
-		ViewBag.BranchList = base.UserProfile.access_branch;
+        ViewBag.BranchList = base.UserProfile.access_branch;
         ViewBag.ItemBranch = resItemBranch;
         ViewBag.TransactionList = resTransaction;
-		return View();
+        return View();
     }
 
     public async Task<IActionResult> Create()
@@ -76,11 +77,38 @@ public class SaleController : BaseController
         return View();
     }
 
+    /// <summary>
+    /// ค้นหาสำหรับ Select2
+    /// http://dotnetqueries.com/Article/159/how-to-implement-select2-with-ajax-and-json-in-asp-net-mvc
+    /// </summary>
+    /// <param name="search"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<JsonResult> SearchItemBranchs(string search, string type)
+    {
+        try
+        {
+            BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(UserProfile.access_branch.FirstOrDefault().branchid);
+            List<Select2Model> searchItemList = resItemInBranch.data.itemlist.Where(w => w.itemcode.ToLower().StartsWith(search.ToLower())
+            || w.itemname.ToLower().StartsWith(search.ToLower())).Select(s => new Select2Model
+            {
+                id = s.itemid.ToString(),
+                text = s.itemname
+            }).ToList();
+            return Json(new { items = searchItemList });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { items = new List<Select2Model>(), message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
     public async Task<IActionResult> ItemsAsync()
     {
         //Default first branch
         BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
-        
+
         ViewBag.BranchList = base.UserProfile.access_branch;
         ViewBag.ItemBranch = resItemInBranch;
         return View();
@@ -356,7 +384,7 @@ public class SaleController : BaseController
             isactive = true,
             isexcludevat = false,
             transactiondate = reqObj.saledate.ToDate(),
-            creadeddate = DateTime.Now,
+            createddate = DateTime.Now,
             createdby = base.UserProfile.username,
             transactiondetail = createTransactionDetailCommands
         };
@@ -400,11 +428,17 @@ public class SaleController : BaseController
 
     private bool IsValidSearchCriteria(SearchItemByCriteriaViewModel reqObj)
     {
-        if(reqObj.branchid == 0 || reqObj.itemid == 0)
+        if (reqObj.branchid == 0 || reqObj.itemid == 0)
         {
             return false;
         }
         return true;
     }
     #endregion
+}
+
+public class Select2Model
+{
+    public string id { get; set; }
+    public string text { get; set; }
 }

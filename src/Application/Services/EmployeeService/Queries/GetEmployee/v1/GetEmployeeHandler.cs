@@ -42,7 +42,7 @@ public class GetEmployeeHandler : BaseService, IRequestHandler<GetEmployeeQuery,
                                                    salary = s.emp.Salary,
                                                    startworkingdate = s.emp.StartWorkingDate,
                                                    createdby = s.emp.CreatedBy,
-                                                   createddate = s.emp.CreadedDate,
+                                                   createddate = s.emp.CreatedDate,
                                                    isactive = s.emp.IsActive,
                                                    isregister = s.user == null ? false : true
                                                }).ToList();

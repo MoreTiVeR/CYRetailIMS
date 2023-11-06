@@ -52,7 +52,7 @@ public class GetPurchaseOrderListHandler : BaseService, IRequestHandler<GetPurch
 														 orderdate = order.OrderDate,
 														 receiveddate = order.ReceivedDate,
 														 createdby = order.CreatedBy,
-														 creadeddate = order.CreadedDate,
+														 createddate = order.CreatedDate,
 														 isactive = order.IsActive,
 														 approvestatus = order.ApproveStatus,
 														 shipment = (from a in order.TTShipments
@@ -67,7 +67,7 @@ public class GetPurchaseOrderListHandler : BaseService, IRequestHandler<GetPurch
 																		 warehousename = a.Warehouse.WarehouseName,
 																		 trackingno = a.TrackingNo,
 																		 createdby = a.CreatedBy,
-																		 creadeddate = a.CreadedDate,
+																		 createddate = a.CreatedDate,
 																		 isactive = a.IsActive
 																	 }).FirstOrDefault(),
 														 detail = (from a in order.TTPurchaseOrderDetails

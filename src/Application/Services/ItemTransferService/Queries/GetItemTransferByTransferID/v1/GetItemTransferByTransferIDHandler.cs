@@ -37,7 +37,7 @@ public class GetItemTransferByTransferIDHandler : BaseService, IRequestHandler<G
                                                                 description = a.Description,
                                                                 sourceid = a.SourceID,
                                                                 destinationid = a.DestinationID,
-                                                                createddate = a.CreadedDate,
+                                                                createddate = a.CreatedDate,
                                                                 createdby = jUser != null ? jUser.FirstName : "N/A",
                                                                 transferstatusid = b.TransferStatusID,
                                                                 transferstatusname_th = b.TransferStatusName_TH,

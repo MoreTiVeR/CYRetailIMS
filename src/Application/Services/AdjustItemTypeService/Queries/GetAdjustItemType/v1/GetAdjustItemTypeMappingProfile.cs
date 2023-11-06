@@ -16,7 +16,7 @@ public class GetAdjustItemTypeMappingProfile : Profile
             .ForMember(w => w.adjusttypename, f => f.MapFrom(w => w.AdjustTypeName))
             .ForMember(w => w.description, f => f.MapFrom(w => w.Description))
             .ForMember(w => w.createdby, f => f.MapFrom(w => w.CreatedBy))
-            .ForMember(w => w.creadeddate, f => f.MapFrom(w => w.CreadedDate))
+            .ForMember(w => w.createddate, f => f.MapFrom(w => w.CreatedDate))
             .ForMember(w => w.isactive, f => f.MapFrom(w => w.IsActive));
     }
 }

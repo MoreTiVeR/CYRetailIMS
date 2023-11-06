@@ -19,7 +19,7 @@ internal class GetItemTransferStatusByIDMappigProfile : Profile
             .ForMember(w => w.transferstatusname_en, f => f.MapFrom(w => w.TransferStatusName_EN))
             .ForMember(w => w.description, f => f.MapFrom(w => w.Description))
             .ForMember(w => w.createdby, f => f.MapFrom(w => w.CreatedBy))
-            .ForMember(w => w.creadeddate, f => f.MapFrom(w => w.CreadedDate))
+            .ForMember(w => w.createddate, f => f.MapFrom(w => w.CreatedDate))
             .ForMember(w => w.isactive, f => f.MapFrom(w => w.IsActive));
     }
 }

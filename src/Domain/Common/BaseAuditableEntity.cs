@@ -12,7 +12,7 @@ public abstract class BaseAuditableEntity : BaseEntity
     public string CreatedBy { get; set; } = null!;
 
     [Column(TypeName = "datetime")]
-    public DateTime CreadedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
 
     [StringLength(10)]
     [Unicode(false)]
@@ -28,8 +28,8 @@ public abstract class BaseAuditableEntity : BaseEntity
 
     public void DeActiveStatus() => IsActive = false;
 
-    public void SetCreatedDate() => CreadedDate = DateTime.Now;
-    public void SetCreatedDate(DateTime creatDate) => CreadedDate = creatDate;
+    public void SetCreatedDate() => CreatedDate = DateTime.Now;
+    public void SetCreatedDate(DateTime creatDate) => CreatedDate = creatDate;
     public void SetCreatedBy(string userName = "") => CreatedBy = !string.IsNullOrEmpty(userName) ? CreatedBy = userName : CreatedBy = "SYSTEM";
 
     public void SetUpdatedDate() => UpdatedDate = DateTime.Now;

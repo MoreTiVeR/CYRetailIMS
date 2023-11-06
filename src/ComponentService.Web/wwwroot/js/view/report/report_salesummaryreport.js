@@ -32,7 +32,7 @@ datatable = $("#tbSaleSummaryReport").DataTable({
                 if (data.transactiondate === null || data.transactiondate == null) {
                     return data.transactiondate;
                 }
-                return formatDateTime(new Date(data.transactiondate));
+                return formatDate(new Date(data.transactiondate));
                 //var _createddate = new Date(data.createddate).toLocaleDateString("en-US");
                 //return _createddate;
             }

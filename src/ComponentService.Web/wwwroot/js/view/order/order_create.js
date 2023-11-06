@@ -1,7 +1,10 @@
 ﻿var dataTable;
 
-InitialTableOrder();
+$('.select2').select2();
 
+InitialModalSelect2();
+
+InitialTableOrder();
 
 function InitialTableOrder() {
     dataTable = $('#tbItems').DataTable({
@@ -20,7 +23,7 @@ function InitialTableOrder() {
             { "data": "sitemname" },
             { "data": "nqty" },
             { "data": "price" },
-            { "data": "amount" },
+            { "data": "totalprice" },
             {
                 "data": "nseq",
                 "render": function (data) {
@@ -41,6 +44,30 @@ function InitialTableOrder() {
         ]
     });
 }
+
+function InitialModalSelect2() {
+    $("#nitemid").select2({
+        dropdownParent: $("#mdlPurchaseOrder")
+    });
+}
+
+// This will be triggered everytime a user types anything
+// in the input field with id as input-field
+$("#trackingno").keyup(function (e) {
+    // a-z => allow all lowercase alphabets
+    // A-Z => allow all uppercase alphabets
+    // 0-9 => allow all numbers
+    // @ => allow @ symbol
+    var regex = /^[a-zA-Z0-9@]+$/;
+    // This is will test the value against the regex
+    // Will return True if regex satisfied
+    if (regex.test(this.value) !== true)
+        //alert if not true
+        //alert("Invalid Input");
+
+        // You can replace the invalid characters by:
+        this.value = this.value.replace(/[^a-zA-Z0-9@]+/, '');
+});
 
 function SavePurchaseOrder(form) {
 
@@ -113,7 +140,10 @@ function AddOrderItem(form) {
                 //$('#mdlAddItem').modal('hide');
                 //$("#btnCloseMdl").click();
 
-                $("#amount").val(1000);
+                $("#amount").val(data.amount);
+            }
+            else {
+                AlertError(data.message);
             }
         }
     });
@@ -153,6 +183,9 @@ function Delete(id) {
                         $("#global-loader").css('display', 'none');
 
                         dataTable.ajax.reload();
+
+                        //Set sum amount
+                        $("#amount").val(response.amount);
                     }
                     else {
                         //ShowMessageError(data.message);
@@ -184,4 +217,43 @@ function Delete(id) {
     //        }
     //    });
     //});
+}
+
+function CalculateAmountByItemPrice(price, name) {
+    //var res = name.split('[');
+    //var resIdx = res[1].split(']');
+
+    var qty = $("#nqty").val() | 0;
+    var total = parseFloat(price) * qty;
+
+    $("#totalprice").val(total.toFixed(2));
+
+    //Sum total amount
+    //var totalRow = parseInt($("#totalrow").val());
+    //var totalAmt = 0;
+    //for (var i = 0; i < totalRow; i++) {
+    //    var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
+    //    totalAmt += parseFloat(txtAmt);
+    //}
+    //$("#amount").val(currencyFormat(totalAmt));
+
+}
+
+function CalculateAmountByItemQty(qty, name) {
+    //var res = name.split('[');
+    //var resIdx = res[1].split(']');
+
+    var itemPrice = $("#price").val();
+    var total = parseFloat(itemPrice) * qty;
+    $("#totalprice").val(total.toFixed(2));
+    //$("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+
+    ////Sum total amount
+    //var totalRow = parseInt($("#totalrow").val());
+    //var totalAmt = 0;
+    //for (var i = 0; i < totalRow; i++) {
+    //    var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
+    //    totalAmt += parseFloat(txtAmt);
+    //}
+    //$("#amount").val(currencyFormat(totalAmt));
 }

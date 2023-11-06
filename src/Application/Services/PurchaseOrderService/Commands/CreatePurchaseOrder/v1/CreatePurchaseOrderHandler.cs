@@ -67,7 +67,7 @@ public class CreatePurchaseOrderHandler : BaseService, IRequestHandler<CreatePur
 			ShipmentName = request.shipment.shipmentname,
 			ShipmentDate = request.shipment.shipmentdate,
 			TrackingNo = request.shipment.trackingno,
-			CreadedDate = request.createddate,
+			CreatedDate = request.createddate,
 			CreatedBy = request.createdby
 		};
 		if (request.shipment.shipmentdate.HasValue)

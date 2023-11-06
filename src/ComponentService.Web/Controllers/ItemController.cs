@@ -1081,7 +1081,7 @@ public class ItemController : BaseController
             destinationid = reqObj.destination_branchid.ToInt32(),
             description = reqObj.description,
             createdby = base.UserProfile.username,
-            creadeddate = DateTime.Now,
+            createddate = DateTime.Now,
             transferstatus = (int)TransferStatus.Pending,
             isactive = true,
             items = itemsTransfer

@@ -17,6 +17,6 @@ public class CreateUserMappingProfile : Profile
 			.ForMember(w => w.Password, f => f.MapFrom(w => w.password))
 			.ForMember(w => w.ProfilePicture, f => f.MapFrom(w => w.profilepicture))
 			.ForMember(w => w.CreatedBy, f => f.MapFrom(w => w.createdby))
-			.ForMember(w => w.CreadedDate, f => f.MapFrom(w => w.createddate));
+			.ForMember(w => w.CreatedDate, f => f.MapFrom(w => w.createddate));
 	}
 }

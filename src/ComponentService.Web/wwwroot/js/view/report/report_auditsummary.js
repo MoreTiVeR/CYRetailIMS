@@ -1,6 +1,7 @@
 ﻿
 InitialNumberInput();
 InitialDatePicker();
+/*InitialDatePickerV2();*/
 InitialCharacterRemaining();
 $('.select2').select2();
 
@@ -38,8 +39,8 @@ function SaveAutiSaleSummaryReport(form) {
                     //window.location = data.url;
                 }
                 else {
-                    //AlertError(response.message);
-                    ShowMessageError(response.message);
+                    AlertError(response.message);
+                    //ShowMessageError(response.message);
                     $("#global-loader").css('display', 'none');
                 }
             }

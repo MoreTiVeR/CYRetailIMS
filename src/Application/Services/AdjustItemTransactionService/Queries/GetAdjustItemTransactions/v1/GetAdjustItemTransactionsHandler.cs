@@ -46,7 +46,7 @@ public class GetAdjustItemTransactionsHandler : BaseService, IRequestHandler<Get
                                                                   qty = a.Qty,
                                                                   remark = a.Remark,
                                                                   createdby = a.CreatedBy,
-                                                                  createddate = a.CreadedDate,
+                                                                  createddate = a.CreatedDate,
                                                                   isactive = a.IsActive
                                                               }).ToList();
         if(resData.Count == 0)

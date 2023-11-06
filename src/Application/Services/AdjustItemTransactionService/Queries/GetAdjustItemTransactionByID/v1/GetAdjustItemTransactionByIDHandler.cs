@@ -46,7 +46,7 @@ public class GetAdjustItemTransactionByIDHandler : BaseService, IRequestHandler<
                                                                qty = a.Qty,
                                                                remark = a.Remark,
                                                                createdby = jUser != null ? jUser.FirstName : "N/A",
-                                                               createddate = a.CreadedDate,
+                                                               createddate = a.CreatedDate,
                                                                isactive = a.IsActive
                                                            }).FirstOrDefault();
         if (resData == null)

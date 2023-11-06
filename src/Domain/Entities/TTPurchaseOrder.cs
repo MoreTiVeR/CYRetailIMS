@@ -35,19 +35,19 @@ public partial class TTPurchaseOrder : BaseAuditableEntity
     [Unicode(false)]
     public string? Remarks { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal Amount { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(8, 2)")]
     public decimal Discount { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal SubTotal { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(8, 2)")]
     public decimal Tax { get; set; }
 
-    [Column(TypeName = "decimal(8, 4)")]
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal Total { get; set; }
 
     public int ApproveStatus { get; set; }

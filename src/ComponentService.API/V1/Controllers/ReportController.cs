@@ -49,6 +49,11 @@ public class ReportController : BaseApiController
 		return Ok(res.data);
 	}
 
+    /// <summary>
+    /// รายงานสรุปยอดขายสิ้นวัน แสดงยอดรวมทั้งหมด แต่ละสาขามี 1 รายการ/วัน เท่านั้น
+    /// </summary>
+    /// <param name="saleSummaryReportQuery"></param>
+    /// <returns></returns>
 	[HttpPost]
 	[Route("v1/salesummaryreport")]
 	[ProducesResponseType(typeof(List<SaleSummaryReportResponseDTO>), StatusCodes.Status200OK)]

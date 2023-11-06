@@ -61,9 +61,11 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                         unitofmeasureid = x.Item.UnitOfMeasure.UnitOfMeasureID,
                         unitofmeasurename = x.Item.UnitOfMeasure.UnitOfMeasureName,
                         createdby = x.CreatedBy,
-                        createddate = x.CreadedDate,
+                        createddate = x.CreatedDate,
                         updatedby = x.UpdatedBy,
-                        updateddate = x.UpdatedDate
+                        updateddate = x.UpdatedDate,
+                        barcode = x.Item.BarCode,
+                        notifyminqty = x.Item.NotifyMinQty
                     }).FirstOrDefault()
         }).OrderBy(o => o.branchid).FirstOrDefault();
 

@@ -14,6 +14,7 @@ public record CreateAuditReportCommand : IRequest<BaseResponse<CommandResponse>>
     public int branchid { get; init; }
     public decimal totalamountaudit { get; init; }
     public string description { get; init; }
+    public DateTime transactiondatetime { get; init; }
     public string createdby { get; init; }
     public DateTime createddate { get; init; }
 }

@@ -39,7 +39,7 @@ public class GetItemTransferByCriteriaHandler : BaseService, IRequestHandler<Get
                                                                 description = a.Description,
                                                                 sourceid = a.SourceID,
                                                                 destinationid = a.DestinationID,
-                                                                createddate = a.CreadedDate,
+                                                                createddate = a.CreatedDate,
                                                                 createdby = a.CreatedBy,
                                                                 transferstatusid = b.TransferStatusID,
                                                                 transferstatusname_th = b.TransferStatusName_TH,

@@ -69,13 +69,17 @@ public class ReportController : BaseController
         }
     }
 
+    /// <summary>
+    /// สรุปยอดรวมประจำวัน ของแต่ละสาขา 1 สาขามี 1 รายการ /1วัน
+    /// </summary>
+    /// <returns></returns>
     public async Task<IActionResult> SaleSummaryReportAsync()
     {
-        BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
-		{
-            transactiondate  = DateTime.Now
-        });
-		ViewBag.SaleSummaryReportList = resSaleSummaryReport;
+        //BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
+		//{
+        //    transactiondate  = DateTime.Now
+        //});
+		//ViewBag.SaleSummaryReportList = resSaleSummaryReport;
 		return View();
 	}
 
@@ -100,15 +104,20 @@ public class ReportController : BaseController
         }
     }
 
+    /// <summary>
+    /// สรุปยอดรวมประจำวัน ของทุกสาขา 1รายการ/1วัน 
+    /// รายงานตั้งแต่วันที่ 1 ของเดือน ถึง end of month
+    /// </summary>
+    /// <returns></returns>
     public async Task<IActionResult> AuditReportAsync()
 	{
-		BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
-		{
-			transaction_startdate = DateTime.Now,
-			transaction_enddate = DateTime.Now
-		});
+        //BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
+        //{
+        //    transaction_startdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+        //    transaction_enddate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
+        //});
 
-		ViewBag.AuditReportList = resAuditReport;
+		//ViewBag.AuditReportList = resAuditReport;
 		return View();
     }
 
@@ -119,8 +128,8 @@ public class ReportController : BaseController
         {
             BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
             {
-                transaction_startdate = DateTime.Now,
-                transaction_enddate = DateTime.Now
+                transaction_startdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+                transaction_enddate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
             });
             if (!resAuditReport.result)
             {
@@ -134,6 +143,7 @@ public class ReportController : BaseController
         }
     }
 
+    [Obsolete("*** Move to AuditSaleSummaryReportByBranch(int branchid)")]
     public async Task<IActionResult> AuditSaleSummaryReportByTransaction(int transactionid)
     {
         BaseResponse<SaleSummaryReportResponseDTO> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportByTransIDAsync(transactionid);
@@ -159,7 +169,7 @@ public class ReportController : BaseController
         {
             CreateAuditReportCommand auditReportCommand = MappingCreateAuditReportCommand(reportData);
             BaseResponse<CommandResponse> res = await _reportAPI.CreateAuditTransactionReportAsync(auditReportCommand);
-            return Json(new { result = res.result, message = res.result ? "บันทึกข้อมูลสำเร็จ" : $"ไม่สามารถทำรายการได้, {res.error.error.message}" });
+            return Json(new { result = res.result, message = res.result ? "บันทึกข้อมูลสำเร็จ" : $"{res.error.error.message}" });
         }
         catch (Exception ex)
         {
@@ -175,7 +185,9 @@ public class ReportController : BaseController
             description = reportData.AuditDescription,
             totalamountaudit = reportData.TotalAuditAmount.Value,
             createdby = base.UserProfile.rolename,
-            createddate = $"{reportData.TransactionDate} {DateTime.Now:HH}:{DateTime.Now:mm}:{DateTime.Now:ss}".ToDateTime(),
+            transactiondatetime = reportData.TransactionDate.ToDateTime(),
+            //createddate = $"{reportData.TransactionDate} {DateTime.Now:HH}:{DateTime.Now:mm}:{DateTime.Now:ss}".ToDateTime(),
+            createddate = DateTime.Now
         };
     }
 

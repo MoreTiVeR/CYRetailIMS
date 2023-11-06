@@ -218,13 +218,19 @@ public class OrderController : BaseController
             List<PurchaseOrderItemViewModel> tempOrderItemList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
 
             #region Update when Already added
-            var existData = tempOrderItemList.FirstOrDefault(w => w.nitemid == orderItemData.nitemid);
+            PurchaseOrderItemViewModel existData = tempOrderItemList.FirstOrDefault(w => w.nitemid == orderItemData.nitemid);
             if (existData != null)
             {
+                if(existData.price != orderItemData.price)
+                {
+                    return Json(new { result = false, message = $"ราคาสินค้าไม่ตรงกัน กรุณาตรวจสอบราคาสินค้าที่ทำรายการไปก่อนหน้านี้" });
+                }
+
                 //Update QTY
                 tempOrderItemList.Where(w =>  w.nitemid == orderItemData.nitemid).ForEach(e =>
                 {
                     e.nqty = e.nqty + orderItemData.nqty;
+                    e.totalprice = e.totalprice + orderItemData.totalprice;
                 });
             }
             else
@@ -239,7 +245,7 @@ public class OrderController : BaseController
             #endregion
 
             HttpContext.Session.SetDataToSession(_sessionTempDataName, tempOrderItemList);
-            return Json(new { result = true, message = "เพิ่มสินค้าสั่งซื้อสำเร็จ" });
+            return Json(new { result = true, message = "เพิ่มสินค้าสั่งซื้อสำเร็จ", amount = tempOrderItemList.Sum(w => w.totalprice) });
 
         }
         catch (Exception ex)
@@ -253,16 +259,16 @@ public class OrderController : BaseController
     {
         try
         {
-            List<PurchaseOrderItemViewModel> res = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
-            PurchaseOrderItemViewModel todo = res?.FirstOrDefault(m => m.nseq == seq);
+            List<PurchaseOrderItemViewModel> tempOrderItemList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
+            PurchaseOrderItemViewModel todo = tempOrderItemList?.FirstOrDefault(m => m.nseq == seq);
             if (todo == null)
             {
                 throw new Exception("ไม่สามารถลบข้อมูลได้");
             }
 
-            res.Remove(todo);
-            HttpContext.Session.SetDataToSession(_sessionTempDataName, res);
-            return Json(new { result = true, message = "Delete success." });
+            tempOrderItemList.Remove(todo);
+            HttpContext.Session.SetDataToSession(_sessionTempDataName, tempOrderItemList);
+            return Json(new { result = true, message = "Delete success.", amount = tempOrderItemList.Sum(w => w.totalprice) });
         }
         catch (Exception ex)
         {
@@ -347,7 +353,7 @@ public class OrderController : BaseController
                           itemid = a.nitemid,
                           qty = a.nqty,
                           price = a.price,
-                          amount = a.amount,
+                          amount = a.totalprice,
                           discountpercentage = 0,
                           discountamount = 0,
                           taxpercentage = 0,
@@ -378,7 +384,7 @@ public class OrderController : BaseController
                           itemid = a.nitemid,
                           qty = a.nqty,
                           price = a.price,
-                          amount = a.amount,
+                          amount = a.totalprice,
                           discountpercentage = 0,
                           discountamount = 0,
                           taxpercentage = 0,
@@ -405,7 +411,7 @@ public class OrderController : BaseController
             total = orderResposeDTO.total,
             trackingno = orderResposeDTO.shipment.trackingno,
             createdby = orderResposeDTO.createdby,
-            createddate = orderResposeDTO.creadeddate,
+            createddate = orderResposeDTO.createddate,
             approvestatus = orderResposeDTO.approvestatus
         };
 
@@ -419,7 +425,7 @@ public class OrderController : BaseController
                                                                sitemname = a.itemname,
                                                                nqty = a.quantity,
                                                                price = a.price,
-                                                               amount = a.amount
+                                                               totalprice = a.amount
                                                            }).ToList();
         HttpContext.Session.SetDataToSession(_sessionTempDataName, purchaseOrders);
 

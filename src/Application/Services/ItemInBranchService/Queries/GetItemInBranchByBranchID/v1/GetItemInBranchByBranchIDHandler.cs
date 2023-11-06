@@ -26,7 +26,8 @@ public class GetItemInBranchByBranchIDHandler : BaseService, IRequestHandler<Get
             i => i.Include(x => x.Branch),
             i => i.Include(x => x.Item),
             i => i.Include(x => x.Item.Brand),
-            i => i.Include(x => x.Item.ItemType));
+            i => i.Include(x => x.Item.ItemType),
+            i => i.Include(x => x.Item.UnitOfMeasure));
         if (!resItemBranch.Any())
         {
             throw new Exception("Data not found");
@@ -42,6 +43,8 @@ public class GetItemInBranchByBranchIDHandler : BaseService, IRequestHandler<Get
                             itemid = x.ItemID,
                             itemname = x.Item.Name,
                             itemcode = x.Item.ItemCode,
+                            cost = x.Item.Cost,
+                            brandid = x.Item.BrandID,
                             brandname = x.Item.Brand.BrandName,
                             brandshortname = x.Item.Brand.BrandShortName,
                             price = x.Price,
@@ -51,17 +54,16 @@ public class GetItemInBranchByBranchIDHandler : BaseService, IRequestHandler<Get
                             itemtypeid = x.Item.ItemTypeID,
                             itemtypename = x.Item.ItemType.ItemTypeName,
                             isactive = x.IsActive,
-
-                            //20-10-2023
-                            barcode = x.Item.BarCode,
-                            notifyminqty = x.Item.NotifyMinQty,
-                            cost = x.Item.Cost,
-                            brandid = x.Item.Brand.BrandID,
+                            itemimageurl = x.Item.ItemImageUrl,
                             shortname = x.Item.ShortName,
+                            unitofmeasureid = x.Item.UnitOfMeasure.UnitOfMeasureID,
+                            unitofmeasurename = x.Item.UnitOfMeasure.UnitOfMeasureName,
                             createdby = x.CreatedBy,
-                            createddate = x.CreadedDate,
+                            createddate = x.CreatedDate,
                             updatedby = x.UpdatedBy,
-                            updateddate = x.UpdatedDate
+                            updateddate = x.UpdatedDate,
+                            barcode = x.Item.BarCode,
+                            notifyminqty = x.Item.NotifyMinQty
                         }).ToList()
         }).OrderBy(o => o.branchid).FirstOrDefault();
 

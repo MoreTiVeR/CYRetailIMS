@@ -24,7 +24,7 @@ public class EmployeeMappingProfile : Profile
             .ForMember(w => w.nickname, f => f.MapFrom(w => w.NickName))
             .ForMember(w => w.IsActive, f => f.MapFrom(w => w.IsActive))
             .ForMember(w => w.createdby, f => f.MapFrom(w => w.CreatedBy))
-            .ForMember(w => w.creadeddate, f => f.MapFrom(w => w.CreatedDate));
+            .ForMember(w => w.createddate, f => f.MapFrom(w => w.CreatedDate));
 
 
         CreateMap<GetEmployeeResponseDTO, EditEmployeeViewModel>()

@@ -47,7 +47,7 @@ internal class GetAdjustItemTransactionByBranchIDHandler : BaseService, IRequest
                                                                   qty = a.Qty,
                                                                   remark = a.Remark,
                                                                   createdby = a.CreatedBy,
-                                                                  createddate = a.CreadedDate,
+                                                                  createddate = a.CreatedDate,
                                                                   isactive = a.IsActive
                                                               }).ToList();
         if (resData.Count == 0)

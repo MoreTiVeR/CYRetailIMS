@@ -348,8 +348,6 @@ function CalculatePriceByKey(itemkey, name) {
             ShowMessageError(response.msg);
         }
     });
-
-
 }
 
 function CalculatePriceByQty(qty, name) {
@@ -399,3 +397,33 @@ function ResetForm() {
     //})
 }
 
+//Select2 + Ajax search
+//$('.ddl-searchitem').select2({
+//    minimumInputLength: 2,
+//    tags: [],
+//    ajax: {
+//        url: '/Sale/SearchItemBranchs',
+//        dataType: 'json',
+//        type: "GET",
+//        quietMillis: 50,
+//        data: function (params) {
+//            var query = {
+//                search: params.term,
+//                type: 'user_search'
+//            }
+//            // Query parameters will be ?search=[term]&type=user_search
+//            return query;
+//        },
+//        processResults: (data, params) => {
+//            const results = data.items.map(item => {
+//                return {
+//                    id: item.id,
+//                    text: item.text,
+//                };
+//            });
+//            return {
+//                results: results,
+//            }
+//        }
+//    }
+//});

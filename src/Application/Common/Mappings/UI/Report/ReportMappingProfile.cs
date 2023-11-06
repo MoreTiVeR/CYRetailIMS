@@ -15,6 +15,7 @@ public class ReportMappingProfile : Profile
         CreateMap<SaleSummaryReportResponseDTO, AuditSaleSummaryReportViewModel>()
             .ForMember(w => w.TransactionID, f => f.MapFrom(w => w.transactionid))
             .ForMember(w => w.TransactionDate, f => f.MapFrom(w => w.transactiondate))
+            //.ForMember(w => w.TxnDateTime, f => f.MapFrom(w => w.transactiondate))
             .ForMember(w => w.TotalAmount, f => f.MapFrom(w => w.totalamount))
             .ForMember(w => w.AmountTransfer, f => f.MapFrom(w => w.amounttransfer))
             .ForMember(w => w.AmountDeposit, f => f.MapFrom(w => w.amountdeposit))

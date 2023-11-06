@@ -15,7 +15,16 @@ function formatDateTime(date) {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+}
+
 function InitialDatePicker() {
+    var now = new Date();
     var $input = $('.pickadate-saledate').pickadate({
         selectYears: true,
         selectMonths: true,
@@ -38,6 +47,10 @@ function InitialDatePicker() {
     });
     datepicker = $input.pickadate('picker');
     datepicker.set('select', new Date())
+}
+
+function InitialTransactionDate() {
+    $("#txtTransactionDate").val(formatDateTime(new Date($("#txtTransactionDate").val())));
 }
 
 function InitialNumberInput() {

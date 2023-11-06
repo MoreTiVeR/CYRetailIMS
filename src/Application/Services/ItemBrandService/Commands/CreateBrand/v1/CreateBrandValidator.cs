@@ -14,6 +14,6 @@ public class CreateBrandValidator : AbstractValidator<CreateBrandCommand>
         RuleFor(r => r.brandname).NotEmpty().WithMessage("กรุณาระบุชื่อแบรนด์");
         RuleFor(r => r.brandshortname).NotEmpty().WithMessage("กรุณาระบุชื่อย่อแบรนด์");
         RuleFor(r => r.createdby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
-        RuleFor(r => r.creadeddate).NotNull().WithMessage("กรุณาระบุวันที่สร้าง");
+        RuleFor(r => r.createddate).NotNull().WithMessage("กรุณาระบุวันที่สร้าง");
     }
 }

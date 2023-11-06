@@ -44,7 +44,7 @@ public class GetPurchaseOrderResposeDTO
 
 	public string createdby { get; set; }
 
-	public DateTime creadeddate { get; set; }
+	public DateTime createddate { get; set; }
 
 	public bool isactive { get; set; }
 

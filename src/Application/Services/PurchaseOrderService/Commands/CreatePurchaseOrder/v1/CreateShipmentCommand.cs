@@ -30,5 +30,5 @@ public record CreateShipmentCommand
 
 	//public string createdby { get; set; }
 
-	//public DateTime creadeddate { get; set; }
+	//public DateTime createddate { get; set; }
 }

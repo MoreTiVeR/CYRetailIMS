@@ -82,7 +82,7 @@ public class BranchController : BaseController
             branchcode = createBranchViewModel.branchcode,
             address = createBranchViewModel.address,
             createdby = base.UserProfile.username,
-            creadeddate = DateTime.Now,
+            createddate = DateTime.Now,
             isactive = true
         };
     }

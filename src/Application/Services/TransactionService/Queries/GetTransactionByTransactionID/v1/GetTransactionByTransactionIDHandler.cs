@@ -44,7 +44,7 @@ public class GetTransactionByTransactionIDHandler : BaseService, IRequestHandler
                                                                         amounttransfer = tran.AmountTransfer,
                                                                         totalamount = tran.TotalAmount,
                                                                         depositfee = tran.Fee,
-                                                                        creadeddate = tran.CreadedDate,
+                                                                        createddate = tran.CreatedDate,
                                                                         createdby = tran.CreatedBy,
                                                                         createdbystaff = jUser != null ? jUser.FirstName : "N/A",
                                                                         isactive = tran.IsActive,

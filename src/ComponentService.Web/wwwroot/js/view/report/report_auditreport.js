@@ -32,7 +32,7 @@ datatable = $("#tblAuditReport").DataTable({
                 if (data.transactiondate === null || data.transactiondate == null) {
                     return data.transactiondate;
                 }
-                return formatDateTime(new Date(data.transactiondate));
+                return formatDate(new Date(data.transactiondate));
                 //var _createddate = new Date(data.createddate).toLocaleDateString("en-US");
                 //return _createddate;
             }
@@ -42,7 +42,20 @@ datatable = $("#tblAuditReport").DataTable({
         { "data": "amountdeposit" },
         { "data": "amountcash" },
         { "data": "depositfee" },
-        { "data": "totalauditamount" }
+        {
+            "data": { totalamount: "totalamount", totalauditamount: "totalauditamount" },
+            "render": function (data) {
+                var _totalamount = parseFloat(data.totalamount);
+                var _totalauditamount = parseFloat(data.totalauditamount);
+                if (_totalauditamount < _totalamount) {
+                    return "<span class='badges bg-lightyellow'>" + data.totalauditamount + "</span>";
+                }
+                else {
+                    return "<span class='badges bg-lightgreen'>" + data.totalauditamount + "</span>";
+                }
+            }
+        },
+        { "data": "auditorname" }
     ],
     //"language": {
     //    "emptyTable": "ไม่พบข้อมูล."

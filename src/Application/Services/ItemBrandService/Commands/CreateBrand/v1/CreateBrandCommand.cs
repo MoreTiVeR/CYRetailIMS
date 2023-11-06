@@ -24,7 +24,7 @@ public record CreateBrandCommand : IRequest<BaseResponse<CommandResponse>>
     public string createdby { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
-    public DateTime creadeddate { get; init; }
+    public DateTime createddate { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     public bool isactive { get; init; }

@@ -30,7 +30,7 @@ public partial class TMTransactionType : BaseAuditableEntity
     //public string CreatedBy { get; set; } = null!;
 
     //[Column(TypeName = "datetime")]
-    //public DateTime CreadedDate { get; set; }
+    //public DateTime CreatedDate { get; set; }
 
     //[StringLength(10)]
     //[Unicode(false)]

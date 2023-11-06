@@ -92,7 +92,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
                 int minusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
                 ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
                 s.Qty = s.Qty - minusQty;
-                s.SetUpdatedDate(request.creadeddate);
+                s.SetUpdatedDate(request.createddate);
                 s.SetUpdatedBy(request.createdby);
                 s.AddDomainEvent(new TMItemUpdateEvent(s));
             });
@@ -105,7 +105,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
                 int minusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
                 ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
                 s.Qty = s.Qty - minusQty;
-                s.SetUpdatedDate(request.creadeddate);
+                s.SetUpdatedDate(request.createddate);
                 s.SetUpdatedBy(request.createdby);
                 s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
             });
@@ -131,7 +131,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
                         Qty = e.qty,
                         Price = item.Price
                     };
-                    tmItemBranch.SetCreatedDate(request.creadeddate);
+                    tmItemBranch.SetCreatedDate(request.createddate);
                     tmItemBranch.SetCreatedBy(request.createdby);
                     tmItemBranch.ActiveStatus();
                     tmItemBranch.AddDomainEvent(new TMItemInBranchCreateEvent(tmItemBranch));
@@ -147,7 +147,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
                     int plusQty = request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault() != null
                     ? request.items.Where(w => w.itemid == s.ItemID).FirstOrDefault().qty : 0;
                     s.Qty = s.Qty + plusQty;
-                    s.SetUpdatedDate(request.creadeddate);
+                    s.SetUpdatedDate(request.createddate);
                     s.SetUpdatedBy(request.createdby);
                     s.AddDomainEvent(new TMItemInBranchUpdateEvent(s));
                 });
@@ -184,7 +184,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
                     Qty = a.qty,
                     Description = t.description,
                     CreatedBy = t.createdby,
-                    CreadedDate = itemTransferCommand.creadeddate,
+                    CreatedDate = itemTransferCommand.createddate,
                     IsActive = t.isactive,
                     TransferStatus = t.transferstatus
                 }).ToList();

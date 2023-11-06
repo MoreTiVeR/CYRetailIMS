@@ -31,7 +31,7 @@ public class GetTransactionByBranchIDResponseDTO
     public decimal depositfee { get; set; }
     public string createdbystaff { get; set; }
     public string createdby { get; set; }
-	public DateTime creadeddate { get; set; }
+	public DateTime createddate { get; set; }
 	public string updatedby { get; set; }
 	public DateTime? updateddate { get; set; }
 	public bool isactive { get; set; }

@@ -52,7 +52,7 @@ public class CreateBrandHandler : BaseService, IRequestHandler<CreateBrandComman
             BrandShortName = reqObj.brandshortname,
             Description = reqObj.description,
             CreatedBy = reqObj.createdby,
-            CreadedDate = reqObj.creadeddate,
+            CreatedDate = reqObj.createddate,
             IsActive = reqObj.isactive
         };
     }

@@ -39,7 +39,7 @@ public class GetUserHandler : BaseService, IRequestHandler<GetUserQuery, BaseRes
                                                  lastlogin = a.LastLogin,
                                                  lastlogout = a.LastLogout,
                                                  createdby = a.TMEmployees.FirstOrDefault() != null ? a.TMEmployees.FirstOrDefault().FirstName : a.CreatedBy,
-                                                 creadeddate = a.CreadedDate,
+                                                 createddate = a.CreatedDate,
                                                  isactive = a.IsActive,
                                                  approvestatus = a.ApproveStatus,
                                                  approvestatusname = c.ApproveStatusName_TH,

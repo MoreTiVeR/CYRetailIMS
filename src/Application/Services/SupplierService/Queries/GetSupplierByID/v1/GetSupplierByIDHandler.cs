@@ -38,7 +38,7 @@ public class GetSupplierByIDHandler : BaseService, IRequestHandler<GetSupplierBy
 															   suppliertypename = b.SupplierTypeName,
 															   description = a.Description,
 															   createdby = jUser != null ? jUser.FirstName : "N/A",
-                                                               createddate = a.CreadedDate,
+                                                               createddate = a.CreatedDate,
 															   isactive = a.IsActive,
 															   suppliercontacttypeid = contact.SupplierContactTypeID,
                                                                suppliercontacttypename = c.SupplierContactTypeName,

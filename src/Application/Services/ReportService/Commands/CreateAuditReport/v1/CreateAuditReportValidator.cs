@@ -16,5 +16,8 @@ public class CreateAuditReportValidator : AbstractValidator<CreateAuditReportCom
         //RuleFor(r => r.totalamountaudit).Must((r, totalAuditAmount) => IsValidTotalAmountAudit(r, totalAuditAmount)).WithMessage("ไม่สามารถทำรายการได้, เนื่องจากยอดเงินรวมทั้งหมดไม่ตรงกับยอดขาย (หากมีเงินฝากกรุณาระบุค่าธรรมเนียม)");
         RuleFor(r => r.createdby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
         //RuleFor(w => w.transactionid).NotNull().Must(w => w > 0).WithMessage("ข้อมูลประวัติที่ทำการตรวจสอบไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+        RuleFor(s => s.transactiondatetime).Must(BeAValidDate).WithMessage("วันที่ทำรายการลงขายไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+        RuleFor(s => s.createddate).Must(BeAValidDate).WithMessage("วันที่ทำรายการตรวจสอบบัญชีไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
     }
+    private bool BeAValidDate(DateTime value) => value > DateTime.MinValue || value < DateTime.MaxValue;
 }

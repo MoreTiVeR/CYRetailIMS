@@ -38,7 +38,7 @@ public class GetSupplierListHandler : BaseService, IRequestHandler<GetSupplierLi
                                                                suppliertypename = b.SupplierTypeName,
                                                                description = a.Description,
                                                                createdby = a.CreatedBy,
-                                                               createddate = a.CreadedDate,
+                                                               createddate = a.CreatedDate,
                                                                isactive = a.IsActive,
                                                                suppliercontacttypeid = contact.SupplierContactTypeID,
                                                                suppliercontacttypename = c.SupplierContactTypeName,

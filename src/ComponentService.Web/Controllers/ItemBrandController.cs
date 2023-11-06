@@ -45,7 +45,7 @@ public class ItemBrandController : BaseController
             brandname = reqData.brandname,
             brandshortname = reqData.brandshortname,
             createdby = base.UserProfile.username,
-            creadeddate = DateTime.Now,
+            createddate = DateTime.Now,
             description = reqData.description,
             isactive = true
         };

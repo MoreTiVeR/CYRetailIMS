@@ -9,7 +9,7 @@
 <div class="page-header">
     <div class="page-title">
         <h4>เพิ่มรายการสั่งสินค้า</h4>
-        <h6>ทำรายการเพิ่มรายการสั่งสินค้าสำนักงานใหญ่</h6>
+        <h6>ทำรายการสั่งสินค้าสำนักงานใหญ่</h6>
     </div>
 </div>
 <!-- /add -->
@@ -82,7 +82,7 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>เลขติดตามพัสดุ</label>
-                            <input type="number" class="form-control" asp-for="trackingno">
+                            <input type="text" class="form-control" asp-for="trackingno">
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@
 </div>
 
 <!-- Large Modal -->
-<div id="mdlPurchaseOrder" aria-labelledby="mdlPurchaseOrder" class="modal fade" tabindex="-1" aria-hidden="true">
+<div id="mdlPurchaseOrder" class="modal fade" aria-labelledby="mdlPurchaseOrder" tabindex="-1" aria-hidden="true">
     <partial name="_PartialPage/_ModalPartialAddPurchaseOrder" />
 </div>
 

@@ -45,7 +45,7 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
                                                           branchid = tran.BranchID,
                                                           branchname = branch.BranchName,
                                                           createdby = tran.CreatedBy,
-                                                          createddate = tran.CreadedDate,
+                                                          createddate = tran.CreatedDate,
                                                           //createdbystaff = "N/A"
                                                       }).AsEnumerable();
         if (request.branchid.HasValue)

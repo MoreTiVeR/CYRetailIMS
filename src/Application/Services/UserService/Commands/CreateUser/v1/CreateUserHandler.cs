@@ -95,7 +95,7 @@ public class CreateUserHandler : BaseService, IRequestHandler<CreateUserCommand,
 			Password = bytePass,
 			ProfilePicture = request.profilepicture,
 			CreatedBy = request.createdby,
-			CreadedDate = request.createddate,
+			CreatedDate = request.createddate,
 			IsActive = request.isactive,
 			ApproveStatus = request.approvestatus
 		};
@@ -109,7 +109,7 @@ public class CreateUserHandler : BaseService, IRequestHandler<CreateUserCommand,
 		{
 			BranchID = request.userinbranchid,
 			CreatedBy = request.createdby,
-			CreadedDate = request.createddate,
+			CreatedDate = request.createddate,
 			IsActive = true
 		});
 		return usersInBranch;

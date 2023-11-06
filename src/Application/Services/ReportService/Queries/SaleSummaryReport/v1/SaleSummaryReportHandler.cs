@@ -19,20 +19,21 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 	{
 	}
 
+
 	public async Task<BaseResponse<List<SaleSummaryReportResponseDTO>>> Handle(SaleSummaryReportQuery request, CancellationToken cancellationToken)
 	{
 		IEnumerable<SaleSummaryReportResponseDTO> resSaleSummaryReport = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
 																		  join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
 																		  join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
-																		  join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync() 
-																		  on new { tran.BranchID, tran.TransactionDate.Date } equals new { audit.BranchID, audit.CreadedDate.Date } into tAudit
+																		  join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync(w => w.IsActive) 
+																		  on new { tran.BranchID, tran.TransactionDate.Date } equals new { audit.BranchID, audit.TransactionDate.Date } into tAudit
 																		  from jAudit in tAudit.DefaultIfEmpty()
 																		  where tran.IsActive
 																		  && tran.TransactionDate.Date == request.transactiondate.Date
 																		  select new SaleSummaryReportResponseDTO
 																		  {
 																			  transactionid = tran.TransactionID,
-																			  transactiondate = tran.CreadedDate,
+																			  transactiondate = tran.TransactionDate,
 
 																			  totalamount = tran.TotalAmount,
 																			  amounttransfer = tran.AmountTransfer,
@@ -50,20 +51,32 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 																			  auditdescription = jAudit.Description
 																		  }).AsEnumerable();
 
-        resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => new { g.branchid, g.transactionid }).Select(s => new SaleSummaryReportResponseDTO
+        resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => g.branchid).Select(s => new SaleSummaryReportResponseDTO
 		{
-			branchid = s.Key.branchid,
-			branchname = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).branchname,
-			transactiondate = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).transactiondate,
-            totalamount = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).totalamount,
-            amounttransfer = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).amounttransfer,
-            amountdeposit = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).amountdeposit,
-            amountcash = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).amountcash,
-            depositfee = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).depositfee,
-            createdby = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).createdby,
-            auditid = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).auditid,
-            totalauditamount = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).totalauditamount,
-            auditdescription = s.First(w => w.branchid == s.Key.branchid && w.transactionid == s.Key.transactionid).auditdescription
+            //branchid = s.Key.branchid,
+            //branchname = s.First(w => w.branchid == s.Key.branchid).branchname,
+            //transactiondate = s.First(w => w.branchid == s.Key.branchid).transactiondate,
+            //         totalamount = s.First(w => w.branchid == s.Key.branchid).totalamount,
+            //         amounttransfer = s.First(w => w.branchid == s.Key.branchid).amounttransfer,
+            //         amountdeposit = s.First(w => w.branchid == s.Key.branchid).amountdeposit,
+            //         amountcash = s.First(w => w.branchid == s.Key.branchid).amountcash,
+            //         depositfee = s.First(w => w.branchid == s.Key.branchid).depositfee,
+            //         createdby = s.First(w => w.branchid == s.Key.branchid).createdby,
+            //         auditid = s.First(w => w.branchid == s.Key.branchid).auditid,
+            //         totalauditamount = s.First(w => w.branchid == s.Key.branchid).totalauditamount,
+            //         auditdescription = s.First(w => w.branchid == s.Key.branchid).auditdescription
+            branchid = s.Key,
+            branchname = s.First(w => w.branchid == s.Key).branchname,
+            transactiondate = s.First(w => w.branchid == s.Key).transactiondate,
+            totalamount = s.Sum(x => x.totalamount),
+            amounttransfer = s.Sum(x => x.amounttransfer),
+            amountdeposit = s.Sum(x => x.amountdeposit),
+            amountcash = s.Sum(x => x.amountcash),
+            depositfee = s.Sum(x => x.depositfee),
+            createdby = s.First(w => w.branchid == s.Key).createdby,
+            auditid = s.First(w => w.branchid == s.Key).auditid,
+            totalauditamount = s.First(w => w.branchid == s.Key).totalauditamount,
+            auditdescription = s.First(w => w.branchid == s.Key).auditdescription
         }).ToList();
 
 

@@ -31,7 +31,7 @@ public class SaleSummaryReportByTransIDHandler : BaseService, IRequestHandler<Sa
                                                                           select new SaleSummaryReportResponseDTO
                                                                           {
                                                                               transactionid = tran.TransactionID,
-                                                                              transactiondate = tran.CreadedDate,
+                                                                              transactiondate = tran.CreatedDate,
 
                                                                               totalamount = tran.TotalAmount,
                                                                               amounttransfer = tran.AmountTransfer,

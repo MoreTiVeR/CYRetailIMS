@@ -22,7 +22,7 @@ public record CreateItemTransferCommand : IRequest<BaseResponse<CommandResponse>
 
     public string createdby { get; init; }
 
-    public DateTime creadeddate { get; init; }
+    public DateTime createddate { get; init; }
 
     public bool isactive { get; init; }
 

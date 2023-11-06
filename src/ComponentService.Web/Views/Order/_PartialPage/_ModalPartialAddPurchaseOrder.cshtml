@@ -1,4 +1,5 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 @model PurchaseOrderItemViewModel
 
 <!-- show payment Modal -->
@@ -14,18 +15,28 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>สินค้า</label>
-                            <select class="select" asp-for="nitemid">
+                            @* <select class="select2" asp-for="nitemid">
+                            @if (ViewBag.ItemList.result)
+                            {
+                            <option value="">-- เลือกสินค้า --</option>
+                            foreach (var item in ViewBag.ItemList.data)
+                            {
+                            <option value="@item.itemid">@item.name</option>
+                            }
+                            }
+                            else
+                            {
+                            <option>-- ไม่พบข้อมูลสินค้า --</option>
+                            }
+                            </select>*@
+                            <select class="select2" asp-for="nitemid">
                                 @if (ViewBag.ItemList.result)
                                 {
-                                    <option value="">-- เลือกสินค้า --</option>
-                                    foreach (var item in ViewBag.ItemList.data)
+                                    <option value="" selected>-- กรุณาเลือกสาขา --</option>
+                                    foreach (var item in (List<GetItemListResponseDTO>)ViewBag.ItemList.data)
                                     {
                                         <option value="@item.itemid">@item.name</option>
                                     }
-                                }
-                                else
-                                {
-                                    <option>-- ไม่พบข้อมูลสินค้า --</option>
                                 }
                             </select>
                             <span asp-validation-for="nitemid" class="text-danger"></span>
@@ -34,22 +45,22 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>ราคาสินค้า</label>
-                            <input type="number" class="form-control" asp-for="price">
+                            <input type="number" class="form-control" asp-for="price" onchange="return CalculateAmountByItemPrice(this.value, this.name)">
                             <span asp-validation-for="price" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>จำนวนสินค้า</label>
-                            <input type="number" class="form-control" asp-for="nqty">
+                            <input type="number" class="form-control" asp-for="nqty" onchange="return CalculateAmountByItemQty(this.value, this.name)">
                             <span asp-validation-for="nqty" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>ราคารวมทั้งหมด</label>
-                            <input type="number" class="form-control" asp-for="amount">
-                            <span asp-validation-for="amount" class="text-danger"></span>
+                            <input type="number" class="form-control" asp-for="totalprice">
+                            <span asp-validation-for="totalprice" class="text-danger"></span>
                         </div>
                     </div>
                 </div>

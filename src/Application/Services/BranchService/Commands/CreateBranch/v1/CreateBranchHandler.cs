@@ -52,7 +52,7 @@ public class CreateBranchHandler : BaseService, IRequestHandler<CreateBranchComm
         {
             BranchCode = req.branchcode.Trim().ToUpper(),
             BranchName = req.branchname,
-            CreadedDate = req.creadeddate,
+            CreatedDate = req.createddate,
             CreatedBy = req.createdby,
             IsActive = req.isactive
         };
@@ -63,7 +63,7 @@ public class CreateBranchHandler : BaseService, IRequestHandler<CreateBranchComm
         return new TMBranchDetail
         {
             Address1 = req.address,
-            CreadedDate = req.creadeddate,
+            CreatedDate = req.createddate,
             CreatedBy = req.createdby,
             IsActive = req.isactive
         };
