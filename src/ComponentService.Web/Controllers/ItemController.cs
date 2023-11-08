@@ -25,7 +25,6 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
-using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using OfficeOpenXml;
@@ -33,9 +32,10 @@ using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
-using Microsoft.CodeAnalysis.Operations;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
+using NetBarcode;
+using Type = NetBarcode.Type;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -182,6 +182,7 @@ public class ItemController : BaseController
         //Get Item Detail
         BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(itemid);
         EditItemViewModel viewModel = EditItemMapping(resItem.data);
+        viewModel.BarCodeBase64 = GenerateItemBarcode(viewModel.BarCode);
 
         //Get Master Data
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
@@ -195,7 +196,26 @@ public class ItemController : BaseController
     }
 
     #region TEST Gen Barcode
-
+    private string? GenerateItemBarcode(string sBarcode)
+    {
+        try
+        {
+            //Barcode b = new Barcode(sBarcode, BarcodeStandard.Type.Code93);
+            //b.IncludeLabel = true;
+            //Image img = b.Encode(BarcodeStandard.Type.Code93, "038000356216");
+            if (string.IsNullOrEmpty(sBarcode))
+            {
+                return default;
+            }
+            //var barcode = new Barcode(sBarcode, Type.Code93, true, 300, 150);
+            var barcode = new Barcode(sBarcode, Type.Code93, true);
+            return barcode.GetBase64Image();
+        }
+        catch
+        {
+            return default;
+        }
+    }
     #endregion
 
     public async Task<IActionResult> EditItemBranch(int itemid, int branchid)

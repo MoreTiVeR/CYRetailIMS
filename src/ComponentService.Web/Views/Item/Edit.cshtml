@@ -6,6 +6,14 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
+<style>
+    .image-responsive {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
 <div class="page-header">
     <div class="page-title">
         <h4>แก้ไขข้อมูลสินค้า</h4>
@@ -18,12 +26,24 @@
     <div class="card-body">
         <form id="frmEditItem" class="form-edit-item" onsubmit="return EditItem(this)">
             <input type="hidden" asp-for="ItemID" readonly>
-            <div class="bar-code-view">
-                <img src="../assets/img/barcode1.png" alt="barcode">
-                <a class="printimg">
-                    <img src="../assets/img/icons/printer.svg" alt="print">
-                </a>
-            </div>
+            @if (!string.IsNullOrEmpty(Model.BarCodeBase64))
+            {
+                <div class="bar-code-view">
+                    <img src="data:image/jpeg;base64,@Html.Raw(Model.BarCodeBase64)" alt="Barcode Image">
+                   @* <a class="printimg">
+                        <img src="../assets/img/icons/printer.svg" alt="print">
+                    </a>*@
+                </div>
+            }
+            else
+            {
+                <div class="bar-code-view">
+                    <p>No image available.</p>
+                    @*<a class="printimg">
+                        <img src="../assets/img/icons/printer.svg" alt="print">
+                    </a>*@
+                </div>
+            }
             <div class="row">
                 <!--ROW1-->
                 <div class="col-lg-4 col-sm-6 col-12">
@@ -69,7 +89,7 @@
                                 <option value="">--เลือกแบรนด์สินค้า--</option>
                                 foreach (var item in ViewBag.ItemBrandList.data)
                                 {
-                                    if(@item.brandid == Model.BrandID)
+                                    if (@item.brandid == Model.BrandID)
                                     {
                                         <option value="@item.brandid" selected>@item.brandname</option>
                                     }
@@ -89,32 +109,32 @@
                 </div>
                 <!--ROW2-->
                 @*<div class="col-lg-3 col-sm-6 col-12">
-                    <div class="form-group">
-                        <label>หน่วยนับสินค้า</label>
-                        <select class="select" asp-for="UnitOfMeasureID">
-                            @if (ViewBag.ItemUOMList.result)
-                            {
-                                <option value="">--เลือกหน่วยนับสินค้า--</option>
-                                foreach (var item in ViewBag.ItemUOMList.data)
-                                {
-                                    if(@item.unitofmeasureid == Model.UnitOfMeasureID)
-                                    {
-                                        <option value="@item.unitofmeasureid" selected>@item.unitofmeasurename</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@item.unitofmeasureid">@item.unitofmeasurename</option>
-                                    }
-                                    
-                                }
-                            }
-                            else
-                            {
-                                <option>--ไม่พบข้อมูลหน่วยนับสินค้า--</option>
-                            }
-                        </select>
-                        <span asp-validation-for="UnitOfMeasureID" class="text-danger"></span>
-                    </div>
+                <div class="form-group">
+                <label>หน่วยนับสินค้า</label>
+                <select class="select" asp-for="UnitOfMeasureID">
+                @if (ViewBag.ItemUOMList.result)
+                {
+                <option value="">--เลือกหน่วยนับสินค้า--</option>
+                foreach (var item in ViewBag.ItemUOMList.data)
+                {
+                if(@item.unitofmeasureid == Model.UnitOfMeasureID)
+                {
+                <option value="@item.unitofmeasureid" selected>@item.unitofmeasurename</option>
+                }
+                else
+                {
+                <option value="@item.unitofmeasureid">@item.unitofmeasurename</option>
+                }
+
+                }
+                }
+                else
+                {
+                <option>--ไม่พบข้อมูลหน่วยนับสินค้า--</option>
+                }
+                </select>
+                <span asp-validation-for="UnitOfMeasureID" class="text-danger"></span>
+                </div>
                 </div>*@
                 <div class="col-lg-3 col-sm-6 col-12">
                     <div class="form-group">
@@ -187,17 +207,17 @@
                         <span asp-validation-for="IsActive" class="text-danger"></span>
                     </div>
                 </div>
-               @* <div class="col-lg-12">
-                    <div class="form-group">
-                        <label>รูปภาพสินค้า</label>
-                        <div class="image-upload">
-                            <input type="file">
-                            <div class="image-uploads">
-                                <img src="~/assets/img/icons/upload.svg" alt="img">
-                                <h4>ลาก และ ปล่อย ไฟล์ เพื่ออัพโหลด</h4>
-                            </div>
-                        </div>
-                    </div>
+                @* <div class="col-lg-12">
+                <div class="form-group">
+                <label>รูปภาพสินค้า</label>
+                <div class="image-upload">
+                <input type="file">
+                <div class="image-uploads">
+                <img src="~/assets/img/icons/upload.svg" alt="img">
+                <h4>ลาก และ ปล่อย ไฟล์ เพื่ออัพโหลด</h4>
+                </div>
+                </div>
+                </div>
                 </div>*@
                 <div class="col-lg-12">
                     @*<button id="btnCancel" type="reset" class="btn btn-cancel me-2">ยกเลิก</button>*@
@@ -209,7 +229,6 @@
     </div>
 </div>
 <!-- /add -->
-
 @section Scripts{
 
     <!--Page Script-->
