@@ -194,6 +194,10 @@ public class ItemController : BaseController
         return View(viewModel);
     }
 
+    #region TEST Gen Barcode
+
+    #endregion
+
     public async Task<IActionResult> EditItemBranch(int itemid, int branchid)
     {
         //Get Item Detail
