@@ -36,6 +36,10 @@ using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using NetBarcode;
 using Type = NetBarcode.Type;
+using CYRetailIMS.Infrastructure.Common.Extensions;
+using NUglify.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -51,6 +55,7 @@ public class ItemController : BaseController
     private readonly IBranchAPI _branchAPI;
     private readonly IItemTransferAPI _itemTransferAPI;
     private readonly IItemInBranchAPI _itemInBranchAPI;
+    private string _sessionTempTransferItemName => "TEMP_TRANSFER_ITEM_DATA";
 
     public ItemController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IAppConfig appConfig,
@@ -77,7 +82,7 @@ public class ItemController : BaseController
     public async Task<IActionResult> Index()
     {
         BaseResponse<List<GetBranchResponseDTO>> resBranchList = null;
-        if(base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
+        if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
         {
             resBranchList = await _branchAPI.GetBranchListAsync();
         }
@@ -128,8 +133,8 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> Transfer()
     {
-        BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
-        ViewBag.ItemList = resItemList;
+        //BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
+        //ViewBag.ItemList = resItemList;
         ViewBag.BranchList = await PrepareSelectBranch();
         ViewBag.ItemTransferList = await GetItemTransferItemListByTransferType((int)TransferType.WTB);
         ViewBag.ItemTransaferTypeList = await PrepareSelectItemTransferType(); ;
@@ -153,6 +158,20 @@ public class ItemController : BaseController
 
         ViewBag.ItemTransferHistory = transferHistory;
         ViewBag.ItemTransferStatus = await _itemTransferAPI.GetItemTransferStatusAsync();
+        return View();
+    }
+
+    public async Task<IActionResult> BarcodeTransferAsync()
+    {
+        #region Get- Set Item
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        #endregion
+
+        //BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
+        //ViewBag.ItemList = resItemList;
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.ItemTransferList = await GetItemTransferItemListByTransferType((int)TransferType.WTB);
+        ViewBag.ItemTransaferTypeList = await PrepareSelectItemTransferType(); ;
         return View();
     }
 
@@ -195,29 +214,6 @@ public class ItemController : BaseController
         return View(viewModel);
     }
 
-    #region TEST Gen Barcode
-    private string? GenerateItemBarcode(string sBarcode)
-    {
-        try
-        {
-            //Barcode b = new Barcode(sBarcode, BarcodeStandard.Type.Code93);
-            //b.IncludeLabel = true;
-            //Image img = b.Encode(BarcodeStandard.Type.Code93, "038000356216");
-            if (string.IsNullOrEmpty(sBarcode))
-            {
-                return default;
-            }
-            //var barcode = new Barcode(sBarcode, Type.Code93, true, 300, 150);
-            var barcode = new Barcode(sBarcode, Type.Code93, true);
-            return barcode.GetBase64Image();
-        }
-        catch
-        {
-            return default;
-        }
-    }
-    #endregion
-
     public async Task<IActionResult> EditItemBranch(int itemid, int branchid)
     {
         //Get Item Detail
@@ -235,40 +231,6 @@ public class ItemController : BaseController
         ViewBag.ItemBrandList = resItemBrandList;
         ViewBag.ItemUOMList = resUnitOfMeasureList;
         return View(viewModel);
-    }
-
-
-    [HttpPost]
-    public async Task<IActionResult> ItemDataValidation(TransferItemViewModel transferItemObj)
-    {
-        try
-        {
-            #region Get form value
-            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
-            #endregion
-
-            #region Prepare new from with not empty value
-            form = form.Where(w => w.Key.Contains("data[outer-item-group]")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
-            if (form.Count == 0)
-            {
-                return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
-            }
-            #endregion
-
-            #region Validate Selling Item
-            bool isValidData = form.Where(w => w.Key.Contains("data[outer-item-group]")).Any(w => !string.IsNullOrEmpty(w.Value[0]));
-            if (!isValidData)
-            {
-                return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
-            }
-            #endregion
-
-            return Json(new { result = true, msg = "ตรวจสอบข้อมูลถูกต้อง." });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { result = true, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
-        }
     }
 
     [HttpPost]
@@ -332,7 +294,25 @@ public class ItemController : BaseController
         }
         catch (Exception ex)
         {
-            return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+            return Json(new { result = false, msg = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult SaveBarcodeTransaferItem(TransferItemViewModel transferItemObj)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { result = false, msg = "ข้อมูลไม่ถูกต้อง, กรุณาตรวจสอบข้อมูลใหม่อีกครั้ง!" });
+            }
+
+            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย มีบางอย่างผิดพลาด, กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
         }
     }
 
@@ -479,7 +459,7 @@ public class ItemController : BaseController
             List<GetItemListResponseDTO> resData = _mapper.Map<List<GetItemListResponseDTO>>(resItem.data.itemlist);
             resData.ForEach(s =>
             {
-                if(branchid == 1)
+                if (branchid == 1)
                 {
                     s.isiteminbranch = false;
                     s.searchbranchid = branchid;
@@ -489,7 +469,7 @@ public class ItemController : BaseController
                     s.isiteminbranch = true;
                     s.searchbranchid = branchid;
                 }
-                
+
             });
             return Json(new { result = true, data = resData, message = "สำเร็จ" });
         }
@@ -530,7 +510,7 @@ public class ItemController : BaseController
         List<GetItemListResponseDTO> resItemList = null;
         try
         {
-            if(base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
+            if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
             {
                 //สินค้าคลังใหญ่
                 BaseResponse<List<GetItemListResponseDTO>> resItem = await _itemAPI.GetItemListAsync();
@@ -539,7 +519,7 @@ public class ItemController : BaseController
                     throw new Exception(resItem.error.error.message);
                 }
                 resItemList = resItem.data;
-                
+
             }
             else
             {
@@ -708,7 +688,6 @@ public class ItemController : BaseController
             return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาลองใหม่อีกครั้ง | ข้อผิดพลาด -> {ex.Message}" });
         }
     }
-
 
     private async Task SaveExcelToDirectory(string fileName, ExcelPackage excelPackage)
     {
@@ -1146,5 +1125,195 @@ public class ItemController : BaseController
     }
     #endregion
 
+    #region Generate Barcode
+    private string? GenerateItemBarcode(string sBarcode)
+    {
+        try
+        {
+            //Barcode b = new Barcode(sBarcode, BarcodeStandard.Type.Code93);
+            //b.IncludeLabel = true;
+            //Image img = b.Encode(BarcodeStandard.Type.Code93, "038000356216");
+            if (string.IsNullOrEmpty(sBarcode))
+            {
+                return default;
+            }
+            //var barcode = new Barcode(sBarcode, Type.Code93, true, 300, 150);
+            var barcode = new Barcode(sBarcode, Type.Code93, true);
+            return barcode.GetBase64Image();
+        }
+        catch
+        {
+            return default;
+        }
+    }
+    #endregion
 
+    [HttpPost]
+    public async Task<IActionResult> AddTempItemTransfer([FromBody] TransferItemDetailViewModel transferItemData)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            //if (transferItemData.nqty < 0)
+            //{
+            //    throw new Exception("กรุณาระบุจำนวนไม่น้อยกว่า 0");
+            //}
+
+            //var getDataByItemCode = new TransferItemDetailViewModel();
+
+            //Get Current List
+            List<TransferItemDetailViewModel> tempTransferItemList = HttpContext.Session.GetDataFromSession<List<TransferItemDetailViewModel>>(_sessionTempTransferItemName);
+
+            #region Update when Already added
+            if (tempTransferItemList != null)
+            {
+                //Check is exist from temp
+                TransferItemDetailViewModel existData = tempTransferItemList.FirstOrDefault(w => w.sbarcode == transferItemData.sbarcode);
+                if (existData != null)
+                {
+                    //Update QTY
+                    tempTransferItemList.Where(w => w.nitemid == transferItemData.nitemid).ForEach(e =>
+                    {
+                        e.nqty = e.nqty + transferItemData.nqty;
+                    });
+                }
+                else
+                {
+                    //Add new if doesn't exist in temp list
+                    int lastId = tempTransferItemList != null && tempTransferItemList.Count > 0 ? tempTransferItemList.Last().nseq : 0;
+                    lastId++;
+                    transferItemData.nseq = lastId;
+                    MappingTransferItem(ref transferItemData);
+                    tempTransferItemList.Add(transferItemData);
+                }
+            }
+            else
+            {
+                tempTransferItemList = new List<TransferItemDetailViewModel>();
+                //Add new get last seq
+                int lastId = tempTransferItemList != null && tempTransferItemList.Count > 0 ? tempTransferItemList.Last().nseq : 0;
+                lastId++;
+                transferItemData.nseq = lastId;
+                MappingTransferItem(ref transferItemData);
+                tempTransferItemList.Add(transferItemData);
+            }
+            #endregion
+
+            #region Validate Qty in Stock TMItem by barcode before response
+            BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeAsync(transferItemData.sbarcode);
+            if(resItem.data.qty < tempTransferItemList.FirstOrDefault(w => w.nitemid == resItem.data.itemid)?.nqty)
+            {
+                return Json(new { result = false, message = $"ไม่สามารภทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
+            }
+            #endregion
+
+            HttpContext.Session.SetDataToSession(_sessionTempTransferItemName, tempTransferItemList);
+            return Json(new { result = true, message = "เพิ่มสินค้าโอนสำเร็จ", amount = tempTransferItemList.Sum(w => w.totalprice) });
+
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> GetTempItemTransfer()
+    {
+        try
+        {
+            List<TransferItemDetailViewModel> tempList = HttpContext.Session.GetDataFromSession<List<TransferItemDetailViewModel>>(_sessionTempTransferItemName);
+
+            #region if list is null => create new list with 0 member
+            if (tempList == null)
+            {
+                tempList = new List<TransferItemDetailViewModel>();
+                HttpContext.Session.SetDataToSession(_sessionTempTransferItemName, tempList);
+            }
+            #endregion
+            return Json(new { data = tempList.OrderBy(o => o.nseq).ToList() });
+        }
+        catch
+        {
+            return Json(new { data = new List<TransferItemDetailViewModel>() });
+        }
+
+    }
+
+    [HttpPost]
+    public JsonResult DeleteTempItemTransfer(int seq)
+    {
+        try
+        {
+            List<TransferItemDetailViewModel> tempTransferItemList = HttpContext.Session.GetDataFromSession<List<TransferItemDetailViewModel>>(_sessionTempTransferItemName);
+            TransferItemDetailViewModel todo = tempTransferItemList?.FirstOrDefault(m => m.nseq == seq);
+            if (todo == null)
+            {
+                throw new Exception("ไม่สามารถลบข้อมูลได้");
+            }
+
+            tempTransferItemList.Remove(todo);
+            HttpContext.Session.SetDataToSession(_sessionTempTransferItemName, tempTransferItemList);
+            return Json(new { result = true, message = "Delete success.", amount = tempTransferItemList.Sum(w => w.totalprice) });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// Validate Item before save
+    /// </summary>
+    /// <param name="transferItemObj"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> ItemTransferDataValidation(TransferItemViewModel transferItemObj)
+    {
+        try
+        {
+            #region Get data from temp
+            List<TransferItemDetailViewModel> tempList = HttpContext.Session.GetDataFromSession<List<TransferItemDetailViewModel>>(_sessionTempTransferItemName);
+            if (tempList == null || tempList?.Count() == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            return Json(new { result = true, msg = "ตรวจสอบข้อมูลถูกต้อง." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = true, msg = $"ขออภัย, มีบางอย่างผิดพลาด!. {ex.Message}" });
+        }
+    }
+
+
+    private void MappingTransferItem(ref TransferItemDetailViewModel transferItemData)
+    {
+        BaseResponse<List<GetItemListResponseDTO>> resItems = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");
+        string itemBarcode = transferItemData.sbarcode;
+
+        GetItemListResponseDTO existItem = resItems.data.Where(w => !string.IsNullOrEmpty(w.barcode)).FirstOrDefault(w => w.barcode.Trim().ToUpper() == itemBarcode.Trim().ToUpper());
+        transferItemData.nitemid = existItem != null ? existItem.itemid : 0;
+        transferItemData.sitemname = existItem != null ? existItem.name : null;
+        transferItemData.price = existItem != null ? existItem.price : 0;
+    }
+
+    private async Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemSessionDataAsync()
+    {
+        BaseResponse<List<GetItemListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");
+        if (res != null)
+        {
+            return res;
+        }
+        res = await _itemAPI.GetItemListAsync();
+        HttpContext.Session.SetDataToSession("ITEM_DATA", res);
+        return res;
+    }
 }

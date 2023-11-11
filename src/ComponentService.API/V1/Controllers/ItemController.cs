@@ -4,6 +4,7 @@ using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
@@ -86,7 +87,7 @@ public class ItemController : BaseApiController
 
 
     [HttpGet]
-    [Route("v1/getitembyid/{itemid}")]
+    [Route("v1/getitembyid/{itemid:int}")]
     [ProducesResponseType(typeof(GetItemByIDResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
@@ -114,6 +115,22 @@ public class ItemController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetItemsAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpGet]
+    [Route("v1/getitembybarcode/{itembarcode}")]
+    [ProducesResponseType(typeof(GetItemByIDResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemByBarCodeAsync(string itembarcode)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<GetItemByIDResponseDTO> res = await Mediator.Send(new GetItemByBarcodeQuery { itembarcode = itembarcode });
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemByBarCodeAsync Success");
         return Ok(res.data);
     }
 }

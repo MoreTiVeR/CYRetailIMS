@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 
 namespace CYRetailIMS.Application.ExternalService.ItemAPI;
@@ -18,5 +19,6 @@ public interface IItemAPI
 	Task<BaseResponse<CommandResponse>> UpdateItemAsync(UpdateItemCommand updateItemCommand);
     Task<BaseResponse<CommandResponse>> DeleteItemAsync(DeleteItemCommand deleteItemCommand);
     Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemListAsync();
-    Task<BaseResponse<GetItemListResponseDTO>> GetItemByIdAsync(int itemid);
+    Task<BaseResponse<GetItemListResponseDTO>> GetItemByIdAsync(int itemID);
+    Task<BaseResponse<GetItemByIDResponseDTO>> GetItemByBarCodeAsync(string itemBarcode);
 }

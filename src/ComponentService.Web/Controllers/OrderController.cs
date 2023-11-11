@@ -63,10 +63,8 @@ public class OrderController : BaseController
         _warehouseAPI = warehouseAPI;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-		//BaseResponse<List<GetPurchaseOrderResposeDTO>> resOrderList = await _purchaseOrderAPI.GetPurchaseOrderListAsync();
-        //ViewBag.OrderList = resOrderList;
 		return View();
     }
     
