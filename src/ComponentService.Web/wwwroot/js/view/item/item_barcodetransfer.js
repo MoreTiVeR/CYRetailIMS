@@ -18,6 +18,12 @@ $(document).on('change', '.select2', function (e) {
     //ShowMessageInfo('Selected value :' + selectedValue);
 });
 
+//Auto focus
+$('#mdlTransferItem').on('shown.bs.modal', function () {
+    //$("#sbarcode").focus();
+    $('#sbarcode').get(0).focus();
+})
+
 $("#btnSave").on('click', function () {
     var isValid = $('#frmTransferItem').valid();
     if (!isValid) {
@@ -55,6 +61,91 @@ $("#btnSave").on('click', function () {
                     }).then(function (result) {
                         if (result.value) {
                             $("#frmTransferItem").submit();
+                        }
+                        else if (result.dismiss === Swal.DismissReason.cancel) {
+                            //Code
+                            ShowMessageInfo('ยกเลิก');
+                        }
+                    });
+                }
+                else {
+                    ShowMessageError(results.msg);
+                    return;
+                }
+
+            }, function (results) {
+                //Failed
+                console.log('Failed');
+                ShowMessageError(results.message);
+
+            }, function () {
+                ShowMessageError('Unknow error => Create Sale data.');
+                console.log('this will run if the deferred generates a progress update.');
+            }
+        );
+    }
+});
+
+
+$("#btnDraft").on('click', function () {
+    var isValid = $('#frmTransferItem').valid();
+    if (!isValid) {
+        ShowMessageError('กรุณาตรวจสอบข้อมูลก่อนบันทึกข้อมูล!');
+    }
+    else {
+        var data = $($("#frmTransferItem")).serializeJSON();
+        data = JSON.stringify(data);
+        console.log(data);
+        $.post("ItemTransferDataValidation", { data }).then(
+            function (results) {
+
+                if (results.result) {
+                    console.log(results.msg);
+                    Swal.fire({
+                        //title: 'ยืนยันการบันทึกข้อมูล?',
+                        //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+                        //type: 'warning',
+                        title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+                        icon: 'warning',
+                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+                        showCancelButton: true,
+                        //showDenyButton: true,
+                        confirmButtonColor: '#04B431',
+                        confirmButtonText: 'บันทึก',
+                        cancelButtonColor: '#D33',
+                        cancelButtonText: "ยกเลิก",
+                        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                        //denyButtonColor: '#D33',
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            denyButton: 'btn btn-warning ml-1',
+                            cancelButton: 'btn btn-danger ml-1'
+                        },
+                        buttonsStyling: false,
+                        focusConfirm: true
+                    }).then(function (result) {
+                        if (result.value) {
+                            /*$("#frmTransferItem").submit();*/
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '/Item/SaveDraftTransaferItem',
+                                data: data,
+                                contentType: 'application/json',
+                                success: function (data) {
+                                    if (data.result) {
+                                        //popup.dialog('close');
+                                        ShowMessageSuccess(data.msg);
+                                        dataTable.ajax.reload();
+
+                                        $("#sbarcode").val('');
+                                        ResetForm();
+                                    }
+                                    else {
+                                        AlertError(data.msg);
+                                    }
+                                }
+                            });
                         }
                         else if (result.dismiss === Swal.DismissReason.cancel) {
                             //Code
@@ -482,6 +573,7 @@ function OnSuccess(data) {
         ShowMessageSuccess(data.msg);
         AlertSuccess(data.msg);
         ResetForm();
+        ResetDataTable();
     }
     else {
         ShowMessageError(data.msg);
@@ -489,8 +581,6 @@ function OnSuccess(data) {
 }
 
 function ResetForm() {
-    //Reset Repeater
-    $('.outer-item-group').empty();
 
     //Reset form
     $('#frmTransferItem')[0].reset(); // [0] gets the DOM element from the jQuery object
@@ -505,4 +595,10 @@ function ResetForm() {
     $("#destination_branchid").empty();
     var destination_option = new Option("--เลือกสาขาปลายทาง--", "", true, true);
     $("#destination_branchid").append(destination_option).trigger('change');
+}
+
+function ResetDataTable() {
+    $('#tbItems').dataTable().fnClearTable();
+    $('#tbItems').dataTable().fnDraw();
+    $('#tbItems').dataTable().fnDestroy();
 }

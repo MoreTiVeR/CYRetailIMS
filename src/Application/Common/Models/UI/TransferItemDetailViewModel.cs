@@ -25,24 +25,8 @@ public class TransferItemDetailViewModel
     [Required(ErrorMessage = "Required field")]
     public string sbarcode { get; set; }
 
-    private int _nqty { get; set; }
-
     [Required(ErrorMessage = "Required field")]
-    public int nqty
-    {
-        get
-        {
-            if (_nqty == 0)
-            {
-                _nqty = 1;
-            }
-            return _nqty;
-        }
-        set
-        {
-            _nqty = value;
-        }
-    }
+    public int nqty { get; set; }
 
     //[Required(ErrorMessage = "*กรุณาระบุราคาสินค้า")]
     [DisplayName("ราคาสินค้า")]

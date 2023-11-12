@@ -24,7 +24,7 @@ $("#btnSave").on('click', function () {
     }
     else {
         var data = $($("#frmTransferItem")).serializeJSON();
-        $.post("ItemDataValidation", { data }).then(
+        $.post("ItemTransferDataValidation", { data }).then(
             function (results) {
 
                 if (results.result) {

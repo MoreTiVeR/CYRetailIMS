@@ -63,7 +63,7 @@ public class EditItemViewModel
 
     //[Required(ErrorMessage = "*กรุณาระบุชื่อย่อสินค้า")]
     [DisplayName("ระบุบาร์โค้ดสินค้า")]
-    public string BarCode { get; set; }
+    public string? BarCode { get; set; }
 
     public string? BarCodeBase64 { get; set; }
 

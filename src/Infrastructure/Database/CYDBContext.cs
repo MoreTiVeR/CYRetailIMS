@@ -112,8 +112,10 @@ public partial class CYDBContext : DbContext
 
 	public virtual DbSet<TMTransportPrefixDetail> TMTransportPrefixDetails { get; set; }
 
+    public virtual DbSet<TTDraftItemTransfer> TTDraftItemTransfers { get; set; }
 
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
     }
@@ -489,8 +491,15 @@ public partial class CYDBContext : DbContext
 				.HasConstraintName("FK_TMTransportPrefixDetail_TMTransportCompany");
 		});
 
+        modelBuilder.Entity<TTDraftItemTransfer>(entity =>
+        {
+            entity.Property(e => e.DestinationID).HasComment("WarehouseID, BranchID ปลายทาง");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+            entity.Property(e => e.SourceID).HasComment("WarehouseID, BranchID ต้นทาง");
+            entity.Property(e => e.TransferTypeID).HasComment("Ref TMTransferType");
+        });
 
-		OnModelCreatingPartial(modelBuilder);
+        OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

@@ -163,6 +163,12 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> BarcodeTransferAsync()
     {
+        //TransferItemViewModel transferItemViewModel = new TransferItemViewModel();
+        //transferItemViewModel.transfertypeid = 1;
+        //transferItemViewModel.source_branchid = "1";
+        //transferItemViewModel.destination_branchid = "28";
+
+
         #region Get- Set Item
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
         #endregion
@@ -299,15 +305,62 @@ public class ItemController : BaseController
     }
 
     [HttpPost]
-    public IActionResult SaveBarcodeTransaferItem(TransferItemViewModel transferItemObj)
+    public async Task<IActionResult> SaveBarcodeTransaferItemAsync(TransferItemViewModel transferItemObj)
     {
         try
         {
-            if (!ModelState.IsValid)
+            List<TransferItemDetailViewModel> tempList = HttpContext.Session.GetDataFromSession<List<TransferItemDetailViewModel>>(_sessionTempTransferItemName);
+            if(tempList == null || tempList?.Count == 0)
             {
                 return Json(new { result = false, msg = "ข้อมูลไม่ถูกต้อง, กรุณาตรวจสอบข้อมูลใหม่อีกครั้ง!" });
             }
+            List<CreateItemTransferDetailCommand> itemTransferList = tempList.Select(s => new CreateItemTransferDetailCommand
+            {
+                itemid = s.nitemid,
+                qty = s.nqty
+            }).ToList();
+            CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(transferItemObj, itemTransferList);
+            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            }
 
+            //Clear TEMP_TRANSFER_ITEM_DATA
+            HttpContext.Session.Remove(_sessionTempTransferItemName);
+            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย มีบางอย่างผิดพลาด, กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveDraftTransaferItemAsync([FromBody] DraftTransferItemViewModel transferItemObj)
+    {
+        try
+        {
+
+            List<TransferItemDetailViewModel> tempList = HttpContext.Session.GetDataFromSession<List<TransferItemDetailViewModel>>(_sessionTempTransferItemName);
+            if (tempList == null || tempList?.Count == 0)
+            {
+                return Json(new { result = false, msg = "ข้อมูลไม่ถูกต้อง, กรุณาตรวจสอบข้อมูลใหม่อีกครั้ง!" });
+            }
+            List<CreateItemTransferDetailCommand> itemTransferList = tempList.Select(s => new CreateItemTransferDetailCommand
+            {
+                itemid = s.nitemid,
+                qty = s.nqty
+            }).ToList();
+            CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(transferItemObj, itemTransferList);
+            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            }
+
+            //Clear TEMP_TRANSFER_ITEM_DATA
+            HttpContext.Session.Remove(_sessionTempTransferItemName);
             return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
         }
         catch (Exception ex)
@@ -1091,6 +1144,22 @@ public class ItemController : BaseController
         };
     }
 
+    private CreateItemTransferCommand CreateItemTransferCommand(DraftTransferItemViewModel reqObj, List<CreateItemTransferDetailCommand> itemsTransfer)
+    {
+        return new CreateItemTransferCommand
+        {
+            transfertypeid = reqObj.transfertypeid,
+            sourceid = reqObj.source_branchid.ToInt32(),
+            destinationid = reqObj.destination_branchid.ToInt32(),
+            description = reqObj.description,
+            createdby = base.UserProfile.username,
+            createddate = DateTime.Now,
+            transferstatus = (int)TransferStatus.Pending,
+            isactive = true,
+            items = itemsTransfer
+        };
+    }
+
     private BaseResponse<bool> ValidateQTYItemTransfer(ReceiveTransferItemViewModel viewModel)
     {
         if (viewModel.QTY == 0)
@@ -1176,7 +1245,7 @@ public class ItemController : BaseController
                 if (existData != null)
                 {
                     //Update QTY
-                    tempTransferItemList.Where(w => w.nitemid == transferItemData.nitemid).ForEach(e =>
+                    tempTransferItemList.Where(w => w.sbarcode == transferItemData.sbarcode).ForEach(e =>
                     {
                         e.nqty = e.nqty + transferItemData.nqty;
                     });
@@ -1292,7 +1361,6 @@ public class ItemController : BaseController
             return Json(new { result = true, msg = $"ขออภัย, มีบางอย่างผิดพลาด!. {ex.Message}" });
         }
     }
-
 
     private void MappingTransferItem(ref TransferItemDetailViewModel transferItemData)
     {

@@ -54,7 +54,7 @@ public class AddItemViewModel
 
     //[Required(ErrorMessage = "*กรุณาระบุชื่อย่อสินค้า")]
     [DisplayName("ระบุบาร์โค้ดสินค้า")]
-    public string BarCode { get; set; }
+    public string? BarCode { get; set; }
 
     //[Required(ErrorMessage = "*กรุณาระบุชื่อย่อสินค้า")]
     public string ItemImageUrl { get; set; }
