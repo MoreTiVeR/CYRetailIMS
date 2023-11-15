@@ -31,7 +31,7 @@ $("#btnSave").on('click', function () {
     }
     else {
         var data = $($("#frmTransferItem")).serializeJSON();
-        $.post("ItemTransferDataValidation", { data }).then(
+        $.post("ItemTransferBarcodeDataValidation", { data }).then(
             function (results) {
 
                 if (results.result) {

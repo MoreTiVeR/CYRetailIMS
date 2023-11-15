@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
@@ -24,4 +25,6 @@ public interface IReportAPI
     Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByTransIDAsync(int transactionid);
 
     Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByBranchAsync(SaleSummaryReportByBranchQuery summaryReportByBranchQuery);
+
+    Task<BaseResponse<List<ItemTransactionLogReportResponseDTO>>> GetItemTransactionLogReportAsync(ItemTransactionLogReportQuery logReportQuery);
 }

@@ -41,6 +41,7 @@ public class CreateItemMappingProfile : Profile
 	        .ForMember(m => m.Price, f => f.MapFrom(x => x.price))
 	        .ForMember(m => m.Qty, f => f.MapFrom(x => x.qty))
 	        .ForMember(m => m.NotifyMinQty, f => f.MapFrom(x => x.notifyminqty))
+            .ForMember(m => m.NotifyMaxQty, f => f.MapFrom(x => x.notifymaxqty))
 	        .ForMember(m => m.DiscountPercent, f => f.MapFrom(x => x.discountpercent))
 	        .ForMember(m => m.ItemImageUrl, f => f.MapFrom(x => !string.IsNullOrEmpty(x.itemimageurl) ? x.itemimageurl : "../assets/img/product/noimage.png"))
 	        .ForMember(m => m.CreatedBy, f => f.MapFrom(x => x.createdby))

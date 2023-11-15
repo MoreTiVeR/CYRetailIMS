@@ -51,6 +51,8 @@ public partial class TMItem : BaseAuditableEntity
 
     public int NotifyMinQty { get; set; }
 
+    public int? NotifyMaxQty { get; set; }
+
     [Unicode(false)]
     public string? ItemImageUrl { get; set; }
 

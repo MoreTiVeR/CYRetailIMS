@@ -501,16 +501,33 @@ public class ItemController : BaseController
     [HttpPost]
     public async Task<JsonResult> SearchItemByBranch(int branchid)
     {
+        List<GetItemListResponseDTO> resItemList = null;
         try
         {
-            BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItem = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
-            if (!resItem.result)
+            if (branchid == 1)
             {
-                throw new Exception(resItem.error.error.message);
+                //สินค้าคลังใหญ่
+                BaseResponse<List<GetItemListResponseDTO>> resItem = await _itemAPI.GetItemListAsync();
+                if (!resItem.result)
+                {
+                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
+                }
+                resItemList = resItem.data;
+
             }
-            //Mapping Data
-            List<GetItemListResponseDTO> resData = _mapper.Map<List<GetItemListResponseDTO>>(resItem.data.itemlist);
-            resData.ForEach(s =>
+            else
+            {
+                //สินค้าคลังสาขา
+                BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
+                if (!resItemInBranch.result)
+                {
+                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
+                }
+                //Mapping Data
+                resItemList = _mapper.Map<List<GetItemListResponseDTO>>(resItemInBranch.data.itemlist);
+            }
+
+            resItemList.ForEach(s =>
             {
                 if (branchid == 1)
                 {
@@ -524,11 +541,34 @@ public class ItemController : BaseController
                 }
 
             });
-            return Json(new { result = true, data = resData, message = "สำเร็จ" });
+            return Json(new { result = true, data = resItemList, message = "สำเร็จ" });
+
+            //BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItem = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
+            //if (!resItem.result)
+            //{
+            //    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
+            //}
+            ////Mapping Data
+            //List<GetItemListResponseDTO> resData = _mapper.Map<List<GetItemListResponseDTO>>(resItem.data.itemlist);
+            //resData.ForEach(s =>
+            //{
+            //    if (branchid == 1)
+            //    {
+            //        s.isiteminbranch = false;
+            //        s.searchbranchid = branchid;
+            //    }
+            //    else
+            //    {
+            //        s.isiteminbranch = true;
+            //        s.searchbranchid = branchid;
+            //    }
+
+            //});
+            //return Json(new { result = true, data = resData, message = "สำเร็จ" });
         }
         catch (Exception ex)
         {
-            return Json(new { result = false, message = $"ไม่สามารถดึงข้อมูลสินค้าได้. {ex.Message}" });
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}" });
         }
     }
 
@@ -569,7 +609,7 @@ public class ItemController : BaseController
                 BaseResponse<List<GetItemListResponseDTO>> resItem = await _itemAPI.GetItemListAsync();
                 if (!resItem.result)
                 {
-                    throw new Exception(resItem.error.error.message);
+                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
                 }
                 resItemList = resItem.data;
 
@@ -580,7 +620,7 @@ public class ItemController : BaseController
                 BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
                 if (!resItemInBranch.result)
                 {
-                    throw new Exception(resItemInBranch.error.error.message);
+                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
                 }
                 //Mapping Data
                 resItemList = _mapper.Map<List<GetItemListResponseDTO>>(resItemInBranch.data.itemlist);
@@ -1342,7 +1382,7 @@ public class ItemController : BaseController
     /// <param name="transferItemObj"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<IActionResult> ItemTransferDataValidation(TransferItemViewModel transferItemObj)
+    public async Task<IActionResult> ItemTransferBarcodeDataValidation(TransferItemViewModel transferItemObj)
     {
         try
         {
@@ -1359,6 +1399,39 @@ public class ItemController : BaseController
         catch (Exception ex)
         {
             return Json(new { result = true, msg = $"ขออภัย, มีบางอย่างผิดพลาด!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ItemTransferDataValidation(TransferItemViewModel transferItemObj)
+    {
+        try
+        {
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("data[outer-item-group]")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            #region Validate Selling Item
+            bool isValidData = form.Where(w => w.Key.Contains("data[outer-item-group]")).Any(w => !string.IsNullOrEmpty(w.Value[0]));
+            if (!isValidData)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            return Json(new { result = true, msg = "ตรวจสอบข้อมูลถูกต้อง." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = true, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
         }
     }
 

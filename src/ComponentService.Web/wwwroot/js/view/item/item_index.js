@@ -157,7 +157,7 @@ $("#btnSearch").on('click', function (event) {
                 $("#tbItems").DataTable().clear().rows.add(response.data).draw();
             }
             else {
-                AlertError(response.message);
+                AlertErrorNoTitle(response.message);
             }
 
         },

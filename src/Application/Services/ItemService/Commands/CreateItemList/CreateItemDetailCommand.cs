@@ -43,10 +43,12 @@ public record CreateItemDetailCommand
 	[Required]
 	public int notifyminqty { get; set; }
 
-	/// <summary>
-	/// Item image path
-	/// </summary>
-	public string itemimageurl { get; init; }
+    public int? notifymaxqty { get; set; }
+
+    /// <summary>
+    /// Item image path
+    /// </summary>
+    public string itemimageurl { get; init; }
 
 	[Required]
 	public string createdby { get; init; }

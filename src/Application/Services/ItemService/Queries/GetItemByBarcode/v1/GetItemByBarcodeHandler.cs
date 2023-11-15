@@ -47,6 +47,7 @@ public class GetItemByBarcodeHandler : BaseService, IRequestHandler<GetItemByBar
                                                            price = a.Price,
                                                            qty = a.Qty,
                                                            notifyminqty = a.NotifyMinQty,
+                                                           notifymaxqty = a.NotifyMaxQty,
                                                            createdby = jUser != null ? jUser.FirstName : "N/A",
                                                            createddate = a.CreatedDate,
                                                            cost = a.Cost,

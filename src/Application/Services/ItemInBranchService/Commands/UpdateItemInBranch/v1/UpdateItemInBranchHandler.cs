@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
 using CYRetailIMS.Domain.Events.TMUserInBranchs;
+using CYRetailIMS.Domain.Events.TTItemTransactionLogs;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -30,6 +31,22 @@ public class UpdateItemInBranchHandler : BaseService, IRequestHandler<UpdateItem
 
         resItemInBranch.ToList().ForEach(e =>
         {
+            //Price change -> insert TTItemTransactionLogs
+            if (e.Price != request.price)
+            {
+                TTItemTransactionLog itemTransactionLog = new TTItemTransactionLog
+                {
+                    ItemID = e.ItemID,
+                    BranchID = e.BranchID,
+                    OldPrice = e.Price,
+                    NewPrice = request.price
+                };
+                itemTransactionLog.SetCreatedBy(request.updatedby);
+                itemTransactionLog.SetCreatedDate();
+                itemTransactionLog.AddDomainEvent(new TTItemTransactionLogCreateEvent(itemTransactionLog));
+                _unitOfWork.Repository<TTItemTransactionLog>().Add(itemTransactionLog);
+            }
+
             e.Price = request.price;
             e.Qty = request.qty;
             e.SetUpdatedBy(request.updatedby);
@@ -37,6 +54,7 @@ public class UpdateItemInBranchHandler : BaseService, IRequestHandler<UpdateItem
             //e.IsActive = request.isactive;
             e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
         });
+
         await _unitOfWork.SaveChangesAsync();
         return new BaseResponse<CommandResponse>
         {

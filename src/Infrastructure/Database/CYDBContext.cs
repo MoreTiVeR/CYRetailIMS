@@ -114,6 +114,8 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTDraftItemTransfer> TTDraftItemTransfers { get; set; }
 
+    public virtual DbSet<TTItemTransactionLog> TTItemTransactionLogs { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -497,6 +499,11 @@ public partial class CYDBContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
             entity.Property(e => e.SourceID).HasComment("WarehouseID, BranchID ต้นทาง");
             entity.Property(e => e.TransferTypeID).HasComment("Ref TMTransferType");
+        });
+
+        modelBuilder.Entity<TTItemTransactionLog>(entity =>
+        {
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
         OnModelCreatingPartial(modelBuilder);

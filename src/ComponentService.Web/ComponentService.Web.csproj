@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>1.0.17.0</Version>
-    <FileVersion>1.0.17.0</FileVersion>
-    <AssemblyVersion>1.0.17.0</AssemblyVersion>
+    <Version>1.0.18.0</Version>
+    <FileVersion>1.0.18.0</FileVersion>
+    <AssemblyVersion>1.0.18.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,6 +46,7 @@
 
   <ItemGroup>
     <Folder Include="Common\Mappings\" />
+    <Folder Include="Libraries\" />
     <Folder Include="Views\Home\_PartialPage\" />
     <Folder Include="Views\Report\_PartialPage\" />
     <Folder Include="Views\Setting\_SettingPartailPage\" />
@@ -55,6 +56,46 @@
 
   <ItemGroup>
     <None Include="bundleconfig.json" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\export-csv\export-csv.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\highcharts-export-clientside\.gitignore" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\highcharts-export-clientside\highcharts-export-clientside.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\highcharts-export-clientside\LICENSE" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\highcharts-export-clientside\README.md" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\adapters\standalone-framework.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\adapters\standalone-framework.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts-3d.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts-3d.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts-all.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts-export-clientside.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts-more.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts-more.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\highcharts.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\canvas-tools.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\canvas-tools.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\data.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\data.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\drilldown.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\drilldown.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\exporting.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\exporting.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\funnel.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\funnel.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\heatmap.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\heatmap.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\jspdf.min.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\no-data-to-display.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\no-data-to-display.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\solid-gauge.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\modules\solid-gauge.src.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\dark-blue.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\dark-green.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\dark-unica.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\gray.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\grid-light.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\grid.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\sand-signika.js" />
+    <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\js\themes\skies.js" />
     <None Include="wwwroot\assets\plugins\icons\weather\fonts\weathericons-regular-webfont.woff2" />
     <None Include="wwwroot\assets\plugins\pickers\daterange\daterangepicker.js" />
     <None Include="wwwroot\assets\plugins\pickers\dateTime\pick-a-datetime.js" />

@@ -73,16 +73,18 @@ public class AccountController : BaseController
             {
                 #region Set Profile
                 UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);
-                base.UserProfile = userProfile;
+
+				#region Set Defaul Page by Role
+				defaultPage = GetDefaultPageByRole(userProfile.roleid);
+                userProfile.homepage_url = defaultPage;
+				#endregion
+
+				//Set profile session
+				base.UserProfile = userProfile;
                 var principal = CreatePrincipal(userProfile);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                 #endregion
-
-                #region Set Defaul Page by Role
-                defaultPage = GetDefaultPageByRole(userProfile.roleid);
-				#endregion
-
-				return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = defaultPage });
+                return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = defaultPage });
             }
             return Json(new JsonViewModel { result = resLogin.result, message = resLogin.error.error.message });
         }

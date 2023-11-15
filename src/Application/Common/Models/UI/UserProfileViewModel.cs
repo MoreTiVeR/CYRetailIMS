@@ -8,5 +8,5 @@ using CYRetailIMS.Application.Services.AccountService.Queries.Login.v1;
 namespace CYRetailIMS.Application.Common.Models.UI;
 public class UserProfileViewModel : UserProfileResponseDTO
 {
-
+    public string homepage_url { get; set; }
 }

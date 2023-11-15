@@ -146,6 +146,17 @@ function AlertError(msg) {
     });
 }
 
+function AlertErrorNoTitle(msg) {
+    Swal.fire({
+        html: "<span class='text-danger'>" + msg + "</span>",
+        icon: "error",
+        type: "error",
+        confirmButtonText: 'ปิดหน้าต่าง',
+        confirmButtonClass: 'btn btn-primary',
+        buttonsStyling: false,
+    });
+}
+
 function InitialCharacterRemaining() {
     $('textarea').charactersRemaining();
     $('textarea').charactersRemaining({

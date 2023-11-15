@@ -36,6 +36,8 @@ public class UpdateItemCommand : IRequest<BaseResponse<CommandResponse>>
     [Required]
     public int notifyqty { get; init; }
 
+    public int? notifymaxqty { get; init; }
+
     /// <summary>
     /// Item image path
     /// </summary>

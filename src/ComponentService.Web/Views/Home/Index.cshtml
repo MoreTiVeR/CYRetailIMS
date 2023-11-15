@@ -1,221 +1,294 @@
-﻿
+﻿@*@using DotNet.Highcharts;
+@model Highcharts*@
+
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    /*Fix width select2*/
+    .select2-container {
+        min-width: 12em !important;
+    }
+</style>
+
+<!--ROW1-->
 <div class="row">
-	<div class="col-lg-3 col-sm-6 col-12">
-		<div class="dash-widget">
-			<div class="dash-widgetimg">
-				<span><img src="../assets/img/icons/dash1.svg" alt="img"></span>
-			</div>
-			<div class="dash-widgetcontent">
-				<h5>$<span class="counters" data-count="307144.00">$307,144.00</span></h5>
-				<h6>Total Purchase Due</h6>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-sm-6 col-12">
-		<div class="dash-widget dash1">
-			<div class="dash-widgetimg">
-				<span><img src="../assets/img/icons/dash2.svg" alt="img"></span>
-			</div>
-			<div class="dash-widgetcontent">
-				<h5>$<span class="counters" data-count="4385.00">$4,385.00</span></h5>
-				<h6>Total Sales Due</h6>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-sm-6 col-12">
-		<div class="dash-widget dash2">
-			<div class="dash-widgetimg">
-				<span><img src="../assets/img/icons/dash3.svg" alt="img"></span>
-			</div>
-			<div class="dash-widgetcontent">
-				<h5>$<span class="counters" data-count="385656.50">385,656.50</span></h5>
-				<h6>Total Sale Amount</h6>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-sm-6 col-12">
-		<div class="dash-widget dash3">
-			<div class="dash-widgetimg">
-				<span><img src="../assets/img/icons/dash4.svg" alt="img"></span>
-			</div>
-			<div class="dash-widgetcontent">
-				<h5>$<span class="counters" data-count="40000.00">400.00</span></h5>
-				<h6>Total Sale Amount</h6>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-sm-6 col-12 d-flex">
-		<div class="dash-count">
-			<div class="dash-counts">
-				<h4>100</h4>
-				<h5>Customers</h5>
-			</div>
-			<div class="dash-imgs">
-				<i data-feather="user"></i>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-sm-6 col-12 d-flex">
-		<div class="dash-count das1">
-			<div class="dash-counts">
-				<h4>100</h4>
-				<h5>Suppliers</h5>
-			</div>
-			<div class="dash-imgs">
-				<i data-feather="user-check"></i>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-sm-6 col-12 d-flex">
-		<div class="dash-count das2">
-			<div class="dash-counts">
-				<h4>100</h4>
-				<h5>Purchase Invoice</h5>
-			</div>
-			<div class="dash-imgs">
-				<i data-feather="file-text"></i>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-sm-6 col-12 d-flex">
-		<div class="dash-count das3">
-			<div class="dash-counts">
-				<h4>105</h4>
-				<h5>Sales Invoice</h5>
-			</div>
-			<div class="dash-imgs">
-				<i data-feather="file"></i>
-			</div>
-		</div>
-	</div>
+    <div class="col-lg-12 col-sm-12 col-12 d-flex">
+        <div class="card flex-fill">
+            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">กราฟแสดงยอดขายประจำเดือนแยกตามสาขาประจำปี @(DateTime.Now.ToString("yyyy"))</h4>
+                <div class="graph-sets">
+                    <div class="col-4">
+                        <select name="ddl-source-month" class="ddl-select2 select2 ddl-source-month ms-2">
+                            <option value="" selected>- กราฟประจำเดือน -</option>
+                            <option value="1">มกราคม</option>
+                            <option value="2">กุมภาพันธ์</option>
+                            <option value="3">มีนาคม</option>
+                            <option value="4">เมษายน</option>
+                            <option value="5">พฤษภาคม</option>
+                            <option value="6">มิถุนายน</option>
+                            <option value="7">กรกฎาคม</option>
+                            <option value="8">สิงหาคม</option>
+                            <option value="9">กันยายน</option>
+                            <option value="10">ตุลาคม</option>
+                            <option value="11">พฤศจิกายน</option>
+                            <option value="12">ธันวาคม</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="container"></div>
+                @*@if (ViewBag.PieChart != null && ViewBag.PieChart.result)
+                {
+                @((DotNet.Highcharts.Highcharts)ViewBag.PieChart.data)
+                }
+                else
+                {
+                <label>ไม่พบข้อมูล</label>
+                }*@
+                <div id="divEmptyData" style="text-align:center" hidden><label>ไม่พบข้อมูล</label></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--ROW2-->
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-12 d-flex">
+        <div class="card flex-fill">
+            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">กราฟแสดงยอดขายรวมประจำปี @(DateTime.Now.ToString("yyyy"))</h4>
+            </div>
+            <div class="card-body">
+                <div id="container2"></div>
+                <div id="divEmptyData2" style="text-align:center" hidden><label>ไม่พบข้อมูล</label></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--ROW3-->
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-12 d-flex">
+        <div class="card flex-fill">
+            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">กราฟแสดงสัดส่วนยอดขายสินค้า ณ เดือนปัจจุบัน</h4>
+            </div>
+            <div class="card-body">
+                <div id="container3"></div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- Button trigger modal -->
-
-<div class="row">
-	<div class="col-lg-7 col-sm-12 col-12 d-flex">
-		<div class="card flex-fill">
-			<div class="card-header pb-0 d-flex justify-content-between align-items-center">
-				<h5 class="card-title mb-0">Purchase & Sales</h5>
-				<div class="graph-sets">
-					<ul>
-						<li>
-							<span>Sales</span>
-						</li>
-						<li>
-							<span>Purchase</span>
-						</li>
-					</ul>
-					<div class="dropdown">
-						<button class="btn btn-white btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-							2022 <img src="../assets/img/icons/dropdown.svg" alt="img" class="ms-2">
-						</button>
-						<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-							<li>
-								<a href="javascript:void(0);" class="dropdown-item">2022</a>
-							</li>
-							<li>
-								<a href="javascript:void(0);" class="dropdown-item">2021</a>
-							</li>
-							<li>
-								<a href="javascript:void(0);" class="dropdown-item">2020</a>
-							</li>
-						</ul>
-					</div>
-				</div>
-
-			</div>
-			<div class="card-body">
-				<div id="sales_charts"></div>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-5 col-sm-12 col-12 d-flex">
-		<div class="card flex-fill">
-			<div class="card-header pb-0 d-flex justify-content-between align-items-center">
-				<h4 class="card-title mb-0">Recently Added Products</h4>
-				<div class="dropdown">
-					<a href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false" class="dropset">
-						<i class="fa fa-ellipsis-v"></i>
-					</a>
-					<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<li>
-							<a href="productlist.html" class="dropdown-item">Product List</a>
-						</li>
-						<li>
-							<a href="addproduct.html" class="dropdown-item">Product Add</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div class="card-body">
-				<div class="table-responsive dataview">
-					<table class="table datatable ">
-						<thead>
-							<tr>
-								<th>Sno</th>
-								<th>Products</th>
-								<th>Price</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>1</td>
-								<td class="productimgname">
-									<a href="productlist.html" class="product-img">
-										<img src="../assets/img/product/product22.jpg" alt="product">
-									</a>
-									<a href="productlist.html">Apple Earpods</a>
-								</td>
-								<td>$891.2</td>
-							</tr>
-							<tr>
-								<td>2</td>
-								<td class="productimgname">
-									<a href="productlist.html" class="product-img">
-										<img src="../assets/img/product/product23.jpg" alt="product">
-									</a>
-									<a href="productlist.html">iPhone 11</a>
-								</td>
-								<td>$668.51</td>
-							</tr>
-							<tr>
-								<td>3</td>
-								<td class="productimgname">
-									<a href="productlist.html" class="product-img">
-										<img src="../assets/img/product/product24.jpg" alt="product">
-									</a>
-									<a href="productlist.html">samsung</a>
-								</td>
-								<td>$522.29</td>
-							</tr>
-							<tr>
-								<td>4</td>
-								<td class="productimgname">
-									<a href="productlist.html" class="product-img">
-										<img src="../assets/img/product/product6.jpg" alt="product">
-									</a>
-									<a href="productlist.html">Macbook Pro</a>
-								</td>
-								<td>$291.01</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="card mb-0"></div>
 @section Scripts{
 
-	<script>
-		$(document).ready(function () {
+    @*<script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>*@
 
-		})
-	</script>
+    
+    <!-- Highcharts -->
+    <script src="~/assets/plugins/Highcharts-4.0.1/js/highcharts.js" asp-append-version="true"></script>
+    @*<script src="~/assets/plugins/Highcharts-4.0.1/js/highcharts-all.js" asp-append-version="true"></script>*@
+    <script src="~/assets/plugins/Highcharts-4.0.1/js/modules/drilldown.js" asp-append-version="true"></script>
+
+    <script src="~/assets/plugins/Highcharts-4.0.1/js/modules/exporting.js" asp-append-version="true"></script>
+    <script src="~/assets/plugins/Highcharts-4.0.1/js/modules/canvas-tools.js" asp-append-version="true"></script>
+
+    <!-- Highcharts PDF Export -->
+    <script src="~/assets/plugins/Highcharts-4.0.1/js/modules/jspdf.min.js" asp-append-version="true"></script>
+
+    <!-- Highcharts Export Client-Side module -->
+    <script src="~/assets/plugins/Highcharts-4.0.1/highcharts-export-clientside/highcharts-export-clientside.js" asp-append-version="true"></script>
+
+    <!--Page Script-->
+    <script src="~/js/view/home/home_index.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+            
+            //$('#container2').highcharts({
+            //    chart: {
+            //        type: 'area'
+            //    },
+            //    title: {
+            //        text: 'ยอดขายประจำเดือน xx'
+            //    },
+            //    subtitle: {
+            //        text: 'Source: Wikipedia.org'
+            //    },
+            //    xAxis: {
+            //        categories: ['1750', '1800', '1850', '1900', '1950', '1999', '2050'],
+            //        tickmarkPlacement: 'on',
+            //        title: {
+            //            enabled: false
+            //        }
+            //    },
+            //    yAxis: {
+            //        title: {
+            //            text: 'Billions'
+            //        },
+            //        labels: {
+            //            formatter: function () {
+            //                return this.value / 1000;
+            //            }
+            //        }
+            //    },
+            //    tooltip: {
+            //        shared: true,
+            //        valueSuffix: ' millions'
+            //    },
+            //    plotOptions: {
+            //        area: {
+            //            stacking: 'normal',
+            //            lineColor: '#666666',
+            //            lineWidth: 1,
+            //            marker: {
+            //                lineWidth: 1,
+            //                lineColor: '#666666'
+            //            }
+            //        }
+            //    },
+            //    series: [{
+            //        name: 'Asia',
+            //        data: [502, 635, 809, 947, 1402, 3634, 5268]
+            //    }]
+            //});
+
+            //$('#container2').highcharts({
+            //    chart: {
+            //        type: 'area'
+            //    },
+            //    title: {
+            //        text: 'ยอดขายประจำเดือน xx'
+            //    },
+            //    subtitle: {
+            //        text: 'Source: Wikipedia.org'
+            //    },
+            //    xAxis: {
+            //        categories: ['1750', '1800', '1850', '1900', '1950', '1999', '2050'],
+            //        tickmarkPlacement: 'on',
+            //        title: {
+            //            enabled: false
+            //        }
+            //    },
+            //    yAxis: {
+            //        title: {
+            //            text: 'Billions'
+            //        },
+            //        labels: {
+            //            formatter: function () {
+            //                return this.value / 1000;
+            //            }
+            //        }
+            //    },
+            //    tooltip: {
+            //        shared: true,
+            //        valueSuffix: ' millions'
+            //    },
+            //    plotOptions: {
+            //        area: {
+            //            stacking: 'normal',
+            //            lineColor: '#666666',
+            //            lineWidth: 1,
+            //            marker: {
+            //                lineWidth: 1,
+            //                lineColor: '#666666'
+            //            }
+            //        }
+            //    },
+            //    series: [{
+            //        name: 'Asia',
+            //        data: [502, 635, 809, 947, 1402, 3634, 5268]
+            //    }, {
+            //        name: 'Africa',
+            //        data: [106, 107, 111, 133, 221, 767, 1766]
+            //    }, {
+            //        name: 'Europe',
+            //        data: [163, 203, 276, 408, 547, 729, 628]
+            //    }, {
+            //        name: 'America',
+            //        data: [18, 31, 54, 156, 339, 818, 1201]
+            //    }, {
+            //        name: 'Oceania',
+            //        data: [2, 2, 2, 6, 13, 30, 46]
+            //    }]
+            //});
+
+            $('#container3').highcharts({
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'สัดส่วนการสินค้า'
+                },
+                tooltip: {
+                    valueSuffix: '%'
+                },
+                subtitle: {
+                    text:
+                        ''
+                },
+                plotOptions: {
+                    series: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: [{
+                            enabled: true,
+                            distance: 20
+                        }, {
+                            enabled: true,
+                            distance: -40,
+                            format: '{point.percentage:.1f}%',
+                            style: {
+                                fontSize: '1.2em',
+                                textOutline: 'none',
+                                opacity: 0.7
+                            },
+                            filter: {
+                                operator: '>',
+                                property: 'percentage',
+                                value: 10
+                            }
+                        }]
+                    }
+                },
+                series: [
+                    {
+                        name: 'Percentage',
+                        colorByPoint: true,
+                        data: [
+                            {
+                                name: 'Water',
+                                y: 55.02
+                            },
+                            {
+                                name: 'Fat',
+                                sliced: true,
+                                selected: true,
+                                y: 26.71
+                            },
+                            {
+                                name: 'Carbohydrates',
+                                y: 1.09
+                            },
+                            {
+                                name: 'Protein',
+                                y: 15.5
+                            },
+                            {
+                                name: 'Ash',
+                                y: 1.68
+                            }
+                        ]
+                    }
+                ]
+            });
+
+        })
+    </script>
 }

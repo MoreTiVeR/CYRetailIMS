@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.Report;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
@@ -53,5 +54,16 @@ public class ReportAPI : HttpClientService, IReportAPI
     {
         return await _httpClientRequest.HttpRequestToObject<SaleSummaryReportResponseDTO,
             SaleSummaryReportByBranchQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salesummaryreportbybranch"), summaryReportByBranchQuery);
+    }
+
+    /// <summary>
+    /// รายงานการปรับราคาขายสินค้า
+    /// </summary>
+    /// <param name="logReportQuery"></param>
+    /// <returns></returns>
+    public async Task<BaseResponse<List<ItemTransactionLogReportResponseDTO>>> GetItemTransactionLogReportAsync(ItemTransactionLogReportQuery logReportQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<ItemTransactionLogReportResponseDTO>,
+                    ItemTransactionLogReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/itemtransactionlog"), logReportQuery);
     }
 }

@@ -54,6 +54,7 @@ public class CreateItemListHandler : BaseService, IRequestHandler<CreateItemList
 				e.Cost = reqItem.cost;
 				e.Price = reqItem.price;
 				e.NotifyMinQty = reqItem.notifyminqty;
+				e.NotifyMaxQty = reqItem.notifymaxqty;
 				e.Description = reqItem.description;
 				e.SetUpdatedBy(createdBy);
 				e.SetUpdatedDate(createdDate);

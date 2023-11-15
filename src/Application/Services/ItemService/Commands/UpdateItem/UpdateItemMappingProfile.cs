@@ -19,6 +19,7 @@ public class UpdateItemMappingProfile : Profile
             .ForMember(x => x.ItemImageUrl, f => f.MapFrom(ff => ff.itemimageurl))
             .ForMember(x => x.Qty, f => f.MapFrom(ff => ff.qty))
             .ForMember(x => x.NotifyMinQty, f => f.MapFrom(ff => ff.notifyqty))
+            .ForMember(x => x.NotifyMaxQty, f => f.MapFrom(ff => ff.notifymaxqty))
             .ForMember(x => x.DiscountPercent, f => f.MapFrom(ff => ff.discountpercent));
     }
 }

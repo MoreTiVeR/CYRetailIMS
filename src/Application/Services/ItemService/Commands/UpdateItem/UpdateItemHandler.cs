@@ -9,6 +9,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItems;
+using CYRetailIMS.Domain.Events.TTItemTransactionLogs;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -32,6 +33,21 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
             throw new Exception("ไม่พบข้อมูลสินค้าในระบบ");
         }
 
+        //Price change -> insert TTItemTransactionLogs
+        if (itemEnt.Price != request.price)
+        {
+            TTItemTransactionLog itemTransactionLog = new TTItemTransactionLog
+            {
+                ItemID = itemEnt.ItemID,
+                BranchID = 1, //สำนักงานใหญ่
+                OldPrice = itemEnt.Price,
+                NewPrice = request.price
+            };
+            itemTransactionLog.SetCreatedBy(request.updatedby);
+            itemTransactionLog.SetCreatedDate();
+            itemTransactionLog.AddDomainEvent(new TTItemTransactionLogCreateEvent(itemTransactionLog));
+            _unitOfWork.Repository<TTItemTransactionLog>().Add(itemTransactionLog);
+        }
         #region Update
         //itemEnt = _mapper.Map<TMItem>(request);
         itemEnt.Name = request.name;
@@ -41,12 +57,12 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
         itemEnt.Price = request.price;
         itemEnt.Qty = request.qty;
         itemEnt.NotifyMinQty = request.notifyqty;
+        itemEnt.NotifyMaxQty = request.notifymaxqty;
         itemEnt.DiscountPercent = request.discountpercent;
         itemEnt.ItemImageUrl = !string.IsNullOrEmpty(request.itemimageurl) ? request.itemimageurl : null;
         itemEnt.SetUpdatedBy(request.updatedby);
         itemEnt.SetUpdatedDate();
         #endregion
-
 
         itemEnt.AddDomainEvent(new TMItemUpdateEvent(itemEnt));
         await _unitOfWork.SaveChangesAsync();

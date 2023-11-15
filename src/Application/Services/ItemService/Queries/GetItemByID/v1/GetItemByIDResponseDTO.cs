@@ -52,6 +52,8 @@ public class GetItemByIDResponseDTO
     /// </summary>
     public int notifyminqty { get; set; }
 
+    public int? notifymaxqty { get; set; }
+
     public double discountpercent { get; init; }
 
     public string createdby { get; set; }
