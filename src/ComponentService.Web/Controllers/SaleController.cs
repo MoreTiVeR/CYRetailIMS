@@ -353,7 +353,7 @@ public class SaleController : BaseController
             {
                 branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
                 itemid = delItemObj.itemid,
-                updatedby = base.UserProfile.rolename,
+                updatedby = base.UserProfile.username,
                 updateddate = DateTime.Now
             });
             if (resDeleteItem.result)
@@ -399,7 +399,7 @@ public class SaleController : BaseController
             //isactive = reqData.IsActive.ToBool(),
             price = reqData.Price,
             qty = reqData.Qty,
-            updatedby = base.UserProfile.rolename,
+            updatedby = base.UserProfile.username,
             updateddate = DateTime.Now
         };
     }

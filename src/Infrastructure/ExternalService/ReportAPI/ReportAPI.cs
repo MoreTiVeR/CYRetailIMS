@@ -8,6 +8,8 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.Report;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
@@ -65,5 +67,18 @@ public class ReportAPI : HttpClientService, IReportAPI
     {
         return await _httpClientRequest.HttpRequestToObject<List<ItemTransactionLogReportResponseDTO>,
                     ItemTransactionLogReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/itemtransactionlog"), logReportQuery);
+    }
+
+
+    public async Task<BaseResponse<List<AvailableStockReportResponseDTO>>> GetAvailableItemStockReportAsync(AvailableStockReportQuery availableStockReportQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<AvailableStockReportResponseDTO>,
+                    AvailableStockReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/availableitemstock"), availableStockReportQuery);
+    }
+
+    public async Task<BaseResponse<List<AvailableStockReportResponseDTO>>> GetAvailableItemStockByBranchReportAsync(AvailableStockByBrachReportQuery availableStockByBrachReportQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<AvailableStockReportResponseDTO>,
+                    AvailableStockByBrachReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/availableitemstockinbranch"), availableStockByBrachReportQuery);
     }
 }

@@ -8,6 +8,8 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportBy
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -122,7 +124,7 @@ public class ReportController : BaseApiController
 
 
     /// <summary>
-    /// ดึงข้อมูลรายงาน การปรับราคาสินค้า
+    /// รายงาน การปรับราคาสินค้า
     /// </summary>
     /// <param name="itemTransactionLogQuery"></param>
     /// <returns></returns>
@@ -139,6 +141,50 @@ public class ReportController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]ItemTransactionLogReportAsync Success");
+        return Ok(res.data);
+    }
+
+    /// <summary>
+    /// รายงาน สต๊อกขั้นต่ำ
+    /// แสดงสต๊อกที่เหลือน้อยกว่าขั้นต่ำ ให้แสดงสต๊อกขั้นต่ำ, สต๊อกสูงสุดด้วย
+    /// </summary>
+    /// <param name="itemTransactionLogQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/availableitemstock")]
+    [ProducesResponseType(typeof(List<AvailableStockReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AvailableItemInStockReportAsync(AvailableStockReportQuery availableStockReportQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<AvailableStockReportResponseDTO>> res = await Mediator.Send(availableStockReportQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]AvailableItemInStockReportAsync Success");
+        return Ok(res.data);
+    }
+
+    /// <summary>
+    /// รายงาน สต๊อกขั้นต่ำ
+    /// แสดงสต๊อกที่เหลือน้อยกว่าขั้นต่ำ ให้แสดงสต๊อกขั้นต่ำ, สต๊อกสูงสุดด้วย
+    /// </summary>
+    /// <param name="availableStockByBrachQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/availableitemstockinbranch")]
+    [ProducesResponseType(typeof(List<AvailableStockReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AvailableItemInStockByBrachReportAsync(AvailableStockByBrachReportQuery availableStockByBrachQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<AvailableStockReportResponseDTO>> res = await Mediator.Send(availableStockByBrachQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]AvailableItemInStockByBrachReportAsync Success");
         return Ok(res.data);
     }
 

@@ -105,7 +105,7 @@ public class SupplierManagementController : BaseController
             DeleteSupplierCommand deleteSupplierCommand = new DeleteSupplierCommand
             {
                 supplierid = deleteSupplierView.supplierid,
-                deleteddby = base.UserProfile.rolename,
+                deleteddby = base.UserProfile.username,
                 deleteddate = DateTime.Now
             };
             var res = await _supplierAPI.DeleteSupplierAsync(deleteSupplierCommand);

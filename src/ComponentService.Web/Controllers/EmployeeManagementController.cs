@@ -93,7 +93,7 @@ public class EmployeeManagementController : BaseController
     {
         try
         {
-            DeleteEmployeeCommand delEmpCommand = new DeleteEmployeeCommand { empid = delObj.empid, updatedby = base.UserProfile.rolename };
+            DeleteEmployeeCommand delEmpCommand = new DeleteEmployeeCommand { empid = delObj.empid, updatedby = base.UserProfile.username };
             BaseResponse<CommandResponse> resDel = await _employeeAPI.DeleteEmployee(delEmpCommand);
             return Json(new JsonViewModel { result = resDel.result, message = resDel.result ? "ลบข้อมูลพนักงานสำเร็จ" : $"ไม่สามารถทำรายการได้, {resDel.error.error.message}" });
         }
@@ -114,7 +114,7 @@ public class EmployeeManagementController : BaseController
 
     private UpdateEmployeeCommand MappingEmployeeEditData(EditEmployeeViewModel empViewData)
     {
-        empViewData.UpdatedBy = base.UserProfile.rolename;
+        empViewData.UpdatedBy = base.UserProfile.username;
         empViewData.UpdatedDate = DateTime.Now;
         return _mapper.Map<UpdateEmployeeCommand>(empViewData);
     }

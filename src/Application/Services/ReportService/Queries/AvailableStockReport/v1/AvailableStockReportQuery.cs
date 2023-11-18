@@ -11,5 +11,4 @@ namespace CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockR
 [Serializable]
 public record AvailableStockReportQuery : IRequest<BaseResponse<List<AvailableStockReportResponseDTO>>>
 {
-    public int? branchid { get; init; }
 }

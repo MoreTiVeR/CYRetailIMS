@@ -459,7 +459,7 @@ public class ItemController : BaseController
     {
         try
         {
-            DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid, deletedby = base.UserProfile.rolename };
+            DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid, deletedby = base.UserProfile.username };
             BaseResponse<CommandResponse> resDelItem = await _itemAPI.DeleteItemAsync(delItemCommand);
             if (resDelItem.result)
             {
@@ -482,7 +482,7 @@ public class ItemController : BaseController
             {
                 branchid = delItemObj.searchbranchid,
                 itemid = delItemObj.itemid,
-                updatedby = base.UserProfile.rolename,
+                updatedby = base.UserProfile.username,
                 updateddate = DateTime.Now
             };
             BaseResponse<CommandResponse> resDelItem = await _itemInBranchAPI.DeleteItemInBranchAsync(delItemCommand);
@@ -542,29 +542,6 @@ public class ItemController : BaseController
 
             });
             return Json(new { result = true, data = resItemList, message = "สำเร็จ" });
-
-            //BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItem = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchid);
-            //if (!resItem.result)
-            //{
-            //    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
-            //}
-            ////Mapping Data
-            //List<GetItemListResponseDTO> resData = _mapper.Map<List<GetItemListResponseDTO>>(resItem.data.itemlist);
-            //resData.ForEach(s =>
-            //{
-            //    if (branchid == 1)
-            //    {
-            //        s.isiteminbranch = false;
-            //        s.searchbranchid = branchid;
-            //    }
-            //    else
-            //    {
-            //        s.isiteminbranch = true;
-            //        s.searchbranchid = branchid;
-            //    }
-
-            //});
-            //return Json(new { result = true, data = resData, message = "สำเร็จ" });
         }
         catch (Exception ex)
         {
@@ -1048,7 +1025,7 @@ public class ItemController : BaseController
             price = itemViewModel.Price,
             qty = itemViewModel.Qty,
             notifyminqty = itemViewModel.NotifyMinQty,
-            createdby = base.UserProfile.rolename,
+            createdby = base.UserProfile.username,
             isactive = bool.TryParse(itemViewModel.IsActive, out bool isactive) && isactive,
         };
     }
@@ -1102,7 +1079,7 @@ public class ItemController : BaseController
                 price = s.price,
                 qty = s.qty,
                 notifyminqty = s.minqty,
-                createdby = base.UserProfile.rolename,
+                createdby = base.UserProfile.username,
                 isactive = true,
                 discountpercent = 0,
                 isupdate = s.isupdate,
@@ -1133,7 +1110,7 @@ public class ItemController : BaseController
             notifyqty = itemViewModel.NotifyMinQty,
             discountpercent = itemViewModel.DiscountPercent,
             price = itemViewModel.Price,
-            updatedby = base.UserProfile.rolename,
+            updatedby = base.UserProfile.username,
             isactive = bool.TryParse(itemViewModel.IsActive, out bool isactive) && isactive
         };
     }
@@ -1146,7 +1123,7 @@ public class ItemController : BaseController
             itemid = itemViewModel.ItemID,
             price = itemViewModel.Price,
             qty = itemViewModel.Qty,
-            updatedby = base.UserProfile.rolename,
+            updatedby = base.UserProfile.username,
             updateddate = DateTime.Now
         };
     }

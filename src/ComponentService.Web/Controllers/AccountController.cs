@@ -133,7 +133,7 @@ public class AccountController : BaseController
                 case (int)EnumModel.UserRole.Admin:
 					return Url.Action("Index", "Home");
 				case (int)EnumModel.UserRole.Sale:
-					return Url.Action("Items", "Sale");
+					return Url.Action("Index", "Sale");
 				case (int)EnumModel.UserRole.Stock:
 					return Url.Action("Index", "Item");
 				case (int)EnumModel.UserRole.AccountingOfficer:

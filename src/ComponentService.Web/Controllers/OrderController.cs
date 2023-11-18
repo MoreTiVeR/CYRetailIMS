@@ -156,7 +156,7 @@ public class OrderController : BaseController
             DeletePurchaseOrderCommand delItemCommand = new DeletePurchaseOrderCommand
             {
                 purchaseorderid = delPurchaseOrder.purchaseorderid,
-                deletedby = base.UserProfile.rolename,
+                deletedby = base.UserProfile.username,
                 deleteddate = DateTime.Now
             };
             BaseResponse<CommandResponse> resDelItem = await _purchaseOrderAPI.DeletePurchaseOrderAsync(delItemCommand);
@@ -317,7 +317,7 @@ public class OrderController : BaseController
     {
         List<PurchaseOrderItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
 
-        orderViewModel.createdby = base.UserProfile.rolename;
+        orderViewModel.createdby = base.UserProfile.username;
         orderViewModel.createddate = DateTime.Now;
         CreatePurchaseOrderCommand purchaseOrderRequest = new CreatePurchaseOrderCommand
         {
@@ -374,7 +374,7 @@ public class OrderController : BaseController
             isactive = true,
             approvestatus = orderViewModel.approvestatus,
             trackingno = !string.IsNullOrEmpty(orderViewModel.trackingno) ? orderViewModel.trackingno : null,
-            updatedby = base.UserProfile.rolename,
+            updatedby = base.UserProfile.username,
             updateddate = DateTime.Now,
             detail = (from a in tempList
                       select new CreatePurchaseOrderDetailCommand

@@ -118,7 +118,7 @@ public class UserManagementController : BaseController
 	{
 		try
 		{
-			DeleteUserCommand delUserCommand = new DeleteUserCommand { userid = delObj.userid, updatedby = base.UserProfile.rolename };
+			DeleteUserCommand delUserCommand = new DeleteUserCommand { userid = delObj.userid, updatedby = base.UserProfile.username };
 			BaseResponse<CommandResponse> resDel = await _userAPI.DeleteUser(delUserCommand);
 			return Json(new JsonViewModel { result = resDel.result, message = resDel.result ? "ลบข้อมูลผู้ใช้งานสำเร็จ" : $"ไม่สามารถทำรายการได้, {resDel.error.error.message}" });
 		}
@@ -139,7 +139,7 @@ public class UserManagementController : BaseController
 
 	private UpdateUserCommand MappingUpdateUserCommand(EditUserViewModel editUserData)
 	{
-		editUserData.UpdatedBy = base.UserProfile.rolename;
+		editUserData.UpdatedBy = base.UserProfile.username;
 		editUserData.UpdatedDate = DateTime.Now;
 		return _mapper.Map<UpdateUserCommand>(editUserData);
 	}

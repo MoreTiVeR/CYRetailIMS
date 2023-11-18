@@ -403,7 +403,7 @@ public class AdjustItemController : BaseController
         return new CreateAdjustItemCommand
         {
             remark = itemViewModel.Remark,
-            createdby = base.UserProfile.rolename,
+            createdby = base.UserProfile.username,
             createddate = DateTime.Now,
             items = (from a in tempAdjustItemList
                      select new CreateAdjustItemDetailCommand

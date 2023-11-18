@@ -1,14 +1,13 @@
-﻿@using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
-
+﻿
 @{
-    ViewData["Title"] = "SaleReport";
+    ViewData["Title"] = "ItemQtyReport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="page-header">
 	<div class="page-title">
-		<h4>รายงานขาย</h4>
-		<h6>รายงานขายแบ่งตามสาขา, สินค้า</h6>
+		<h4>รายงานสต็อกขั้นต่ำ</h4>
+		<h6>รายงานแสดงสินค้าขั้นต่ำ</h6>
 	</div>
 </div>
 <!-- /product list -->
@@ -26,52 +25,44 @@
 					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
 				</div>
 			</div>
-			@*<div class="wordset">
-				<ul>
-					<li>
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="~/assets/img/icons/pdf.svg" alt="img"></a>
-					</li>
-					<li>
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-					</li>
-				</ul>
-			</div>*@
 		</div>
 		<!-- /Filter -->
-		<div class="card" id="filter_inputs">
+		<div class="card mb-0" id="filter_inputs">
 			<div class="card-body pb-0">
 				<div class="row">
-					<div class="col-lg-2 col-sm-6 col-12">
+					<div class="col-lg-3 col-sm-6 col-12">
 						<div class="form-group">
-							<div class="input-groupicon">
-								<input type="text" placeholder="From Date" class="datetimepicker">
-								<div class="addonset">
-									<img src="~/assets/img/icons/calendars.svg" alt="img">
-								</div>
-							</div>
+							<select id="ddlBranch" class="select">
+								<option>เลือกสาขา</option>
+								@if (ViewBag.BranchList.result)
+								{
+									foreach (var item in ViewBag.BranchList.data)
+									{
+										<option value="@item.branchid">@item.branchname</option>
+									}
+								}
+								else
+								{
+									<option value="">--ไม่พบข้อมูล--</option>
+								}
+							</select>
 						</div>
 					</div>
-					<div class="col-lg-2 col-sm-6 col-12">
-						<div class="form-group">
-							<div class="input-groupicon">
-								<input type="text" placeholder="To Date" class="datetimepicker">
-								<div class="addonset">
-									<img src="~/assets/img/icons/calendars.svg" alt="img">
-								</div>
-							</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group" style="text-align: left">
+							<a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
 						</div>
 					</div>
-					<div class="col-lg-1 col-sm-6 col-12 ms-auto">
-						<div class="form-group">
-							<a class="btn btn-filters ms-auto"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
-						</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
 					</div>
 				</div>
 			</div>
 		</div>
 		<!-- /Filter -->
 		<div class="table-responsive">
-			<table id="tbSaleReport" class="table">
+			<table id="tbItemQtyReport" class="table">
 				<thead>
 					<tr>
 						<th hidden>
@@ -80,15 +71,14 @@
 								<span class="checkmarks"></span>
 							</label>
 						</th>
-						<th>วันที่ทำรายการ</th>
-						<th>สาขา</th>
 						<th>รหัสสินค้า</th>
 						<th>ชื่อสินค้า</th>
+						<th>สาขา</th>
 						<th>แบรนด์</th>
-						<th>จำนวน</th>
 						<th>ราคาต่อหน่วย</th>
-						<th>รวม</th>
-						<th>สร้างโดย</th>
+						<th>จำนวนคงเหลือ</th>
+						<th>จำนวนขั้นต่ำ</th>
+						<th>จำนวนสูงสุด</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -106,5 +96,6 @@
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
 	<!--Page Script-->
-	<script src="~/js/view/report/report_salereport.js" asp-append-version="true"></script>
+	<script src="~/js/view/report/report_itemqtyreport.js" asp-append-version="true"></script>
 }
+

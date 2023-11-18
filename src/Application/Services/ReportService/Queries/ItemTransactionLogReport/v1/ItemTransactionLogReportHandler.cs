@@ -21,28 +21,6 @@ public class ItemTransactionLogReportHandler : BaseService, IRequestHandler<Item
 
     public async Task<BaseResponse<List<ItemTransactionLogReportResponseDTO>>> Handle(ItemTransactionLogReportQuery request, CancellationToken cancellationToken)
     {
-        //IEnumerable<TMItemInBranch> resItemBranch;
-        //if (request.branchid.HasValue)
-        //{
-        //    resItemBranch = await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => w.BranchID == request.branchid && w.IsActive,
-        //        i => i.Include(x => x.Branch),
-        //        i => i.Include(x => x.Item),
-        //        i => i.Include(x => x.Item.Brand),
-        //        i => i.Include(x => x.Item.ItemType));
-        //}
-        //else
-        //{
-        //    resItemBranch = await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => w.IsActive,
-        //        i => i.Include(x => x.Branch),
-        //        i => i.Include(x => x.Item),
-        //        i => i.Include(x => x.Item.Brand),
-        //        i => i.Include(x => x.Item.ItemType));
-        //}
-        //if (!resItemBranch.Any())
-        //{
-        //    throw new Exception("Data not found");
-        //}
-
         IEnumerable<TTItemTransactionLog> itemTransactionLogs;
         if (request.branchid.HasValue)
         {
@@ -54,12 +32,11 @@ public class ItemTransactionLogReportHandler : BaseService, IRequestHandler<Item
         }
 
         int itemSeq = 1;
-        var resData = (from a in itemTransactionLogs
+        var resData = (from a in itemTransactionLogs.ToList()
                        join b in await _unitOfWork.Repository<TMItem>().FindWithInclude(w => w.IsActive, i => i.Include(s => s.ItemType), i => i.Include(s => s.Brand)) on a.ItemID equals b.ItemID into jItem
                        from item in jItem.DefaultIfEmpty()
                        join c in await _unitOfWork.Repository<TMBranch>().QueryAsync() on a.BranchID equals c.BranchID into jBranch
                        from branch in jBranch.DefaultIfEmpty()
-                       where a.BranchID == request.branchid
                        select new ItemTransactionLogReportResponseDTO
                        {
                            seq = itemSeq++,

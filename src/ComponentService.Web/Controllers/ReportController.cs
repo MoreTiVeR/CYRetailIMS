@@ -5,9 +5,15 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.Report;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
@@ -121,7 +127,157 @@ public class ReportController : BaseController
 		return View();
     }
 
-    [HttpGet]
+    /// <summary>
+    /// รายงานแสดงสินค้าขั้นต่ำ
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IActionResult> ItemQtyReport()
+    {
+		BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
+        ViewBag.BranchList = resBranchList;
+		return View();
+    }
+
+	/// <summary>
+	/// รายงานปรับราคาสินค้าหน้าร้าน
+	/// </summary>
+	/// <returns></returns>
+	public async Task<IActionResult> ItemTransactionReport()
+    {
+		BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
+		ViewBag.BranchList = resBranchList;
+		return View();
+    }
+
+	/// <summary>
+	/// ดึงข้อมูล รายงานแสดงสินค้าขั้นต่ำ
+	/// </summary>
+	/// <returns></returns>
+	[HttpGet]
+	public async Task<IActionResult> GetAvailableItemQtyReport()
+	{
+		List<AvailableStockReportResponseDTO> resItemQtyList = null;
+		try
+		{
+			if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
+			{
+				//สินค้าคลังใหญ่
+				BaseResponse<List<AvailableStockReportResponseDTO>> resItem = await _reportAPI.GetAvailableItemStockReportAsync(new AvailableStockReportQuery());
+				if (!resItem.result)
+				{
+					return Json(new { result = false, data = new List<AvailableStockReportResponseDTO>(), message = "ไม่มีสินค้าหน้าร้าน" });
+				}
+				resItemQtyList = resItem.data;
+			}
+			else
+			{
+				//สินค้าคลังสาขา
+				BaseResponse<List<AvailableStockReportResponseDTO>> resItemInBranch = await _reportAPI.GetAvailableItemStockByBranchReportAsync(new AvailableStockByBrachReportQuery
+                {
+                    branchid = base.UserProfile.access_branch.FirstOrDefault().branchid
+				});
+				if (!resItemInBranch.result)
+				{
+					return Json(new { result = false, data = new List<AvailableStockReportResponseDTO>(), message = "ไม่มีสินค้าหน้าร้าน" });
+				}
+				resItemQtyList = resItemInBranch.data;
+			}
+			return Json(new { data = resItemQtyList });
+		}
+		catch(Exception ex)
+		{
+			return Json(new { result = false, data = new List<AvailableStockReportResponseDTO>(), message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}"});
+		}
+	}
+
+	/// <summary>
+	/// ค้นหาข้อมูล รายงานสินค้าขั้นต่ำ แบ่งตามสาขา
+	/// </summary>
+	/// <param name="branchid"></param>
+	/// <returns></returns>
+	[HttpPost]
+	public async Task<JsonResult> SearchAvailableItemQtyByBranch(int branchid)
+	{
+		List<AvailableStockReportResponseDTO> resItemQtyList = null;
+		try
+		{
+			if (branchid == 1)
+			{
+				//สินค้าคลังใหญ่
+				BaseResponse<List<AvailableStockReportResponseDTO>> resAvailableItem = await _reportAPI.GetAvailableItemStockReportAsync(new AvailableStockReportQuery());
+				if (!resAvailableItem.result)
+				{
+					return Json(new { result = false, data = new List<AvailableStockReportResponseDTO>(), message = "ไม่พบสินค้าที่อยู่ในเกณฑ์ขั้นต่ำ" });
+				}
+				resItemQtyList = resAvailableItem.data;
+			}
+			else
+			{
+				//สินค้าคลังสาขา
+				BaseResponse<List<AvailableStockReportResponseDTO>> resAvailableItemIBranch = await _reportAPI.GetAvailableItemStockByBranchReportAsync(new AvailableStockByBrachReportQuery { branchid = branchid });
+				if (!resAvailableItemIBranch.result)
+				{
+					return Json(new { result = false, data = new List<AvailableStockReportResponseDTO>(), message = "ไม่พบสินค้าที่อยู่ในเกณฑ์ขั้นต่ำ" });
+				}
+                resItemQtyList = resAvailableItemIBranch.data;
+			}
+			return Json(new { result = true, data = resItemQtyList, message = "สำเร็จ" });
+		}
+		catch (Exception ex)
+		{
+			return Json(new { result = false, data = new List<AvailableStockReportResponseDTO>(), message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}" });
+		}
+	}
+
+	/// <summary>
+	/// รายงานปรับราคาสินค้าหน้าร้าน
+	/// </summary>
+	/// <returns></returns>
+	[HttpGet]
+	public async Task<IActionResult> GetItemPriceTransactionReport()
+	{
+		try
+		{
+            int branchId = base.UserProfile.roleid == (int)EnumModel.UserRole.Admin ? 1 : base.UserProfile.access_branch.FirstOrDefault().branchid;
+			BaseResponse<List<ItemTransactionLogReportResponseDTO>> resItem = await _reportAPI.GetItemTransactionLogReportAsync(new ItemTransactionLogReportQuery { branchid = branchId });
+			if (!resItem.result)
+			{
+				return Json(new { result = false, data = new List<ItemTransactionLogReportResponseDTO>(), message = "ไม่พบข้อมูลการเปลี่ยนแปลงราคาสินค้า" });
+			}
+			return Json(new { data = resItem.data });
+		}
+		catch (Exception ex)
+		{
+			return Json(new { result = false, data = new List<ItemTransactionLogReportResponseDTO>(), message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}" });
+		}
+	}
+
+	/// <summary>
+	/// ค้นหาข้อมูล รายงานปรับราคาสินค้าหน้าร้าน ตามสาขา
+	/// </summary>
+	/// <param name="branchid"></param>
+	/// <returns></returns>
+	[HttpPost]
+	public async Task<JsonResult> SearchItemPriceTransactionReportByBranch(int branchid)
+	{
+		try
+		{
+			BaseResponse<List<ItemTransactionLogReportResponseDTO>> resItem = await _reportAPI.GetItemTransactionLogReportAsync(new ItemTransactionLogReportQuery { branchid = branchid });
+			if (!resItem.result)
+			{
+				return Json(new { result = false, data = new List<ItemTransactionLogReportResponseDTO>(), message = "ไม่พบข้อมูลการเปลี่ยนแปลงราคาสินค้า" });
+			}
+			return Json(new { result = true, data = resItem.data, message = "สำเร็จ" });
+		}
+		catch (Exception ex)
+		{
+
+			return Json(new { result = false, data = new List<ItemTransactionLogReportResponseDTO>(), message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}" });
+		}
+	}
+
+
+	[HttpGet]
     public async Task<IActionResult> GetAuditReport()
     {
         try
@@ -184,15 +340,11 @@ public class ReportController : BaseController
             branchid = reportData.BranchID,
             description = reportData.AuditDescription,
             totalamountaudit = reportData.TotalAuditAmount.Value,
-            createdby = base.UserProfile.rolename,
+            createdby = base.UserProfile.username,
             transactiondatetime = reportData.TransactionDate.ToDateTime(),
             //createddate = $"{reportData.TransactionDate} {DateTime.Now:HH}:{DateTime.Now:mm}:{DateTime.Now:ss}".ToDateTime(),
             createddate = DateTime.Now
         };
     }
 
-
-    #region Http Method
-
-    #endregion
 }

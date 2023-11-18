@@ -47,6 +47,7 @@ datatable = $("#tbItems").DataTable({
         { "data": "cost" },
         { "data": "price" },
         { "data": "notifyminqty" },
+        { "data": "notifymaxqty" },
         { "data": "description" },
         { "data": "createdby" },
         {
@@ -139,7 +140,7 @@ datatable = $("#tbItems").DataTable({
 $("#btnSearch").on('click', function (event) {
     event.preventDefault(); // Prevent the default form submission
 
-    var val = $("#ddlItemType").val();
+    var val = $("#ddlBranch").val();
     var branchid = parseInt(val);
     var request = $.ajax({
         url: '/Item/SearchItemByBranch',
