@@ -5,7 +5,7 @@ $('.select2').select2();
 InitialNumberInput();
 InitialCharacterRemaining();
 InitialTableItemTransfer();
-
+//InitialAutoFocusBarcodeModal();
 
 $(document).on('change', '.select2', function (e) {
     // Get the selected value
@@ -17,12 +17,6 @@ $(document).on('change', '.select2', function (e) {
     console.log("Row " + row + ": " + selectedValue);
     //ShowMessageInfo('Selected value :' + selectedValue);
 });
-
-//Auto focus
-$('#mdlTransferItem').on('shown.bs.modal', function () {
-    //$("#sbarcode").focus();
-    $('#sbarcode').get(0).focus();
-})
 
 $("#btnSave").on('click', function () {
     var isValid = $('#frmTransferItem').valid();
@@ -85,7 +79,6 @@ $("#btnSave").on('click', function () {
         );
     }
 });
-
 
 $("#btnDraft").on('click', function () {
     var isValid = $('#frmTransferItem').valid();
@@ -296,6 +289,31 @@ $("#itembranchtransfer").on("change", function () {
     ShowMessageWarning('itembranchtransfer - change');
 });
 
+$("#txtBarCode").keyup(function (event) {
+    if (event.keyCode == 13) {
+        /*ShowMessageInfo($("#txtBarCode").val());*/
+        var sBarCode = $("#txtBarCode").val();
+        var nQty = $("#txtBarCodeQty").val();
+        var data = { "sbarcode": sBarCode, "nqty": nQty };
+        $.ajax({
+            type: 'POST',
+            url: '/Item/AddTempItemTransfer',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function (data) {
+                if (data.result) {
+                    ShowMessageSuccess(data.message);
+                    dataTable.ajax.reload();
+                }
+                else {
+                    AlertErrorNoTitle(data.message);
+                }
+                $("#txtBarCode").val('');
+            }
+        });
+    }
+});
+
 function InitialTableItemTransfer() {
     dataTable = $('#tbItems').DataTable({
         destroy: true,
@@ -334,6 +352,15 @@ function InitialTableItemTransfer() {
         ]
     });
 }
+
+//Auto focus
+function InitialAutoFocusBarcodeModal() {
+    $('#mdlTransferItem').on('shown.bs.modal', function () {
+        //$("#sbarcode").focus();
+        $('#sbarcode').get(0).focus();
+    })
+}
+
 
 function AddTransferItem(form) {
     console.log('Call => SubmitAddTransferItem');
@@ -601,4 +628,31 @@ function ResetDataTable() {
     $('#tbItems').dataTable().fnClearTable();
     $('#tbItems').dataTable().fnDraw();
     $('#tbItems').dataTable().fnDestroy();
+}
+
+//No use
+function InitialAddEventListenerKeydown(){
+    window.addEventListener(
+        "keydown",
+        (event) => {
+            if (event.defaultPrevented) {
+                return; // Should do nothing if the default action has been cancelled
+            }
+
+            let handled = false;
+            if (event.key !== undefined) {
+                // Handle the event with KeyboardEvent.key
+                handled = true;
+            } else if (event.keyCode !== undefined) {
+                // Handle the event with KeyboardEvent.keyCode
+                handled = true;
+            }
+
+            if (handled) {
+                // Suppress "double action" if event handled
+                event.preventDefault();
+            }
+        },
+        true,
+    );
 }

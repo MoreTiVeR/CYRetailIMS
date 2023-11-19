@@ -1,0 +1,37 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@model TransferItemDetailViewModel
+
+
+<!-- show payment Modal -->
+<form id="frmAddTransferItem" onsubmit="return AddTransferItem(this)">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">เพิ่มสินค้า</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-9 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>บาร์ดโค้ด</label>
+                            <input type="text" class="form-control" asp-for="sbarcode" autofocus>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label>จำนวนสินค้า</label>
+                            <input type="number" class="form-control" asp-for="nqty" value="1">
+                            <span asp-validation-for="nqty" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">ปิด</button>
+                <button type="submit" class="btn btn-submit">เพิ่ม</button>
+            </div>
+        </div>
+    </div>
+</form>
+<!-- show payment Modal -->

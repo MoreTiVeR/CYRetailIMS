@@ -56,28 +56,9 @@
                     </div>
                     <!--ROW2-->
                     <div class="row">
-                        <form id="frmAddTransferItem" onsubmit="return AddTransferItem(this)">
-                            <div class="row">
-                                <div class="col-lg-9 col-sm-12 col-12">
-                                    <div class="form-group">
-                                        <label>บาร์ดโค้ด</label>
-                                        <input id="txtBarCode" name="txtBarCode" type="text" class="form-control" autofocus>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-12 col-12">
-                                    <div class="form-group">
-                                        <label>จำนวนสินค้า</label>
-                                        <input id="txtBarCodeQty" name="txtBarCodeQty" type="number" class="form-control" value="1">
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <!--ROW3-->
-                    <div class="row">
-                        @*<div class="col-lg-12 col-sm-12 col-12" style="text-align:right">
+                        <div class="col-lg-12 col-sm-12 col-12" style="text-align:right">
                             <a data-bs-toggle="modal" data-bs-target="#mdlTransferItem"><img src="~/assets/img/icons/plus-circle.svg" class="me-2" alt="img">เพิ่มรายการสินค้า</a>
-                        </div>*@
+                        </div>
                         <div class="col-lg-12 col-sm-12 col-12">
                             <div class="form-group">
                                 <div class="table-responsive">
@@ -132,9 +113,9 @@
     </div>
 </div>
 <!-- Large Modal -->
-@*<div id="mdlTransferItem" class="modal fade" aria-labelledby="mdlTransferItem" tabindex="-1" aria-hidden="true">
+<div id="mdlTransferItem" class="modal fade" aria-labelledby="mdlTransferItem" tabindex="-1" aria-hidden="true">
     <partial name="_PartialPage/_ModalPartialAddItemBarcode" />
-</div>*@
+</div>
 @section Scripts{
 
     <!--charactersRemaining-->

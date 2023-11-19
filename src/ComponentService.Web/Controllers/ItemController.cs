@@ -40,6 +40,7 @@ using CYRetailIMS.Infrastructure.Common.Extensions;
 using NUglify.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
+using System.Text.RegularExpressions;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -310,7 +311,7 @@ public class ItemController : BaseController
         try
         {
             List<TransferItemDetailViewModel> tempList = HttpContext.Session.GetDataFromSession<List<TransferItemDetailViewModel>>(_sessionTempTransferItemName);
-            if(tempList == null || tempList?.Count == 0)
+            if (tempList == null || tempList?.Count == 0)
             {
                 return Json(new { result = false, msg = "ข้อมูลไม่ถูกต้อง, กรุณาตรวจสอบข้อมูลใหม่อีกครั้ง!" });
             }
@@ -1239,11 +1240,23 @@ public class ItemController : BaseController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return Json(new { result = false, message = "กรุณาตรวจสอบจำนวนสินค้า/บาร์โค้ดให้ถูกต้อง" });
+            //return BadRequest(ModelState);
         }
 
         try
         {
+            Regex regex = new Regex("^[A-Za-z0-9]+$");
+            var dd = regex.Match(transferItemData.sbarcode);
+            if (!regex.Match(transferItemData.sbarcode).Success)
+            {
+                return Json(new { result = false, message = "กรุณากดเปลี่ยนภาษาคีย์บอร์ดเป็นอังกฤษ" });
+            }
+            
+            if(transferItemData.nqty <= 0)
+            {
+                return Json(new { result = false, message = "กรุณาระบุจำนวนสินค้าไม่น้อยกว่า 0" });
+            }
             //if (transferItemData.nqty < 0)
             //{
             //    throw new Exception("กรุณาระบุจำนวนไม่น้อยกว่า 0");
@@ -1291,7 +1304,7 @@ public class ItemController : BaseController
 
             #region Validate Qty in Stock TMItem by barcode before response
             BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeAsync(transferItemData.sbarcode);
-            if(resItem.data.qty < tempTransferItemList.FirstOrDefault(w => w.nitemid == resItem.data.itemid)?.nqty)
+            if (resItem.data.qty < tempTransferItemList.FirstOrDefault(w => w.nitemid == resItem.data.itemid)?.nqty)
             {
                 return Json(new { result = false, message = $"ไม่สามารภทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
             }
