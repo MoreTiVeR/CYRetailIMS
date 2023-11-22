@@ -45,21 +45,21 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>ราคาสินค้า</label>
-                            <input type="number" class="form-control" asp-for="price" onchange="return CalculateAmountByItemPrice(this.value, this.name)">
+                            <input type="number" class="form-control" asp-for="price" onchange="return CalculateAmountByItemPrice(this.value, this.name)" onkeypress="return event.charCode >= 48" min="0">
                             <span asp-validation-for="price" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>จำนวนสินค้า</label>
-                            <input type="number" class="form-control" asp-for="nqty" onchange="return CalculateAmountByItemQty(this.value, this.name)">
+                            <input type="number" class="form-control" asp-for="nqty" onchange="return CalculateAmountByItemQty(this.value, this.name)" onkeypress="return event.charCode >= 48" min="0">
                             <span asp-validation-for="nqty" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>ราคารวมทั้งหมด</label>
-                            <input type="number" class="form-control" asp-for="totalprice">
+                            <input type="number" class="form-control" asp-for="totalprice" onkeypress="return event.charCode >= 48" min="0">
                             <span asp-validation-for="totalprice" class="text-danger"></span>
                         </div>
                     </div>

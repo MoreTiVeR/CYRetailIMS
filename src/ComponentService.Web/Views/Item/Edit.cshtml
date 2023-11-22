@@ -136,28 +136,32 @@
                 <span asp-validation-for="UnitOfMeasureID" class="text-danger"></span>
                 </div>
                 </div>*@
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>รหัสสินค้า</label>
                         <input type="text" asp-for="ItemCode" readonly>
                         <span asp-validation-for="ItemCode" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>จำนวนสินค้า</label>
-                        <input type="number" class="form-control" asp-for="Qty">
+                        @*<input type="number" class="form-control" asp-for="Qty" readonly>*@
+                        @Html.EditorFor(model => model.Qty, new 
+                            { 
+                                htmlAttributes = new { @class = "form-control" , @readonly = "readonly" } 
+                            })
                         <span asp-validation-for="Qty" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>จำนวนสินค้าขั้นต่ำ</label>
                         <input type="number" class="form-control" asp-for="NotifyMinQty">
                         <span asp-validation-for="NotifyMinQty" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>บาร์โค้ดสินค้า</label>
                         <input type="text" class="form-control" asp-for="BarCode">

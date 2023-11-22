@@ -170,6 +170,9 @@ function Delete(id) {
                         $("#global-loader").css('display', 'none');
 
                         dataTable.ajax.reload();
+
+                        //Set sum amount
+                        $("#amount").val(response.amount).trigger('change');
                     }
                     else {
                         //ShowMessageError(data.message);
@@ -180,25 +183,18 @@ function Delete(id) {
             });
         }
     });
-    //swal({
-    //    title: "ยืนยันการลบข้อมูล?",
-    //    text: "คุณจะไม่สามารถเรียกคืนข้อมูลที่ถูกลบไปแล้วได้!",
-    //    type: "warning",
-    //    showCancelButton: true,
-    //    confirmButtonColor: "#DD6B55",
-    //    confirmButtonText: "ยืนยัน",
-    //    cancelButtonText: "ยกเลิก",
-    //    closeOnConfirm: true
-    //}, function () {
-    //    $.ajax({
-    //        type: 'POST',
-    //        url: '/Order/DeleteItem/' + id,
-    //        success: function (data) {
-    //            if (data.success) {
-    //                ShowMessage(data.message);
-    //                dataTable.ajax.reload();
-    //            }
-    //        }
-    //    });
-    //});
+}
+
+function CalculateTotalAmountByAmount(amount) {
+    var discount = $("#discount").val() | 0;
+    var totalAmount = parseFloat(amount) - parseFloat(discount);
+
+    $("#total").val(totalAmount.toFixed(2));
+}
+
+function CalculateTotalAmountByDiscount(discount) {
+    var amount = $("#amount").val() | 0;
+    var totalAmount = parseFloat(amount) - parseFloat(discount);
+
+    $("#total").val(totalAmount.toFixed(2));
 }

@@ -104,7 +104,7 @@ public class GetPurchaseOrderByIDHandler : BaseService, IRequestHandler<GetPurch
 		{
 			s.detail.ForEach(e =>
 			{
-				e.itemname = resItemDList.FirstOrDefault(w => w.ItemID == e.itemid).Name;
+				e.itemname = resItemDList.FirstOrDefault(w => w.ItemID == e.itemid)?.Name;
 			});
 			return s;
 		}).ToList();

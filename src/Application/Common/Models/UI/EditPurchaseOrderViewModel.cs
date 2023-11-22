@@ -14,7 +14,7 @@ public class EditPurchaseOrderViewModel
     public int purchaseorderid { get; set; }
 
 
-    [Required(ErrorMessage = "กรุณาระบุหมายเหตุ(ถ้ามี)")]
+    //[Required(ErrorMessage = "กรุณาระบุหมายเหตุ(ถ้ามี)")]
     [DisplayName("หมายเหตุ")]
     public string? Remark { get; init; }
 

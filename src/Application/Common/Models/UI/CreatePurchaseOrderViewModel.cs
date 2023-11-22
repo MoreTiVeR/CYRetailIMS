@@ -10,12 +10,12 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 
 public class CreatePurchaseOrderViewModel
 {
-    [Required(ErrorMessage = "กรุณาระบุหมายเหตุ(ถ้ามี)")]
+    //[Required(ErrorMessage = "กรุณาระบุหมายเหตุ(ถ้ามี)")]
     [DisplayName("หมายเหตุ")]
     public string? Remark { get; init; }
 
-    [Required(ErrorMessage = "กรุณาระบุหมายเหตุ(ถ้ามี)")]
-    [DisplayName("หมายเหตุ")]
+    [Required(ErrorMessage = "กรุณาระบุประเภทออเดอร์")]
+    [DisplayName("ประเภทออเดอร์")]
     public int npurchasetypeid { get; set; }
 
 
@@ -35,6 +35,7 @@ public class CreatePurchaseOrderViewModel
     [DisplayName("จำนวนเงิน")]
     public decimal amount { get; set; }
 
+    [Required(ErrorMessage = "กรุณาระบุส่วนลด(ถ้าไม่มีใส่ 0)")]
     [DisplayName("ส่วนลด")]
     public decimal discount { get; set; }
 

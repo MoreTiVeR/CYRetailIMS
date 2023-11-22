@@ -71,7 +71,9 @@ public class EditItemViewModel
     public string ItemImageUrl { get; set; }
 
     //[Required(ErrorMessage = "*กรุณาระบุจำนวนหน่วยสินค้า")]
+    [Editable(false)]
     [DisplayName("ระบุจำนวนหน่วยสินค้า")]
+    //public int Qty { get; private set; }
     public int Qty { get; set; }
 
     [DisplayName("ระบุจำนวนสินค้าขั้นต่ำ")]

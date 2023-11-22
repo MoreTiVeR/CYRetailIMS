@@ -55,7 +55,7 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
         itemEnt.BarCode = !string.IsNullOrEmpty(request.barcode) ? request.barcode : null;
         itemEnt.Description = request.description;
         itemEnt.Price = request.price;
-        itemEnt.Qty = request.qty;
+        //itemEnt.Qty = request.qty; //ไม่สามารถก้ไขจำนวนจากเมนู อัพเดทสินค้า ต้องทำรายการแก้ไขราคาผ่าน adjust สินค้า
         itemEnt.NotifyMinQty = request.notifyqty;
         itemEnt.NotifyMaxQty = request.notifymaxqty;
         itemEnt.DiscountPercent = request.discountpercent;

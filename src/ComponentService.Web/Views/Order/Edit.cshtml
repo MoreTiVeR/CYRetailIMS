@@ -92,21 +92,21 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>จำนวนเงิน</label>
-                            <input type="number" class="form-control" asp-for="amount">
+                            <input type="number" class="form-control" asp-for="amount" onchange="return CalculateTotalAmountByAmount(this.value)" onkeypress="return event.charCode >= 48" min="0">
                             <span asp-validation-for="amount" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>ส่วนลด</label>
-                            <input type="number" class="form-control" asp-for="discount">
+                            <input type="number" class="form-control" asp-for="discount" onchange="return CalculateTotalAmountByDiscount(this.value)" onkeypress="return event.charCode >= 48" min="0">
                             <span asp-validation-for="discount" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>จำนวนเงินรวมทั้งหมด</label>
-                            <input type="number" class="form-control" asp-for="total">
+                            <input type="number" class="form-control" asp-for="total" onkeypress="return event.charCode >= 48" min="0">
                             <span asp-validation-for="total" class="text-danger"></span>
                         </div>
                     </div>

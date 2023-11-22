@@ -367,7 +367,10 @@ public class OrderController : BaseController
     private UpdatePurchaseOrderCommand MappingUpdatePurchaseOrder(EditPurchaseOrderViewModel orderViewModel)
     {
         List<PurchaseOrderItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<PurchaseOrderItemViewModel>>(_sessionTempDataName);
-
+        if(tempList.Count == 0)
+        {
+            throw new Exception("ขออภัย, ไม่สามารถทำรายการได้ เนื่องจากไม่พบรายการสั่งสินค้า");
+        }
         UpdatePurchaseOrderCommand updatePurchase = new UpdatePurchaseOrderCommand
         {
             purchaseorderid = orderViewModel.purchaseorderid,

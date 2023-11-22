@@ -3,7 +3,6 @@
 $('.select2').select2();
 
 InitialModalSelect2();
-
 InitialTableOrder();
 
 function InitialTableOrder() {
@@ -93,8 +92,10 @@ function SavePurchaseOrder(form) {
                     //$("#frmSavePurchaseOrder")[0].reset();
                     $("#global-loader").css('display', 'none');
                     dataTable.ajax.reload();
+
                     //To do next?
                     //window.location = data.url;
+                    ResetForm();
                 }
                 else {
                     AlertError(data.message);
@@ -140,7 +141,7 @@ function AddOrderItem(form) {
                 //$('#mdlAddItem').modal('hide');
                 //$("#btnCloseMdl").click();
 
-                $("#amount").val(data.amount);
+                $("#amount").val(data.amount).trigger('change');;
             }
             else {
                 AlertError(data.message);
@@ -185,7 +186,7 @@ function Delete(id) {
                         dataTable.ajax.reload();
 
                         //Set sum amount
-                        $("#amount").val(response.amount);
+                        $("#amount").val(response.amount).trigger('change');
                     }
                     else {
                         //ShowMessageError(data.message);
@@ -196,27 +197,7 @@ function Delete(id) {
             });
         }
     });
-    //swal({
-    //    title: "ยืนยันการลบข้อมูล?",
-    //    text: "คุณจะไม่สามารถเรียกคืนข้อมูลที่ถูกลบไปแล้วได้!",
-    //    type: "warning",
-    //    showCancelButton: true,
-    //    confirmButtonColor: "#DD6B55",
-    //    confirmButtonText: "ยืนยัน",
-    //    cancelButtonText: "ยกเลิก",
-    //    closeOnConfirm: true
-    //}, function () {
-    //    $.ajax({
-    //        type: 'POST',
-    //        url: '/Order/DeleteItem/' + id,
-    //        success: function (data) {
-    //            if (data.success) {
-    //                ShowMessage(data.message);
-    //                dataTable.ajax.reload();
-    //            }
-    //        }
-    //    });
-    //});
+    
 }
 
 function CalculateAmountByItemPrice(price, name) {
@@ -256,4 +237,32 @@ function CalculateAmountByItemQty(qty, name) {
     //    totalAmt += parseFloat(txtAmt);
     //}
     //$("#amount").val(currencyFormat(totalAmt));
+}
+
+function CalculateTotalAmountByAmount(amount) {
+    var discount = $("#discount").val() | 0;
+    var totalAmount = parseFloat(amount) - parseFloat(discount);
+
+    $("#total").val(totalAmount.toFixed(2));
+}
+
+function CalculateTotalAmountByDiscount(discount) {
+    var amount = $("#amount").val() | 0;
+    var totalAmount = parseFloat(amount) - parseFloat(discount);
+
+    $("#total").val(totalAmount.toFixed(2));
+}
+
+function ResetForm() {
+    //Reset form
+    $('#frmSavePurchaseOrder')[0].reset(); // [0] gets the DOM element from the jQuery object
+
+    /*$("#npurchasetypeid").empty();*/
+    /*var source_option = new Option("-- เลือกประเภทออเดอร์--", "", true, true);*/
+    $("#npurchasetypeid").val("").trigger('change');
+
+    $("#npaymenttypeid").val("").trigger('change');
+
+    $("#nsupplierid").val("").trigger('change');
+    
 }

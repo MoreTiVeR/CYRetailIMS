@@ -45,37 +45,28 @@
         <div class="card" id="filter_inputs">
             <div class="card-body pb-0">
                 <div class="row">
-                    <div class="col-lg-2 col-sm-6 col-12">
+                    <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
-                            <input type="text" class="datetimepicker cal-icon" placeholder="Choose Date">
+                            <input type="text" id="txtTransferDate" class="datetimepicker cal-icon" placeholder="Choose Transfer Date">
                         </div>
                     </div>
-                    <div class="col-lg-2 col-sm-6 col-12">
+                    <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
-                            <input type="text" placeholder="Enter Reference">
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-sm-6 col-12">
-                        <div class="form-group">
-                            <select class="select">
-                                @if (ViewBag.ItemTransferStatus.result)
-                                {
-                                    <option value="" selected>-- เลือกสถานะการโอนสินค้า --</option>
-                                    foreach (var item in (List<GetItemTransferStatusResponseDTO>)ViewBag.ItemTransferStatus.data)
-                                    {
-                                        <option value="@item.transferstatusid">@item.transferstatusname_th</option>
-                                    }
-                                }
-                                else
-                                {
-                                    <option value="">-- ไม่พบข้อมูล --</option>
-                                }
+                            <select id="ddlTransferBranch" class="ddl-select2 select2 ddl-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+                                <option value="">--เลือกสาขาปลายทาง--</option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-lg-1 col-sm-6 col-12 ms-auto">
+                    <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
-                            <a class="btn btn-filters ms-auto"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                            <select id="ddlTransferStatus" class="ddl-select2 select2 ddl-transferstatus" asp-items="@(new SelectList(ViewBag.ItemTransferStatus, "Value", "Text", null, null))">
+                                <option value="">--เลือกสถานะการโอนสินค้า--</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group" style="text-align: left">
+                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
                         </div>
                     </div>
                 </div>
@@ -84,7 +75,7 @@
         <!-- /Filter -->
         <div class="table-responsive">
             <input type="hidden" id="txtReportName" value="รายงานประวัติการโอนสินค้า">
-            <table class="table  datanew">
+            <table id="tbItemTransferHistory" class="table">
                 <thead>
                     <tr>
                         <th hidden>
@@ -105,59 +96,9 @@
                         <th>สร้างโดย</th>
                         <th>วันที่รับโอน</th>
                         <th>ผู้รับโอน</th>
-                        @*<th>คำเนินการ</th>*@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.ItemTransferHistory.result)
-                    {
-                        foreach (var item in (List<GetItemTransferResponseDTO>)ViewBag.ItemTransferHistory.data)
-                        {
-                            string rName = $"rowid{@item.transferid}";
-                            Dictionary<string, string> aTransferID = new Dictionary<string, string> { { "transferid", item.transferid.ToString() } };
-                            <tr>
-                                <td hidden>
-                                    <label class="checkboxs">
-                                        <input type="checkbox">
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>@($"{@item.createddate:dd/MM/yyyy HH:mm:ss}")</td>
-                                <td>@item.sourcename</td>
-                                <td>@item.destinationname</td>
-                                <td>@item.itemname</td>
-                                <td>@item.qty</td>
-                                <td>@item.description</td>
-                                <td>
-                                    @if (item.transferstatusid == (int)TransferStatus.Received)
-                                    {
-                                        <span class="badges bg-lightgreen">
-                                            @item.transferstatusname_th
-                                        </span>
-                                    }
-                                    else if (item.transferstatusid == (int)TransferStatus.Cancel || item.transferstatusid == (int)TransferStatus.Reject)
-                                    {
-                                        <span class="badges bg-lightred">
-                                            @item.transferstatusname_th
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <a class="me-3" asp-action="ReceiveItemTransfer" asp-controller="Item" title="คลิก เพื่อตรวจรับสินค้า" asp-all-route-data="aTransferID">
-                                            <span class="badges bg-lightred">
-                                                @item.transferstatusname_th
-                                            </span>
-                                        </a>
-                                    }
-                                </td>
-                                <td>@item.receiveqty</td>
-                                <td>@item.returnqty</td>
-                                <td>@item.createdby</td>
-                                <td>@($"{@item.updateddate:dd/MM/yyyy HH:mm:ss}")</td>
-                                <td>@item.updatedby</td>
-                            </tr>
-                        }
-                    }
                 </tbody>
             </table>
         </div>
@@ -171,6 +112,6 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <!--Page Script-->
-    @*<script src="~/js/view/item/item_transferhistory.js" asp-append-version="true"></script>*@
+    <script src="~/js/view/item/item_transferhistory.js" asp-append-version="true"></script>
 
 }
