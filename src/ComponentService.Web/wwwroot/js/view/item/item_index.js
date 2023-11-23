@@ -35,13 +35,14 @@ datatable = $("#tbItems").DataTable({
                 console.log('data dic:' + dict);
                 if (data.isiteminbranch) {
                     //Branch
-                    return "<a href='EditItemBranch?itemid=" + data.itemid + "&branchid=" + data.searchbranchid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                    /*return "<a href='EditItemBranch?itemid=" + data.itemid + "&branchid=" + data.searchbranchid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";*/
+                    return "<a href='EditItemBranch?itemid=" + data.itemid + "&branchid=" + data.searchbranchid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a>";
                 }
                 else {
                     //Warehouse
-                    return "<a href='Edit?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                    /*return "<a href='Edit?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";*/
+                    return "<a href='Edit?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a>";
                 }
-                //return "<a href='Edit?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
             }
         },
         { "data": "itemcode" },
@@ -90,7 +91,25 @@ datatable = $("#tbItems").DataTable({
                 //var _updateddate = new Date(data.updateddate).toLocaleDateString("en-US");
                 //return _updateddate;
             }
-        }
+        },
+        {
+            "data": { itemid: "itemid", isiteminbranch: "isiteminbranch", searchbranchid: "searchbranchid" },
+            "render": function (data) {
+                var dict = {
+                    "itemid": data.itemid,
+                };
+                console.log('data dic:' + dict);
+                if (data.isiteminbranch) {
+                    //Branch
+                    return "<a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                }
+                else {
+                    //Warehouse
+                    return "<a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                }
+                //return "<a href='Edit?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+            }
+        },
     ],
     //"language": {
     //    "emptyTable": "ไม่พบข้อมูล."
@@ -100,6 +119,14 @@ datatable = $("#tbItems").DataTable({
         {
             "targets": [0],
             "visible": false
+        },
+        {
+            "targets": [1],
+            "className": "text-center"
+        },
+        {
+            "targets": [16],
+            "className": "text-center"
         }
     ],
     "language": {
@@ -122,7 +149,7 @@ datatable = $("#tbItems").DataTable({
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+                columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
             }
         },
         {

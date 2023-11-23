@@ -3,6 +3,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ChartService.Queries.GetMontlySaleSummaryBarchart.v1;
 using CYRetailIMS.Application.Services.ChartService.Queries.GetMontlySaleSummaryBarchart.v2;
 using CYRetailIMS.Application.Services.ChartService.Queries.GetMontlySaleSummaryByYear.v1;
+using CYRetailIMS.Application.Services.ChartService.Queries.GetSellingTransactionByMonth.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -62,6 +63,22 @@ public class ChartsController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetYearlySameSummaryAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/sellingitempercentage")]
+    [ProducesResponseType(typeof(List<GetSellingTransactionByMonthResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetSellingItemPercnetageAsync(GetTransactionByMonthQuery transactionByMonthQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetSellingTransactionByMonthResponseDTO>> res = await Mediator.Send(transactionByMonthQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetSellingItemPercnetageAsync Success");
         return Ok(res.data);
     }
 }

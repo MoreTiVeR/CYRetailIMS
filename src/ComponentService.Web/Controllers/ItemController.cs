@@ -1156,6 +1156,25 @@ public class ItemController : BaseController
                 throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
             }
 
+            //Check Description length
+            if(s.itemcode.Length > 12)
+            {
+                errRow.Add(rowCount);
+                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
+            }
+
+            if(s.itemname.Length > 100)
+            {
+                errRow.Add(rowCount);
+                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
+            }
+
+            if(!string.IsNullOrEmpty(s.description) && s.description.Length > 200)
+            {
+                errRow.Add(rowCount);
+                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
+            }
+
             CreateItemDetailCommand itemEnt = new CreateItemDetailCommand
             {
                 itemcode = s.itemcode,

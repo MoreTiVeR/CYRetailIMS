@@ -3,6 +3,7 @@
 $('.select2').select2();
 InitialMontlySaleSummaryBarchart();
 InitialYearlySaleSummaryAreaChart();
+InitialTop10SellingItemPieChart();
 //$(document).on('change', '.select2', function (e) {
 //    // Get the selected value
 //    var selectedValue = $(this).val();
@@ -119,74 +120,33 @@ function InitialYearlySaleSummaryAreaChart() {
     });
 }
 function InitialTop10SellingItemPieChart() {
-    $('#container3').highcharts({
-        chart: {
-            type: 'pie'
-        },
-        title: {
-            text: 'สัดส่วนการสินค้า'
-        },
-        tooltip: {
-            valueSuffix: '%'
-        },
-        subtitle: {
-            text:
-                ''
-        },
-        plotOptions: {
-            series: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: [{
-                    enabled: true,
-                    distance: 20
-                }, {
-                    enabled: true,
-                    distance: -40,
-                    format: '{point.percentage:.1f}%',
-                    style: {
-                        fontSize: '1.2em',
-                        textOutline: 'none',
-                        opacity: 0.7
-                    },
-                    filter: {
-                        operator: '>',
-                        property: 'percentage',
-                        value: 10
-                    }
-                }]
+
+    var request = $.ajax({
+        url: '/Home/GeneratePieChartByMonth',
+        async: true,
+        type: 'GET',
+        dataType: 'JSON',
+        success: function (response) {
+
+            if (response.result) {
+                //สาขาต้นทาง
+                /*ShowMessageSuccess('กำลังสร้างกราฟ...');*/
+                rednderPieChart(response.data);
+                //$("#divEmptyData").hide();
+                //$("#divEmptyData").attr("hidden", true);
+                HideNoChartData3();
+            }
+            else {
+                ShowNoChartData3();
+                ShowMessageError('ไม่พบข้อมูล');
             }
         },
-        series: [
-            {
-                name: 'Percentage',
-                colorByPoint: true,
-                data: [
-                    {
-                        name: 'Water',
-                        y: 55.02
-                    },
-                    {
-                        name: 'Fat',
-                        sliced: true,
-                        selected: true,
-                        y: 26.71
-                    },
-                    {
-                        name: 'Carbohydrates',
-                        y: 1.09
-                    },
-                    {
-                        name: 'Protein',
-                        y: 15.5
-                    },
-                    {
-                        name: 'Ash',
-                        y: 1.68
-                    }
-                ]
-            }
-        ]
+        failure: function (response) {
+            ShowMessageError(response);
+        },
+        error: function (response) {
+            ShowMessageWarning(response);
+        }
     });
 }
 
@@ -278,6 +238,50 @@ function renderAreaChart(chartobj) {
     });
 }
 
+function rednderPieChart(chartobj) {
+    const dateToday = new Date();
+    console.log(dateToday);
+    const currentYear = dateToday.getFullYear();
+    console.log(currentYear);
+
+    console.log(chartobj);
+    $('#container3').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: chartobj.title_text,
+            align: 'center'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+        },
+        accessibility: {
+            point: {
+                valueSuffix: '%'
+            }
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.2f} %'
+                }
+            }
+        },
+        series: [{
+            name: 'Brands',
+            colorByPoint: true,
+            data: chartobj.data
+        }]
+    });
+}
+
 function HideNoChartData() {
     $("#divEmptyData").attr("hidden", true);
 }
@@ -292,4 +296,12 @@ function HideNoChartData2() {
 
 function ShowNoChartData2() {
     $("#divEmptyData2").attr("hidden", false);
+}
+
+function HideNoChartData3() {
+    $("#divEmptyData3").attr("hidden", true);
+}
+
+function ShowNoChartData3() {
+    $("#divEmptyData3").attr("hidden", false);
 }

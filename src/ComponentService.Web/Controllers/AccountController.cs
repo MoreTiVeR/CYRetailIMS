@@ -90,6 +90,7 @@ public class AccountController : BaseController
         }
         catch (Exception ex)
         {
+            _log.Error(ex.Message);
             return Json(new JsonViewModel { result = false, message = $"ไม่สามารถเข้าสู่ระบบได้ เนื่องจากเกิดข้อผิดพลาด, กรุณาลองใหม่อีกครั้ง <br>{ex.Message}" });
         }
     }

@@ -9,6 +9,7 @@ using CYRetailIMS.Application.ExternalService.ChartAPI;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Commands.UpdateAdjustItem;
 using CYRetailIMS.Application.Services.ChartService.Queries.GetMontlySaleSummaryBarchart.v1;
 using CYRetailIMS.Application.Services.ChartService.Queries.GetMontlySaleSummaryByYear.v1;
+using CYRetailIMS.Application.Services.ChartService.Queries.GetSellingTransactionByMonth.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ChartAPI;
 public class ChartAPI : HttpClientService, IChartAPI
@@ -33,5 +34,11 @@ public class ChartAPI : HttpClientService, IChartAPI
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetMontlySaleSummaryByYearResponseDTO>, GetMontlySaleSummaryByYearQuery>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/chart/v1/yearsale"), saleSummaryByYearQuery);
+    }
+
+    public async Task<BaseResponse<List<GetSellingTransactionByMonthResponseDTO>>> GetSellingItemPercnetageAsync(GetTransactionByMonthQuery transactionByMonthQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetSellingTransactionByMonthResponseDTO>, GetTransactionByMonthQuery>(HttpMethod.Post, 
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/chart/v1/sellingitempercentage"), transactionByMonthQuery);
     }
 }

@@ -7,6 +7,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.ChartAPI;
 using CYRetailIMS.Application.Services.ChartService.Queries.GetMontlySaleSummaryBarchart.v1;
 using CYRetailIMS.Application.Services.ChartService.Queries.GetMontlySaleSummaryByYear.v1;
+using CYRetailIMS.Application.Services.ChartService.Queries.GetSellingTransactionByMonth.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -100,6 +101,84 @@ public class HomeController : BaseController
                 yvalue = Convert.ToDouble(s.totalamount)
             }).ToList();
             return Json(new { result = true, data = highchartsModel, message = "Success" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GeneratePieChartByMonth()
+    {
+        try
+        {
+            var resPieData = await _chartAPI.GetSellingItemPercnetageAsync(new GetTransactionByMonthQuery
+            {
+                month = DateTime.Now.Month,
+                year = DateTime.Now.Year
+            });
+
+            HighchartsPieModel highchartsPieModel = new HighchartsPieModel
+            {
+                title_text = "สัดส่วนการขายสินค้าประจำเดือน" + new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("MMMM", CultureInfo.CreateSpecificCulture("th")),
+                data = new List<HighchartsPieDataModel>()
+            };
+            highchartsPieModel.data = resPieData.data.Select(s => new HighchartsPieDataModel
+            {
+                name = s.itemname,
+                y = s.percent,
+                selected = s.isselected,
+                sliced = s.issliced
+            }).ToList();
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Chrome",
+            //    y = 70.67,
+            //    sliced = true,
+            //    selected = true
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Edge",
+            //    y = 14.77
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Firefox",
+            //    y = 4.86
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Safari",
+            //    y = 2.63
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Internet Explorer",
+            //    y = 1.53
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Opera",
+            //    y = 1.40
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Sogou Explorer",
+            //    y = 0.84
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "QQ",
+            //    y = 0.51
+            //});
+            //highchartsPieModel.data.Add(new HighchartsPieDataModel
+            //{
+            //    name = "Other",
+            //    y = 2.6
+            //});
+            return Json(new { result = true, data = highchartsPieModel, message = "Success" });
         }
         catch (Exception ex)
         {

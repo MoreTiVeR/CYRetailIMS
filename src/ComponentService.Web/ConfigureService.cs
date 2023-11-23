@@ -78,6 +78,7 @@ public static class ConfigureService
         int sessionTimeout = configuration.GetSection("Appsettings")["SESSION_TIMEOUT"] != null ? int.Parse(configuration.GetSection("Appsettings")["SESSION_TIMEOUT"]) : 60;
         #endregion
 
+        //Allow Re-Complie .cshtml at runtime
         services.AddMvc().AddRazorRuntimeCompilation();
         services.AddControllersWithViews(opt =>
         {
@@ -168,8 +169,25 @@ public static class ConfigureService
 		services.AddScoped<IWarehouseAPI, WarehouseAPI>();
         services.AddScoped<ISupplierTypeAPI, SupplierTypeAPI>();
         services.AddScoped<IChartAPI, ChartAPI>();
-		#endregion
+        #endregion
 
-		return services;
+       
+
+        return services;
+    }
+
+    public static WebApplicationBuilder AddLogging(this WebApplicationBuilder webApplicationBuilder, IWebHostEnvironment webHostEnvironment)
+    {
+        #region Add Log4net
+        if (webHostEnvironment.IsProduction())
+        {
+            webApplicationBuilder.Logging.AddLog4Net("log4net.config");
+        }
+        else
+        {
+            webApplicationBuilder.Logging.AddLog4Net($"log4net.{webHostEnvironment.EnvironmentName}.config");
+        }
+        #endregion
+        return webApplicationBuilder;
     }
 }

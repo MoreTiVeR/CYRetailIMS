@@ -14,6 +14,9 @@ public class Program
         //Regis Service Container
         builder.Services.AddWebComponentServices(builder.Configuration, builder.Environment.EnvironmentName);
 
+        //Add Log4net
+        builder.AddLogging(builder.Environment);
+
         //Application Builder
         var app = builder.Build();
         #region Configure the Localization middleware

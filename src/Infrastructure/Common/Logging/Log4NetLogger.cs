@@ -9,7 +9,7 @@ public class Log4NetLogger : ILog4NetLogger
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDateTimeProvider _dateTimeProvider;
     private ILog _log => LogManager.GetLogger(Assembly.GetEntryAssembly(), typeof(Log4NetLogger));
-    private string _sessionID => $"{_httpContextAccessor.HttpContext.Request.Headers["refer"]}{_httpContextAccessor.HttpContext.Request.Headers["branch"]}-{_httpContextAccessor.HttpContext.Request.Headers["sender"]}{DateTime.Now.ToString("yyyyMMdd")}-{_httpContextAccessor.HttpContext.Request.Headers["forward"]}";
+    private string _sessionID => $"{_httpContextAccessor.HttpContext.Request.Headers["appid"]}-{DateTime.Now.ToString("yyyyMMdd")}";
     public Log4NetLogger(IHttpContextAccessor httpContextAccessor, IDateTimeProvider dateTimeProvider)
     {
         _httpContextAccessor = httpContextAccessor;
