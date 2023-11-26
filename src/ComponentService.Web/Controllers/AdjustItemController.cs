@@ -346,7 +346,7 @@ public class AdjustItemController : BaseController
             BaseResponse<List<GetAdjustItemTransactionsResponseDTO>> resData = await _adjustItemAPI.GetAdjustItemTransactionByBranchIDAsync(branchid);
             if (!resData.result)
             {
-                throw new Exception(resData.error.error.message);
+				return Json(new { result = false, data = new List<GetAdjustItemTransactionsResponseDTO>(), message = resData.error.error.message });
             }
             return Json(new { result = true, data = resData.data, message = "สำเร็จ" });
         }

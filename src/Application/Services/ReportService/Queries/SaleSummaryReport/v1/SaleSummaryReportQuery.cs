@@ -11,7 +11,8 @@ namespace CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryRepo
 [Serializable]
 public record SaleSummaryReportQuery : IRequest<BaseResponse<List<SaleSummaryReportResponseDTO>>>
 {
-	public DateTime transactiondate { get; init; }
+	public DateTime starttransactiondate { get; init; }
+	public DateTime endtransactiondate { get; init; }
 	public int? branchid { get; init; }
 	
 }

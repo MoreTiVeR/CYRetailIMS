@@ -1,5 +1,6 @@
 ﻿
 var datatable;
+$('.select2').select2();
 
 datatable = $("#tbSaleSummaryReport").DataTable({
     "destroy": true,
@@ -39,14 +40,15 @@ datatable = $("#tbSaleSummaryReport").DataTable({
         },
         { "data": "branchname" },
         {
-            "data": { auditid: "auditid", totalauditamount: "totalauditamount", transactionid: "transactionid" },
+            "data": { auditid: "auditid", totalauditamount: "totalauditamount", transactionid: "transactionid", transactiondate: "transactiondate" },
             "render": function (data) {
                 var _auditid = parseInt(data.auditid);
                 if (_auditid > 0) {
                     return "<span class='badges bg-lightgreen'>" + data.totalauditamount + "</span>";
                 }
                 else {
-                    return "<a href='AuditSaleSummaryReportByBranch?branchid=" + data.branchid + "'  class='me-3' title='คลิก เพื่อตรวจสอบ'><span class='badges bg-lightyellow'>รอตรวจสอบ</span></a>";
+                    var txndate = formatDateDDMMYYYY(new Date(data.transactiondate));
+                    return "<a href='AuditSaleSummaryReportByBranch?branchid=" + data.branchid + "&txndate=" + txndate + "'  class='me-3' title='คลิก เพื่อตรวจสอบ'><span class='badges bg-lightyellow'>รอตรวจสอบ</span></a>";
                 }
             }
         },
@@ -101,4 +103,46 @@ datatable = $("#tbSaleSummaryReport").DataTable({
             //  }
         }
     ]
+});
+
+
+$("#btnSearch").on('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    var startdate = $("#txtStartDate").val();
+    var enddate = $("#txtEndDate").val();
+    var val = $("#ddlBranch").val();
+    var branchid = parseInt(val);
+
+    var reqdata = { "startdate": startdate, "enddate": enddate, "branchid": branchid };
+    var jsonreqdata = JSON.stringify(reqdata);
+    console.log(jsonreqdata);
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Report/SearchSaleSummaryReport',
+        data: jsonreqdata,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+                ShowMessageSuccess(response.message);
+
+                //Update the DataTable with the filtered data from the server
+                /*console.log(response.data);*/
+                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+            }
+
+            console.log(response.data);
+            $("#tbSaleSummaryReport").DataTable().clear().rows.add(response.data).draw();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        }
+    });
 });

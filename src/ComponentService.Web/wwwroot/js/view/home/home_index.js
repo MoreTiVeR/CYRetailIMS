@@ -3,7 +3,7 @@
 $('.select2').select2();
 InitialMontlySaleSummaryBarchart();
 InitialYearlySaleSummaryAreaChart();
-InitialTop10SellingItemPieChart();
+/*InitialTop10SellingItemPieChart();*/
 //$(document).on('change', '.select2', function (e) {
 //    // Get the selected value
 //    var selectedValue = $(this).val();

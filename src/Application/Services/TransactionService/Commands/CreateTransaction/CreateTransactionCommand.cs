@@ -45,6 +45,9 @@ public record CreateTransactionCommand : IRequest<BaseResponse<CommandResponse>>
     [Required(ErrorMessage = "Required field")]
     public bool isactive { get; init; }
 
+    [MaxLength(200, ErrorMessage = "Maximum length 200")]
+    public string? remark { get; set; }
+
     [Required(ErrorMessage = "Required field")]
     [JsonProperty(Required = Required.Always)]
     public List<CreateTransactionDetailCommand> transactiondetail { get; init; }

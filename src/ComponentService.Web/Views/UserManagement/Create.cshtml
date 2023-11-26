@@ -87,7 +87,7 @@
                                 <option value="" selected>-- กรุณาเลือกสาขา --</option>
                                 foreach (var item in (List<GetBranchResponseDTO>)ViewBag.BranchList.data)
                                 {
-                                    <option value="@item.branchid">@item.branchname</option>
+                                    <option value="@item.branchid">@item.branchcode-@item.branchname</option>
                                 }
                             }
                         </select>

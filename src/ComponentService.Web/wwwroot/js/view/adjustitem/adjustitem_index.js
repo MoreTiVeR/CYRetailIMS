@@ -128,13 +128,12 @@ $("#btnSearch").on('click', function (event) {
                 ShowMessageSuccess(response.message);
 
                 //Update the DataTable with the filtered data from the server
-                console.log(response.data);
-                $("#tbAdjustItems").DataTable().clear().rows.add(response.data).draw();
             }
             else {
                 AlertError(response.message);
             }
-
+            console.log(response.data);
+            $("#tbAdjustItems").DataTable().clear().rows.add(response.data).draw();
         },
         failure: function (response) {
             AlertError(response.message);

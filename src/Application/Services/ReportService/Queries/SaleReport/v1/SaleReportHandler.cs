@@ -31,6 +31,7 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
 													  select new SaleReportResponseDTO
                                                       {
                                                           transactionid = tran.TransactionID,
+                                                          transactiondate = tran.TransactionDate,
                                                           itemcode = item.ItemCode,
                                                           itemname = item.Name,
                                                           brandid = item.BrandID,

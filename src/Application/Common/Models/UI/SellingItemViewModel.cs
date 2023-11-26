@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -39,8 +40,8 @@ public class SellingItemViewModel
     [Display(Name = "เงินฝาก")]
     public decimal mdeposit { get; set; }
 
-    [Required(ErrorMessage = "* กรุณาระบุยอดเงินสดคงเหลือ")]
-    [Display(Name = "เงินสด")]
+    [Required(ErrorMessage = "* กรุณาระบุยอดเงินพนักงานพาร์ทไทม์")]
+    [Display(Name = "เงินพนักงานพาร์ทไทม์")]
     public decimal mcash { get; set; }
 
     [Required(ErrorMessage = "* กรุณาระบุค่าธรรมเนียมเงินฝาก")]
@@ -49,4 +50,7 @@ public class SellingItemViewModel
 
     [Display(Name = "เงินรวม")]
     public decimal amount { get; set; }
+
+    [DisplayName("หมายเหตุ")]
+    public string? Remark { get; init; }
 }

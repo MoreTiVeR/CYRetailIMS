@@ -84,7 +84,7 @@ public class ItemController : BaseController
     public async Task<IActionResult> Index()
     {
         BaseResponse<List<GetBranchResponseDTO>> resBranchList = null;
-        if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
+        if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
         {
             resBranchList = await _branchAPI.GetBranchListAsync();
         }
@@ -666,13 +666,13 @@ public class ItemController : BaseController
         List<GetItemListResponseDTO> resItemList = null;
         try
         {
-            if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin)
+            if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
             {
                 //สินค้าคลังใหญ่
                 BaseResponse<List<GetItemListResponseDTO>> resItem = await _itemAPI.GetItemListAsync();
                 if (!resItem.result)
                 {
-                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
+                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน", data = new List<GetItemListResponseDTO>() });
                 }
                 resItemList = resItem.data;
 
@@ -683,7 +683,7 @@ public class ItemController : BaseController
                 BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
                 if (!resItemInBranch.result)
                 {
-                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน" });
+                    return Json(new { result = false, message = "ไม่มีสินค้าหน้าร้าน", data = new List<GetItemListResponseDTO>() });
                 }
                 //Mapping Data
                 resItemList = _mapper.Map<List<GetItemListResponseDTO>>(resItemInBranch.data.itemlist);

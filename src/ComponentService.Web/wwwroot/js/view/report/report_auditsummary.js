@@ -1,6 +1,6 @@
 ﻿
 InitialNumberInput();
-InitialDatePicker();
+InitialEditDatePicker();
 /*InitialDatePickerV2();*/
 InitialCharacterRemaining();
 $('.select2').select2();

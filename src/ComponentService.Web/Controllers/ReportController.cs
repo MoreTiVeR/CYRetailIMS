@@ -20,6 +20,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportBy
 using CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -75,18 +76,51 @@ public class ReportController : BaseController
         }
     }
 
-    /// <summary>
-    /// สรุปยอดรวมประจำวัน ของแต่ละสาขา 1 สาขามี 1 รายการ /1วัน
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IActionResult> SaleSummaryReportAsync()
+	[HttpPost]
+	public async Task<IActionResult> SearchSaleReport([FromBody] SearchSaleReportViewModel searchObj)
+	{
+		try
+		{
+			DateTime sDate = searchObj.startdate.DatetimePickerToDate();
+			DateTime eDate = searchObj.enddate.DatetimePickerToDate();
+			//StartDate > EndDate
+			if (DateTime.Compare(sDate, eDate) == 1)
+			{
+				throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+			}
+
+			BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
+			{
+				transaction_startdate = sDate,
+				transaction_enddate = eDate
+			});
+			if (!resReport.result)
+			{
+				return Json(new { result = false, message = resReport.error.error.message, data = new List<SaleReportResponseDTO>() });
+			}
+
+			//resReport.data = resReport.data.Where(w => w.createddate.Date >= sDate.Date && w.createddate.Date <= eDate.Date).ToList();
+			//if (resReport.data.Count == 0)
+			//{
+			//	return Json(new { result = false, message = "ไม่พบข้อมูล", data = new List<SaleReportResponseDTO>() });
+			//}
+
+			return Json(new { result = true, message = "สำเร็จ", data = resReport.data });
+		}
+		catch(Exception ex)
+		{
+			return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleReportResponseDTO>() });
+		}
+	}
+
+	/// <summary>
+	/// สรุปยอดรวมประจำวัน ของแต่ละสาขา 1 สาขามี 1 รายการ /1วัน
+	/// </summary>
+	/// <returns></returns>
+	public async Task<IActionResult> SaleSummaryReport()
     {
-        //BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
-		//{
-        //    transactiondate  = DateTime.Now
-        //});
-		//ViewBag.SaleSummaryReportList = resSaleSummaryReport;
-		return View();
+        ViewBag.BranchList = await PrepareSelectBranch();
+        return View();
 	}
 
     [HttpGet]
@@ -94,10 +128,12 @@ public class ReportController : BaseController
     {
         try
         {
+			int dayInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
             BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
             {
-                transactiondate = DateTime.Now
-            });
+                starttransactiondate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+				endtransactiondate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, dayInMonth)
+			});
             if (!resSaleSummaryReport.result)
             {
                 throw new Exception(resSaleSummaryReport.error.error.message);
@@ -110,12 +146,43 @@ public class ReportController : BaseController
         }
     }
 
-    /// <summary>
-    /// สรุปยอดรวมประจำวัน ของทุกสาขา 1รายการ/1วัน 
-    /// รายงานตั้งแต่วันที่ 1 ของเดือน ถึง end of month
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IActionResult> AuditReportAsync()
+	[HttpPost]
+	public async Task<IActionResult> SearchSaleSummaryReport([FromBody] SearchSaleSummaryReportViewModel searchObj)
+    {
+        try
+		{
+			DateTime sDate = searchObj.startdate.DatetimePickerToDate();
+			DateTime eDate = searchObj.enddate.DatetimePickerToDate();
+			//StartDate > EndDate
+			if (DateTime.Compare(sDate, eDate) == 1)
+			{
+				throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+			}
+
+			BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
+			{
+				starttransactiondate = sDate,
+				endtransactiondate = eDate,
+				branchid = searchObj.branchid
+			});
+			if (!resSaleSummaryReport.result)
+			{
+				return Json(new { result = false, message = resSaleSummaryReport.error.error.message, data = new List<SaleSummaryReportResponseDTO>() });
+			}
+			return Json(new { result = true, message = "สำเร็จ", data = resSaleSummaryReport.data });
+		}
+        catch(Exception ex)
+        {
+			return Json(new { result = false, message= $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleSummaryReportResponseDTO>() });
+		}
+    }
+
+	/// <summary>
+	/// สรุปยอดรวมประจำวัน ของทุกสาขา 1รายการ/1วัน 
+	/// รายงานตั้งแต่วันที่ 1 ของเดือน ถึง end of month
+	/// </summary>
+	/// <returns></returns>
+	public IActionResult AuditReport()
 	{
         //BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
         //{
@@ -299,6 +366,37 @@ public class ReportController : BaseController
         }
     }
 
+    [HttpPost]
+    public async Task<IActionResult> SearchAuditReport([FromBody] SearchAuditReportViewModel searchObj)
+    {
+        try
+        {
+            DateTime sDate = searchObj.startdate.DatetimePickerToDate();
+            DateTime eDate = searchObj.enddate.DatetimePickerToDate();
+            //StartDate > EndDate
+            if (DateTime.Compare(sDate, eDate) == 1)
+            {
+                throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+
+            BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
+            {
+                transaction_startdate = sDate,
+                transaction_enddate = eDate
+            });
+            if (!resAuditReport.result)
+            {
+                return Json(new { result = false, message = resAuditReport.error.error.message, data = new List<AuditReportResponseDTO>() });
+            }
+
+            return Json(new { result = true, message = "สำเร็จ", data = resAuditReport.data });
+        }
+        catch(Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<AuditReportResponseDTO>() });
+        }
+    }
+
     [Obsolete("*** Move to AuditSaleSummaryReportByBranch(int branchid)")]
     public async Task<IActionResult> AuditSaleSummaryReportByTransaction(int transactionid)
     {
@@ -307,14 +405,16 @@ public class ReportController : BaseController
         return View(auditReportViewData);
     }
 
-    public async Task<IActionResult> AuditSaleSummaryReportByBranch(int branchid)
+    public async Task<IActionResult> AuditSaleSummaryReportByBranch(int branchid, string txndate)
     {
-        BaseResponse<SaleSummaryReportResponseDTO> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportByBranchAsync(new SaleSummaryReportByBranchQuery
+		string sTxnDate = $"{txndate.Substring(0, 2)}/{txndate.Substring(2, 2)}/{txndate.Substring(4, 4)}";
+		BaseResponse<SaleSummaryReportResponseDTO> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportByBranchAsync(new SaleSummaryReportByBranchQuery
         {
             branchid = branchid,
-            transactiondate = DateTime.Now
-        });
+            transactiondate = sTxnDate.ToDate()
+		});
         AuditSaleSummaryReportViewModel auditReportViewData = _mapper.Map<AuditSaleSummaryReportViewModel>(resSaleSummaryReport.data);
+		auditReportViewData.TransactionDate = resSaleSummaryReport.data.transactiondate.ToDateString();
         return View(auditReportViewData);
     }
 
@@ -341,10 +441,15 @@ public class ReportController : BaseController
             description = reportData.AuditDescription,
             totalamountaudit = reportData.TotalAuditAmount.Value,
             createdby = base.UserProfile.username,
-            transactiondatetime = reportData.TransactionDate.ToDateTime(),
+            transactiondatetime = reportData.TransactionDate.ToDate(),
             //createddate = $"{reportData.TransactionDate} {DateTime.Now:HH}:{DateTime.Now:mm}:{DateTime.Now:ss}".ToDateTime(),
             createddate = DateTime.Now
         };
     }
 
+    public async Task<List<SelectListItem>> PrepareSelectBranch()
+    {
+        var resBranch = await _branchAPI.GetBranchListAsync();
+        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
+    }
 }

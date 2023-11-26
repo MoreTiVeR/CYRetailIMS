@@ -44,8 +44,11 @@ public partial class TTTransaction : BaseAuditableEntity
 
 	public bool IsExcludeVAT { get; set; }
 
+    [StringLength(100)]
+    [Unicode(false)]
+    public string? Remark { get; set; }
 
-	[InverseProperty("Transaction")]
+    [InverseProperty("Transaction")]
 	public virtual ICollection<TTTransactionAudit> TTTransactionAudits { get; set; } = new List<TTTransactionAudit>();
 
 	[InverseProperty("Transaction")]

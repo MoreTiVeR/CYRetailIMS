@@ -40,4 +40,26 @@ public static class DateTimeExtensions
             return dTime;
         }
     }
+
+    public static DateTime DatetimePickerToDate(this string datetimepickerValue)
+    {
+		string[] startDate = datetimepickerValue.Split("-");
+		if (startDate.Count() != 3)
+		{
+			throw new Exception("รูปแบบวันที่ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+		}
+		return new DateTime(startDate[2].ToInt32(), startDate[1].ToInt32(), startDate[0].ToInt32());
+	}
+
+    public static string ToDateString(this DateTime dateTime)
+    {
+        try
+        {
+            return $"{dateTime:dd/MM/yyyy}";
+        }
+        catch
+        {
+            return default;
+        }
+    }
 }

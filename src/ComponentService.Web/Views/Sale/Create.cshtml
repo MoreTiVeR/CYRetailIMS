@@ -189,12 +189,30 @@
                         </div>
                         <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
-                                <label>เงินหน้าร้าน</label>
+                                <label>เงินพนักงานพาร์ทไทม์</label>
                                 <div class="input-group">
                                     <input type="text" asp-for="mcash" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
                                     <span class="input-group-text">บาท</span>
                                 </div>
                                 <span asp-validation-for="mcash" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!--ROW-->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label>หมายเหตุ</label>
+                                @Html.TextAreaFor(m => m.Remark, new
+                                {
+                                @class = "form-control full-width",
+                                @style = "resize: none;",
+                                @cols = 5,
+                                @rows = 3,
+                                @maxlength = 200,
+                                value = "",
+                                placeholder = Html.DisplayNameFor(n => n.Remark)
+                                })
                             </div>
                         </div>
                     </div>

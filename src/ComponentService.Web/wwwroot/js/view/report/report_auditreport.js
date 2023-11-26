@@ -101,3 +101,42 @@ datatable = $("#tblAuditReport").DataTable({
         }
     ]
 });
+
+$("#btnSearch").on('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    var startdate = $("#txtStartDate").val();
+    var enddate = $("#txtEndDate").val();
+
+    var reqdata = { "startdate": startdate, "enddate": enddate };
+    var jsonreqdata = JSON.stringify(reqdata);
+    console.log(jsonreqdata);
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Report/SearchAuditReport',
+        data: jsonreqdata,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+                ShowMessageSuccess(response.message);
+
+                //Update the DataTable with the filtered data from the server
+                /*console.log(response.data);*/
+                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+            }
+
+            console.log(response.data);
+            $("#tblAuditReport").DataTable().clear().rows.add(response.data).draw();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        }
+    });
+});

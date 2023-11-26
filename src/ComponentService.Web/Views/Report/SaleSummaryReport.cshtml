@@ -41,29 +41,36 @@
 		<div class="card" id="filter_inputs">
 			<div class="card-body pb-0">
 				<div class="row">
-					<div class="col-lg-2 col-sm-6 col-12">
+					<div class="col-lg-3 col-sm-6 col-12">
 						<div class="form-group">
 							<div class="input-groupicon">
-								<input type="text" placeholder="From Date" class="datetimepicker">
+								<input id="txtStartDate" type="text" placeholder="จากวันที่" class="datetimepicker">
 								<div class="addonset">
 									<img src="~/assets/img/icons/calendars.svg" alt="img">
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-2 col-sm-6 col-12">
+					<div class="col-lg-3 col-sm-6 col-12">
 						<div class="form-group">
 							<div class="input-groupicon">
-								<input type="text" placeholder="To Date" class="datetimepicker">
+								<input id="txtEndDate" type="text" placeholder="ถึงวันที่" class="datetimepicker">
 								<div class="addonset">
 									<img src="~/assets/img/icons/calendars.svg" alt="img">
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-1 col-sm-6 col-12 ms-auto">
+					<div class="col-lg-3 col-sm-6 col-12">
 						<div class="form-group">
-							<a class="btn btn-filters ms-auto"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+							<select id="ddlBranch" class="ddl-select2 select2 ddl-source-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+								<option value="">--เลือกสาขา--</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group" style="text-align: left">
+							<a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
 						</div>
 					</div>
 				</div>

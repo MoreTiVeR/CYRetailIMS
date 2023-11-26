@@ -29,7 +29,7 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 																		  on new { tran.BranchID, tran.TransactionDate.Date } equals new { audit.BranchID, audit.TransactionDate.Date } into tAudit
 																		  from jAudit in tAudit.DefaultIfEmpty()
 																		  where tran.IsActive
-																		  && tran.TransactionDate.Date == request.transactiondate.Date
+																		  && (tran.TransactionDate.Date >= request.starttransactiondate.Date && tran.TransactionDate.Date <= request.endtransactiondate.Date)
 																		  select new SaleSummaryReportResponseDTO
 																		  {
 																			  transactionid = tran.TransactionID,
@@ -51,20 +51,12 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 																			  auditdescription = jAudit.Description
 																		  }).AsEnumerable();
 
+		if (request.branchid.HasValue)
+		{
+			resSaleSummaryReport = resSaleSummaryReport.Where(w => w.branchid == request.branchid.Value);
+		}
         resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => g.branchid).Select(s => new SaleSummaryReportResponseDTO
 		{
-            //branchid = s.Key.branchid,
-            //branchname = s.First(w => w.branchid == s.Key.branchid).branchname,
-            //transactiondate = s.First(w => w.branchid == s.Key.branchid).transactiondate,
-            //         totalamount = s.First(w => w.branchid == s.Key.branchid).totalamount,
-            //         amounttransfer = s.First(w => w.branchid == s.Key.branchid).amounttransfer,
-            //         amountdeposit = s.First(w => w.branchid == s.Key.branchid).amountdeposit,
-            //         amountcash = s.First(w => w.branchid == s.Key.branchid).amountcash,
-            //         depositfee = s.First(w => w.branchid == s.Key.branchid).depositfee,
-            //         createdby = s.First(w => w.branchid == s.Key.branchid).createdby,
-            //         auditid = s.First(w => w.branchid == s.Key.branchid).auditid,
-            //         totalauditamount = s.First(w => w.branchid == s.Key.branchid).totalauditamount,
-            //         auditdescription = s.First(w => w.branchid == s.Key.branchid).auditdescription
             branchid = s.Key,
             branchname = s.First(w => w.branchid == s.Key).branchname,
             transactiondate = s.First(w => w.branchid == s.Key).transactiondate,
@@ -78,12 +70,6 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
             totalauditamount = s.First(w => w.branchid == s.Key).totalauditamount,
             auditdescription = s.First(w => w.branchid == s.Key).auditdescription
         }).ToList();
-
-
-        if (request.branchid.HasValue)
-		{
-			resSaleSummaryReport = resSaleSummaryReport.Where(w => w.branchid == request.branchid.Value);
-		}
 
         if (!resSaleSummaryReport.Any())
 		{
@@ -101,7 +87,6 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
                 s.createdbystaff = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
                 ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
             }
-
             return s;
         }).ToList();
         #endregion
@@ -109,7 +94,7 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
         return new BaseResponse<List<SaleSummaryReportResponseDTO>>
 		{
 			result = true,
-			data = resSaleSummaryReport.OrderBy(w => w.branchid).ToList(),
+			data = resSaleSummaryReport.OrderByDescending(w => w.transactiondate).ToList(),
 			message = "Success",
 			soruce = "db",
 			status = StatusCodes.Status200OK.ToString()

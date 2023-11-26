@@ -386,7 +386,8 @@ public class SaleController : BaseController
             transactiondate = reqObj.saledate.ToDate(),
             createddate = DateTime.Now,
             createdby = base.UserProfile.username,
-            transactiondetail = createTransactionDetailCommands
+            transactiondetail = createTransactionDetailCommands,
+            remark = reqObj.Remark
         };
     }
 
