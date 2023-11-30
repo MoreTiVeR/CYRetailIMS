@@ -438,8 +438,6 @@ public partial class CYDBContext : DbContext
 		modelBuilder.Entity<TTTransactionAudit>(entity =>
 		{
 			entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
-
-			entity.HasOne(d => d.Transaction).WithMany(p => p.TTTransactionAudits).HasConstraintName("FK_TTTransactionAudit_TTTransactions");
 		});
 
 		modelBuilder.Entity<TTTransactonDetail>(entity =>

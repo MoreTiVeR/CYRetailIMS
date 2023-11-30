@@ -11,6 +11,7 @@
   <ItemGroup>
     <Folder Include="Caching\" />
     <Folder Include="Common\Mappings\UI\Sale\" />
+    <Folder Include="Services\ItemService\Queries\GetItemByBarcode\v2\" />
     <Folder Include="Services\SupplierContactTypeService\Commands\" />
     <Folder Include="Services\SupplierContactTypeService\EventHandlers\" />
     <Folder Include="Services\PaymentTypeService\Commands\" />

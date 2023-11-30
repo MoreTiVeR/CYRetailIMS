@@ -23,7 +23,7 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 	public async Task<BaseResponse<List<SaleSummaryReportResponseDTO>>> Handle(SaleSummaryReportQuery request, CancellationToken cancellationToken)
 	{
 		IEnumerable<SaleSummaryReportResponseDTO> resSaleSummaryReport = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
-																		  join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
+																		  //join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
 																		  join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
 																		  join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync(w => w.IsActive) 
 																		  on new { tran.BranchID, tran.TransactionDate.Date } equals new { audit.BranchID, audit.TransactionDate.Date } into tAudit

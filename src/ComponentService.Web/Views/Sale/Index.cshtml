@@ -107,7 +107,8 @@
                         <th>ยอดเงินรวม</th>
                         <th>เงินโอน</th>
                         <th>เงินฝาก</th>
-                        <th>เงินหน้าร้าน</th>
+                        <th>ค่าแรงวันหยุด</th>
+                        <th>หมายเหตุ</th>
                         <th>ผู้ทำรายการ</th>
                         @*<th class="text-center">ดำเนินการ</th>*@
                     </tr>
@@ -130,6 +131,7 @@
                                 <td>@item.amounttransfer</td>
                                 <td>@item.amountdeposit</td>
                                 <td>@item.amountcash</td>
+                                <td>@item.remark</td>
                                 <td>@item.createdbystaff</td>
                                 @*<td class="text-center">
                                     <a class="action-set" href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="true">

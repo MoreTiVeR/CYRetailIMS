@@ -24,8 +24,4 @@ public partial class TTTransactionAudit : BaseAuditableEntity
     [StringLength(200)]
     [Unicode(false)]
     public string? Description { get; set; }
-
-    [ForeignKey("BranchID")]
-    [InverseProperty("TTTransactionAudits")]
-    public virtual TTTransaction Transaction { get; set; } = null!;
 }

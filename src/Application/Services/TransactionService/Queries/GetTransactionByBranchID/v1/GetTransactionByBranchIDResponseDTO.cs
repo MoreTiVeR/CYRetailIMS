@@ -35,6 +35,6 @@ public class GetTransactionByBranchIDResponseDTO
 	public string updatedby { get; set; }
 	public DateTime? updateddate { get; set; }
 	public bool isactive { get; set; }
-
+    public string remark { get; set; }
     public List<GetTransactionDetailResponseDTO> detail { get; set; }
 }

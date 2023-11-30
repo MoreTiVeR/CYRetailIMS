@@ -133,4 +133,20 @@ public class ItemController : BaseApiController
         _log.Debug($"[{DateTime.Now}]GetItemByBarCodeAsync Success");
         return Ok(res.data);
     }
+
+    [HttpPost]
+    [Route("v2/getitembybarcode")]
+    [ProducesResponseType(typeof(GetItemByIDResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemByBarCodeV2Async(GetItemByBarcodeQuery getItemByBarcodeQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<GetItemByIDResponseDTO> res = await Mediator.Send(getItemByBarcodeQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemByBarCodeV2Async Success");
+        return Ok(res.data);
+    }
 }

@@ -10,6 +10,7 @@ using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 
@@ -61,5 +62,11 @@ public class ItemAPI : HttpClientService, IItemAPI
     {
         return await _httpClientRequest.HttpRequestToObject<GetItemByIDResponseDTO, object>(HttpMethod.Get,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/item/v1/getitembybarcode/{itemBarcode}"), null);
+    }
+
+    public async Task<BaseResponse<GetItemByIDResponseDTO>> GetItemByBarCodeV2Async(GetItemByBarcodeQuery getItemByBarcodeQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetItemByIDResponseDTO, GetItemByBarcodeQuery>(HttpMethod.Post, 
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/item/v2/getitembybarcode"), getItemByBarcodeQuery);
     }
 }

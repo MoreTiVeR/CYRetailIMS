@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>1.0.23.0</Version>
-    <FileVersion>1.0.23.0</FileVersion>
-    <AssemblyVersion>1.0.23.0</AssemblyVersion>
+    <Version>1.0.24.1</Version>
+    <FileVersion>1.0.24.1</FileVersion>
+    <AssemblyVersion>1.0.24.1</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

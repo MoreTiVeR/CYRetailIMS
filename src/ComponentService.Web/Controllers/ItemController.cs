@@ -42,6 +42,7 @@ using Microsoft.AspNetCore.Authorization;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using System.Text.RegularExpressions;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -1355,12 +1356,12 @@ public class ItemController : BaseController
 
         try
         {
-            Regex regex = new Regex("^[A-Za-z0-9]+$");
-            var dd = regex.Match(transferItemData.sbarcode);
-            if (!regex.Match(transferItemData.sbarcode).Success)
-            {
-                return Json(new { result = false, message = "กรุณากดเปลี่ยนภาษาคีย์บอร์ดเป็นอังกฤษ" });
-            }
+            //Regex regex = new Regex("^[A-Za-z0-9]+$");
+            //var dd = regex.Match(transferItemData.sbarcode);
+            //if (!regex.Match(transferItemData.sbarcode).Success)
+            //{
+            //    return Json(new { result = false, message = "กรุณากดเปลี่ยนภาษาคีย์บอร์ดเป็นอังกฤษ" });
+            //}
             
             if(transferItemData.nqty <= 0)
             {
@@ -1412,7 +1413,12 @@ public class ItemController : BaseController
             #endregion
 
             #region Validate Qty in Stock TMItem by barcode before response
-            BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeAsync(transferItemData.sbarcode);
+            BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeV2Async(new GetItemByBarcodeQuery {itembarcode = transferItemData.sbarcode });
+            if (!resItem.result)
+            {
+                return Json(new { result = false, message = $"{resItem.error.error.message} บาร์โค้ด {transferItemData.sbarcode}" });
+            }
+
             if (resItem.data.qty < tempTransferItemList.FirstOrDefault(w => w.nitemid == resItem.data.itemid)?.nqty)
             {
                 return Json(new { result = false, message = $"ไม่สามารภทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
