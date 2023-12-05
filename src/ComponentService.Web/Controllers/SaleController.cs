@@ -21,6 +21,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBran
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
@@ -141,6 +142,46 @@ public class SaleController : BaseController
         ViewBag.ItemBrandList = resItemBrandList;
         ViewBag.ItemUOMList = resUnitOfMeasureList;
         return View(viewModel);
+    }
+
+
+    public IActionResult CountStockHistory()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult GetCountStockHistory()
+    {
+        try
+        {
+            //int dayInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+            //BaseResponse<List<SaleSummaryReportResponseDTO>> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportAsync(new SaleSummaryReportQuery
+            //{
+            //    starttransactiondate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+            //    endtransactiondate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, dayInMonth)
+            //});
+            //if (!resSaleSummaryReport.result)
+            //{
+            //    throw new Exception(resSaleSummaryReport.error.error.message);
+            //}
+            //return Json(new { data = resSaleSummaryReport.data });
+            return Json(new { result = true, message="สำเร็จ", data = new List<SaleSummaryReportResponseDTO>() });
+        }
+        catch
+        {
+            return Json(new { result = false, message = "ไม่สามารถดึงข้อมูลนับสต๊อกได้ กรุณาลองใหม่อีกครั้ง", data = new List<SaleSummaryReportResponseDTO>() });
+        }
+    }
+
+    public IActionResult CreateCountStock()
+    {
+        return View();
+    }
+
+    public IActionResult EditCountStock(int countstockid)
+    {
+        return View();
     }
 
     /// <summary>
