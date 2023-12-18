@@ -161,7 +161,8 @@
                             <div class="form-group">
                                 <label>ยอดเงินโอน</label>
                                 <div class="input-group">
-                                    <input type="text" asp-for="mtransfer" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
+                                    @*<input type="text" asp-for="mtransfer" class="form-control allownumericwithdecimal" onchange="return CalculateTotalAmount(this.value, this.name)" aria-label="Amount (to the nearest dollar)">*@
+                                    <input type="text" asp-for="mtransfer" class="form-control allownumericwithdecimal" onchange="return CalculateTotalAmount(this.value, this.name)" aria-label="Amount (to the nearest dollar)">
                                     <span class="input-group-text">บาท</span>
                                 </div>
                                 <span asp-validation-for="mtransfer" class="text-danger"></span>

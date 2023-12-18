@@ -25,7 +25,7 @@ public class CreateEmployeeViewModel
     public string Email { get; init; }
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "*กรุณาระบุเบอร์มือถือ10หลัก")]
-    [RegularExpression("^([0]{1})([8-9]{1})([0-9]{1})([0-9]{7})$", ErrorMessage = "เบอร์มือถือไม่ถูกต้อง")]
+    [RegularExpression("^([0]{1})([1-9]{1})([0-9]{1})([0-9]{7})$", ErrorMessage = "เบอร์มือถือไม่ถูกต้อง")]
     [MaxLength(10, ErrorMessage = "Maximum length 10")]
     public string MobileNo { get; init; }
 

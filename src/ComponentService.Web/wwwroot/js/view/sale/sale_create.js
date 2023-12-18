@@ -369,12 +369,28 @@ function CalculatePriceByQty(qty, name) {
     $("#txtSummaryTHB").val(currencyFormat(totalAmt));
 }
 
+//function CalculateTotalAmount(x, y) {
+//    var totalRow = parseInt($("#totalrow").val());
+//    console.log('value: ' + x + '|' + 'name: ' +y);
+//    ShowMessageInfo('Total Row: ' + totalRow);
+
+//    var totalAmt = 0;
+//    for (var i = 0; i < totalRow; i++) {
+//        var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
+//        totalAmt += parseFloat(txtAmt);
+//    }
+//    $("#txtSummaryTHB").val(currencyFormat(totalAmt));
+//    ShowMessageInfo('Total Amount: ' + totalAmt);
+    
+//}
+
 function OnSuccess(data) {
-    $("#txtSummaryTHB").val(0);
+    /*$("#txtSummaryTHB").val(0);*/
 
     if (data.result) {
         ShowMessageSuccess(data.msg);
         AlertSuccess(data.msg);
+        $("#txtSummaryTHB").val(0);
         ResetForm();
     }
     else {

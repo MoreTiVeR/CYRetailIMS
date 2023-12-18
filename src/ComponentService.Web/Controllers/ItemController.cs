@@ -809,8 +809,9 @@ public class ItemController : BaseController
                         }
 
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        _log.Error($"UploadFilesAsync -> Invalid data row: {row} | err_msg: {ex.Message}");
                         errCount++;
                         errRow.Add(row);
                     }
@@ -818,7 +819,7 @@ public class ItemController : BaseController
 
                 if (errRow.Count > 0)
                 {
-                    return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, ข้อมูลไม่ถุกต้องจำนวน {errCount} แถว, กรุณาตรวจสอบข้อมูลแถวที่ -> {errRow.Aggregate((s, t) => s + ',' + t)}" });
+                    return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, ข้อมูลไม่ถุกต้องจำนวน {errCount} แถว, กรุณาตรวจสอบข้อมูลแถวที่ -> {errRow.Select(s => s.ToString()).ToList().Aggregate((s, t) => s + ", " + t)}" });
                 }
                 #endregion
 
@@ -1052,8 +1053,13 @@ public class ItemController : BaseController
         List<CreateItemDetailCommand> createItemDetailCommands = new List<CreateItemDetailCommand>();
         itemViewModel.ForEach(s =>
         {
+            if(s.itemcode == "VIY17s")
+            {
+
+            }
+
             //Check isexist itemcode
-            GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim().ToLower() == s.itemcode.Trim().ToLower());
+            GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim() == s.itemcode.Trim());
             if (item != null)
             {
                 s.isupdate = true;
