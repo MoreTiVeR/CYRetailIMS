@@ -71,19 +71,19 @@ public class ItemTransferController : BaseApiController
         return Ok(res.data);
     }
 
-    [HttpGet]
-    [Route("v1/itemtransferlist")]
+    [HttpPost]
+    [Route("v1/itemtransferforadmin")]
     [ProducesResponseType(typeof(List<GetItemTransferResponseDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetItemTransferListAsync()
+    public async Task<IActionResult> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery)
     {
         DateTime dtStart = DateTime.Now;
-        BaseResponse<List<GetItemTransferResponseDTO>> res = await Mediator.Send(new GetItemTransferListQuery());
+        BaseResponse<List<GetItemTransferResponseDTO>> res = await Mediator.Send(getItemTransferListQuery);
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
-        _log.Debug($"[{DateTime.Now}]GetItemTransferListAsync Success");
+        _log.Debug($"[{DateTime.Now}]GetItemTransferForAdminAsync Success");
         return Ok(res.data);
     }
 

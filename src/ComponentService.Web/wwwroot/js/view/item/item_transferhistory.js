@@ -47,7 +47,7 @@ datatable = $("#tbItemTransferHistory").DataTable({
             "render": function (data) {
                 var _transferstatusid = parseInt(data.transferstatusid);
                 if (_transferstatusid == 1) {
-                    return "<span class='badges bg-lightyellow'>" + data.transferstatusname_th + "</span>";
+                    return "<span class='badges bg-lightgreen'>" + data.transferstatusname_th + "</span>";
                 }
                 else if (_transferstatusid == 2 || _transferstatusid == 99) {
                     return "<span class='badges bg-lightred'>" + data.transferstatusname_th + "</span>";

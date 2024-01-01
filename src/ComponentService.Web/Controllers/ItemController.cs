@@ -43,6 +43,8 @@ using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using System.Text.RegularExpressions;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
+using System.Linq;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -146,26 +148,15 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> TransferHistory()
     {
-        //BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
-        //if (base.UserProfile.roleid == (int)UserRole.Admin)
-        //{
-        //    transferHistory = await _itemTransferAPI.GetItemTransferListAsync();
-        //}
-        //else
-        //{
-        //    transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
-        //    {
-        //        destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid
-        //    });
-        //}
-
-        //ViewBag.ItemTransferHistory = transferHistory;
-
         ViewBag.BranchList = await PrepareSelectBranch();
         ViewBag.ItemTransferStatus = await PrepareSelectItemTransferStatus();
         return View();
     }
 
+    /// <summary>
+    /// Default Item Transfer History
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> GetItemTransferHistory()
     {
@@ -174,7 +165,7 @@ public class ItemController : BaseController
         {
             if (base.UserProfile.roleid == (int)UserRole.Admin)
             {
-                transferHistory = await _itemTransferAPI.GetItemTransferListAsync();
+                transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
             }
             else
             {
@@ -201,38 +192,71 @@ public class ItemController : BaseController
         BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
         try
         {
-            if (searchItem.branchid.HasValue)
+            #region Prepare Date
+            DateTime transferDt = DateTime.Now;
+            if (!string.IsNullOrEmpty(searchItem.transferdate))
             {
-                transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
+                string[] transferDate = searchItem.transferdate.Split("-");
+                if (transferDate.Count() != 3)
                 {
-                    destinationbranchid = searchItem.branchid.Value
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                transferDt = new DateTime(transferDate[2].ToInt32(), transferDate[1].ToInt32(), transferDate[0].ToInt32());
+            }
+            #endregion
+
+            if (base.UserProfile.roleid == (int)UserRole.Admin)
+            {
+                transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery
+                {
+                    branchid = searchItem.branchid,
+                    transferdate = transferDt,
+                    transferstatusid = searchItem.transferstatusid
                 });
             }
             else
             {
-                transferHistory = await _itemTransferAPI.GetItemTransferListAsync();
+                transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
+                {
+                    destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+                    transferdate = transferDt,
+                    transferstatusid = searchItem.transferstatusid
+                });
             }
+
+            //if (searchItem.branchid.HasValue)
+            //{
+            //    transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
+            //    {
+            //        destinationbranchid = searchItem.branchid.Value
+            //    });
+            //}
+            //else
+            //{
+            //    transferHistory = await _itemTransferAPI.GetItemTransferListAsync();
+            //}
+
             if (!transferHistory.result)
             {
                 return Json(new { result = false, message = $"ไม่พบข้อมูลการโอนสินค้า", data = new List<GetItemTransferResponseDTO>() });
             }
 
             #region Where with condition SearchItemTransferHistoryViewModel
-            if (searchItem.transferstatusid.HasValue)
-            {
-                transferHistory.data = transferHistory.data.Where(w => w.transferstatusid == searchItem.transferstatusid.Value).ToList();
-            }
+            //if (searchItem.transferstatusid.HasValue)
+            //{
+            //    transferHistory.data = transferHistory.data.Where(w => w.transferstatusid == searchItem.transferstatusid.Value).ToList();
+            //}
 
-            if (!string.IsNullOrEmpty(searchItem.transferdate))
-            {
-                string[] transferDate = searchItem.transferdate.Split("-");
-                if(transferDate.Count() != 3)
-                {
-                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-                }
-                DateTime transferDt = new DateTime(transferDate[2].ToInt32(), transferDate[1].ToInt32(), transferDate[0].ToInt32());
-                transferHistory.data = transferHistory.data.Where(w => w.createddate.Date == transferDt.Date).ToList();
-            }
+            //if (!string.IsNullOrEmpty(searchItem.transferdate))
+            //{
+            //    string[] transferDate = searchItem.transferdate.Split("-");
+            //    if(transferDate.Count() != 3)
+            //    {
+            //        throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            //    }
+            //    DateTime transferDt = new DateTime(transferDate[2].ToInt32(), transferDate[1].ToInt32(), transferDate[0].ToInt32());
+            //    transferHistory.data = transferHistory.data.Where(w => w.createddate.Date == transferDt.Date).ToList();
+            //}
             #endregion
 
             if (transferHistory.data.Count == 0)
@@ -1003,7 +1027,11 @@ public class ItemController : BaseController
 
     public async Task<List<SelectListItem>> PrepareSelectBranch()
     {
-        var resBranch = await _branchAPI.GetBranchListAsync();
+
+        BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+        resBranch.data = base.UserProfile.roleid == (int)EnumModel.UserRole.Sale 
+            ? resBranch.data.Where(w => base.UserProfile.access_branch.Select(s => s.branchid).Contains(w.branchid)).ToList()
+            : resBranch.data;
         return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
     }
 

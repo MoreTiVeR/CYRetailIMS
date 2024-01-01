@@ -11,6 +11,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTr
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatusByID.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
@@ -43,10 +44,10 @@ public class ItemTransferAPI : HttpClientService, IItemTransferAPI
              object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransfer/{itemTrasferID}"), null);
     }
 
-    public async Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferListAsync()
+    public async Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery)
     {
-        return await _httpClientRequest.HttpRequestToObject<List<GetItemTransferResponseDTO>,
-              object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransferlist"), null);
+        return await _httpClientRequest.HttpRequestToObject<List<GetItemTransferResponseDTO>, 
+            GetItemTransferListQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransferforadmin"), getItemTransferListQuery);
     }
 
 

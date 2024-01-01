@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTr
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatusByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeByID.v1;
@@ -21,7 +22,8 @@ public interface IItemTransferAPI
     Task<BaseResponse<CommandResponse>> ReceiveItemTransferAsync(UpdateItemTransferCommand receiveItemTransferCommand);
 
     Task<BaseResponse<GetItemTransferResponseDTO>> GetItemTransferByIDAsync(int itemTrasferID);
-    Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferListAsync();
+
+    Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery);
 
     Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferByCriteriaAsync(GetItemTransferByCriteriaQuery getItemTransferByCriteriaQuery);
 

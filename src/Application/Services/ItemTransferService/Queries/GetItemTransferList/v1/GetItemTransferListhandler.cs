@@ -23,37 +23,60 @@ public class GetItemTransferListhandler : BaseService, IRequestHandler<GetItemTr
 
     public async Task<BaseResponse<List<GetItemTransferResponseDTO>>> Handle(GetItemTransferListQuery request, CancellationToken cancellationToken)
     {
-        List<GetItemTransferResponseDTO> resItemTransfer = (from a in await _unitOfWork.Repository<TTItemTransfer>().QueryAsync()
-                                                            join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals item.ItemID
-                                                            join b in await _unitOfWork.Repository<TMItemTransferStatus>().QueryAsync() on a.TransferStatus equals b.TransferStatusID
-                                                            join c in await _unitOfWork.Repository<TMTransferType>().QueryAsync() on a.TransferTypeID equals c.TransferTypeID
-                                                            where a.IsActive && a.CreatedDate.Month == DateTime.Now.Month
-                                                            select new GetItemTransferResponseDTO
-                                                            {
-                                                                transferid = a.TransferID,
-                                                                transfertypeid = a.TransferTypeID,
-                                                                transfertypename = c.TransferTypeName,
-                                                                description = a.Description,
-                                                                sourceid = a.SourceID,
-                                                                destinationid = a.DestinationID,
-                                                                createddate = a.CreatedDate,
-                                                                createdby = a.CreatedBy,
-                                                                transferstatusid = b.TransferStatusID,
-                                                                transferstatusname_th = b.TransferStatusName_TH,
-                                                                transferstatusname_en = b.TransferStatusName_EN,
-                                                                itemid = a.ItemID,
-                                                                itemname = item.Name,
-                                                                qty = a.Qty,
-                                                                receiveqty = a.ReceiveQTY,
-                                                                returnqty = a.ReturnQTY,
-                                                                updatedby = a.UpdatedBy,
-                                                                updateddate = a.UpdatedDate
-                                                            }).ToList();
+        var resData = (from a in await _unitOfWork.Repository<TTItemTransfer>().QueryAsync()
+                       join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals item.ItemID
+                       join b in await _unitOfWork.Repository<TMItemTransferStatus>().QueryAsync() on a.TransferStatus equals b.TransferStatusID
+                       join c in await _unitOfWork.Repository<TMTransferType>().QueryAsync() on a.TransferTypeID equals c.TransferTypeID
+                       where a.IsActive
+                       select new GetItemTransferResponseDTO
+                       {
+                           transferid = a.TransferID,
+                           transfertypeid = a.TransferTypeID,
+                           transfertypename = c.TransferTypeName,
+                           description = a.Description,
+                           sourceid = a.SourceID,
+                           destinationid = a.DestinationID,
+                           createddate = a.CreatedDate,
+                           createdby = a.CreatedBy,
+                           transferstatusid = b.TransferStatusID,
+                           transferstatusname_th = b.TransferStatusName_TH,
+                           transferstatusname_en = b.TransferStatusName_EN,
+                           itemid = a.ItemID,
+                           itemname = item.Name,
+                           qty = a.Qty,
+                           receiveqty = a.ReceiveQTY,
+                           returnqty = a.ReturnQTY,
+                           updatedby = a.UpdatedBy,
+                           updateddate = a.UpdatedDate
+                       }).AsEnumerable();
 
-        if (!resItemTransfer.Any())
+        if (request.transferdate.HasValue)
+        {
+            resData = resData.Where(w => w.createddate.Date == request.transferdate.Value.Date);
+        }
+        else
+        {
+            //Current Month
+            resData = resData.Where(w => w.createddate.Month == DateTime.Now.Month);
+        }
+
+        if (request.transferstatusid.HasValue)
+        {
+            resData = resData.Where(w => w.transferstatusid == request.transferstatusid.Value);
+        }
+
+        if (request.branchid.HasValue)
+        {
+            resData = resData.Where(w => w.destinationid == request.branchid.Value);
+        }
+
+        if (!resData.Any())
         {
             throw new Exception("ไม่พบรายการโอนสินค้า");
         }
+
+        //Assign data
+        List<GetItemTransferResponseDTO> resItemTransfer = resData.ToList();
 
         //Get TMApproveStatus list
         List<TMBranch> resBranchList = _unitOfWork.Repository<TMBranch>().Where(w =>

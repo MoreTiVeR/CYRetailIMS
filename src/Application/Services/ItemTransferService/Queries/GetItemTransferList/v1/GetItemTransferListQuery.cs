@@ -10,4 +10,9 @@ using MediatR;
 namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
 
 [Serializable]
-public record GetItemTransferListQuery : IRequest<BaseResponse<List<GetItemTransferResponseDTO>>> { }
+public record GetItemTransferListQuery : IRequest<BaseResponse<List<GetItemTransferResponseDTO>>> 
+{
+    public DateTime? transferdate { get; init; }
+    public int? transferstatusid { get; init; }
+    public int? branchid { get; init; }
+}
