@@ -22,7 +22,7 @@ public class GetTransactionByBranchIDHandler : BaseService, IRequestHandler<GetT
 	{
 		List<GetTransactionByBranchIDResponseDTO> resTransaction = (from tran in await _unitOfWork.Repository<TTTransaction>().FindWithInclude(w => w.BranchID == request.branchid
                                                                     //&& (w.TransactionDate.Date >= DateTime.Now.Date && w.TransactionDate.Date <= DateTime.Now.Date) 
-                                                                    && w.TransactionDate.Month >= DateTime.Now.Month
+                                                                    //&& w.TransactionDate.Month >= DateTime.Now.Month
                                                                     && w.IsActive, i => i.Include(ii => ii.TransactionType), idetail => idetail.Include(d => d.TTTransactonDetails))
 																	join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
 																	join trantype in await _unitOfWork.Repository<TMTransactionType>().QueryAsync() on tran.TransactionTypeID equals trantype.TransactionTypeID
