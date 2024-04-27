@@ -110,7 +110,7 @@
                         <th>ค่าแรงวันหยุด</th>
                         <th>หมายเหตุ</th>
                         <th>ผู้ทำรายการ</th>
-                        @*<th class="text-center">ดำเนินการ</th>*@
+                        <th class="text-center">ดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,6 +118,9 @@
                     {
                         foreach (var item in (List<GetTransactionByBranchIDResponseDTO>)ViewBag.TransactionList.data)
                         {
+                            string rName = $"rowid{@item.transactionid}";
+                            Dictionary<string, string> aTransactionID = new Dictionary<string, string> { { "tranid", item.transactionid.ToString() } };
+
                             <tr>
                                 <td hidden>
                                     <label class="checkboxs">
@@ -133,7 +136,7 @@
                                 <td>@item.amountcash</td>
                                 <td>@item.remark</td>
                                 <td>@item.createdbystaff</td>
-                                @*<td class="text-center">
+                                <td class="text-center">
                                     <a class="action-set" href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="true">
                                         <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
                                     </a>
@@ -142,13 +145,16 @@
                                             <a href="sales-details.html" class="dropdown-item"><img src="~/assets/img/icons/eye1.svg" class="me-2" alt="img">รายละเอียด</a>
                                         </li>
                                         <li>
-                                            <a href="edit-sales.html" class="dropdown-item"><img src="~/assets/img/icons/edit.svg" class="me-2" alt="img">แก้ไขข้อมูล</a>
+                                            <a asp-action="Edit" asp-controller="Transactions" title="แก้ไขข้อมูลขาย" asp-all-route-data="aTransactionID" class="dropdown-item"><img src="~/assets/img/icons/edit.svg" class="me-2" alt="img">แก้ไขข้อมูล</a>
                                         </li>
                                         <li>
-                                            <a href="javascript:void(0);" class="dropdown-item confirm-text"><img src="~/assets/img/icons/delete1.svg" class="me-2" alt="img">ลบข้อมูล</a>
+                                            <a href="#" id="@rName" class="dropdown-item" onclick="deleteTransaction(@item.transactionid)"><img src="~/assets/img/icons/delete1.svg" class="me-2" alt="img">ลบข้อมูล</a>
+                                            @*<a href="#" id="@item.transactionid" class="me-3" title="ลบข้อมูลสินค้า" onclick="deleteTransaction(@item.transactionid)">
+                                                <img src="~/assets/img/icons/delete.svg" alt="img">
+                                            </a>*@
                                         </li>
                                     </ul>
-                                </td>*@
+                                </td>
                             </tr>
                         }
                     }
@@ -337,6 +343,6 @@
 @section Scripts{
 
     <!--Page Script-->
-    @*<script src="~/js/view/sale/sale_index.js" asp-append-version="true"></script>*@
+    <script src="~/js/view/transactions/transaction_delete.js" asp-append-version="true"></script>
 
 }

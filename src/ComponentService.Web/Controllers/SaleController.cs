@@ -144,7 +144,6 @@ public class SaleController : BaseController
         return View(viewModel);
     }
 
-
     public IActionResult CountStockHistory()
     {
         return View();
