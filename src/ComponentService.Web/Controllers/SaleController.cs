@@ -130,9 +130,6 @@ public class SaleController : BaseController
         });
         EditItemViewModel viewModel = EditItemMapping(resItemBranch.data.item);
 
-        //BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(itemid);
-        //EditItemViewModel viewModel = EditItemMapping(resItem.data);
-
         //Get Master Data
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
         BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();

@@ -90,7 +90,7 @@ public class LoginHandler : BaseService, IRequestHandler<LoginQuery, BaseRespons
         {
             result = true,
             data = resData,
-            message = "Sucess",
+            message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()
         };

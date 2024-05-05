@@ -7,6 +7,7 @@ using CYRetailIMS.Application.Common.Mappings.UI.Employee;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
 using CYRetailIMS.Application.Common.Mappings.UI.Report;
 using CYRetailIMS.Application.Common.Mappings.UI.Supplier;
+using CYRetailIMS.Application.Common.Mappings.UI.Transaction;
 using CYRetailIMS.Application.Common.Mappings.UI.User;
 using CYRetailIMS.Application.ExternalService.AccountAPI;
 using CYRetailIMS.Application.ExternalService.AdjustItemAPI;
@@ -124,6 +125,10 @@ public static class ConfigureService
 
             #region Supplier
             mc.AddProfile<SupplierMappingProfile>();
+            #endregion
+
+            #region Transaction
+            mc.AddProfile<TransactionsMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

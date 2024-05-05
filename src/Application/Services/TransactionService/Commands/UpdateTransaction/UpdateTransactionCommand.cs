@@ -22,4 +22,6 @@ public record UpdateTransactionCommand : IRequest<BaseResponse<CommandResponse>>
     [MaxLength(10, ErrorMessage = "Maximum length 10")]
     public string updatedby { get; init; }
 
+    public string remark { get; set; }
+
 }

@@ -881,7 +881,8 @@ $(document).ready(function(){
 		 	'</div>' +
 	  	'</div>';
 
-$("body").append(customize_link);
+/* »Ô´ Customize */
+/*$("body").append(customize_link);*/
 
 $('.add-setting').on("click", function (e) {
 	e.preventDefault();

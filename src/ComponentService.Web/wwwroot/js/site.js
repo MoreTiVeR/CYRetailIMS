@@ -57,6 +57,32 @@ function InitialDatePicker() {
     datepicker.set('select', new Date())
 }
 
+function InitialDatePickerWithoutSetCurrentData() {
+    var now = new Date();
+    var $input = $('.pickadate-saledate').pickadate({
+        selectYears: true,
+        selectMonths: true,
+        language: 'th-th',
+        format: 'dd/mm/yyyy',
+        formatSubmit: 'dd/mm/yyyy',
+        monthsFull: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'],
+        monthsShort: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'พ.ย.', 'พ.ย.', 'ธ.ค.'],
+        weekdaysShort: ['อา', 'จ', 'ค', 'พ', 'พฤ', 'ศ', 'ส'],
+        today: 'วันนี้',
+        clear: 'ล้างค่า',
+        close: 'ปิด',
+        onSet: function (event) {
+            var $input = $('#date-fin').pickadate();
+            var picker = $input.pickadate('picker');
+            var tempDate = new Date(event.select);
+            //picker.set('select', tempDate.setDate(tempDate.getDate() + 7));
+            //picker.set('min', new Date(event.select));
+        }
+    });
+    datepicker = $input.pickadate('picker');
+    //datepicker.set('select', new Date())
+}
+
 function InitialEditDatePicker() {
     var now = new Date();
     var $input = $('.pickadate-saledate').pickadate({

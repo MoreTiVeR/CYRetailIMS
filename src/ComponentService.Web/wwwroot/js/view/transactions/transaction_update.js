@@ -1,9 +1,14 @@
-﻿function deleteTransaction(tranid) {
+﻿var datepicker;
 
+InitialDatePickerWithoutSetCurrentData();
+InitialNumberInput();
+$('.select2').select2();
+
+
+$("#btnUpdateTrasaction").on('click', function () {
     Swal.fire({
-        title: "ยืนยันการลบข้อมูล?",
-        //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
-        html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!</span>",
+        title: "ยืนยันการแก้ไขข้อมูล?",
+        html: "<span class='text-success'>ระบบจะทำการปรับปรุงข้อมูล <span class='text-danger'><u>วันที่ขาย</u></span> เท่านั้น</span>",
         icon: 'warning',
         type: "warning",
         showCancelButton: true,
@@ -12,52 +17,99 @@
         confirmButtonText: "ยืนยัน",
         confirmButtonClass: "btn btn-primary",
         cancelButtonText: "ยกเลิก",
-        cancelButtonClass: "btn btn-danger ml-1",
+        cancelButtonClass: "btn btn-primary ml-1",
         buttonsStyling: false,
     }).then(function (t) {
         if (t.value) {
+            
+            $("#global-loader").css('display', '');
+            var frmEditTransaction = $("#frmEditTransaction");
+            frmEditTransaction.validate();
+            var isValid = frmEditTransaction.valid();
 
-            //Delete
-            $.ajax({
-                type: 'POST',
-                url: '/Sale/DeleteItem',
-                data: JSON.stringify({ ItemID: itemid }),
-                contentType: 'application/json',
-                success: function (data) {
-                    if (data.result) {
+            if (isValid) {
+                console.log('Call => UpdateTransaction');
+                $.validator.unobtrusive.parse(frmEditTransaction);
+                var data = $(frmEditTransaction).serializeJSON();
+                console.log(data);
+                data = JSON.stringify(data);
+                $.ajax({
+                    type: 'POST',
+                    url: '/Transactions/UpdateTransaction',
+                    data: data,
+                    contentType: 'application/json',
+                    success: function (data) {
+                        if (data.result) {
+                            //popup.dialog('close');
 
-                        AlertSuccess('ลบข้อมูลสำเร็จ');
-                        $("#global-loader").css('display', 'none');
-                        //ShowMessageSuccess(data.message);
+                            console.log(data);
+                            AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');
+                            /*$("#frmEditItem")[0].reset();*/
+                            $("#global-loader").css('display', 'none');
+                            //ShowMessageSuccess(data.message);
 
-                        //To do next?
-                        //window.location = data.url;
-                        //itemDataTable.row('.selected').remove().draw(false);
-                        //dataTable.ajax.reload();
-                        /*$("#tbItems").DataTable().ajax.reload();*/
-                        /* $('#tbItems').DataTable().ajax.reload();*/
-                        //$('#tbItems').DataTable().ajax.reload();
-
-                        console.log("#rowid" + itemid);
-                        $("#rowid" + itemid).closest("tr").remove();
-                        $('#tbItems').DataTable().ajax.reload();
-                        //$("#rowid" + itemid).closest("tr").remove().draw(false);
-                        //console.log(row);
-                        //$('#tbItems').DataTable().row(row).remove().draw(false);
-
-                        //var row = $('#dataTable').DataTable().rows('.remove-row').closest('tr');
-                        //alert('test -> ' + row);
-                        //var rowdata = $('#tbItems').DataTable().row(row).data();
-                        //alert('data -> ' + rowdata)
-                        //AlertSuccess('ลบแถวสำเร็จ');
+                            //To do next?
+                            //window.location = data.url;
+                        }
+                        else {
+                            //ShowMessageError(data.message);
+                            AlertError(data.message);
+                            $("#global-loader").css('display', 'none');
+                        }
                     }
-                    else {
-                        //ShowMessageError(data.message);
-                        AlertError(data.message);
-                        $("#global-loader").css('display', 'none');
-                    }
-                }
-            });
+                });
+                return false;
+            }
+            else {
+                ShowMessageWarning('ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบใหม่อีกครั้ง!');
+                $("#global-loader").css('display', 'none');
+            }
         }
     });
+});
+
+function editTransactionV2(form) {
+    $("#global-loader").css('display', '');
+
+    var frmEditTransaction = $("#frmEditTransaction");
+    frmEditTransaction.validate();
+    var isValid = frmEditTransaction.valid();
+
+    if (isValid) {
+        console.log('Call => UpdateTransaction');
+        $.validator.unobtrusive.parse(form);
+        var data = $(form).serializeJSON();
+        console.log(data);
+        data = JSON.stringify(data);
+        $.ajax({
+            type: 'POST',
+            url: '/Transactions/UpdateTransaction',
+            data: data,
+            contentType: 'application/json',
+            success: function (data) {
+                if (data.result) {
+                    //popup.dialog('close');
+
+                    console.log(data);
+                    AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');
+                    /*$("#frmEditItem")[0].reset();*/
+                    $("#global-loader").css('display', 'none');
+                    //ShowMessageSuccess(data.message);
+
+                    //To do next?
+                    //window.location = data.url;
+                }
+                else {
+                    //ShowMessageError(data.message);
+                    AlertError(data.message);
+                    $("#global-loader").css('display', 'none');
+                }
+            }
+        });
+        return false;
+    }
+    else {
+        ShowMessageWarning('ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบใหม่อีกครั้ง!');
+        $("#global-loader").css('display', 'none');
+    }
 }

@@ -6,6 +6,7 @@ using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransac
 using CYRetailIMS.Application.Services.TransactionService.Commands.DeleteTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Commands.UpdateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByCriteria.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByTransactionID.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
@@ -44,5 +45,9 @@ public class TransactionAPI : HttpClientService, ITransactionAPI
             object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/transaction/v1/transactionbyid/{transactionid}"), null);
     }
 
-
+    public async Task<BaseResponse<GetTransactionByCriteriaResponseDTO>> GetTransactionByCriteriaAsync(GetTransactionByCriteriaQuery criteriaQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetTransactionByCriteriaResponseDTO,
+            object>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/transaction/v1/transaction"), criteriaQuery);
+    }
 }

@@ -1,0 +1,214 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI;
+@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
+    UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
+}
+@model EditTransactionViewModel
+
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>แก้ไขรายการขาย</h4>
+        <h6>ปรับปรุงข้อมูลขายสินค้า</h6>
+    </div>
+</div>
+
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <form id="frmEditTransaction" class="form-edit-transaction">
+            <input type="hidden" asp-for="TransactionID" readonly>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>สาขา</label>
+                        <div class="row">
+                            <div class="col-lg-12 col-sm-10 col-12">
+                                <select id="ddlBranch" class="form-control select2 ddl-ddlBranch" asp-for="BranchID">
+                                    @if (userProfile.access_branch is not null)
+                                    {
+                                        foreach (var branch in userProfile.access_branch)
+                                        {
+                                            if(Model.BranchID == @branch.branchid)
+                                            {
+                                                <option value="@branch.branchid" selected>@branch.branchname</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@branch.branchid">@branch.branchname</option>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">-- ไม่พบสาขา --</option>
+                                    }
+                                </select>
+                            </div>
+                            <span asp-validation-for="BranchID" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>วันที่ขาย</label>
+                        <div class="input-groupicon">
+                            <input id="txtSaleDate" type="text" placeholder="กรุณาเลือกวันที่ขายสินค้า" class="pickadate-saledate" asp-for="TransactionDate">
+                            <a class="addonset">
+                                <img src="~/assets/img/icons/calendars.svg" alt="img">
+                            </a>
+                            <span asp-validation-for="TransactionDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12 ">
+                    <div class="form-group">
+                        <label>รวมเงินทั้งหมด :</label>
+                        <div class="input-group">
+                            <input type="number" id="txtSummaryTHB" name="txtSummaryTHB" asp-for="TotalAmount" class="form-control" placeholder="รวมเงิน" readonly aria-label="จำนวนเงิน (บาท)">
+                            <div class="input-group-append">
+                                <span class="input-group-text">THB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--ROW-->
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ยอดเงินโอน</label>
+                        <div class="input-group">
+                            <input type="text" asp-for="AmountTransfer" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)" readonly>
+                            <span class="input-group-text">บาท</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ยอดเงินฝาก</label>
+                        <div class="input-group">
+                            <input type="text" asp-for="AmountDeposit" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)" readonly>
+                            <span class="input-group-text">บาท</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>ค่าธรรมเนียม</label>
+                        <div class="input-group">
+                            <input type="text" asp-for="AmountFee" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)" readonly>
+                            <span class="input-group-text">บาท</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>เงินพนักงานพาร์ทไทม์</label>
+                        <div class="input-group">
+                            <input type="text" asp-for="AmountCash" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)" readonly>
+                            <span class="input-group-text">บาท</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--ROW-->
+            <div class="table-responsive">
+                <table class="table datanew">
+                    <thead>
+                        <tr>
+                            <th hidden>
+                                <label class="checkboxs">
+                                    <input type="checkbox" id="select-all">
+                                    <span class="checkmarks"></span>
+                                </label>
+                            </th>
+                            <th>ลำดับ</th>
+                            <th>สินค้า</th>
+                            <th>ราคาขาย</th>
+                            <th>จำนวน</th>
+                            <th>เงินรวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Detail != null)
+                        {
+                            foreach (var item in (List<EditTransactionDetailViewModel>)Model.Detail)
+                            {
+                                string rName = $"rowid{@item.TransactionID}";
+                                Dictionary<string, string> aTransactionID = new Dictionary<string, string> { { "tranid", item.TransactionID.ToString() } };
+
+                                <tr>
+                                    <td hidden>
+                                        <label class="checkboxs">
+                                            <input type="checkbox">
+                                            <span class="checkmarks"></span>
+                                        </label>
+                                    </td>
+                                    <td>@item.Seq</td>
+                                    <td>@item.ItemName</td>
+                                    <td>@item.Price</td>
+                                    <td>@item.Qty</td>
+                                    <td>@item.Amount</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!--ROW-->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label>หมายเหตุ</label>
+                        @Html.TextAreaFor(m => m.Remark, new
+                        {
+                        @class = "form-control full-width",
+                        @style = "resize: none;",
+                        @cols = 5,
+                        @rows = 3,
+                        @maxlength = 200,
+                        value = "",
+                        placeholder = Html.DisplayNameFor(n => n.Remark)
+                        })
+                    </div>
+                </div>
+            </div>
+            @*<div class="row">
+                <div class="col-lg-12">
+                    <a asp-action="Index" asp-controller="Sale" class="btn btn-cancel me-2">ยกเลิก</a>
+                    <button id="btnSaveTrasaction" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+                </div>
+            </div>*@
+        </form>
+        <div class="row">
+            <div class="col-lg-12">
+                <a asp-action="Index" asp-controller="Sale" class="btn btn-cancel me-2">ยกเลิก</a>
+                <button id="btnUpdateTrasaction" type="button" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /add -->
+@section Scripts{
+    <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+
+    <!--Page Script-->
+    <script src="~/js/view/transactions/transaction_update.js" asp-append-version="true"></script>
+}
+
+

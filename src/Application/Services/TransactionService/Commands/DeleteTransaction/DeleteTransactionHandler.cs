@@ -19,9 +19,9 @@ public class DeleteTransactionHandler : BaseService, IRequestHandler<DeleteTrans
     public async Task<BaseResponse<CommandResponse>> Handle(DeleteTransactionCommand request, CancellationToken cancellationToken)
     {
         IQueryable<TTTransaction> resTrans = await _unitOfWork.Repository<TTTransaction>().FindWithInclude(w => w.TransactionID == request.transactionid, i => i.Include(w => w.TTTransactonDetails));
-        if(resTrans == null || !resTrans.Any())
+        if (resTrans == null || !resTrans.Any())
         {
-            throw new Exception("ไม่พบข้อมูลในการทำรายการ!");
+            throw new Exception("Not found transaction");
         }
 
         resTrans.ToList().ForEach(w =>
@@ -40,7 +40,7 @@ public class DeleteTransactionHandler : BaseService, IRequestHandler<DeleteTrans
         return new BaseResponse<CommandResponse>
         {
             result = true,
-            message = "ลบรายการสำเร็จ",
+            message = "Success",
             soruce = "DB",
             status = StatusCodes.Status200OK.ToString(),
             data = new CommandResponse { result = true }

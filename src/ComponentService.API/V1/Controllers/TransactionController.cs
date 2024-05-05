@@ -5,6 +5,7 @@ using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransac
 using CYRetailIMS.Application.Services.TransactionService.Commands.DeleteTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Commands.UpdateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByCriteria.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByTransactionID.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -93,6 +94,22 @@ public class TransactionController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetTransactionByTransactionIDAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/transaction")]
+    [ProducesResponseType(typeof(GetTransactionByCriteriaResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetTransactionByCriteriaAsync(GetTransactionByCriteriaQuery getTransactionByCriteria)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<GetTransactionByCriteriaResponseDTO > res = await Mediator.Send(getTransactionByCriteria);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetTransactionByCriteriaAsync Success");
         return Ok(res.data);
     }
 }

@@ -26,6 +26,7 @@ public class UpdateTransactionHandler : BaseService, IRequestHandler<UpdateTrans
             throw new Exception("ไม่พบข้อมูลในการทำรายการ!");
         }
         resTran.TransactionDate = request.transactiondate;
+        resTran.Remark = request.remark;
         resTran.SetUpdatedBy(request.updatedby);
         resTran.SetUpdatedDate();
         resTran.AddDomainEvent(new TTTransactionsUpdateEvent(resTran));
@@ -33,7 +34,7 @@ public class UpdateTransactionHandler : BaseService, IRequestHandler<UpdateTrans
         return new BaseResponse<CommandResponse>
         {
             result = true,
-            message = "ปรับปรุงวันที่ทำรายการสำเร็จ",
+            message = "Success",
             soruce = "DB",
             status = StatusCodes.Status200OK.ToString(),
             data = new CommandResponse { result = true }
