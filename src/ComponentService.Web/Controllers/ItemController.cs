@@ -849,11 +849,11 @@ public class ItemController : BaseController
 
                 #region Create item List
                 CreateItemListCommand CreateItemListCommand = await MappingCreateItemListCommand(itemList);
-                //BaseResponse<CommandResponse> resImportItems = await _itemAPI.CreateItemListAsync(CreateItemListCommand);
-                //if (!resImportItems.result)
-                //{
-                //    throw new Exception(resImportItems.error.error.message);
-                //}
+                BaseResponse<CommandResponse> resImportItems = await _itemAPI.CreateItemListAsync(CreateItemListCommand);
+                if (!resImportItems.result)
+                {
+                    throw new Exception(resImportItems.error.error.message);
+                }
                 #endregion
 
                 #region SETUP FILENAME, Save to directory
@@ -1081,11 +1081,6 @@ public class ItemController : BaseController
         List<CreateItemDetailCommand> createItemDetailCommands = new List<CreateItemDetailCommand>();
         itemViewModel.ForEach(s =>
         {
-            if(s.itemcode == "VIY17s")
-            {
-
-            }
-
             //Check isexist itemcode
             GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim() == s.itemcode.Trim());
             if (item != null)
