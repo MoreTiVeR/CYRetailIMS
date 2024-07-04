@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
@@ -40,13 +41,15 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         #endregion
 
         #region Validate Item in Destination Branch
+        //IEnumerable<TMItemInBranch> resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
+        //&& w.ItemID == request.itemid
+        //&& w.IsActive);
         IEnumerable<TMItemInBranch> resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
-        && w.ItemID == request.itemid
-        && w.IsActive);
-        //if (resItemInDestinationBranch.Count() != itemList.Count)
-        //{
-        //    throw new Exception("ขออภัย, ไม่พบสินค้าที่ต้องการโอนในสาขาปลายทาง! กรุณาตรวจสอบรายการโอนสินค้าใหม่อีกครั้ง");
-        //}
+        && w.ItemID == request.itemid);
+        if (resItemInDestinationBranch.Any(w => w.IsActive == ((int)EnumModel.ItemInBranchStatus.InActive).ToBool()))
+        {
+            throw new Exception("ขออภัย, มีรายการสินค้าที่ถูกยกเลิกในสาขาปลายทางแล้ว! กรุณาเปิดใช้งานสินค้าและทำรายการใหม่อีกครั้ง");
+        }
         #endregion
 
         switch (request.transferstatusid)

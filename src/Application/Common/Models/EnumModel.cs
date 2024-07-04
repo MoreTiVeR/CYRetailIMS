@@ -97,5 +97,11 @@ public static class EnumModel
         Add = 1,
         Delete = 2
     }
+
+    public enum ItemInBranchStatus
+    {
+        InActive = 0,
+        Active = 1
+    }
 }
 
