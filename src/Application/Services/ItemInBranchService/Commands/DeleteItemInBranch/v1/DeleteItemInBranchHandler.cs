@@ -27,6 +27,12 @@ public class DeleteItemInBranchHandler : BaseService, IRequestHandler<DeleteItem
             throw new Exception("ไม่พบข้อมูลสินค้าในสาขา");
         }
 
+        //Check available qty in stock
+        if(resItemInBranch.Any(s => s.Qty > 0))
+        {
+            throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีสต๊อกคงเหลือในระบบ");
+        }
+
         resItemInBranch.ToList().ForEach(e =>
         {
             e.DeActiveStatus();
