@@ -11,6 +11,7 @@ public class SaleReportResponseDTO
 {
     public int transactionid { get; set; }
     public DateTime transactiondate { get; set; }
+    public int itemid { get; set; }
     public string itemcode { get; set; }
     public string itemname { get; set; }
     public int brandid { get; set; }
