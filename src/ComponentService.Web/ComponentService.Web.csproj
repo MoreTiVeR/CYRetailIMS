@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>1.0.25.1</Version>
-    <FileVersion>1.0.25.1</FileVersion>
-    <AssemblyVersion>1.0.25.1</AssemblyVersion>
+    <Version>1.0.26.0</Version>
+    <FileVersion>1.0.26.0</FileVersion>
+    <AssemblyVersion>1.0.26.0</AssemblyVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
@@ -37,7 +37,7 @@
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="6.1.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.12" ExcludeAssets="All"/>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.12" ExcludeAssets="All" />
     <PackageReference Include="NetBarcode" Version="1.7.0" />
   </ItemGroup>
 

@@ -17,6 +17,7 @@ public record UpdateItemInBranchCommand : IRequest<BaseResponse<CommandResponse>
     //public int unitofmeasureid { get; init; }
     public int qty { get; init; }
     //public string description { get; init; }
+    public int notifyminqty { get; set; }
     public decimal price { get; init; }
     //public decimal cost { get; init; }
     //public bool isactive { get; init; }

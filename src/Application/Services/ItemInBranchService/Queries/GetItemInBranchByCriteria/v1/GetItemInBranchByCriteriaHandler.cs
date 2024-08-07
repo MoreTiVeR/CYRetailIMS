@@ -65,8 +65,10 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                         updatedby = x.UpdatedBy,
                         updateddate = x.UpdatedDate,
                         barcode = x.Item.BarCode,
-                        notifyminqty = x.Item.NotifyMinQty,
-                        notifymaxqty = x.Item.NotifyMaxQty
+                        //notifyminqty = x.Item.NotifyMinQty,
+                        //notifymaxqty = x.Item.NotifyMaxQty
+                        notifyminqty = x.NotifyMinQty,
+                        notifymaxqty = x.NotifyMaxQty
                     }).FirstOrDefault()
         }).OrderBy(o => o.branchid).FirstOrDefault();
 

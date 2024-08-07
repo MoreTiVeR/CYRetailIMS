@@ -1,0 +1,1 @@
+﻿ALTER TABLE TMItemInBranch ADD NotifyMinQty INT NULL, NotifyMaxQty INT NULL

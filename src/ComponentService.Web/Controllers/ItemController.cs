@@ -1175,12 +1175,17 @@ public class ItemController : BaseController
 
     private UpdateItemInBranchCommand MappingUpdateItemInBranchCommand(EditItemViewModel itemViewModel)
     {
+        if(itemViewModel.NotifyMinQty < 0)
+        {
+            throw new Exception("จำนวนขั้นต่ำไม่น้อยกว่า 0");
+        }
         return new UpdateItemInBranchCommand
         {
             branchid = itemViewModel.BranchID,
             itemid = itemViewModel.ItemID,
             price = itemViewModel.Price,
             qty = itemViewModel.Qty,
+            notifyminqty = itemViewModel.NotifyMinQty,
             updatedby = base.UserProfile.username,
             updateddate = DateTime.Now
         };

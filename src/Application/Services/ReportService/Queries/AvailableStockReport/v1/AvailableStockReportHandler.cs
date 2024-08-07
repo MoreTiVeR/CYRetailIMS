@@ -20,7 +20,7 @@ public class AvailableStockReportHandler : BaseService, IRequestHandler<Availabl
     }
 
     /// <summary>
-    /// iายงานสต๊อกขั้นต่ำ warehouse
+    /// รายงานสต๊อกขั้นต่ำ warehouse
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
