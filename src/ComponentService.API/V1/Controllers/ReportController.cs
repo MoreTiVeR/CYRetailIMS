@@ -10,6 +10,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportBy
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -185,6 +186,23 @@ public class ReportController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]AvailableItemInStockByBrachReportAsync Success");
+        return Ok(res.data);
+    }
+
+
+    [HttpPost]
+    [Route("v1/inventoryreport")]
+    [ProducesResponseType(typeof(List<InventoryReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> InventoryReportAsync(InventoryReportQuery inventoryReportQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<InventoryReportResponseDTO>> res = await Mediator.Send(inventoryReportQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]InventoryReportAsync Success");
         return Ok(res.data);
     }
 

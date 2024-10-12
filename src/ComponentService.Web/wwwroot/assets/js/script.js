@@ -170,7 +170,20 @@ $(document).ready(function(){
 				previous: 'fas fa-angle-left'
 			}
 		});
-	}
+    }
+
+    // Datetimepicker
+    if ($('.datetimepickermonth').length > 0) {
+        $('.datetimepickermonth').datetimepicker({
+            format: 'MM-YYYY',
+            icons: {
+                up: "fas fa-angle-up",
+                down: "fas fa-angle-down",
+                next: 'fas fa-angle-right',
+                previous: 'fas fa-angle-left'
+            }
+        });
+    }
 	
 	// toggle-password
 	if($('.toggle-password').length > 0) {

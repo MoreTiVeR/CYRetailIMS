@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CYRetailIMS.Application.Common.Extensions;
 public static class DateTimeExtensions
@@ -50,6 +51,16 @@ public static class DateTimeExtensions
 		}
 		return new DateTime(startDate[2].ToInt32(), startDate[1].ToInt32(), startDate[0].ToInt32());
 	}
+
+    public static DateTime DatetimePickerToMonthYear(this string datetimepickerValue)
+    {
+        string[] startDate = datetimepickerValue.Split("-");
+        if (startDate.Count() != 2)
+        {
+            throw new Exception("รูปแบบวันที่ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+        }
+        return new DateTime(startDate[1].ToInt32(), startDate[0].ToInt32(), 1);
+    }
 
     public static string ToDateString(this DateTime dateTime)
     {

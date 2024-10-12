@@ -1,0 +1,105 @@
+﻿
+@{
+    ViewData["Title"] = "InventoryReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>รายงานสั่งสินค้าเข้าคลัง</h4>
+        <h6>รายงานสำหรับสั่งสินค้าเข้าคลัง</h6>
+    </div>
+</div>
+<!-- /product list -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-top">
+            <div class="search-set">
+                <div class="search-path">
+                    <a class="btn btn-filter" id="filter_search">
+                        <img src="~/assets/img/icons/filter.svg" alt="img">
+                        <span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
+                    </a>
+                </div>
+                <div class="search-input">
+                    <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+                </div>
+            </div>
+            @*<div class="wordset">
+            <ul>
+            <li>
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="~/assets/img/icons/pdf.svg" alt="img"></a>
+            </li>
+            <li>
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+            </li>
+            </ul>
+            </div>*@
+        </div>
+        <!-- /Filter -->
+        <div class="card" id="filter_inputs">
+            <div class="card-body pb-0">
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group">
+                            <div class="input-groupicon">
+                                <input id="txtStartDate" type="text" placeholder="จากวันที่" class="datetimepickermonth">
+                                <div class="addonset">
+                                    <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group" style="text-align: left">
+                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        @* <div class="form-group" style="text-align: left">
+                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                        </div> *@
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12"></div>
+                </div>
+            </div>
+        </div>
+        <!-- /Filter -->
+        <div class="table-responsive">
+            <table id="tblInventoryReport" class="table">
+                <thead>
+                    <tr>
+                        <th hidden>
+                            <label class="checkboxs">
+                                <input type="checkbox" id="select-all">
+                                <span class="checkmarks"></span>
+                            </label>
+                        </th>
+                        <th>รหัสสินค้า</th>
+                        <th>ชื่อสินค้า</th>
+                        <th>คลังคงเหลือ</th>
+                        <th>ยอดขาย</th>
+                        <th>ขั้นต่ำคลัง</th>
+                        <th>ขั้นสูงคลัง</th>
+                        <th>สั่งเข้า(1)</th>
+                        <th>สั่งเข้า(2)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /product list -->
+
+@section Scripts {
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+    <!--Page Script-->
+    <script src="~/js/view/report/report_inventoryreport.js" asp-append-version="true"></script>
+
+}
