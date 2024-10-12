@@ -24,7 +24,11 @@ public partial class TMItemInBranch : BaseAuditableEntity
 
 	public int Qty { get; set; }
 
-	[ForeignKey("BranchID")]
+    public int? NotifyMinQty { get; set; }
+
+    public int? NotifyMaxQty { get; set; }
+
+    [ForeignKey("BranchID")]
 	[InverseProperty("TMItemInBranches")]
 	public virtual TMBranch Branch { get; set; } = null!;
 

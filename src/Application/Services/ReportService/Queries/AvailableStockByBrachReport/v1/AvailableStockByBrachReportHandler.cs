@@ -38,7 +38,7 @@ public class AvailableStockByBrachReportHandler : BaseService, IRequestHandler<A
             branchid = s.Key,
             branchname = s.FirstOrDefault(w => w.BranchID == s.Key).Branch.BranchName,
             itemlist = (from x in s
-                        where x.Qty <= x.Item.NotifyMinQty
+                        where x.Qty <= x.NotifyMinQty
                         select new AvailableStockReportResponseDTO
                         {
                             itemid = x.ItemID,
@@ -52,8 +52,8 @@ public class AvailableStockByBrachReportHandler : BaseService, IRequestHandler<A
                             itemtypeid = x.Item.ItemTypeID,
                             itemtypename = x.Item.ItemType.ItemTypeName,
                             barcode = x.Item.BarCode,
-                            minqty = x.Item.NotifyMinQty,
-                            maxqty = x.Item.NotifyMaxQty,
+                            minqty = x.NotifyMinQty,
+                            maxqty = x.NotifyMaxQty,
                             branchid = s.Key,
                             branchname = s.FirstOrDefault(w => w.BranchID == s.Key).Branch.BranchName
                         }).ToList()

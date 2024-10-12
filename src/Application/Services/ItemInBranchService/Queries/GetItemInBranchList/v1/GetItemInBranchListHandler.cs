@@ -62,7 +62,10 @@ public class GetItemInBranchListHandler : BaseService, IRequestHandler<GetItemIn
                             updatedby = x.UpdatedBy,
                             updateddate = x.UpdatedDate,
                             barcode = x.Item.BarCode,
-                            notifyminqty = x.Item.NotifyMinQty
+                            //notifyminqty = x.Item.NotifyMinQty,
+                            //notifymaxqty = x.Item.NotifyMaxQty
+                            notifyminqty = x.NotifyMinQty,
+                            notifymaxqty = x.NotifyMaxQty
                         }).ToList()
         }).OrderBy(o => o.branchid).ToList();
 

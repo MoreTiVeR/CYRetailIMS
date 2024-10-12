@@ -48,7 +48,7 @@ public class GetItemInBranchByBranchIDItemResponseDTO
 
     #region Add on 20-10-2023
     public string barcode { get; set; }
-    public int notifyminqty { get; set; }
+    public int? notifyminqty { get; set; }
     public int? notifymaxqty { get; set; }
     public string createdby { get; set; }
 

@@ -49,6 +49,7 @@ public class UpdateItemInBranchHandler : BaseService, IRequestHandler<UpdateItem
 
             e.Price = request.price;
             e.Qty = request.qty;
+            e.NotifyMinQty = request.notifyminqty;
             e.SetUpdatedBy(request.updatedby);
             e.SetUpdatedDate(request.updateddate);
             //e.IsActive = request.isactive;

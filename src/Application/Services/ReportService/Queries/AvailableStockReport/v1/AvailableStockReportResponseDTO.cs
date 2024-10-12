@@ -20,7 +20,7 @@ public class AvailableStockReportResponseDTO
     public decimal price { get; set; }
     public decimal cost { get; set; }
     public int qty { get; set; }
-    public int minqty { get; set; }
+    public int? minqty { get; set; }
     public int? maxqty { get; set; }
     public int branchid { get; set; }
     public string branchname { get; set; }
