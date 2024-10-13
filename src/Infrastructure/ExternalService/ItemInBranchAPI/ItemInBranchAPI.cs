@@ -13,6 +13,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBran
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 public class ItemInBranchAPI : HttpClientService, IItemInBranchAPI
@@ -57,5 +58,9 @@ public class ItemInBranchAPI : HttpClientService, IItemInBranchAPI
               new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/getiteminbranchbycriteria"), criteriaQuery);
     }
 
-
+    public async Task<BaseResponse<List<GetItemInventoryTransferResposeDTO>>> GetItemInventoryForTransferAsync(GetItemInventoryTransferQuery inventoryTransferQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetItemInventoryTransferResposeDTO>, GetItemInventoryTransferQuery>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/getiteminventorytransfer"), inventoryTransferQuery);
+    }
 }

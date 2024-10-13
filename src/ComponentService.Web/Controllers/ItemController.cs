@@ -45,6 +45,9 @@ using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItem
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
 using System.Linq;
+using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -150,6 +153,13 @@ public class ItemController : BaseController
     {
         ViewBag.BranchList = await PrepareSelectBranch();
         ViewBag.ItemTransferStatus = await PrepareSelectItemTransferStatus();
+        return View();
+    }
+
+    public async Task<IActionResult> InventoryTransfer()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.ItemBrandList = await PrepareSelectBrand();
         return View();
     }
 
@@ -1035,6 +1045,12 @@ public class ItemController : BaseController
         return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
     }
 
+    public async Task<List<SelectListItem>> PrepareSelectBrand()
+    {
+        BaseResponse<List<GetItemBrandListResponseDTO>> resBranch = await _itemBrandAPI.GetItemBrandListAsync();
+        return resBranch.data.Select(s => new SelectListItem { Text = s.brandname, Value = s.brandid.ToString() }).ToList();
+    }
+
     public async Task<List<SelectListItem>> PrepareSelectItemTransferType()
     {
         BaseResponse<List<GetTransferTypeListResponseDTO>> resItemTransaferTypeList = await _itemTransferAPI.GetItemTransferTypeAsync();
@@ -1513,5 +1529,36 @@ public class ItemController : BaseController
         res = await _itemAPI.GetItemListAsync();
         HttpContext.Session.SetDataToSession("ITEM_DATA", res);
         return res;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetItemInventoryTransfer()
+    {
+        try
+        {
+            #region Paging
+            //var form = Request.Form.ToList();
+            //string draw = form.Where(w => w.Key == "draw").FirstOrDefault().Value[0];
+            //var start = form.Where(w => w.Key == "start").FirstOrDefault().Value[0];
+            //var length = form.Where(w => w.Key == "length").FirstOrDefault().Value[0];
+
+            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            //int skip = start != null ? Convert.ToInt32(start) : 0;
+            #endregion
+
+            BaseResponse<List<GetItemInventoryTransferResposeDTO>> resItemInventoryTransfer = await _itemInBranchAPI.GetItemInventoryForTransferAsync(new GetItemInventoryTransferQuery
+            {
+                branchid = 3
+            });
+            if (!resItemInventoryTransfer.result)
+            {
+                throw new Exception(resItemInventoryTransfer.error.error.message);
+            }
+            return Json(new { data = resItemInventoryTransfer.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetItemInventoryTransferResposeDTO>() });
+        }
     }
 }

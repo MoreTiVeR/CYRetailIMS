@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBran
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -117,5 +118,19 @@ public class ItemBranchController : BaseApiController
         return Ok(res.data);
     }
 
-    
+    [HttpPost]
+    [Route("v1/getiteminventorytransfer")]
+    [ProducesResponseType(typeof(List<GetItemInventoryTransferResposeDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemInventoryTransferAsync(GetItemInventoryTransferQuery getItemInventory)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetItemInventoryTransferResposeDTO>> res = await Mediator.Send(getItemInventory);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemInventoryTransferAsync Success");
+        return Ok(res.data);
+    }
 }
