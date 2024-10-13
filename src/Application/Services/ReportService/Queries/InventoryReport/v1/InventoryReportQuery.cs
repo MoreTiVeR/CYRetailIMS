@@ -11,4 +11,10 @@ public record InventoryReportQuery : IRequest<BaseResponse<List<InventoryReportR
 {
     public DateTime reportdate { get; init; }
     public int? branchid { get; init; }
+
+    /// <summary>
+    /// 1 = by date
+    /// 2 = by month & year
+    /// </summary>
+    public int searchtype { get; set; }
 }

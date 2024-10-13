@@ -1,5 +1,6 @@
 ﻿
 var datatable;
+$('.select2').select2();
 
 datatable = $("#tblInventoryReport").DataTable({
     "destroy": true,
@@ -80,13 +81,50 @@ datatable = $("#tblInventoryReport").DataTable({
     ]
 });
 
+//$(document).on('change', '.select2', function (e) {
+//    // Get the selected value
+//    var selectedValue = $(this).val();
+//    // Get the data-row attribute to identify the row
+//    var row = $(this).data('row');
+//    console.log($(this).data('name'));
+//    // Log the selected value for the current row (you can replace this with your desired logic)
+//    console.log("Row " + row + ": " + selectedValue);
+//    //ShowMessageInfo('Selected value :' + selectedValue);
+//});
+
+//$("#ddlSearchType").on('change', function (event) {
+
+//    alert(event.val()  + '|' + event);
+//});
+
+$('.ddl-inventory-search-type').on("change", function () {
+    var text = $('option:selected', $(this)).text();
+    var selectedMonth = parseInt($('option:selected', $(this)).val());
+    if (selectedMonth == 1) {
+        $("#divSearchByDate").attr("hidden", false);
+        $("#divSearchByMonth").attr("hidden", true);
+    }
+
+    if (selectedMonth == 2) {
+        $("#divSearchByDate").attr("hidden", true);
+        $("#divSearchByMonth").attr("hidden", false);
+    }
+});
+
 $("#btnSearch").on('click', function (event) {
     event.preventDefault(); // Prevent the default form submission
 
-    var startdate = $("#txtStartDate").val();
-    /*var enddate = $("#txtEndDate").val();*/
+    var selectedInventorySearchType = $("#ddlInventorySearchType").val();
+    var searchtype = parseInt(selectedInventorySearchType);
+    var reportinventorydate = null;
+    if (searchtype == 1) {
+        reportinventorydate = $("#txtSearchDate").val();
+    }
+    if (searchtype == 2) {
+        reportinventorydate = $("#txtSearchMonth").val();
+    }
 
-    var reqdata = { "reportinventorydate": startdate };
+    var reqdata = { "searchtype": searchtype, "reportinventorydate": reportinventorydate };
     var jsonreqdata = JSON.stringify(reqdata);
     console.log(jsonreqdata);
 

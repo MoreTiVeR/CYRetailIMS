@@ -7,5 +7,6 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models.UI;
 public class SearchInventoryReportModel
 {
+    public int searchtype { get; set; }
     public string reportinventorydate { get; set; }
 }

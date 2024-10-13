@@ -220,8 +220,8 @@ function AlertErrorNoTitle(msg) {
 function InitialCharacterRemaining() {
     $('textarea').charactersRemaining();
     $('textarea').charactersRemaining({
-        singleCharacterText: '## character remaining',
-        multipleCharacterText: '## characters remaining'
+        singleCharacterText: '## จำนวนตัวอักษรที่พิมพ์ได้',
+        multipleCharacterText: '## จำนวนตัวอักษรที่พิมพ์ได้'
     });
 }
 

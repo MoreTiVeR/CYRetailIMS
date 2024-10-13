@@ -481,6 +481,7 @@ public class ReportController : BaseController
 
             BaseResponse<List<InventoryReportResponseDTO>> resInventoryReport = await _reportAPI.GetInventoryReportAsync(new InventoryReportQuery
             {
+                searchtype = 1,
                 reportdate = DateTime.Now
             });
             if (!resInventoryReport.result)
@@ -511,9 +512,11 @@ public class ReportController : BaseController
             //int skip = start != null ? Convert.ToInt32(start) : 0;
             #endregion
 
-            DateTime sDate = searchObj.reportinventorydate.DatetimePickerToMonthYear();
+            DateTime sDate = searchObj.searchtype == 1 ? searchObj.reportinventorydate.DatetimePickerToDate() 
+                : searchObj.reportinventorydate.DatetimePickerToMonthYear();
             BaseResponse<List<InventoryReportResponseDTO>> resInventoryReport = await _reportAPI.GetInventoryReportAsync(new InventoryReportQuery
             {
+                searchtype = searchObj.searchtype,
                 reportdate = sDate
             });
             if (!resInventoryReport.result)

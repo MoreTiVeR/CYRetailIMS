@@ -16,7 +16,7 @@
         <div class="table-top">
             <div class="search-set">
                 <div class="search-path">
-                    <a class="btn btn-filter" id="filter_search">
+                    <a class="btn btn-filter" id="filter_search" title="คลิกเพื่อกรองการค้นหา">
                         <img src="~/assets/img/icons/filter.svg" alt="img">
                         <span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
                     </a>
@@ -42,8 +42,24 @@
                 <div class="row">
                     <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
+                            <select id="ddlInventorySearchType" class="ddl-select2 select2 ddl-inventory-search-type" >
+                                <option value="1">ค้นหาตามวันที่</option>
+                                <option value="2">ค้นหาตามเดือน</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div id="divSearchByDate" class="form-group">
                             <div class="input-groupicon">
-                                <input id="txtStartDate" type="text" placeholder="จากวันที่" class="datetimepickermonth">
+                                <input id="txtSearchDate" type="text" placeholder="กรุณาเลือกวันที่ต้องการค้นหา" class="datetimepicker">
+                                <div class="addonset">
+                                    <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="divSearchByMonth" class="form-group" hidden>
+                            <div class="input-groupicon">
+                                <input id="txtSearchMonth" type="text" placeholder="กรุณาเลือกเดือนทีต้องการค้นหา" class="datetimepickermonth">
                                 <div class="addonset">
                                     <img src="~/assets/img/icons/calendars.svg" alt="img">
                                 </div>
@@ -54,11 +70,6 @@
                         <div class="form-group" style="text-align: left">
                             <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6 col-12">
-                        @* <div class="form-group" style="text-align: left">
-                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
-                        </div> *@
                     </div>
                     <div class="col-lg-3 col-sm-6 col-12"></div>
                 </div>
@@ -78,7 +89,7 @@
                         <th>รหัสสินค้า</th>
                         <th>ชื่อสินค้า</th>
                         <th>คลังคงเหลือ</th>
-                        <th>ยอดขาย</th>
+                        <th>จำนวนขาย</th>
                         <th>ขั้นต่ำคลัง</th>
                         <th>ขั้นสูงคลัง</th>
                         <th>สั่งเข้า(1)</th>
