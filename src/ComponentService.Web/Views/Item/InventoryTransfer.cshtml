@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "InventoryTransfer";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -44,18 +43,18 @@
                     <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
                             @* <select id="ddlBranch" class="select">
-                                <option>เลือกสาขา</option>
-                                @if (ViewBag.BranchList.result)
-                                {
-                                    foreach (var item in ViewBag.BranchList.data)
-                                    {
-                                        <option value="@item.branchid">@item.branchname</option>
-                                    }
-                                }
-                                else
-                                {
-                                    <option value="">--ไม่พบข้อมูล--</option>
-                                }
+                            <option>เลือกสาขา</option>
+                            @if (ViewBag.BranchList.result)
+                            {
+                            foreach (var item in ViewBag.BranchList.data)
+                            {
+                            <option value="@item.branchid">@item.branchname</option>
+                            }
+                            }
+                            else
+                            {
+                            <option value="">--ไม่พบข้อมูล--</option>
+                            }
                             </select> *@
                             <select id="ddlBranch" class="ddl-select2 select2 ddl-source-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
                                 <option value="">--เลือกสาขา--</option>
@@ -64,18 +63,18 @@
                     </div>
                     <div class="col-lg-3 col-sm-6 col-12">
                         @* <select id="ddlBranch" class="select">
-                            <option>เลือกแบรนด์สินค้า</option>
-                            @if (ViewBag.ItemBrandList.result)
-                            {
-                                foreach (var item in ViewBag.ItemBrandList.data)
-                                {
-                                    <option value="@item.branchid">@item.branchname</option>
-                                }
-                            }
-                            else
-                            {
-                                <option value="">--ไม่พบข้อมูล--</option>
-                            }
+                        <option>เลือกแบรนด์สินค้า</option>
+                        @if (ViewBag.ItemBrandList.result)
+                        {
+                        foreach (var item in ViewBag.ItemBrandList.data)
+                        {
+                        <option value="@item.branchid">@item.branchname</option>
+                        }
+                        }
+                        else
+                        {
+                        <option value="">--ไม่พบข้อมูล--</option>
+                        }
                         </select> *@
                         <select id="ddlBrand" class="ddl-select2 select2 ddl-source-brand" asp-items="@(new SelectList(ViewBag.ItemBrandList, "Value", "Text", null, null))">
                             <option value="">--เลือกแบรนด์--</option>
@@ -116,6 +115,20 @@
                 </tbody>
             </table>
         </div>
+        @* <div class="row">
+            <div class="form-group">
+                <a asp-action="Index" asp-controller="Item" class="btn btn-cancel me-2">ยกเลิก</a>
+                <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+            </div>
+        </div> *@
+    </div>
+    <div class="card-body text-center">
+            @* <button id="submit" type="submit">Submit form</button> *@
+            <div class="form-group">
+                @*<button id="btnCancel" type="reset" class="btn btn-cancel me-2">ยกเลิก</button>*@
+                <a asp-action="Index" asp-controller="Item" class="btn btn-cancel me-2">บันทึกฉบับร่าง</a>
+                <button id="btnConfirmTransfer" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+            </div>
     </div>
 </div>
 <!-- /product list -->
@@ -128,9 +141,12 @@
     @* <script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script> *@
     @* <script type="text/javascript" charset="utf8" src="https://cdn.jsdelivr.net/npm/datatables.net-editor@2.3.1/js/dataTables.editor.min.js"></script> *@
     @* <script type="text/javascript" charset="utf8" src="https://editor.datatables.net/extensions/Editor/js/editor.dataTables.js"></script> *@
-@*     <script type="text/javascript" charset="utf8" src="~/lib/jquery-datatable-editable/jquery.jeditable.js"></script>
-    <script type="text/javascript" charset="utf8" src="~/lib/jquery-datatable-editable/jquery.datatables.editable.js"></script> *@
-    
+    @* <script type="text/javascript" charset="utf8" src="~/lib/jquery-datatable-editable/jquery.jeditable.js"></script> *@
+    @* <script type="text/javascript" charset="utf8" src="~/lib/jquery-tabledit-1.2.3/jquery.tabledit.js"></script> *@
+
+    <script type="text/javascript" charset="utf8" src="~/lib/datatable-editor-2.3.2/js/dataTables.editor.js"></script>
+    <script type="text/javascript" charset="utf8" src="~/lib/datatable-editor-2.3.2/js/editor.dataTables.js"></script>
+
     <!--Page Script-->
     <script src="~/js/view/item/item_inventorytransfer.js" asp-append-version="true"></script>
 }

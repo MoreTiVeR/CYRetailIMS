@@ -3,6 +3,17 @@ var datatable;
 InitialNumberInput();
 $('.select2').select2();
 
+//var editor = new DataTable.Editor({
+//    ajax: '/Item/GetItemInventoryTransfer',
+//    fields: [
+//        {
+//            label: 'จำนวน/แก้ไขได้:',
+//            name: 'orderqty'
+//        }
+//    ],
+//    table: '#tbItemInventoryTransfer'
+//});
+
 datatable = $("#tbItemInventoryTransfer").DataTable({
     "destroy": true,
     "bFilter": true,
@@ -16,9 +27,10 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     },
     "columns": [
         {
-            "render": function () {
+            "data": { itemid: "itemid", "itemcode": "itemcode" },
+            "render": function (data) {
                 console.log('render columns : checkbox');
-                return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
+                return "<label class='checkboxs'><input type='checkbox' id='select-all' name='select_itemid_" + data.itemid +"'><span class='checkmarks'></span></label>";
             }
         },
         //{
@@ -35,7 +47,14 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         { "data": "qtyinbranch" },
         { "data": "notifyminqty" },
         { "data": "orderqty" },
-        { "data": "refillqty" },
+        //{ "data": "refillqty" },
+        {
+            "data": { itemid: "itemid", refillqty: "refillqty", "itemcode": "itemcode" },
+            "render": function (data) {
+                console.log('columns : render => ' + data);
+                return "<input type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid +"' value='" + data.refillqty +"'>";
+            }
+        },
     ],
     //"language": {
     //    "emptyTable": "ไม่พบข้อมูล."
@@ -62,12 +81,12 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานโอนสินค้า',
+            title: 'รายงานโอนสินค้าขั้น',
             text: 'ดาวโหลดไฟล์ Excel',
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                columns: [0, 2, 3, 4, 5, 6, 7, 8]
             }
         },
         {
@@ -81,6 +100,54 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         }
     ]
 });
+
+$('#btnConfirmTransfer').on('click', function (e) {
+    e.preventDefault();
+
+    var data = datatable.$('input, select').serialize();
+    //console.log(data);
+
+    //get data from column 4
+    //datatable.rows().every(function () {
+    //    Amount += parseFloat($(datatable.cell(this.index(), 4).node()).find('input').val());
+    //});
+    var object_update = {
+        TreatyMilestonesList: dd = datatable.rows()
+            .data()
+            .toArray()
+            .map((el) => {
+                //console.log(el.itemid);
+                var txtRefillQty = datatable.$('input[name=itemid_' + el.itemid + '], select');
+                var isCheck = datatable.$('input[name=select_itemid_' + el.itemid + '], select');
+                //var dsds = datatable.find('input[name=itemid_' + el.itemid + ']').val();
+                
+                el.ischeck = isCheck.is(":checked");
+                el.refillqty = parseInt(txtRefillQty.val());
+                return el;
+                //if (el.includes('<input')) {
+                //    return el.split('value="')[1].split('"')[0]
+                //}
+            })
+    }
+    console.log(object_update);
+
+
+    var object = {
+        TreatyMilestonesList: datatable.rows().data().toArray(),
+        qty: datatable.$('input, select')
+    }
+    console.log(object);
+    //alert(
+    //    'The following data would have been submitted to the server: \n\n' +
+    //    data.substr(0, 120) +
+    //    '...'
+    //);
+});
+
+// Activate an inline edit on click of a table cell
+//$('#tbItemInventoryTransfer').on('click', 'tbody td:not(:first-child)', function (e) {
+//    editor.inline(this);
+//});
 
 //datatable.on('click', 'tbody tr', function () {
 //    datatable.row(this).edit();
@@ -107,6 +174,16 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
 //    sUpdateURL: "UpdateData.php"
 //});
 /*$('#tbItemInventoryTransfer').dataTable().makeEditable();*/
+//$('#tbItemInventoryTransfer').Tabledit({
+//    url: 'example.php',
+//    rowIdentifier: 'data-id',
+//    editButton: false,
+//    restoreButton: false,
+//    columns: {
+//        identifier: [0, 'id'],
+//        editable: [[1, 'nickname']]
+//    }
+//});
 
 $(document).on('change', '.select2', function (e) {
     // Get the selected value
