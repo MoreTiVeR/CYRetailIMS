@@ -8,15 +8,22 @@ function EditItem(form) {
     frmEditItem.validate();
     var isValid = frmEditItem.valid();
     if (isValid) {
-        console.log('Call => EditItem');
+        console.log('Call => EditItemInBranch');
         $.validator.unobtrusive.parse(form);
-        var data = $(form).serializeJSON();
-        console.log(data);
-        data = JSON.stringify(data);
+        var formData = $(form).serializeJSON();
+
+        // Check NotifyMaxQty is null value
+        if (formData.NotifyMaxQty === null || formData.NotifyMaxQty === undefined || formData.NotifyMaxQty === '') {
+
+            // Set default NotifyMaxQty is 0
+            formData.NotifyMaxQty = 0;
+        }
+
+        var jsonData = JSON.stringify(formData);
         $.ajax({
             type: 'POST',
             url: '/Item/EditItemInBranch',
-            data: data,
+            data: jsonData,
             contentType: 'application/json',
             success: function (response) {
                 if (response.result) {

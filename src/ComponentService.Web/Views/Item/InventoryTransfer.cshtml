@@ -8,9 +8,6 @@
         <h4>โอนสินค้า(ใหม่)</h4>
         <h6>ทำรายการโอนสินค้า</h6>
     </div>
-    <div class="page-btn">
-        <a asp-action="Create" asp-controller="Item" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มสินค้าใหม่</a>
-    </div>
 </div>
 
 <!-- /product list -->
@@ -108,7 +105,7 @@
                         <th>คงเหลือหน้าร้าน</th>
                         <th>จำนวนขั้นต่ำ</th>
                         <th>จำนวนที่ต้องเติม</th>
-                        <th>จำนวน/แก้ไขได้</th>
+                        <th>จำนวนที่เติม</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -116,19 +113,17 @@
             </table>
         </div>
         @* <div class="row">
-            <div class="form-group">
-                <a asp-action="Index" asp-controller="Item" class="btn btn-cancel me-2">ยกเลิก</a>
-                <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
-            </div>
+        <div class="form-group">
+        <a asp-action="Index" asp-controller="Item" class="btn btn-cancel me-2">ยกเลิก</a>
+        <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+        </div>
         </div> *@
     </div>
     <div class="card-body text-center">
-            @* <button id="submit" type="submit">Submit form</button> *@
-            <div class="form-group">
-                @*<button id="btnCancel" type="reset" class="btn btn-cancel me-2">ยกเลิก</button>*@
-                <a asp-action="Index" asp-controller="Item" class="btn btn-cancel me-2">บันทึกฉบับร่าง</a>
-                <button id="btnConfirmTransfer" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
-            </div>
+        <div class="form-group">
+            <button id="btnSaveDraft" type="submit" class="btn btn-submit me-2">บันทึกฉบับร่าง</button>
+            <button id="btnConfirmTransfer" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+        </div>
     </div>
 </div>
 <!-- /product list -->

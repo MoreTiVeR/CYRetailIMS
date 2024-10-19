@@ -103,5 +103,11 @@ public static class EnumModel
         InActive = 0,
         Active = 1
     }
+
+    public enum InventoryReportSearchType
+    {
+        ByDate = 1,
+        ByMonthOfYear = 2
+    }
 }
 

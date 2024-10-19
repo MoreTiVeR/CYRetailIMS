@@ -5,6 +5,7 @@ using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using static CYRetailIMS.Application.Common.Models.EnumModel;
 
 namespace CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 public class InventoryReportHandler : BaseService, IRequestHandler<InventoryReportQuery, BaseResponse<List<InventoryReportResponseDTO>>>
@@ -18,7 +19,7 @@ public class InventoryReportHandler : BaseService, IRequestHandler<InventoryRepo
         IEnumerable<InventoryReportResponseDTO> resTotalSaleOfMonth = await GetInventoryDataBySearchTypeAsync(request);
         if (resTotalSaleOfMonth == null || !resTotalSaleOfMonth.Any())
         {
-            throw new Exception("Data not found");
+            throw new Exception("ไม่พบข้อมูล");
         }
         List<InventoryReportResponseDTO> res = (from a in resTotalSaleOfMonth
                                                 group a by a.itemid into grps
@@ -46,7 +47,7 @@ public class InventoryReportHandler : BaseService, IRequestHandler<InventoryRepo
 
     private async Task<IEnumerable<InventoryReportResponseDTO>> GetInventoryDataBySearchTypeAsync(InventoryReportQuery request)
     {
-        if (request.searchtype == 1)
+        if (request.searchtype == (int)InventoryReportSearchType.ByDate)
         {
             IEnumerable<InventoryReportResponseDTO> resTotalSaleOfMonth = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync(w => w.IsActive == true 
                                                                            && w.TransactionDate.Date == request.reportdate.Date)
@@ -64,7 +65,7 @@ public class InventoryReportHandler : BaseService, IRequestHandler<InventoryRepo
                                                                            }).AsEnumerable();
             return resTotalSaleOfMonth;
         }
-        else if (request.searchtype == 2)
+        else if (request.searchtype == (int)InventoryReportSearchType.ByMonthOfYear)
         {
             IEnumerable<InventoryReportResponseDTO> resTotalSaleOfMonth = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync(w => w.IsActive == true 
                                                                            && w.TransactionDate.Month == request.reportdate.Month 

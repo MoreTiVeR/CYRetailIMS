@@ -16,7 +16,7 @@ public class HttpClientRequest : IHttpClientRequest
     private readonly string _cyApiUrl = string.Empty;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IHttpClientFactory _httpClientFactory;
-    private HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
     public string CYApiUrl { get => _cyApiUrl; }
 
     public HttpClientRequest(IHttpContextAccessor httpContextAccessor,
@@ -25,8 +25,8 @@ public class HttpClientRequest : IHttpClientRequest
         IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
-        //_httpClient = httpClient;
         _httpContextAccessor = httpContextAccessor;
+        _httpClient = _httpClientFactory.CreateClient();
         _cyApiUrl = configuration.GetSection("CyApiUrl").Get<string>();
     }
 
@@ -40,7 +40,6 @@ public class HttpClientRequest : IHttpClientRequest
             StringContent ReqConten = new StringContent(StringBodyRequest, Encoding.UTF8, "application/json");
             ReqMsg.Content = ReqConten;
         }
-        _httpClient = _httpClientFactory.CreateClient();
         Response = await _httpClient.SendAsync(ReqMsg);
         return Response;
     }

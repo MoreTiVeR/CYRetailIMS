@@ -50,7 +50,7 @@ public class AddItemViewModel
 
     //[Required(ErrorMessage = "*กรุณาระบุชื่อย่อสินค้า")]
     [DisplayName("ระบุรายละเอียดสินค้า")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     //[Required(ErrorMessage = "*กรุณาระบุชื่อย่อสินค้า")]
     [DisplayName("ระบุบาร์โค้ดสินค้า")]
@@ -65,6 +65,9 @@ public class AddItemViewModel
 
     [DisplayName("ระบุจำนวนสินค้าขั้นต่ำ")]
     public int NotifyMinQty { get; set; }
+
+    [DisplayName("ระบุจำนวนสินค้าขั้นสูง")]
+    public int? NotifyMaxQty { get; set; }
 
     //[Required(ErrorMessage = "*กรุณาระบุจำนวนหน่วยสินค้า")]
     [DisplayName("ระบุส่วนลดสินค้า")]

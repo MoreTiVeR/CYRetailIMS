@@ -527,14 +527,21 @@ public class ItemController : BaseController
     [HttpPost]
     public async Task<IActionResult> AddItem([FromBody] AddItemViewModel addItemObj)
     {
-        CreateItemCommand createItemCommand = MappingCreateItemCommand(addItemObj);
-        BaseResponse<CommandResponse> resCreateItem = await _itemAPI.CreateItemAsync(createItemCommand);
-        if (resCreateItem.result)
+        try
         {
-            return Json(new JsonViewModel { result = resCreateItem.result, message = resCreateItem.message });
-        }
+            CreateItemCommand createItemCommand = MappingCreateItemCommand(addItemObj);
+            BaseResponse<CommandResponse> resCreateItem = await _itemAPI.CreateItemAsync(createItemCommand);
+            if (resCreateItem.result)
+            {
+                return Json(new JsonViewModel { result = resCreateItem.result, message = resCreateItem.message });
+            }
 
-        return Json(new JsonViewModel { result = resCreateItem.result, message = resCreateItem.error.error.message });
+            return Json(new JsonViewModel { result = resCreateItem.result, message = resCreateItem.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
     }
 
     [HttpPost]
@@ -1064,27 +1071,6 @@ public class ItemController : BaseController
     }
 
     #region Private Method
-    private CreateItemCommand MappingCreateItemCommand(AddItemViewModel itemViewModel)
-    {
-        return new CreateItemCommand
-        {
-            itemcode = itemViewModel.ItemCode,
-            itemtypeid = itemViewModel.ItemTypeID,
-            brandid = itemViewModel.BrandID,
-            unitofmeasureid = itemViewModel.UnitOfMeasureID,
-            name = itemViewModel.Name,
-            barcode = itemViewModel.BarCode,
-            description = itemViewModel.Description,
-            //shortname = !string.IsNullOrEmpty(itemViewModel.ShortName) ? itemViewModel.ShortName : itemViewModel.Name,
-            itemimageurl = !string.IsNullOrEmpty(itemViewModel.ItemImageUrl) ? itemViewModel.ItemImageUrl : "../assets/img/product/noimage.png",
-            price = itemViewModel.Price,
-            qty = itemViewModel.Qty,
-            notifyminqty = itemViewModel.NotifyMinQty,
-            createdby = base.UserProfile.username,
-            isactive = bool.TryParse(itemViewModel.IsActive, out bool isactive) && isactive,
-        };
-    }
-
     private async Task<CreateItemListCommand> MappingCreateItemListCommand(List<ImportItemViewModel> itemViewModel)
     {
         List<int> errRow = new List<int>();
@@ -1170,8 +1156,40 @@ public class ItemController : BaseController
         };
     }
 
+    private CreateItemCommand MappingCreateItemCommand(AddItemViewModel itemViewModel)
+    {
+        if (itemViewModel.NotifyMaxQty < itemViewModel.NotifyMinQty)
+        {
+            throw new Exception("จำนวนสินค้าขั้นสูงต้องมากกว่าจำนวนขั้นต่ำ");
+        }
+
+        return new CreateItemCommand
+        {
+            itemcode = itemViewModel.ItemCode,
+            itemtypeid = itemViewModel.ItemTypeID,
+            brandid = itemViewModel.BrandID,
+            unitofmeasureid = itemViewModel.UnitOfMeasureID,
+            name = itemViewModel.Name,
+            barcode = itemViewModel.BarCode,
+            description = itemViewModel.Description,
+            //shortname = !string.IsNullOrEmpty(itemViewModel.ShortName) ? itemViewModel.ShortName : itemViewModel.Name,
+            itemimageurl = !string.IsNullOrEmpty(itemViewModel.ItemImageUrl) ? itemViewModel.ItemImageUrl : "../assets/img/product/noimage.png",
+            price = itemViewModel.Price,
+            qty = itemViewModel.Qty,
+            notifyminqty = itemViewModel.NotifyMinQty,
+            notifymaxqty = itemViewModel.NotifyMaxQty,
+            createdby = base.UserProfile.username,
+            isactive = bool.TryParse(itemViewModel.IsActive, out bool isactive) && isactive,
+        };
+    }
+
     private UpdateItemCommand MappingUpdateItemCommand(EditItemViewModel itemViewModel)
     {
+        if(itemViewModel.NotifyMaxQty < itemViewModel.NotifyMinQty)
+        {
+            throw new Exception("จำนวนสินค้าขั้นสูงต้องมากกว่าจำนวนขั้นต่ำ");
+        }
+
         return new UpdateItemCommand
         {
             itemid = itemViewModel.ItemID,
@@ -1182,6 +1200,7 @@ public class ItemController : BaseController
             itemimageurl = !string.IsNullOrEmpty(itemViewModel.ItemImageUrl) ? itemViewModel.ItemImageUrl : "../assets/img/product/noimage.png",
             qty = itemViewModel.Qty,
             notifyqty = itemViewModel.NotifyMinQty,
+            notifymaxqty = itemViewModel.NotifyMaxQty,
             discountpercent = itemViewModel.DiscountPercent,
             price = itemViewModel.Price,
             updatedby = base.UserProfile.username,
@@ -1195,6 +1214,12 @@ public class ItemController : BaseController
         {
             throw new Exception("จำนวนขั้นต่ำไม่น้อยกว่า 0");
         }
+
+        if (itemViewModel.NotifyMaxQty < itemViewModel.NotifyMinQty)
+        {
+            throw new Exception("จำนวนสินค้าขั้นสูงต้องมากกว่าจำนวนขั้นต่ำ");
+        }
+
         return new UpdateItemInBranchCommand
         {
             branchid = itemViewModel.BranchID,
@@ -1202,6 +1227,7 @@ public class ItemController : BaseController
             price = itemViewModel.Price,
             qty = itemViewModel.Qty,
             notifyminqty = itemViewModel.NotifyMinQty,
+            notifymaxqty = itemViewModel.NotifyMaxQty,
             updatedby = base.UserProfile.username,
             updateddate = DateTime.Now
         };

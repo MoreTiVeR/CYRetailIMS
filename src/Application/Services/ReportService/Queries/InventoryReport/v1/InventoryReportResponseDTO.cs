@@ -26,7 +26,8 @@ public class InventoryReportResponseDTO
     {
         get
         {
-            return Math.Abs(this.qtyinstock - this.totalsale);
+            var qtyorder1 = this.totalsale - this.qtyinstock;
+            return qtyorder1 < 0 ? 0 : qtyorder1;
         }
         set
         {
@@ -43,7 +44,8 @@ public class InventoryReportResponseDTO
     {
         get
         {
-            return Math.Abs(this.notifymin - this.qtyinstock);
+            int qtyorder2 = this.notifymin - this.qtyinstock;
+            return qtyorder2 < 0 ? 0 : qtyorder2;
         }
         set
         {

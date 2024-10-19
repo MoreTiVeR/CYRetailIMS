@@ -1,5 +1,6 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI;
 @model AddItemViewModel
+
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -65,63 +66,55 @@
                         <span asp-validation-for="BrandID" class="text-danger"></span>
                     </div>
                 </div>
+
                 <!--ROW2-->
-                @*<div class="col-lg-3 col-sm-6 col-12">
-                    <div class="form-group">
-                        <label>หน่วยนับสินค้า</label>
-                        <select class="select" asp-for="UnitOfMeasureID">
-                            @if (ViewBag.ItemUOMList.result)
-                            {
-                                <option value="">--เลือกหน่วยนับสินค้า--</option>
-                                foreach (var item in ViewBag.ItemUOMList.data)
-                                {
-                                    <option value="@item.unitofmeasureid">@item.unitofmeasurename</option>
-                                }
-                            }
-                            else
-                            {
-                                <option>--ไม่พบข้อมูลหน่วยนับสินค้า--</option>
-                            }
-                        </select>
-                        <span asp-validation-for="UnitOfMeasureID" class="text-danger"></span>
-                    </div>
-                </div>*@
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>รหัสสินค้า</label>
                         <input type="text" asp-for="ItemCode">
                         <span asp-validation-for="ItemCode" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label>บาร์โค้ดสินค้า</label>
+                        <input type="text" class="form-control" asp-for="BarCode">
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                </div>
+
+                <!--ROW3-->
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>จำนวนสินค้า</label>
                         <input type="number" class="form-control" asp-for="Qty">
                         <span asp-validation-for="Qty" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>จำนวนสินค้าขั้นต่ำ</label>
                         <input type="number" class="form-control" asp-for="NotifyMinQty">
                         <span asp-validation-for="NotifyMinQty" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-lg-3 col-sm-6 col-12">
+                <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
-                        <label>บาร์โค้ดสินค้า</label>
-                        <input type="text" class="form-control" asp-for="BarCode">
+                        <label>จำนวนสินค้าขั้นสูง</label>
+                        <input type="number" class="form-control" asp-for="NotifyMaxQty">
                     </div>
                 </div>
-                <!--ROW3-->
+
+                <!--ROW4-->
                 <div class="col-lg-12">
                     <div class="form-group">
                         <label>รายละเอียดสินค้า</label>
                         <textarea class="form-control" asp-for="Description"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                 </div>
-                <!--ROW4-->
+
+                <!--ROW5-->
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>ราคาต้นทุน</label>
@@ -146,20 +139,7 @@
                         <span asp-validation-for="IsActive" class="text-danger"></span>
                     </div>
                 </div>
-               @* <div class="col-lg-12">
-                    <div class="form-group">
-                        <label>รูปภาพสินค้า</label>
-                        <div class="image-upload">
-                            <input type="file">
-                            <div class="image-uploads">
-                                <img src="~/assets/img/icons/upload.svg" alt="img">
-                                <h4>ลาก และ ปล่อย ไฟล์ เพื่ออัพโหลด</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>*@
                 <div class="col-lg-12">
-                    @*<button id="btnCancel" type="reset" class="btn btn-cancel me-2">ยกเลิก</button>*@
                     <a asp-action="Index" asp-controller="Item" class="btn btn-cancel me-2">ยกเลิก</a>
                     <button id="btnAddItem" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
                 </div>

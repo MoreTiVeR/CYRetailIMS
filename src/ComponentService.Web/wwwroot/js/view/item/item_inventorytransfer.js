@@ -101,6 +101,18 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     ]
 });
 
+$(document).on('change', '.select2', function (e) {
+
+    // Get the selected value
+    var selectedValue = $(this).val();
+    // Get the data-row attribute to identify the row
+    var row = $(this).data('row');
+    console.log($(this).data('name'));
+    // Log the selected value for the current row (you can replace this with your desired logic)
+    console.log("Row " + row + ": " + selectedValue);
+    //ShowMessageInfo('Selected value :' + selectedValue);
+});
+
 $('#btnConfirmTransfer').on('click', function (e) {
     e.preventDefault();
 
@@ -142,58 +154,6 @@ $('#btnConfirmTransfer').on('click', function (e) {
     //    data.substr(0, 120) +
     //    '...'
     //);
-});
-
-// Activate an inline edit on click of a table cell
-//$('#tbItemInventoryTransfer').on('click', 'tbody td:not(:first-child)', function (e) {
-//    editor.inline(this);
-//});
-
-//datatable.on('click', 'tbody tr', function () {
-//    datatable.row(this).edit();
-//});
-
-//datatable.on('click', 'tbody td:not(:first-child)', function (e) {
-//    editor.inline(this, {
-//        submit: 'allIfChanged'
-//    });
-//});
-
-/*var table = $('#tbItemInventoryTransfer').DataTable().makeEditable();*/
-// Edit row
-//$('#tbItemInventoryTransfer tbody').on('click', 'button.edit', function () {
-//    var row = $(this).closest('tr');
-//    var data = table.row(row).data();
-
-//    // Allow inline editing; the inputs can be either simple input boxes or other types based on your requirement
-//    row.find('td:eq(1)').html('<input type="text" value="' + data[1] + '"/>');
-//    row.find('td:eq(2)').html('<input type="text" value="' + data[2] + '"/>');
-//    $(this).removeClass('edit').addClass('save').text('Save');
-//});
-//$('#tbItemInventoryTransfer').dataTable().makeEditable({
-//    sUpdateURL: "UpdateData.php"
-//});
-/*$('#tbItemInventoryTransfer').dataTable().makeEditable();*/
-//$('#tbItemInventoryTransfer').Tabledit({
-//    url: 'example.php',
-//    rowIdentifier: 'data-id',
-//    editButton: false,
-//    restoreButton: false,
-//    columns: {
-//        identifier: [0, 'id'],
-//        editable: [[1, 'nickname']]
-//    }
-//});
-
-$(document).on('change', '.select2', function (e) {
-    // Get the selected value
-    var selectedValue = $(this).val();
-    // Get the data-row attribute to identify the row
-    var row = $(this).data('row');
-    console.log($(this).data('name'));
-    // Log the selected value for the current row (you can replace this with your desired logic)
-    console.log("Row " + row + ": " + selectedValue);
-    //ShowMessageInfo('Selected value :' + selectedValue);
 });
 
 $("#btnSave").on('click', function () {
@@ -263,6 +223,7 @@ $("#btnAdd").on('click', function () {
     $("#totalrow").val(trows);
 });
 
+/*dropdown event*/
 $("#transfertypeid").on("change", function () {
     var text = $('option:selected', $(this)).text();
     var transfertypeid = parseInt($('option:selected', $(this)).val());
