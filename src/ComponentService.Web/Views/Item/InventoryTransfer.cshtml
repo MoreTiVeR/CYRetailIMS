@@ -39,40 +39,12 @@
                 <div class="row">
                     <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
-                            @* <select id="ddlBranch" class="select">
-                            <option>เลือกสาขา</option>
-                            @if (ViewBag.BranchList.result)
-                            {
-                            foreach (var item in ViewBag.BranchList.data)
-                            {
-                            <option value="@item.branchid">@item.branchname</option>
-                            }
-                            }
-                            else
-                            {
-                            <option value="">--ไม่พบข้อมูล--</option>
-                            }
-                            </select> *@
                             <select id="ddlBranch" class="ddl-select2 select2 ddl-source-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
                                 <option value="">--เลือกสาขา--</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-6 col-12">
-                        @* <select id="ddlBranch" class="select">
-                        <option>เลือกแบรนด์สินค้า</option>
-                        @if (ViewBag.ItemBrandList.result)
-                        {
-                        foreach (var item in ViewBag.ItemBrandList.data)
-                        {
-                        <option value="@item.branchid">@item.branchname</option>
-                        }
-                        }
-                        else
-                        {
-                        <option value="">--ไม่พบข้อมูล--</option>
-                        }
-                        </select> *@
                         <select id="ddlBrand" class="ddl-select2 select2 ddl-source-brand" asp-items="@(new SelectList(ViewBag.ItemBrandList, "Value", "Text", null, null))">
                             <option value="">--เลือกแบรนด์--</option>
                         </select>
@@ -98,6 +70,7 @@
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
+                        <th hidden>สาขา</th>
                         <th hidden>ไอดีสินค้า</th>
                         <th>รหัสสินค้า</th>
                         <th>ชื่อสินค้า</th>

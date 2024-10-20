@@ -40,6 +40,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         //        return "<a asp-action='Detail' asp-controller='Item' asp-all-route-data='aItemID'>" + data.name + "</a>";
         //    }
         //},
+        { "data": "branchid" },
         { "data": "itemid" },
         { "data": "itemcode" },
         { "data": "itemname" },
@@ -59,10 +60,10 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     //"language": {
     //    "emptyTable": "ไม่พบข้อมูล."
     //},
-    "order": [[1, "asc"]],
+    "order": [[2, "asc"]],
     "columnDefs": [
         {
-            "targets": [1],
+            "targets": [1, 2],
             "visible": false
         }
     ],
@@ -86,7 +87,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 2, 3, 4, 5, 6, 7, 8]
+                columns: [0, 3, 4, 5, 6, 7, 8, 9]
             }
         },
         {
@@ -114,48 +115,287 @@ $(document).on('change', '.select2', function (e) {
 });
 
 $('#btnConfirmTransfer').on('click', function (e) {
+
+    ShowLoading();
     e.preventDefault();
-
     var data = datatable.$('input, select').serialize();
-    //console.log(data);
-
-    //get data from column 4
-    //datatable.rows().every(function () {
-    //    Amount += parseFloat($(datatable.cell(this.index(), 4).node()).find('input').val());
-    //});
     var object_update = {
-        TreatyMilestonesList: dd = datatable.rows()
+        InventoryTransferDataList: datatable.rows()
             .data()
             .toArray()
             .map((el) => {
                 //console.log(el.itemid);
                 var txtRefillQty = datatable.$('input[name=itemid_' + el.itemid + '], select');
                 var isCheck = datatable.$('input[name=select_itemid_' + el.itemid + '], select');
-                //var dsds = datatable.find('input[name=itemid_' + el.itemid + ']').val();
-                
                 el.ischeck = isCheck.is(":checked");
                 el.refillqty = parseInt(txtRefillQty.val());
                 return el;
-                //if (el.includes('<input')) {
-                //    return el.split('value="')[1].split('"')[0]
-                //}
             })
     }
     console.log(object_update);
 
+    var reqData = { "detail": object_update.InventoryTransferDataList };
+    var jsonData = JSON.stringify(reqData);
+    console.log(jsonData);
 
-    var object = {
-        TreatyMilestonesList: datatable.rows().data().toArray(),
-        qty: datatable.$('input, select')
-    }
-    console.log(object);
-    //alert(
-    //    'The following data would have been submitted to the server: \n\n' +
-    //    data.substr(0, 120) +
-    //    '...'
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Item/CreateItemInvenrotyTransferValidation',
+        data: jsonData,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+
+                Swal.fire({
+                    //title: 'ยืนยันการบันทึกข้อมูล?',
+                    //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+                    //type: 'warning',
+                    title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+                    icon: 'warning',
+                    html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+                    showCancelButton: true,
+                    //showDenyButton: true,
+                    confirmButtonColor: '#04B431',
+                    confirmButtonText: 'บันทึก',
+                    cancelButtonColor: '#D33',
+                    cancelButtonText: "ยกเลิก",
+                    //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                    //denyButtonColor: '#D33',
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        denyButton: 'btn btn-warning ml-1',
+                        cancelButton: 'btn btn-danger ml-1'
+                    },
+                    buttonsStyling: false,
+                    focusConfirm: true
+                }).then(function (result) {
+                    if (result.value) {
+                        //Post: SaveInvenrotyTransfer
+                        ShowMessageSuccess('Post: SaveInvenrotyTransfer');
+
+                        var request = $.ajax({
+                            type: 'POST',
+                            url: '/Item/CreateItemInvenrotyTransfer',
+                            data: jsonData,
+                            contentType: 'application/json',
+                            success: function (response) {
+
+                                if (response.result) {
+                                    ShowMessageSuccess(response.message);
+
+                                    //Update the DataTable with the filtered data from the server
+                                    /*console.log(response.data);*/
+                                    /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+                                }
+                                else {
+                                    AlertErrorNoTitle(response.message);
+                                }
+
+                                console.log(response.data);
+                                $("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
+                                HideLoading();
+                            },
+                            failure: function (response) {
+                                AlertError(response.message);
+                            },
+                            error: function (response) {
+                                AlertError(response.message);
+                            }
+                        });
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        //Code
+                        ShowMessageInfo('ยกเลิก');
+                    }
+                });
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+            }
+
+            console.log(response.data);
+            //$("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
+            HideLoading();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        }
+    });
+
+    //$.post("InvenrotyTransferDataValidation", { jsonData }).then(
+    //    function (results) {
+
+    //        if (results.result) {
+    //            console.log(results.msg);
+    //            Swal.fire({
+    //                //title: 'ยืนยันการบันทึกข้อมูล?',
+    //                //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+    //                //type: 'warning',
+    //                title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+    //                icon: 'warning',
+    //                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+    //                showCancelButton: true,
+    //                //showDenyButton: true,
+    //                confirmButtonColor: '#04B431',
+    //                confirmButtonText: 'บันทึก',
+    //                cancelButtonColor: '#D33',
+    //                cancelButtonText: "ยกเลิก",
+    //                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+    //                //denyButtonColor: '#D33',
+    //                customClass: {
+    //                    confirmButton: 'btn btn-success',
+    //                    denyButton: 'btn btn-warning ml-1',
+    //                    cancelButton: 'btn btn-danger ml-1'
+    //                },
+    //                buttonsStyling: false,
+    //                focusConfirm: true
+    //            }).then(function (result) {
+    //                if (result.value) {
+    //                    //Post: SaveInvenrotyTransfer
+    //                    ShowMessageSuccess('Post: SaveInvenrotyTransfer');
+
+    //                    var request = $.ajax({
+    //                        type: 'POST',
+    //                        url: '/Item/SaveInvenrotyTransfer',
+    //                        data: jsonData,
+    //                        contentType: 'application/json',
+    //                        success: function (response) {
+
+    //                            if (response.result) {
+    //                                ShowMessageSuccess(response.message);
+
+    //                                //Update the DataTable with the filtered data from the server
+    //                                /*console.log(response.data);*/
+    //                                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+    //                            }
+    //                            else {
+    //                                AlertErrorNoTitle(response.message);
+    //                            }
+
+    //                            console.log(response.data);
+    //                            $("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
+    //                            HideLoading();
+    //                        },
+    //                        failure: function (response) {
+    //                            AlertError(response.message);
+    //                        },
+    //                        error: function (response) {
+    //                            AlertError(response.message);
+    //                        }
+    //                    });
+    //                }
+    //                else if (result.dismiss === Swal.DismissReason.cancel) {
+    //                    //Code
+    //                    ShowMessageInfo('ยกเลิก');
+    //                }
+    //            });
+    //        }
+    //        else {
+    //            ShowMessageError(results.msg);
+    //            return;
+    //        }
+
+    //    }, function (results) {
+    //        //Failed
+    //        console.log('Failed');
+    //        ShowMessageError(results.message);
+
+    //    }, function () {
+    //        ShowMessageError('Unknow error => Create Sale data.');
+    //        console.log('this will run if the deferred generates a progress update.');
+    //    }
     //);
+
 });
 
+$("#btnSearch").on('click', function (event) {
+    ShowLoading();
+
+    event.preventDefault(); // Prevent the default form submission
+
+    var text = $("#ddlBranch :selected").text();
+    var sbranchid = $("#ddlBranch :selected").val();
+    var sbrandid = $("#ddlBrand :selected").val();
+
+    var branchid = parseInt(sbranchid);
+    var brandid = parseInt(sbrandid);
+
+    //SearchTransferData(branchid, brandid);
+    var reqdata = { "branchid": branchid, "brandid": brandid };
+    var jsonData = JSON.stringify(reqdata);
+    console.log(jsonData);
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Item/SearchInvenrotyTransfer',
+        data: jsonData,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+                ShowMessageSuccess(response.message);
+
+                //Update the DataTable with the filtered data from the server
+                /*console.log(response.data);*/
+                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+            }
+
+            console.log(response.data);
+            $("#tbItemInventoryTransfer").DataTable().clear().rows.add(response.data).draw();
+            HideLoading();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        }
+    });
+});
+
+function SearchTransferData(branchid, brandid) {
+
+    var reqdata = { "branchid": branchid, "brandid": brandid };
+    var jsonData = JSON.stringify(reqdata);
+    console.log(jsonData);
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Item/SearchInvenrotyTransfer',
+        data: jsonData,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+                ShowMessageSuccess(response.message);
+
+                //Update the DataTable with the filtered data from the server
+                /*console.log(response.data);*/
+                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+            }
+
+            console.log(response.data);
+            $("#tbItemInventoryTransfer").DataTable().clear().rows.add(response.data).draw();
+            
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        }
+    });
+}
+
+/*NoUse*/
 $("#btnSave").on('click', function () {
     var isValid = $('#frmTransferItem').valid();
     if (!isValid) {

@@ -25,6 +25,8 @@ public class GetItemInventoryTransferHandler : BaseService, IRequestHandler<GetI
                                                                where itembranch.Qty < itembranch.NotifyMinQty
                                                                select new GetItemInventoryTransferResposeDTO
                                                                {
+                                                                   branchid = itembranch.BranchID,
+                                                                   branchname = itembranch.Branch.BranchName,
                                                                    itemid = itembranch.ItemID,
                                                                    itemcode = item.ItemCode,
                                                                    itemname = item.Name,

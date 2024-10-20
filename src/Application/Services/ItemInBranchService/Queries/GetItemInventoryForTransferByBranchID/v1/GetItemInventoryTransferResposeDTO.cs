@@ -9,6 +9,8 @@ namespace CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemIn
 [Serializable]
 public class GetItemInventoryTransferResposeDTO
 {
+    public int branchid { get; set; }
+    public string branchname { get; set; }
     public int itemid { get; set; }
     public string itemcode { get; set; }
     public string itemname { get; set; }

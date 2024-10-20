@@ -48,6 +48,7 @@ using System.Linq;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -1562,19 +1563,9 @@ public class ItemController : BaseController
     {
         try
         {
-            #region Paging
-            //var form = Request.Form.ToList();
-            //string draw = form.Where(w => w.Key == "draw").FirstOrDefault().Value[0];
-            //var start = form.Where(w => w.Key == "start").FirstOrDefault().Value[0];
-            //var length = form.Where(w => w.Key == "length").FirstOrDefault().Value[0];
-
-            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
-            //int skip = start != null ? Convert.ToInt32(start) : 0;
-            #endregion
-
             BaseResponse<List<GetItemInventoryTransferResposeDTO>> resItemInventoryTransfer = await _itemInBranchAPI.GetItemInventoryForTransferAsync(new GetItemInventoryTransferQuery
             {
-                branchid = 3
+                branchid = 1
             });
             if (!resItemInventoryTransfer.result)
             {
@@ -1587,4 +1578,128 @@ public class ItemController : BaseController
             return Json(new { data = new List<GetItemInventoryTransferResposeDTO>() });
         }
     }
+
+    /// <summary>
+    /// โอนสินค้า ใหม่
+    /// </summary>
+    /// <param name="searchObj"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> SearchInvenrotyTransfer([FromBody] SearchInvenrotyTransferViewModel searchObj)
+    {
+        try
+        {
+            if(searchObj == null)
+            {
+                return Json(new { result = false, message = $"เงื่อนไขการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง", data = new List<GetItemInventoryTransferResposeDTO>() });
+            }
+            BaseResponse<List<GetItemInventoryTransferResposeDTO>> resItemInventoryTransfer = await _itemInBranchAPI.GetItemInventoryForTransferAsync(new GetItemInventoryTransferQuery
+            {
+                branchid = searchObj.branchid,
+                brandid = searchObj.brandid
+            });
+            if (!resItemInventoryTransfer.result)
+            {
+                return Json(new { result = false, message = $"ไม่พบข้อมูล", data = new List<GetItemInventoryTransferResposeDTO>() });
+            }
+            return Json(new { result = true, message = resItemInventoryTransfer.message, data = resItemInventoryTransfer.data });
+
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemInventoryTransferResposeDTO>() });
+        }
+    }
+
+    /// <summary>
+    /// โอนสินค้า ใหม่
+    /// </summary>
+    /// <param name="inventoryTransferRequest"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> CreateItemInvenrotyTransferValidation([FromBody] CreateInvenrotyTransferViewModel inventoryTransferRequest)
+    {
+        try
+        {
+
+            #region Prepare & Create Transaction
+            //CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(transferItemObj, itemTransferList);
+            //BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
+            //if (!resCreateTrn.result)
+            //{
+            //    return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            //}
+            #endregion
+            if(inventoryTransferRequest.detail == null)
+            {
+                return Json(new { result = false, message = $"ไม่สามารถทำรายการได้ เนื่องจากข้อมูลไม่ถูกต้อง" });
+            }
+
+            var refillItem = inventoryTransferRequest.detail.Where(w => w.ischeck);
+            if (!refillItem.Any())
+            {
+                return Json(new { result = false, message = $"ไม่สามารถทำรายการได้ กรุณาติ๊กเลือกเลือกสินค้าโอนก่อนทำรายการ" });
+            }
+
+            return Json(new { result = true, message = "สำเร็จ" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}" });
+
+        }
+    }
+
+    /// <summary>
+    /// โอนสินค้า ใหม่
+    /// </summary>
+    /// <param name="inventoryTransferRequest"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> CreateItemInvenrotyTransfer([FromBody] CreateInvenrotyTransferViewModel inventoryTransferRequest)
+    {
+        try
+        {
+            #region Prepare & Create Transaction
+            CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(inventoryTransferRequest);
+            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, message = resCreateTrn.error.error.message });
+            }
+            #endregion
+            return Json(new { result = true, message = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemInventoryTransferResposeDTO>() });
+
+        }
+    }
+
+    /// <summary>
+    /// Only transfer from Warehouse(id=1) to Branch
+    /// </summary>
+    /// <param name="reqObj"></param>
+    /// <returns></returns>
+    private CreateItemTransferCommand CreateItemTransferCommand(CreateInvenrotyTransferViewModel reqObj)
+    {
+        return new CreateItemTransferCommand
+        {
+            transfertypeid = (int)TransferType.WTB,
+            sourceid = 1,
+            destinationid = reqObj.detail.FirstOrDefault().branchid,
+            //description = "",
+            createdby = base.UserProfile.username,
+            createddate = DateTime.Now,
+            transferstatus = (int)TransferStatus.Pending,
+            isactive = true,
+            items = reqObj.detail.Where(w => w.ischeck == true).Select(s => new CreateItemTransferDetailCommand
+            {
+                itemid = s.itemid,
+                qty = s.refillqty
+            }).ToList()
+        };
+    }
+
 }
