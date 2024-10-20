@@ -112,6 +112,7 @@ $('.ddl-inventory-search-type').on("change", function () {
 });
 
 $("#btnSearch").on('click', function (event) {
+    ShowLoading();
     event.preventDefault(); // Prevent the default form submission
 
     var selectedInventorySearchType = $("#ddlInventorySearchType").val();
@@ -148,6 +149,7 @@ $("#btnSearch").on('click', function (event) {
 
             console.log(response.data);
             $("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
+            HideLoading();
         },
         failure: function (response) {
             AlertError(response.message);

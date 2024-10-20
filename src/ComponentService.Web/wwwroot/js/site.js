@@ -36,6 +36,8 @@ function InitialDatePicker() {
     var $input = $('.pickadate-saledate').pickadate({
         selectYears: true,
         selectMonths: true,
+        //min: new Date(2015, 3, 20),
+        max: new Date(),
         language: 'th-th',
         format: 'dd/mm/yyyy',
         formatSubmit: 'dd/mm/yyyy',

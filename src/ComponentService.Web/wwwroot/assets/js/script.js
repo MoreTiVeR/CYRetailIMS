@@ -1,4 +1,4 @@
-/*
+﻿/*
 Author       : Dreamguys
 Template Name: POS - Bootstrap Admin Template
 */
@@ -162,15 +162,24 @@ $(document).ready(function(){
 	// Datetimepicker
 	if($('.datetimepicker').length > 0 ){
 		$('.datetimepicker').datetimepicker({
-			format: 'DD-MM-YYYY',
+            format: 'DD-MM-YYYY',
 			icons: {
 				up: "fas fa-angle-up",
 				down: "fas fa-angle-down",
 				next: 'fas fa-angle-right',
 				previous: 'fas fa-angle-left'
-			}
+            }
 		});
     }
+
+    //$.fn.datetimepicker.dates['th'] = {
+    //    days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    //    daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    //    daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+    //    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    //    monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    //    today: "Today"
+    //};
 
     // Datetimepicker
     if ($('.datetimepickermonth').length > 0) {
@@ -894,7 +903,7 @@ $(document).ready(function(){
 		 	'</div>' +
 	  	'</div>';
 
-/* �Դ Customize */
+/* »Ô´ Customize */
 /*$("body").append(customize_link);*/
 
 $('.add-setting').on("click", function (e) {

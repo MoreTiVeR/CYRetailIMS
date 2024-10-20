@@ -110,8 +110,12 @@
     @*<script src="~/assets/plugins/select2/js/custom-select.js"></script>*@
 
     <!-- Datetimepicker JS -->
-    <script src="~/assets/js/moment.min.js"></script>
+    @* <script src="~/assets/js/moment.min.js"></script> *@
+    <script src="~/assets/js/moment/moment.min.js"></script>
+    <script src="~/assets/js/moment/locale/th.js"></script>
     <script src="~/assets/js/bootstrap-datetimepicker.min.js"></script>
+    @* <script src="~/assets/js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script> *@
+    @* <script src="~/assets/js/bootstrap-datetimepicker/locales/bootstrap-datetimepicker.th.js"></script> *@
 
     <!-- Sweetalert 2 -->
     <script src="~/assets/plugins/sweetalert/sweetalert2.all.min.js"></script>
@@ -130,12 +134,12 @@
     @RenderSection("Scripts", required: false)
 
     @*<script type="text/javascript">
-        setTimeout(function () {
-            $('#global-loader');
-            setTimeout(function () {
-                $("#global-loader").fadeOut("slow");
-            }, 100);
-        }, 500);
+    setTimeout(function () {
+    $('#global-loader');
+    setTimeout(function () {
+    $("#global-loader").fadeOut("slow");
+    }, 100);
+    }, 500);
     </script>*@
 </body>
 </html>

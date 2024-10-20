@@ -81,6 +81,7 @@ datatable = $("#tbItemQtyReport").DataTable({
 });
 
 $("#btnSearch").on('click', function (event) {
+    ShowLoading();
     event.preventDefault(); // Prevent the default form submission
 
     var val = $("#ddlBranch").val();
@@ -104,6 +105,7 @@ $("#btnSearch").on('click', function (event) {
                 AlertErrorNoTitle(response.message);
             }
             $("#tbItemQtyReport").DataTable().clear().rows.add(response.data).draw();
+            HideLoading();
         },
         failure: function (response) {
             AlertError(response.message);

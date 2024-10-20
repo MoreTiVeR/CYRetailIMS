@@ -92,6 +92,7 @@ datatable = $("#tbSaleReport").DataTable({
 });
 
 $("#btnSearch").on('click', function (event) {
+    ShowLoading();
     event.preventDefault(); // Prevent the default form submission
 
     var startdate = $("#txtStartDate").val();
@@ -120,6 +121,7 @@ $("#btnSearch").on('click', function (event) {
 
             console.log(response.data);
             $("#tbSaleReport").DataTable().clear().rows.add(response.data).draw();
+            HideLoading();
         },
         failure: function (response) {
             AlertError(response.message);

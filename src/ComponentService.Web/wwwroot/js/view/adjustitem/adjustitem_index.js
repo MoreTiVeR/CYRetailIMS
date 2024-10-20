@@ -112,6 +112,7 @@ $("#btnExportExcel").on('click', function () {
 });
 
 $("#btnSearch").on('click', function (event) {
+    ShowLoading();
     event.preventDefault(); // Prevent the default form submission
 
     var val = $("#ddlBranch").val();
@@ -134,6 +135,7 @@ $("#btnSearch").on('click', function (event) {
             }
             console.log(response.data);
             $("#tbAdjustItems").DataTable().clear().rows.add(response.data).draw();
+            HideLoading();
         },
         failure: function (response) {
             AlertError(response.message);
