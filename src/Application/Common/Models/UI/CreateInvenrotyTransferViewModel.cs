@@ -17,10 +17,15 @@ public class CreateInvenrotyTransferViewModel
 public class DetailInvenrotyTransferViewModel
 {
     public int branchid { get; set; }
+    public string branchname { get; set; }
+
     public int itemid { get; set; }
     public string itemcode { get; set; }
     public string itemname { get; set; }
+
     public int brandid { get; set; }
+    public string brandname { get; set; }
+
     public int qtyinstock { get; set; }
     public int qtyinbranch { get; set; }
     public int notifyminqty { get; set; }

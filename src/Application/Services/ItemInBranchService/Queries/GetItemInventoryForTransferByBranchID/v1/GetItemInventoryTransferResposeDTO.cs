@@ -15,7 +15,7 @@ public class GetItemInventoryTransferResposeDTO
     public string itemcode { get; set; }
     public string itemname { get; set; }
     public int brandid { get; set; }
-    //public string brandname { get; set; }
+    public string brandname { get; set; }
     public int qtyinstock { get; set; }
     public int qtyinbranch { get; set; }
     public int notifyminqty { get; set; }
@@ -33,5 +33,17 @@ public class GetItemInventoryTransferResposeDTO
             value = this._orderqty;
         }
     }
-    public int refillqty { get; set; }
+
+    private int _refillqty { get; set; }
+    public int refillqty
+    {
+        get
+        {
+            return this.orderqty;
+        }
+        set
+        {
+            value = this._refillqty;
+        }
+    }
 }

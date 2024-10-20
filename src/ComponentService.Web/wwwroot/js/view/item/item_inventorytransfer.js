@@ -18,8 +18,10 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     "destroy": true,
     "bFilter": true,
     "sDom": 'fBtlpi',
-    'pagingType': 'numbers',
+    "pagingType": 'numbers',
     "ordering": true,
+    "pageLength": 50,
+    "autoWidth": false,
     "ajax": {
         "url": "/Item/GetItemInventoryTransfer",
         "type": "GET",
@@ -44,6 +46,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         { "data": "itemid" },
         { "data": "itemcode" },
         { "data": "itemname" },
+        { "data": "brandname" },
         { "data": "qtyinstock" },
         { "data": "qtyinbranch" },
         { "data": "notifyminqty" },
@@ -56,6 +59,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
                 return "<input type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid +"' value='" + data.refillqty +"'>";
             }
         },
+        { "data": "refillqty" }
     ],
     //"language": {
     //    "emptyTable": "ไม่พบข้อมูล."
@@ -63,7 +67,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     "order": [[2, "asc"]],
     "columnDefs": [
         {
-            "targets": [1, 2],
+            "targets": [1, 2, 11],
             "visible": false
         }
     ],
@@ -82,12 +86,12 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานโอนสินค้าขั้น',
+            title: 'รายงานโอนสินค้า',
             text: 'ดาวโหลดไฟล์ Excel',
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 3, 4, 5, 6, 7, 8, 9]
+                columns: [0, 3, 4, 5, 6, 7, 8, 9, 11]
             }
         },
         {
@@ -172,7 +176,7 @@ $('#btnConfirmTransfer').on('click', function (e) {
                 }).then(function (result) {
                     if (result.value) {
                         //Post: SaveInvenrotyTransfer
-                        ShowMessageSuccess('Post: SaveInvenrotyTransfer');
+                        //ShowMessageSuccess(result.message);
 
                         var request = $.ajax({
                             type: 'POST',
@@ -192,9 +196,9 @@ $('#btnConfirmTransfer').on('click', function (e) {
                                     AlertErrorNoTitle(response.message);
                                 }
 
-                                console.log(response.data);
-                                $("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
-                                HideLoading();
+                                //console.log(response.data);
+                                //$("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
+                                //HideLoading();
                             },
                             failure: function (response) {
                                 AlertError(response.message);

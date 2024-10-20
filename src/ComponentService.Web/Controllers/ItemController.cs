@@ -157,6 +157,13 @@ public class ItemController : BaseController
         return View();
     }
 
+    public async Task<IActionResult> InventoryTransferHistory()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.ItemBrandList = await PrepareSelectBrand();
+        return View();
+    }
+
     public async Task<IActionResult> InventoryTransfer()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
@@ -1621,15 +1628,6 @@ public class ItemController : BaseController
     {
         try
         {
-
-            #region Prepare & Create Transaction
-            //CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(transferItemObj, itemTransferList);
-            //BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
-            //if (!resCreateTrn.result)
-            //{
-            //    return Json(new { result = false, msg = resCreateTrn.error.error.message });
-            //}
-            #endregion
             if(inventoryTransferRequest.detail == null)
             {
                 return Json(new { result = false, message = $"ไม่สามารถทำรายการได้ เนื่องจากข้อมูลไม่ถูกต้อง" });

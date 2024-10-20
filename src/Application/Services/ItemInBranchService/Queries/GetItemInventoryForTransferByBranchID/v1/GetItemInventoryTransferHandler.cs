@@ -31,6 +31,7 @@ public class GetItemInventoryTransferHandler : BaseService, IRequestHandler<GetI
                                                                    itemcode = item.ItemCode,
                                                                    itemname = item.Name,
                                                                    brandid = item.BrandID,
+                                                                   brandname = item.Brand.BrandName,
                                                                    qtyinstock = item.Qty,
                                                                    qtyinbranch = itembranch.Qty,
                                                                    notifyminqty = itembranch.NotifyMinQty.HasValue ? itembranch.NotifyMinQty.Value : 0
