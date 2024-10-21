@@ -316,6 +316,94 @@ $('#btnConfirmTransfer').on('click', function (e) {
 
 });
 
+$('#btnSaveDraft').on('click', function (e) {
+    
+    e.preventDefault();
+    var data = datatable.$('input, select').serialize();
+    var object_update = {
+        InventoryTransferDataList: datatable.rows()
+            .data()
+            .toArray()
+            .map((el) => {
+                //console.log(el.itemid);
+                var txtRefillQty = datatable.$('input[name=itemid_' + el.itemid + '], select');
+                var isCheck = datatable.$('input[name=select_itemid_' + el.itemid + '], select');
+                el.ischeck = isCheck.is(":checked");
+                el.refillqty = parseInt(txtRefillQty.val());
+                return el;
+            })
+    }
+    console.log(object_update);
+
+    var reqData = { "detail": object_update.InventoryTransferDataList };
+    var jsonData = JSON.stringify(reqData);
+    console.log(jsonData);
+
+    Swal.fire({
+        //title: 'ยืนยันการบันทึกข้อมูล?',
+        //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+        //type: 'warning',
+        title: '<strong>ยืนยันการบันทึกข้อมูลฉบับร่าง?</strong>',
+        icon: 'warning',
+        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึกฉบับร่าง!</span></u>',
+        showCancelButton: true,
+        //showDenyButton: true,
+        confirmButtonColor: '#04B431',
+        confirmButtonText: 'บันทึก',
+        cancelButtonColor: '#D33',
+        cancelButtonText: "ยกเลิก",
+        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+        //denyButtonColor: '#D33',
+        customClass: {
+            confirmButton: 'btn btn-success',
+            denyButton: 'btn btn-warning ml-1',
+            cancelButton: 'btn btn-danger ml-1'
+        },
+        buttonsStyling: false,
+        focusConfirm: true
+    }).then(function (result) {
+        if (result.value) {
+            ShowLoading();
+            var request = $.ajax({
+                type: 'POST',
+                url: '/Item/CreateDraftItemInvenrotyTransfer',
+                data: jsonData,
+                contentType: 'application/json',
+                success: function (response) {
+
+                    if (response.result) {
+                        ShowMessageSuccess(response.message);
+
+                        //Update the DataTable with the filtered data from the server
+                        /*console.log(response.data);*/
+                        /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+                    }
+                    else {
+                        AlertErrorNoTitle(response.message);
+                    }
+
+                    //console.log(response.data);
+                    //$("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
+                    HideLoading();
+                },
+                failure: function (response) {
+                    AlertError(response.message);
+                },
+                error: function (response) {
+                    AlertError(response.message);
+                }
+            });
+        }
+        else if (result.dismiss === Swal.DismissReason.cancel) {
+            //Code
+            ShowMessageInfo('ยกเลิก');
+            HideLoading();
+        }
+
+    });
+
+});
+
 $("#btnSearch").on('click', function (event) {
     ShowLoading();
 

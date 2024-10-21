@@ -1,5 +1,6 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
@@ -36,6 +37,22 @@ public class ItemTransferController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]CreateItemTransferAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/draft")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DraftItemTransferAsync(CreateDraftItemTransferCommand createDraftItemTransferCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(createDraftItemTransferCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]DraftItemTransferAsync Success");
         return Ok(res.data);
     }
 

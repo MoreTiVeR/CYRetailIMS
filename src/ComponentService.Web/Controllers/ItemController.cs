@@ -49,6 +49,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -1698,6 +1699,48 @@ public class ItemController : BaseController
                 qty = s.refillqty
             }).ToList()
         };
+    }
+
+    private CreateDraftItemTransferCommand CreateDraftItemTransferCommand(CreateInvenrotyTransferViewModel reqObj)
+    {
+        return new CreateDraftItemTransferCommand
+        {
+            transfertypeid = (int)TransferType.WTB,
+            sourceid = 1,
+            destinationid = reqObj.detail.FirstOrDefault().branchid,
+            //description = "",
+            createdby = base.UserProfile.username,
+            createddate = DateTime.Now,
+            transferstatus = (int)TransferStatus.Pending,
+            isactive = true,
+            items = reqObj.detail.Where(w => w.ischeck == true).Select(s => new CreateItemTransferDetailCommand
+            {
+                itemid = s.itemid,
+                qty = s.refillqty
+            }).ToList()
+        };
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateDraftItemInvenrotyTransfer([FromBody] CreateInvenrotyTransferViewModel inventoryTransferRequest)
+    {
+        try
+        {
+            #region Prepare & Create Transaction
+            CreateDraftItemTransferCommand createItemTransferCommand = CreateDraftItemTransferCommand(inventoryTransferRequest);
+            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateDraftItemTransferAsync(createItemTransferCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, message = resCreateTrn.error.error.message });
+            }
+            #endregion
+            return Json(new { result = true, message = "บันทึกข้อมูลฉบับร่างสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemInventoryTransferResposeDTO>() });
+
+        }
     }
 
 }

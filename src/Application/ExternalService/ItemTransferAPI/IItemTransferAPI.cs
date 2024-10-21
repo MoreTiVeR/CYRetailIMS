@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
@@ -18,6 +19,8 @@ namespace CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 public interface IItemTransferAPI
 {
     Task<BaseResponse<CommandResponse>> CreateItemTransferAsync(CreateItemTransferCommand createItemTransferCommand);
+
+    Task<BaseResponse<CommandResponse>> CreateDraftItemTransferAsync(CreateDraftItemTransferCommand createDraftItemTransferCommand);
 
     Task<BaseResponse<CommandResponse>> ReceiveItemTransferAsync(UpdateItemTransferCommand receiveItemTransferCommand);
 

@@ -7,6 +7,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
@@ -87,5 +88,9 @@ public class ItemTransferAPI : HttpClientService, IItemTransferAPI
              object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransfertypebyid/{transfertypeID}"), null);
     }
 
-   
+    public async Task<BaseResponse<CommandResponse>> CreateDraftItemTransferAsync(CreateDraftItemTransferCommand createDraftItemTransferCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, 
+            CreateDraftItemTransferCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/draft"), createDraftItemTransferCommand);
+    }
 }
