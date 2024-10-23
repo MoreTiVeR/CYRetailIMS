@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using CYRetailIMS.Domain.Common;
@@ -11,7 +10,11 @@ namespace CYRetailIMS.Domain.Entities;
 public partial class TTDraftItemTransfer : BaseAuditableEntity
 {
     [Key]
-    public int TransferID { get; set; }
+    public int TransferHeaderID { get; set; }
+
+    [StringLength(12)]
+    [Unicode(false)]
+    public string TransferRefNo { get; set; } = null!;
 
     /// <summary>
     /// Ref TMTransferType
@@ -21,27 +24,19 @@ public partial class TTDraftItemTransfer : BaseAuditableEntity
     /// <summary>
     /// WarehouseID, BranchID ต้นทาง
     /// </summary>
-    public int SourceID { get; set; }
+    public int SourceBranchID { get; set; }
 
     /// <summary>
     /// WarehouseID, BranchID ปลายทาง
     /// </summary>
-    public int DestinationID { get; set; }
-
-    public int ItemID { get; set; }
-
-    public int Qty { get; set; }
-
-    public int? ReceiveQTY { get; set; }
-
-    public int? ReturnQTY { get; set; }
+    public int DestinationBranchID { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]
     public string? Description { get; set; }
 
-    [Required]
-    public bool? IsActive { get; set; }
-
     public int TransferStatus { get; set; }
+
+    [InverseProperty("TransferHeader")]
+    public virtual ICollection<TTDraftItemTransferDetail> TTDraftItemTransferDetails { get; set; } = new List<TTDraftItemTransferDetail>();
 }

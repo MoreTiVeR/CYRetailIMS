@@ -13,7 +13,6 @@
     <Folder Include="Common\Mappings\UI\Sale\" />
     <Folder Include="Services\ItemService\Queries\GetItemByBarcode\v2\" />
     <Folder Include="Services\ItemTransferService\Commands\UpdateDraftItemTransfer\" />
-    <Folder Include="Services\ItemTransferService\Queries\GetDraftItemTransferByBranchID\v1\" />
     <Folder Include="Services\SupplierContactTypeService\Commands\" />
     <Folder Include="Services\SupplierContactTypeService\EventHandlers\" />
     <Folder Include="Services\PaymentTypeService\Commands\" />

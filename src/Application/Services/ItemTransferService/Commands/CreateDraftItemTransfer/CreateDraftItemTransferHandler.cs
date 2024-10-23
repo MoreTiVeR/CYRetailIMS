@@ -7,6 +7,7 @@ using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
 using CYRetailIMS.Domain.Entities;
+using CYRetailIMS.Domain.Events.TTDraftItemTransferDetails;
 using CYRetailIMS.Domain.Events.TTDraftItemTransfers;
 using CYRetailIMS.Domain.Events.TTItemTransfers;
 using CYRetailIMS.Domain.Infrastructure.Database;
@@ -31,12 +32,14 @@ internal class CreateDraftItemTransferHandler : BaseService, IRequestHandler<Cre
     public async Task<BaseResponse<CommandResponse>> Handle(CreateDraftItemTransferCommand request, CancellationToken cancellationToken)
     {
         #region Craete TTItemTransfer
-        ICollection<TTDraftItemTransfer> itemTransferEntities = PrepreTTItemTransfer(request);
-        itemTransferEntities.ToList().ForEach(e =>
+        TTDraftItemTransfer itemTransferEntities = PrepreTTItemTransfer(request);
+        itemTransferEntities.TTDraftItemTransferDetails = PrepreTTItemTransferDetail(request);
+        itemTransferEntities.TTDraftItemTransferDetails.ToList().ForEach(e =>
         {
-            e.AddDomainEvent(new TTDraftItemTransferCreateEvent(e));
+            e.AddDomainEvent(new TTDraftItemTransferDetailCreateEvent(e));
         });
-        await _unitOfWork.Repository<TTDraftItemTransfer>().AddRangeAsync(itemTransferEntities);
+        itemTransferEntities.AddDomainEvent(new TTDraftItemTransferCreateEvent(itemTransferEntities));
+        await _unitOfWork.Repository<TTDraftItemTransfer>().AddAsync(itemTransferEntities);
         #endregion
 
         await _unitOfWork.SaveChangesAsync();
@@ -50,22 +53,35 @@ internal class CreateDraftItemTransferHandler : BaseService, IRequestHandler<Cre
         };
     }
 
-    private ICollection<TTDraftItemTransfer> PrepreTTItemTransfer(CreateDraftItemTransferCommand draftItemTransfer)
+    private TTDraftItemTransfer PrepreTTItemTransfer(CreateDraftItemTransferCommand createDraftItemTransfer)
     {
-        return (from a in draftItemTransfer.items
-                let t = draftItemTransfer
-                select new TTDraftItemTransfer
+        return new TTDraftItemTransfer
+        {
+            TransferRefNo = $"{createDraftItemTransfer.createddate:ddMMyyyyHHMM}",
+            TransferTypeID = createDraftItemTransfer.transfertypeid,
+            Description = createDraftItemTransfer.description,
+            SourceBranchID = createDraftItemTransfer.sourceid,
+            DestinationBranchID = createDraftItemTransfer.destinationid,
+            CreatedBy = createDraftItemTransfer.createdby,
+            CreatedDate = createDraftItemTransfer.createddate,
+            IsActive = createDraftItemTransfer.isactive,
+            TransferStatus = createDraftItemTransfer.transferstatus
+        };
+    }
+
+    private ICollection<TTDraftItemTransferDetail> PrepreTTItemTransferDetail(CreateDraftItemTransferCommand createDraftItemTransfer)
+    {
+        return (from a in createDraftItemTransfer.items
+                let t = createDraftItemTransfer
+                select new TTDraftItemTransferDetail
                 {
-                    TransferTypeID = t.transfertypeid,
-                    SourceID = t.sourceid,
-                    DestinationID = t.destinationid,
                     ItemID = a.itemid,
                     Qty = a.qty,
-                    Description = t.description,
                     CreatedBy = t.createdby,
-                    CreatedDate = draftItemTransfer.createddate,
-                    IsActive = t.isactive,
-                    TransferStatus = t.transferstatus
+                    CreatedDate = createDraftItemTransfer.createddate,
+                    IsActive = t.isactive
                 }).ToList();
     }
+
+
 }

@@ -114,6 +114,7 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTDraftItemTransfer> TTDraftItemTransfers { get; set; }
 
+    public virtual DbSet<TTDraftItemTransferDetail> TTDraftItemTransferDetails { get; set; }
     public virtual DbSet<TTItemTransactionLog> TTItemTransactionLogs { get; set; }
 
 
@@ -491,12 +492,9 @@ public partial class CYDBContext : DbContext
 				.HasConstraintName("FK_TMTransportPrefixDetail_TMTransportCompany");
 		});
 
-        modelBuilder.Entity<TTDraftItemTransfer>(entity =>
+        modelBuilder.Entity<TTDraftItemTransferDetail>(entity =>
         {
-            entity.Property(e => e.DestinationID).HasComment("WarehouseID, BranchID ปลายทาง");
-            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
-            entity.Property(e => e.SourceID).HasComment("WarehouseID, BranchID ต้นทาง");
-            entity.Property(e => e.TransferTypeID).HasComment("Ref TMTransferType");
+            entity.HasOne(d => d.TransferHeader).WithMany(p => p.TTDraftItemTransferDetails).HasConstraintName("FK_TTDraftItemTransferDetail_TTDraftItemTransfer");
         });
 
         modelBuilder.Entity<TTItemTransactionLog>(entity =>
