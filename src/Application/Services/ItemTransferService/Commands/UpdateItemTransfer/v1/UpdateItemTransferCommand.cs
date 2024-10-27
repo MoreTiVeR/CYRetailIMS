@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
 public record UpdateItemTransferCommand : IRequest<BaseResponse<CommandResponse>>
 {
     public int transferid { get; init; }

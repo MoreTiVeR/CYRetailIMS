@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using FluentValidation;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 public class CreateItemTransferDetailValidator : AbstractValidator<CreateItemTransferDetailCommand>
 {
     public CreateItemTransferDetailValidator()

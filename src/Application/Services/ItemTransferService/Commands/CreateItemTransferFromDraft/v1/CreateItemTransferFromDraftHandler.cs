@@ -5,25 +5,44 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
 using CYRetailIMS.Domain.Events.TMItems;
+using CYRetailIMS.Domain.Events.TTDraftItemTransfers;
 using CYRetailIMS.Domain.Events.TTItemTransfers;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
-public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItemTransferCommand, BaseResponse<CommandResponse>>
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransferFromDraft.v1;
+public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<CreateItemTransferFromDraftCommand, BaseResponse<CommandResponse>>
 {
-    public CreateItemTransferHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
+    public CreateItemTransferFromDraftHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
     {
     }
 
-    public async Task<BaseResponse<CommandResponse>> Handle(CreateItemTransferCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<CommandResponse>> Handle(CreateItemTransferFromDraftCommand request, CancellationToken cancellationToken)
     {
+        #region Check Draft Transaction
+        TTDraftItemTransfer resDraftItemTrans = await _unitOfWork.Repository<TTDraftItemTransfer>().FirstOrDefaultAsync(w => w.TransferHeaderID == request.draftid);
+        if(resDraftItemTrans == null)
+        {
+            throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลร่างโอนสินค้า");
+        }
+        #endregion
+
+        #region Check exist branchid and itemid in TTItemTransfer
+        var isExist = await _unitOfWork.Repository<TTItemTransfer>().AnyAsync(w => w.DestinationID == request.destinationid
+        && request.items.Select(s => s.itemid).Contains(w.ItemID)
+        && w.TransferStatus == (int)TransferStatus.Pending);
+        if (isExist)
+        {
+            throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากสาขาดังกล่าวมีรายการค้างรับโอนในระบบ");
+        }
+        #endregion
+
         #region Validate Qty In Stock
         await _unitOfWork.BeginTransactionAsync();
         #endregion
@@ -155,6 +174,13 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
         }
         #endregion
 
+        #region Update TransferStatus on TTDraftItemTransfer table
+        resDraftItemTrans.TransferStatus = (int)EnumModel.TransferStatus.Received;
+        resDraftItemTrans.SetUpdatedBy(request.createdby);
+        resDraftItemTrans.SetUpdatedDate(request.createddate);
+        resDraftItemTrans.AddDomainEvent(new TTDraftItemTransferCreateEvent(resDraftItemTrans));
+        #endregion
+
         #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
         await _unitOfWork.CommitTransactionAsync();
@@ -169,6 +195,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
             soruce = "db"
         };
     }
+
 
     #region Private Method
     private ICollection<TTItemTransfer> PrepreTTItemTransfer(CreateItemTransferCommand itemTransferCommand)

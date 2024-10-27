@@ -21,29 +21,8 @@ public class GetItemInventoryTransferResposeDTO
     public int notifyminqty { get; set; }
 
     private int _orderqty { get; set; }
-    public int orderqty
-    {
-        get
-        {
-            int numQty = this.notifyminqty - this.qtyinbranch;
-            return numQty < 0 ? 0 : numQty;
-        }
-        set
-        {
-            value = this._orderqty;
-        }
-    }
+    public int orderqty { get; set; }
 
     private int _refillqty { get; set; }
-    public int refillqty
-    {
-        get
-        {
-            return this.orderqty;
-        }
-        set
-        {
-            value = this._refillqty;
-        }
-    }
+    public int refillqty { get; set; }
 }

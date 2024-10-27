@@ -14,7 +14,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
 public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItemTransferCommand, BaseResponse<CommandResponse>>
 {
     public UpdateItemTransferHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
@@ -34,7 +34,7 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
             throw new Exception("ขออภัย, ไม่พบรายการโอน กรุลองใหม่อีกครั้ง");
         }
 
-        if(resTTItemTransfer.TransferStatus != (int)TransferStatus.Pending)
+        if (resTTItemTransfer.TransferStatus != (int)TransferStatus.Pending)
         {
             throw new Exception("ขออภัย, ไม่สามารถทำรายการได้ เนื่องรายการโอนได้ถูกตรวจรับ/ยกเลิกไปแล้ว");
         }
@@ -46,7 +46,7 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         //&& w.IsActive);
         IEnumerable<TMItemInBranch> resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
         && w.ItemID == request.itemid);
-        if (resItemInDestinationBranch.Any(w => w.IsActive == ((int)EnumModel.ItemInBranchStatus.InActive).ToBool()))
+        if (resItemInDestinationBranch.Any(w => w.IsActive == ((int)ItemInBranchStatus.InActive).ToBool()))
         {
             throw new Exception("ขออภัย, มีรายการสินค้าที่ถูกยกเลิกในสาขาปลายทางแล้ว! กรุณาเปิดใช้งานสินค้าและทำรายการใหม่อีกครั้ง");
         }

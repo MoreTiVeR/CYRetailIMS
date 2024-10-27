@@ -11,6 +11,7 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 [JsonObject]
 public class CreateInvenrotyTransferViewModel
 {
+    public int draftid { get; set; }
     public List<DetailInvenrotyTransferViewModel> detail { get; set; }
 }
 

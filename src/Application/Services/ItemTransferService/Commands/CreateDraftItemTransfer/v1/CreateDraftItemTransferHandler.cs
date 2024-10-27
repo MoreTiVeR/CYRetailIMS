@@ -14,7 +14,7 @@ using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 internal class CreateDraftItemTransferHandler : BaseService, IRequestHandler<CreateDraftItemTransferCommand, BaseResponse<CommandResponse>>
 {
     public CreateDraftItemTransferHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
@@ -31,6 +31,15 @@ internal class CreateDraftItemTransferHandler : BaseService, IRequestHandler<Cre
     /// <exception cref="NotImplementedException"></exception>
     public async Task<BaseResponse<CommandResponse>> Handle(CreateDraftItemTransferCommand request, CancellationToken cancellationToken)
     {
+        #region Check Draft Item if exist
+        var isExist = await _unitOfWork.Repository<TTDraftItemTransfer>().AnyAsync(w => w.DestinationBranchID == request.destinationid 
+        && w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
+        if (isExist)
+        {
+            throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากสาขาดังกล่าวมีการบันทึกฉบับร่างในระบบแล้ว");
+        }
+        #endregion
+
         #region Craete TTItemTransfer
         TTDraftItemTransfer itemTransferEntities = PrepreTTItemTransfer(request);
         itemTransferEntities.TTDraftItemTransferDetails = PrepreTTItemTransferDetail(request);

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 
 [Serializable]
 public record CreateItemTransferDetailCommand

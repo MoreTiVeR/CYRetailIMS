@@ -20,13 +20,11 @@ using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
 using OfficeOpenXml;
 using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
@@ -49,7 +47,10 @@ using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -1721,14 +1722,53 @@ public class ItemController : BaseController
         };
     }
 
+    private UpdateDraftItemTransferCommand PrepareUpdateDraftItemTransferCommand(CreateInvenrotyTransferViewModel reqObj)
+    {
+        return new UpdateDraftItemTransferCommand
+        {
+            draftid = reqObj.draftid,
+            transfertypeid = (int)TransferType.WTB,
+            sourceid = 1,
+            destinationid = reqObj.detail.FirstOrDefault().branchid,
+            //description = "",
+            createdby = base.UserProfile.username,
+            createddate = DateTime.Now,
+            transferstatus = (int)TransferStatus.Pending,
+            isactive = true,
+            items = reqObj.detail.Where(w => w.ischeck == true).Select(s => new CreateItemTransferDetailCommand
+            {
+                itemid = s.itemid,
+                qty = s.refillqty
+            }).ToList()
+        };
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateDraftItemInvenrotyTransfer([FromBody] CreateInvenrotyTransferViewModel inventoryTransferRequest)
     {
         try
         {
-            #region Prepare & Create Transaction
-            CreateDraftItemTransferCommand createItemTransferCommand = CreateDraftItemTransferCommand(inventoryTransferRequest);
-            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateDraftItemTransferAsync(createItemTransferCommand);
+            #region Prepare & Create, Update Draft Transaction
+            BaseResponse<CommandResponse> resCreateTrn;
+            if (inventoryTransferRequest.detail.Where(w => w.ischeck == true).Count() == 0)
+            {
+                return Json(new { result = false, message = $"ไม่สามารถทำรายการได้ กรุณาติ๊กเลือกเลือกสินค้าโอนก่อนบันทึกรายการ" });
+            }
+            if(inventoryTransferRequest.draftid <= 0)
+            {
+                #region Create
+                CreateDraftItemTransferCommand createDraftItemTransferCmd = CreateDraftItemTransferCommand(inventoryTransferRequest);
+                resCreateTrn = await _itemTransferAPI.CreateDraftItemTransferAsync(createDraftItemTransferCmd);
+                #endregion
+            }
+            else
+            {
+                #region Update
+                UpdateDraftItemTransferCommand updateDraftItemTransferCmd = PrepareUpdateDraftItemTransferCommand(inventoryTransferRequest);
+                resCreateTrn = await _itemTransferAPI.UpdateDraftItemTransferAsync(updateDraftItemTransferCmd);
+                #endregion
+            }
+           
             if (!resCreateTrn.result)
             {
                 return Json(new { result = false, message = resCreateTrn.error.error.message });

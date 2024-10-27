@@ -7,7 +7,7 @@ using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransac
 using FluentValidation;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
 public class UpdateItemTransferValidator : AbstractValidator<UpdateItemTransferCommand>
 {
     public UpdateItemTransferValidator()
@@ -28,7 +28,7 @@ public class UpdateItemTransferValidator : AbstractValidator<UpdateItemTransferC
 
     private bool IsValidTotalQTY(UpdateItemTransferCommand command, int qty)
     {
-        if(command.transferstatusid == (int)TransferStatus.Received)
+        if (command.transferstatusid == (int)TransferStatus.Received)
         {
             // Calculate the sum of receive and return qty
             int receivelQTY = command.receiveqty + command.returnqty;

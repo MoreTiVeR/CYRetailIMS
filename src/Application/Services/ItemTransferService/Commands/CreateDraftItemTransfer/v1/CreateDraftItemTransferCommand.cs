@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using MediatR;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 public class CreateDraftItemTransferCommand : IRequest<BaseResponse<CommandResponse>>
 {
     public int transfertypeid { get; init; }

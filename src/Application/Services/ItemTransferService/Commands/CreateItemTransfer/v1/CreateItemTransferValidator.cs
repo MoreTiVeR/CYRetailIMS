@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 public class CreateItemTransferValidator : AbstractValidator<CreateItemTransferCommand>
 {
     public CreateItemTransferValidator()

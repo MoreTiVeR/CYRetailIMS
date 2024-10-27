@@ -1,4 +1,4 @@
-﻿@using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+﻿
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -6,11 +6,11 @@
 
 <div class="page-header">
     <div class="page-title">
-        <h4>โอนสินค้า</h4>
-        <h6>ทำรายการโอนสินค้า</h6>
+        <h4>บันทึกร่างโอนสินค้า</h4>
+        <h6>รายการร่างโอนสินค้าประจำสาขา</h6>
     </div>
     <div class="page-btn">
-        <a asp-action="Create" asp-controller="Item" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มสินค้าใหม่</a>
+        <a asp-action="InventoryTransfer" asp-controller="Item" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มโอนสินค้า(ใหม่)</a>
     </div>
 </div>
 
@@ -29,13 +29,6 @@
                     <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
                 </div>
             </div>
-            @* <div class="wordset">
-            <ul>
-            <li>
-            <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-            </li>
-            </ul>
-            </div>*@
         </div>
         <!-- /Filter -->
         <div class="card mb-0" id="filter_inputs">
@@ -43,19 +36,8 @@
                 <div class="row">
                     <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
-                            <select id="ddlBranch" class="select">
-                                <option>เลือกสาขา</option>
-                                @if (ViewBag.BranchList.result)
-                                {
-                                    foreach (var item in ViewBag.BranchList.data)
-                                    {
-                                        <option value="@item.branchid">@item.branchname</option>
-                                    }
-                                }
-                                else
-                                {
-                                    <option value="">--ไม่พบข้อมูล--</option>
-                                }
+                            <select id="ddlBranch" class="ddl-select2 select2 ddl-source-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+                                <option value="">--เลือกสาขา--</option>
                             </select>
                         </div>
                     </div>
@@ -73,7 +55,7 @@
         </div>
         <!-- /Filter -->
         <div class="table-responsive">
-            <table id="tbItems" class="table">
+            <table id="tbItemsTransfer" class="table">
                 <thead>
                     <tr>
                         <th hidden>
@@ -82,22 +64,12 @@
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
-                        <th>ดำเนินการ</th>
-                        <th>รหัสสินค้า</th>
-                        <th>ชื่อสินค้า</th>
-                        <th>ประเภท</th>
-                        <th>แบรนด์</th>
-                        <th>จำนวน</th>
-                        <th>ต้นทุน</th>
-                        <th>ราคาขาย</th>
-                        <th>จำนวนขั้นต่ำ</th>
-                        <th>จำนวนสูงสุด</th>
-                        <th class="text-center">รายละเอียด</th>
+                        <th style="text-align:center">สถานะ</th>
+                        <th>เลขอ้างอิง</th>
+                        <th hidden>รหัสสาขา</th>
+                        <th>โอนไปสาขา</th>
                         <th>สร้างโดย</th>
                         <th>วันที่สร้าง</th>
-                        <th>แก้ไขโดย</th>
-                        <th>วันที่แก้ไข</th>
-                        <th>ดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,13 +79,13 @@
     </div>
 </div>
 <!-- /product list -->
-@section Scripts{
 
-
+@section Scripts {
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <!--Page Script-->
-    <script src="~/js/view/item/item_index.js" asp-append-version="true"></script>
+    <script src="~/js/view/inventorytransfer/inventorytransfer_index.js" asp-append-version="true"></script>
 }
+

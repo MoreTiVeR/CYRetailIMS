@@ -6,10 +6,16 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransferFromDraft.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByBranchID.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
@@ -51,7 +57,6 @@ public class ItemTransferAPI : HttpClientService, IItemTransferAPI
             GetItemTransferListQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransferforadmin"), getItemTransferListQuery);
     }
 
-
     public async Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferByCriteriaAsync(GetItemTransferByCriteriaQuery getItemTransferByCriteriaQuery)
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetItemTransferResponseDTO>,
@@ -92,5 +97,35 @@ public class ItemTransferAPI : HttpClientService, IItemTransferAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, 
             CreateDraftItemTransferCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/draft"), createDraftItemTransferCommand);
+    }
+
+    public async Task<BaseResponse<GetDraftItemTransferByBranchIDResponseDTO>> GetDraftItemTransferByBranchIDAsync(GetDraftItemTransferByBranchIDQuery reqObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetDraftItemTransferByBranchIDResponseDTO, GetDraftItemTransferByBranchIDQuery>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/inquiry-draft-itemtransfer-branch"), reqObj);
+    }
+
+    public async Task<BaseResponse<List<GetDraftItemTransferByBranchIDResponseDTO>>> GetDraftItemTransferByCriteriaAsync(GetDraftItemTransferByCriteriaQuery reqObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetDraftItemTransferByBranchIDResponseDTO>, GetDraftItemTransferByCriteriaQuery>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/inquiry-draft-itemtransfer"), reqObj);
+    }
+
+    public async Task<BaseResponse<List<GetItemInventoryTransferResposeDTO>>> InquiryDraftItemTransferByDraftIDAsync(GetItemInventoryForTransferByDraftIDQuery reqObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetItemInventoryTransferResposeDTO>, GetItemInventoryForTransferByDraftIDQuery>(HttpMethod.Post, 
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/inquiry-draftid"), reqObj);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> UpdateDraftItemTransferAsync(UpdateDraftItemTransferCommand reqObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse,
+                    UpdateDraftItemTransferCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/update-draft"), reqObj);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> CreateItemTransferFromDrafAsyc(CreateItemTransferFromDraftCommand reqObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse,
+            CreateItemTransferFromDraftCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/createbydraft"), reqObj);
     }
 }

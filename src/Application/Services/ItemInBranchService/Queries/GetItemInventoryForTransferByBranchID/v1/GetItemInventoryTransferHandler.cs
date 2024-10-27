@@ -41,6 +41,16 @@ public class GetItemInventoryTransferHandler : BaseService, IRequestHandler<GetI
             res = res.Where(w => w.brandid == request.brandid.Value);
         }
 
+        #region Re-Assign OrderQTY(จำนวนสินค้าที่ต้องเติม) and RefillQTY(จำนวนที่เติมจริง)
+        res = res.ToList().Select(e =>
+        {
+            int numQty = e.notifyminqty - e.qtyinbranch;
+            e.orderqty = numQty < 0 ? 0 : numQty;
+            e.refillqty = e.orderqty;
+            return e;
+        });
+        #endregion
+
         if (!res.Any())
         {
             throw new Exception("Data not found");
