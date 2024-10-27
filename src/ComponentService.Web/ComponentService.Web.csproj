@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>1.0.29.0</Version>
-    <FileVersion>1.0.29.0</FileVersion>
-    <AssemblyVersion>1.0.29.0</AssemblyVersion>
+    <Version>1.0.30.0</Version>
+    <FileVersion>1.0.30.0</FileVersion>
+    <AssemblyVersion>1.0.30.0</AssemblyVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
@@ -25,6 +25,8 @@
 
   <ItemGroup>
     <Content Remove="bundleconfig.json" />
+    <Content Remove="Views\Item\Index - Copy.cshtml" />
+    <Content Remove="Views\Item\InventoryTransfer.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

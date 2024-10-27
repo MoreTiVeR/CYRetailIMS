@@ -3,17 +3,6 @@ var datatable;
 InitialNumberInput();
 $('.select2').select2();
 
-//var editor = new DataTable.Editor({
-//    ajax: '/Item/GetItemInventoryTransfer',
-//    fields: [
-//        {
-//            label: 'จำนวน/แก้ไขได้:',
-//            name: 'orderqty'
-//        }
-//    ],
-//    table: '#tbItemInventoryTransfer'
-//});
-
 datatable = $("#tbItemInventoryTransfer").DataTable({
     "destroy": true,
     "bFilter": true,
@@ -23,7 +12,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     "pageLength": 50,
     "autoWidth": false,
     "ajax": {
-        "url": "/Item/GetItemInventoryTransfer",
+        "url": "/Inventory/InquiryDrafItemTransfer",
         "type": "GET",
         "datatype": "json"
     },
@@ -138,13 +127,13 @@ $('#btnConfirmTransfer').on('click', function (e) {
     }
     console.log(object_update);
 
-    var reqData = { "detail": object_update.InventoryTransferDataList };
+    var reqData = { "detail": object_update.InventoryTransferDataList, "draftid": draftid };
     var jsonData = JSON.stringify(reqData);
     console.log(jsonData);
 
     var request = $.ajax({
         type: 'POST',
-        url: '/Item/CreateItemInvenrotyTransferValidation',
+        url: '/Inventory/ItemInvenrotyTransferValidation',
         data: jsonData,
         contentType: 'application/json',
         success: function (response) {
@@ -177,23 +166,27 @@ $('#btnConfirmTransfer').on('click', function (e) {
                     if (result.value) {
                         //Post: SaveInvenrotyTransfer
                         //ShowMessageSuccess(result.message);
-
+                        ShowLoading();
                         var request = $.ajax({
                             type: 'POST',
-                            url: '/Item/CreateItemInvenrotyTransfer',
+                            url: '/Inventory/CreateItemInvenrotyTransferFromDraft',
                             data: jsonData,
                             contentType: 'application/json',
                             success: function (response) {
 
                                 if (response.result) {
                                     ShowMessageSuccess(response.message);
-
+                                    HideLoading();
+                                    
                                     //Update the DataTable with the filtered data from the server
                                     /*console.log(response.data);*/
                                     /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+
+                                    window.location.href = '/Inventory/Index';
                                 }
                                 else {
                                     AlertErrorNoTitle(response.message);
+                                    HideLoading();
                                 }
 
                                 //console.log(response.data);
@@ -217,8 +210,7 @@ $('#btnConfirmTransfer').on('click', function (e) {
             else {
                 AlertErrorNoTitle(response.message);
             }
-
-            console.log(response.data);
+            //console.log(response.data);
             //$("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
             HideLoading();
         },
@@ -317,7 +309,6 @@ $('#btnConfirmTransfer').on('click', function (e) {
 });
 
 $('#btnSaveDraft').on('click', function (e) {
-    
     e.preventDefault();
     var data = datatable.$('input, select').serialize();
     var object_update = {
@@ -335,7 +326,7 @@ $('#btnSaveDraft').on('click', function (e) {
     }
     console.log(object_update);
 
-    var reqData = { "detail": object_update.InventoryTransferDataList };
+    var reqData = { "detail": object_update.InventoryTransferDataList, "draftid": draftid };
     var jsonData = JSON.stringify(reqData);
     console.log(jsonData);
 
@@ -366,17 +357,20 @@ $('#btnSaveDraft').on('click', function (e) {
             ShowLoading();
             var request = $.ajax({
                 type: 'POST',
-                url: '/Item/CreateDraftItemInvenrotyTransfer',
+                url: '/Inventory/CreateDraftItemInvenrotyTransfer',
                 data: jsonData,
                 contentType: 'application/json',
                 success: function (response) {
 
                     if (response.result) {
                         ShowMessageSuccess(response.message);
+                        HideLoading();
 
                         //Update the DataTable with the filtered data from the server
                         /*console.log(response.data);*/
                         /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+
+                        window.location.href = '/Inventory/Index';
                     }
                     else {
                         AlertErrorNoTitle(response.message);
@@ -404,298 +398,6 @@ $('#btnSaveDraft').on('click', function (e) {
 
 });
 
-$("#btnSearch").on('click', function (event) {
-    ShowLoading();
-
-    event.preventDefault(); // Prevent the default form submission
-
-    var text = $("#ddlBranch :selected").text();
-    var sbranchid = $("#ddlBranch :selected").val();
-    var sbrandid = $("#ddlBrand :selected").val();
-
-    var branchid = parseInt(sbranchid);
-    var brandid = parseInt(sbrandid);
-
-    //SearchTransferData(branchid, brandid);
-    var reqdata = { "branchid": branchid, "brandid": brandid };
-    var jsonData = JSON.stringify(reqdata);
-    console.log(jsonData);
-    var request = $.ajax({
-        type: 'POST',
-        url: '/Item/SearchInvenrotyTransfer',
-        data: jsonData,
-        contentType: 'application/json',
-        success: function (response) {
-
-            if (response.result) {
-                ShowMessageSuccess(response.message);
-
-                //Update the DataTable with the filtered data from the server
-                /*console.log(response.data);*/
-                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
-            }
-            else {
-                AlertErrorNoTitle(response.message);
-            }
-
-            console.log(response.data);
-            $("#tbItemInventoryTransfer").DataTable().clear().rows.add(response.data).draw();
-            HideLoading();
-        },
-        failure: function (response) {
-            AlertError(response.message);
-        },
-        error: function (response) {
-            AlertError(response.message);
-        }
-    });
+$("#btnCancel").on('click', function (e) {
+    window.location.href = '/Inventory/Index';
 });
-
-function SearchTransferData(branchid, brandid) {
-
-    var reqdata = { "branchid": branchid, "brandid": brandid };
-    var jsonData = JSON.stringify(reqdata);
-    console.log(jsonData);
-    var request = $.ajax({
-        type: 'POST',
-        url: '/Item/SearchInvenrotyTransfer',
-        data: jsonData,
-        contentType: 'application/json',
-        success: function (response) {
-
-            if (response.result) {
-                ShowMessageSuccess(response.message);
-
-                //Update the DataTable with the filtered data from the server
-                /*console.log(response.data);*/
-                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
-            }
-            else {
-                AlertErrorNoTitle(response.message);
-            }
-
-            console.log(response.data);
-            $("#tbItemInventoryTransfer").DataTable().clear().rows.add(response.data).draw();
-            
-        },
-        failure: function (response) {
-            AlertError(response.message);
-        },
-        error: function (response) {
-            AlertError(response.message);
-        }
-    });
-}
-
-/*NoUse*/
-$("#btnSave").on('click', function () {
-    var isValid = $('#frmTransferItem').valid();
-    if (!isValid) {
-        ShowMessageError('กรุณาตรวจสอบข้อมูลก่อนบันทึกข้อมูล!');
-    }
-    else {
-        var data = $($("#frmTransferItem")).serializeJSON();
-        $.post("ItemTransferDataValidation", { data }).then(
-            function (results) {
-
-                if (results.result) {
-                    console.log(results.msg);
-                    Swal.fire({
-                        //title: 'ยืนยันการบันทึกข้อมูล?',
-                        //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-                        //type: 'warning',
-                        title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
-                        icon: 'warning',
-                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
-                        showCancelButton: true,
-                        //showDenyButton: true,
-                        confirmButtonColor: '#04B431',
-                        confirmButtonText: 'บันทึก',
-                        cancelButtonColor: '#D33',
-                        cancelButtonText: "ยกเลิก",
-                        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-                        //denyButtonColor: '#D33',
-                        customClass: {
-                            confirmButton: 'btn btn-success',
-                            denyButton: 'btn btn-warning ml-1',
-                            cancelButton: 'btn btn-danger ml-1'
-                        },
-                        buttonsStyling: false,
-                        focusConfirm: true
-                    }).then(function (result) {
-                        if (result.value) {
-                            $("#frmTransferItem").submit();
-                        }
-                        else if (result.dismiss === Swal.DismissReason.cancel) {
-                            //Code
-                            ShowMessageInfo('ยกเลิก');
-                        }
-                    });
-                }
-                else {
-                    ShowMessageError(results.msg);
-                    return;
-                }
-
-            }, function (results) {
-                //Failed
-                console.log('Failed');
-                ShowMessageError(results.message);
-
-            }, function () {
-                ShowMessageError('Unknow error => Create Sale data.');
-                console.log('this will run if the deferred generates a progress update.');
-            }
-        );
-    }
-});
-
-$("#btnAdd").on('click', function () {
-    var trows = parseInt($("#totalrow").val()) + parseInt(1);
-    $("#totalrow").val(trows);
-});
-
-/*dropdown event*/
-$("#transfertypeid").on("change", function () {
-    var text = $('option:selected', $(this)).text();
-    var transfertypeid = parseInt($('option:selected', $(this)).val());
-    var request = $.ajax({
-        url: '/Item/FillSourceDestinationBranch',
-        async: true,
-        type: 'POST',
-        dataType: 'JSON',
-        data: { "transferTypeID": transfertypeid },
-        success: function (response) {
-
-            if (response.result) {
-                //สาขาต้นทาง
-                var selectList_source_branchid = $('#source_branchid');
-                selectList_source_branchid.html(""); // clear before appending new list
-                selectList_source_branchid.append($('<option></option>').val("").html("--เลือกสาขาต้นทาง--")); //Add first itemList
-                $.each(response.data_source, function () {
-                    $("<option />").val(this.value).text(this.text).appendTo(selectList_source_branchid);
-                    //prevGroupName = this.group.name;
-                });
-
-                //สาขาปลายทาง
-                var selectList_destination_branchid = $('#destination_branchid');
-                selectList_destination_branchid.html(""); // clear before appending new list
-                selectList_destination_branchid.append($('<option></option>').val("").html("--เลือกสาขาปลายทาง--")); //Add first itemList
-                $.each(response.data_destination, function () {
-                    $("<option />").val(this.value).text(this.text).appendTo(selectList_destination_branchid);
-                    //prevGroupName = this.group.name;
-                });
-
-                //ItemList
-                //var selectList_itembranchtransfer = $('#itembranchtransfer');
-                //selectList_itembranchtransfer.html(""); // clear before appending new list
-                //selectList_itembranchtransfer.append($('<option></option>').val("").html("--เลือกสินค้าที่ต้องการโอน--")); //Add first itemList
-                //$.each(response.data_itemlist, function () {
-                //    alert(this.text);
-                //    $("<option />").val(this.value).text(this.text).appendTo(selectList_itembranchtransfer);
-                //    //prevGroupName = this.group.name;
-                //});
-
-                $('.item-transfer-repeater').find('select').html("");
-                $("<option />").val("").text("--เลือกสินค้าที่ต้องการโอน--").appendTo($('.item-transfer-repeater').find('select'));
-                $('.item-transfer-repeater').find('select').each(function (e) {
-                    if (this.type == 'select-one') {
-                        if (this.value == '') {
-                            $.each(response.data_itemlist, function () {
-                                $("<option />").val(this.value).text(this.text).appendTo($('.item-transfer-repeater').find('select'));
-                                //prevGroupName = this.group.name;
-                            });
-                        }
-                    }
-                });
-            }
-
-        },
-        failure: function (response) {
-            ShowMessageError(response);
-        },
-        error: function (response) {
-            ShowMessageWarning(response);
-        }
-    });
-
-});
-
-$("#source_branchid").on("change", function () {
-    var text = $('option:selected', $(this)).text();
-    var sbranchid = parseInt($('option:selected', $(this)).val());
-    var transferTypeid = parseInt($("#transfertypeid").val());
-    //ShowMessageWarning('source_branchid - change' + 'val -> ' + sbranchid + 'text -> ' + text);
-    var request = $.ajax({
-        url: '/Item/FillItemTransferByBranchID',
-        async: true,
-        type: 'POST',
-        dataType: 'JSON',
-        data: { "transferTypeID": transferTypeid, "branchID": sbranchid },
-        success: function (response) {
-
-            if (response.result) {
-
-                //Fill destination branchid selection สาขาปลายทาง
-                var selectList_destination_branchid = $('#destination_branchid');
-                selectList_destination_branchid.html(""); // clear before appending new list
-                selectList_destination_branchid.append($('<option></option>').val("").html("--เลือกสาขาปลายทาง--")); //Add first itemList
-                $.each(response.data_destination, function () {
-                    $("<option />").val(this.value).text(this.text).appendTo(selectList_destination_branchid);
-                    //prevGroupName = this.group.name;
-                });
-
-                //Fill item transfer selection in repeater
-                $('.item-transfer-repeater').find('select').html("");
-                $("<option />").val("").text("--เลือกสินค้าที่ต้องการโอน--").appendTo($('.item-transfer-repeater').find('select'));
-                $('.item-transfer-repeater').find('select').each(function (e) {
-                    if (this.type == 'select-one') {
-                        if (this.value == '') {
-                            $.each(response.data_itemlist, function () {
-                                $("<option />").val(this.value).text(this.text).appendTo($('.item-transfer-repeater').find('select'));
-                                //prevGroupName = this.group.name;
-                            });
-                        }
-                    }
-                });
-            }
-            else {
-                ShowMessageError(response.msg);
-            }
-
-        },
-        failure: function (response) {
-            ShowMessageError(response);
-        },
-        error: function (response) {
-            ShowMessageWarning(response);
-        }
-    });
-});
-
-$("#ddlSearchItem").on("change", function () {
-    ShowMessageWarning('ddlSearchItem - change');
-});
-
-$("#itembranchtransfer").on("change", function () {
-    ShowMessageWarning('itembranchtransfer - change');
-});
-
-function ResetForm() {
-    //Reset Repeater
-    $('.outer-item-group').empty();
-
-    //Reset form
-    $('#frmTransferItem')[0].reset(); // [0] gets the DOM element from the jQuery object
-
-    //Reset select2
-    $("#transfertypeid").val('').trigger('change.select2');
-
-    $("#source_branchid").empty();
-    var source_option = new Option("--เลือกสาขาต้นทาง--", "", true, true);
-    $("#source_branchid").append(source_option).trigger('change');
-
-    $("#destination_branchid").empty();
-    var destination_option = new Option("--เลือกสาขาปลายทาง--", "", true, true);
-    $("#destination_branchid").append(destination_option).trigger('change');
-}

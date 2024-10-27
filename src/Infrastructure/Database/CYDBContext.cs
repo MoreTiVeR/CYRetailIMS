@@ -82,6 +82,8 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTItemTransfer> TTItemTransfers { get; set; }
 
+    public virtual DbSet<TTItemTransferHeader> TTItemTransferHeaders { get; set; }
+
     public virtual DbSet<TTPurchaseOrder> TTPurchaseOrders { get; set; }
 
     public virtual DbSet<TTPurchaseOrderDetail> TTPurchaseOrderDetails { get; set; }
@@ -371,13 +373,16 @@ public partial class CYDBContext : DbContext
         modelBuilder.Entity<TTItemTransfer>(entity =>
         {
             entity.Property(e => e.DestinationID).HasComment("WarehouseID, BranchID ปลายทาง");
-            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.SourceID).HasComment("WarehouseID, BranchID ต้นทาง");
             entity.Property(e => e.TransferTypeID).HasComment("Ref TMTransferType");
 
+            entity.HasOne(d => d.TransferHeader).WithMany(p => p.TTItemTransfers)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TTItemTransfer_TTItemTransferHeader");
+
             entity.HasOne(d => d.TransferType).WithMany(p => p.TTItemTransfers).HasConstraintName("FK_TTItemTransfer_TMTransferType");
         });
-
         modelBuilder.Entity<TTPurchaseOrder>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");

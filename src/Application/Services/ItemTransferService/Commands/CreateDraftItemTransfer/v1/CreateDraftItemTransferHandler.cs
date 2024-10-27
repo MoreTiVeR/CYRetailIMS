@@ -66,7 +66,7 @@ internal class CreateDraftItemTransferHandler : BaseService, IRequestHandler<Cre
     {
         return new TTDraftItemTransfer
         {
-            TransferRefNo = $"{createDraftItemTransfer.createddate:ddMMyyyyHHMM}",
+            TransferRefNo = $"{createDraftItemTransfer.createddate:yyMMddFFF}{createDraftItemTransfer.destinationid:000}",
             TransferTypeID = createDraftItemTransfer.transfertypeid,
             Description = createDraftItemTransfer.description,
             SourceBranchID = createDraftItemTransfer.sourceid,

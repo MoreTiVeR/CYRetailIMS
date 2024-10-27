@@ -42,6 +42,12 @@ public partial class TTItemTransfer : BaseAuditableEntity
 
     public int TransferStatus { get; set; }
 
+    public int? TransferHeaderID { get; set; }
+
+    [ForeignKey("TransferHeaderID")]
+    [InverseProperty("TTItemTransfers")]
+    public virtual TTItemTransferHeader? TransferHeader { get; set; }
+
     [ForeignKey("TransferTypeID")]
     [InverseProperty("TTItemTransfers")]
     public virtual TMTransferType TransferType { get; set; } = null!;

@@ -10,7 +10,7 @@
         <h6>รายการร่างโอนสินค้าประจำสาขา</h6>
     </div>
     <div class="page-btn">
-        <a asp-action="InventoryTransfer" asp-controller="Item" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มโอนสินค้า(ใหม่)</a>
+        <a asp-controller="Inventory" asp-action="Transfer" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">โอนสินค้าเร่งด่วน</a>
     </div>
 </div>
 
@@ -86,6 +86,6 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <!--Page Script-->
-    <script src="~/js/view/inventorytransfer/inventorytransfer_index.js" asp-append-version="true"></script>
+    <script src="~/js/view/inventory/inventory_index.js" asp-append-version="true"></script>
 }
 

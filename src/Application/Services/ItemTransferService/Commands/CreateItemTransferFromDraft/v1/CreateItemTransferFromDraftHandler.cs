@@ -10,6 +10,7 @@ using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
 using CYRetailIMS.Domain.Events.TMItems;
 using CYRetailIMS.Domain.Events.TTDraftItemTransfers;
+using CYRetailIMS.Domain.Events.TTItemTransferHeaders;
 using CYRetailIMS.Domain.Events.TTItemTransfers;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
@@ -26,7 +27,8 @@ public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<C
     public async Task<BaseResponse<CommandResponse>> Handle(CreateItemTransferFromDraftCommand request, CancellationToken cancellationToken)
     {
         #region Check Draft Transaction
-        TTDraftItemTransfer resDraftItemTrans = await _unitOfWork.Repository<TTDraftItemTransfer>().FirstOrDefaultAsync(w => w.TransferHeaderID == request.draftid);
+        TTDraftItemTransfer resDraftItemTrans = await _unitOfWork.Repository<TTDraftItemTransfer>().FirstOrDefaultAsync(w => w.TransferHeaderID == request.draftid && 
+        w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
         if(resDraftItemTrans == null)
         {
             throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลร่างโอนสินค้า");
@@ -92,13 +94,20 @@ public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<C
         //}
         #endregion
 
-        #region Craete TTItemTransfer
-        ICollection<TTItemTransfer> itemTransferEntities = PrepreTTItemTransfer(request);
-        itemTransferEntities.ToList().ForEach(e =>
+        #region Craete TTItemTransferHeader & TTItemTransfer
+        //ICollection<TTItemTransfer> itemTransferEntities = PrepreTTItemTransfer(request);
+        //itemTransferEntities.ToList().ForEach(e =>
+        //{
+        //    e.AddDomainEvent(new TTItemTransferCreateEvent(e));
+        //});
+        //await _unitOfWork.Repository<TTItemTransfer>().AddRangeAsync(itemTransferEntities);
+        TTItemTransferHeader itemTransferHeader = PrepareTTItemTransferHeader(resDraftItemTrans.TransferRefNo, request);
+        itemTransferHeader.TTItemTransfers.ToList().ForEach(e =>
         {
             e.AddDomainEvent(new TTItemTransferCreateEvent(e));
         });
-        await _unitOfWork.Repository<TTItemTransfer>().AddRangeAsync(itemTransferEntities);
+        itemTransferHeader.AddDomainEvent(new TTItemTransferHeaderCreateEvent(itemTransferHeader));
+        await _unitOfWork.Repository<TTItemTransferHeader>().AddAsync(itemTransferHeader);
         #endregion
 
         #region Update Source Branch Stock | ตัด Stock สาขาต้นทาง
@@ -198,23 +207,55 @@ public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<C
 
 
     #region Private Method
-    private ICollection<TTItemTransfer> PrepreTTItemTransfer(CreateItemTransferCommand itemTransferCommand)
+    //private ICollection<TTItemTransfer> PrepreTTItemTransfer(CreateItemTransferCommand itemTransferCommand)
+    //{
+    //    return (from a in itemTransferCommand.items
+    //            let t = itemTransferCommand
+    //            select new TTItemTransfer
+    //            {
+    //                TransferTypeID = t.transfertypeid,
+    //                SourceID = t.sourceid,
+    //                DestinationID = t.destinationid,
+    //                ItemID = a.itemid,
+    //                Qty = a.qty,
+    //                Description = t.description,
+    //                CreatedBy = t.createdby,
+    //                CreatedDate = itemTransferCommand.createddate,
+    //                IsActive = t.isactive,
+    //                TransferStatus = t.transferstatus
+    //            }).ToList();
+    //}
+
+    private TTItemTransferHeader PrepareTTItemTransferHeader(string refNo, CreateItemTransferCommand itemTransferCommand)
     {
-        return (from a in itemTransferCommand.items
-                let t = itemTransferCommand
-                select new TTItemTransfer
-                {
-                    TransferTypeID = t.transfertypeid,
-                    SourceID = t.sourceid,
-                    DestinationID = t.destinationid,
-                    ItemID = a.itemid,
-                    Qty = a.qty,
-                    Description = t.description,
-                    CreatedBy = t.createdby,
-                    CreatedDate = itemTransferCommand.createddate,
-                    IsActive = t.isactive,
-                    TransferStatus = t.transferstatus
-                }).ToList();
+        TTItemTransferHeader ItemTransferHeader = new TTItemTransferHeader
+        {
+            TransferRefNo = refNo,
+            TransferTypeID = itemTransferCommand.transfertypeid,
+            SourceBranchID = itemTransferCommand.sourceid,
+            DestinationBranchID = itemTransferCommand.destinationid,
+            Description = itemTransferCommand.description,
+            CreatedBy = itemTransferCommand.createdby,
+            CreatedDate = itemTransferCommand.createddate,
+            IsActive = itemTransferCommand.isactive,
+            TransferStatus = (int)EnumModel.TransferStatus.Pending,
+            TTItemTransfers = (from a in itemTransferCommand.items
+                               let t = itemTransferCommand
+                               select new TTItemTransfer
+                               {
+                                   TransferTypeID = t.transfertypeid,
+                                   SourceID = t.sourceid,
+                                   DestinationID = t.destinationid,
+                                   ItemID = a.itemid,
+                                   Qty = a.qty,
+                                   Description = t.description,
+                                   CreatedBy = t.createdby,
+                                   CreatedDate = itemTransferCommand.createddate,
+                                   IsActive = t.isactive,
+                                   TransferStatus = t.transferstatus
+                               }).ToList()
+        };
+        return ItemTransferHeader;
     }
 
     private bool ValidateQtyInBranchStock(CreateItemTransferCommand request, IEnumerable<TMItem> itemInSourceWarehouse)
