@@ -1247,6 +1247,7 @@ public class ItemController : BaseController
         EditItemViewModel itemViewModel = _mapper.Map<EditItemViewModel>(itemResponseDTO);
         return itemViewModel;
     }
+    
     private ReceiveTransferItemViewModel ReceiveTransferMapping(GetItemTransferResponseDTO itemTransferDTO)
     {
         ReceiveTransferItemViewModel receiveTransferItemView = _mapper.Map<ReceiveTransferItemViewModel>(itemTransferDTO);
@@ -1313,7 +1314,8 @@ public class ItemController : BaseController
             description = viewModel.Description,
             updatedby = base.UserProfile.username,
             updateddate = DateTime.Now,
-            transferstatusid = viewModel.TransferStatusID
+            transferstatusid = viewModel.TransferStatusID,
+            transferheaderid = viewModel.TransferHeaderID
         };
         return updateItemTransferCommand;
     }

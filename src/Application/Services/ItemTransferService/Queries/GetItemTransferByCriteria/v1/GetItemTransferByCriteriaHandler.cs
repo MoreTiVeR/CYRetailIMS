@@ -46,7 +46,8 @@ public class GetItemTransferByCriteriaHandler : BaseService, IRequestHandler<Get
                                                                 transferstatusname_en = b.TransferStatusName_EN,
                                                                 itemid = a.ItemID,
                                                                 itemname = item.Name,
-                                                                qty = a.Qty
+                                                                qty = a.Qty,
+                                                                transferheaderid = a.TransferHeaderID
                                                             }).ToList();
 
         if (!resItemTransfer.Any())

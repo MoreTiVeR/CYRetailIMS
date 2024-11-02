@@ -53,4 +53,6 @@ public class ReceiveTransferItemViewModel
     public int TransferStatusID { get; set; }
 
     public string ItemName { get; set; }
+
+    public int TransferHeaderID { get; set; }
 }
