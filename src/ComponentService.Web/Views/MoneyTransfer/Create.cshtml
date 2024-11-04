@@ -1,0 +1,108 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@model CreateMoneyTransferViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>เพิ่มรายการเงินโอน</h4>
+        <h6>เพิ่มรายการเงินโอนใหม่</h6>
+    </div>
+</div>
+
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <form id="frmCreateMoneyTransfer" asp-controller="MoneyTransfer" asp-action="CreateTransaction" method="post" enctype="multipart/form-data"
+                  data-ajax="true"
+                  data-ajax-update=""
+                  data-ajax-success="OnSuccess"
+                  data-ajax-failure="OnFailed"
+                  data-ajax-begin="OnBegin">
+
+                <div class="row">
+                    <div class="col-md-8 col-sm-12">
+                        <label>สาขา</label>
+                        <div class="form-group">
+                            @Html.DropDownListFor(model => model.BranchID, new SelectList(ViewBag.BranchList, "Value", "Text", null, null), "- กรุณาเลือกสาขา -", new { @class = "select2 form-control" })
+                            <span asp-validation-for="BranchID" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 col-sm-12">
+                       @*  <h6>วันที่โอน</h6>
+                        <fieldset class="form-group position-relative has-icon-left">
+                            <input type="date" class="form-control pickadate-saledate" asp-for="TransferDate" placeholder="@Html.DisplayNameFor(d => d.TransferDate)">
+                            <div class="form-control-position">
+                                <i class='bx bx-calendar'></i>
+                            </div>
+                            <span asp-validation-for="TransferDate" class="text-danger"></span>
+                        </fieldset> *@
+                        <div class="form-group">
+                            <label>วันที่ขาย</label>
+                            <div class="input-groupicon">
+                                <input id="txtTransferDate" type="text" placeholder="กรุณาเลือกวันที่ขายสินค้า" class="pickadate-saledate" asp-for="TransferDate">
+                                <a class="addonset">
+                                    <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                </a>
+                                <span asp-validation-for="TransferDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-8 col-sm-12">
+                        <fieldset class="form-group">
+                            <label>จำนวนเงินโอน</label>
+                            <input type="number" class="form-control" asp-for="AmountTransfer" placeholder="@Html.DisplayNameFor(d => d.AmountTransfer)">
+                            <span asp-validation-for="AmountTransfer" class="text-danger"></span>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 col-sm-12">
+                        <fieldset class="form-group">
+                            <h6>รูปถ่ายสลิปโอนเงิน</h6>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                <label class="custom-file-label" for="customFileLang">คลิก.. เพื่อเลือกไฟล์ที่ต้องการอัพโหลด</label>
+                            </div>
+                            @* <span asp-validation-for="ImageFile" class="text-danger"></span> *@
+                        </fieldset>
+                    </div>
+                </div>
+            </form>
+            <div class="text-right">
+                <button id="btnCancel" type="submit" class="btn btn-submit me-2">ยกเลิก</button>
+                <button id="btnCreate" name="btnCreate" class="btn btn-submit me-2">
+                    <i class="bx bx-plus"></i>
+                    บันทึกข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /add -->
+
+@section Scripts{
+
+    <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+
+    <script src="~/js/view/moneytransfer/moneytransfer_create.js" asp-append-version="true"></script>
+}

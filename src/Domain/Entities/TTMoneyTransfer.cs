@@ -24,6 +24,9 @@ public partial class TTMoneyTransfer : BaseAuditableEntity
     [Unicode(false)]
     public string? Description { get; set; }
 
+    [Unicode(false)]
+    public string? ItemImageUrl { get; set; }
+
     [ForeignKey("BranchID")]
     [InverseProperty("TTMoneyTransfers")]
     public virtual TMBranch Branch { get; set; } = null!;

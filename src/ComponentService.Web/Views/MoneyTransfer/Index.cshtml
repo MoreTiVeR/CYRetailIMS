@@ -6,11 +6,11 @@
 
 <div class="page-header">
     <div class="page-title">
-        <h4>บันทึกร่างโอนสินค้า</h4>
-        <h6>รายการร่างโอนสินค้าประจำสาขา</h6>
+        <h4>บันทึกเงินโอน</h4>
+        <h6>รายการบันทึกเงินโอนแยกตามสาขา</h6>
     </div>
     <div class="page-btn">
-        <a asp-controller="Inventory" asp-action="Transfer" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">โอนสินค้าเร่งด่วน</a>
+        <a asp-controller="MoneyTransfer" asp-action="Create" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มรายการใหม่</a>
     </div>
 </div>
 
@@ -55,7 +55,7 @@
         </div>
         <!-- /Filter -->
         <div class="table-responsive">
-            <table id="tbItemsTransfer" class="table">
+            <table id="tbMoneyTransfer" class="table">
                 <thead>
                     <tr>
                         <th hidden>
@@ -64,12 +64,15 @@
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
-                        <th style="text-align:center">สถานะ</th>
-                        <th>เลขอ้างอิง</th>
+                        <th hidden>เลขที่รายการ</th>
+                        <th>วันที่โอน</th>
                         <th hidden>รหัสสาขา</th>
-                        <th>โอนไปสาขา</th>
+                        <th>สาขา</th>
+                        <th>เงินโอน</th>
+                        <th>รายละเอียด</th>
                         <th>สร้างโดย</th>
                         <th>วันที่สร้าง</th>
+                        <th>ดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,12 +83,7 @@
 </div>
 <!-- /container -->
 
-@section Scripts {
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+@section Scripts{
 
-    <!--Page Script-->
-    <script src="~/js/view/inventory/inventory_index.js" asp-append-version="true"></script>
+    <script src="~/js/view/moneytransfer/moneytransfer_index.js" asp-append-version="true"></script>
 }
-
