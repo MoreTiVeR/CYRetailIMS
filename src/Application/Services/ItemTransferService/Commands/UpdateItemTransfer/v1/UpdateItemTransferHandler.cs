@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Domain.Entities;
@@ -12,6 +7,7 @@ using CYRetailIMS.Domain.Events.TTItemTransfers;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 
 namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
@@ -28,12 +24,16 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         #endregion
 
         #region Check TTItemTransfer
-        TTItemTransfer resTTItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindAsync(w => w.TransferID == request.transferid);
-        if (resTTItemTransfer == null)
+        //TTItemTransfer resTTItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindAsync(w => w.TransferID == request.transferid);
+        TTItemTransfer resTTItemTransfer;
+        IQueryable<TTItemTransfer> resItem = await _unitOfWork.Repository<TTItemTransfer>().FindWithInclude(w => w.TransferID == request.transferid,
+             i => i.Include(s => s.TransferHeader));
+
+        if (!resItem.Any())
         {
             throw new Exception("ขออภัย, ไม่พบรายการโอน กรุลองใหม่อีกครั้ง");
         }
-
+        resTTItemTransfer = resItem.FirstOrDefault();
         if (resTTItemTransfer.TransferStatus != (int)TransferStatus.Pending)
         {
             throw new Exception("ขออภัย, ไม่สามารถทำรายการได้ เนื่องรายการโอนได้ถูกตรวจรับ/ยกเลิกไปแล้ว");
@@ -147,6 +147,16 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
             default:
                 break;
         }
+
+        #region Update TTItemTransferHeader if all TransferStatus in TTItemTransfer is 1 (Received)
+        IEnumerable<TTItemTransferHeader> transferHeader = await _unitOfWork.Repository<TTItemTransferHeader>().FindWithInclude(w => w.TransferHeaderID == resTTItemTransfer.TransferHeaderID,
+            i => i.Include(s => s.TTItemTransfers));
+        if (transferHeader.Any()
+            && (transferHeader.SelectMany(s => s.TTItemTransfers).Count() == transferHeader.SelectMany(s => s.TTItemTransfers).Where(w => w.TransferStatus != (int)TransferStatus.Pending).Count()))
+        {
+            transferHeader.FirstOrDefault().TransferStatus = (int)TransferStatus.Received;
+        }
+        #endregion
 
         #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
