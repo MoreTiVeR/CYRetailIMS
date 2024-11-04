@@ -19,6 +19,8 @@ public partial class TMItem : BaseAuditableEntity
 
     public int ItemTypeID { get; set; }
 
+    public int? SubItemTypeID { get; set; }
+
     public int BrandID { get; set; }
 
     public int UnitOfMeasureID { get; set; }
@@ -63,6 +65,10 @@ public partial class TMItem : BaseAuditableEntity
     [ForeignKey("ItemTypeID")]
     [InverseProperty("TMItems")]
     public virtual TMItemType ItemType { get; set; } = null!;
+
+    [ForeignKey("SubItemTypeID")]
+    [InverseProperty("TMItems")]
+    public virtual TMSubItemType? SubItemType { get; set; }
 
     [InverseProperty("Item")]
     public virtual ICollection<TMItemInBranch> TMItemInBranches { get; set; } = new List<TMItemInBranch>();
