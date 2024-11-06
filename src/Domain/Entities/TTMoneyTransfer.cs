@@ -25,7 +25,7 @@ public partial class TTMoneyTransfer : BaseAuditableEntity
     public string? Description { get; set; }
 
     [Unicode(false)]
-    public string? ItemImageUrl { get; set; }
+    public string? SlipImagePath { get; set; }
 
     [ForeignKey("BranchID")]
     [InverseProperty("TTMoneyTransfers")]

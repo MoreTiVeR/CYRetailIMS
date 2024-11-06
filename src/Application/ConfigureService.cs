@@ -30,6 +30,8 @@ using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItem
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeByID.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransfer.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.PaymentTypeService.Queries.GetPaymentTypeList.v1;
 using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.CreatePurchaseOrder.v1;
 using CYRetailIMS.Application.Services.PurchaseTypeService.Queries.GetPurchaseTypeList.v1;
@@ -127,6 +129,9 @@ public static class ConfigureService
             mc.AddProfile<CreateSupplierMappingProfile>();
 
             mc.AddProfile<GetSupplierTypeMappingProfile>();
+
+            mc.AddProfile<CreateMoneyTransferMappingProfile>();
+            mc.AddProfile<UpdateMoneyTransferMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();
