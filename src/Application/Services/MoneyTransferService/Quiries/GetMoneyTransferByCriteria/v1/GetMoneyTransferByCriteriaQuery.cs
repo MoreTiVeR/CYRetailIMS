@@ -11,5 +11,5 @@ public record GetMoneyTransferByCriteriaQuery : IRequest<BaseResponse<List<GetMo
 {
     public DateTime startdate { get; init; }
     public DateTime? enddate { get; init; }
-    public int? branchid { get; init; }
+    public List<int>? branchlist { get; init; }
 }

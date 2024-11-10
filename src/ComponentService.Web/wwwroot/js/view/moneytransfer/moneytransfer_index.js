@@ -200,7 +200,7 @@ function deleteMoneyTransfer(moneytransferid) {
                         /* $('#tbItems').DataTable().ajax.reload();*/
                         //$('#tbItems').DataTable().ajax.reload();
 
-                        console.log("#rowid" + itemid);
+                        console.log("#rowid" + moneytransferid);
                         //$("#rowid" + itemid).closest("tr").remove();
 
                         //Reload data

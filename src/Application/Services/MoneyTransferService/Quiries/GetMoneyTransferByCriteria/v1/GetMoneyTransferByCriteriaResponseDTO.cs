@@ -15,4 +15,5 @@ public class GetMoneyTransferByCriteriaResponseDTO
     public string description { get; set; }
     public string createdby { get; set; }
     public DateTime createddate { get; set; }
+    public bool isactive { get; set; }
 }

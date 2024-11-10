@@ -23,6 +23,7 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Application.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
@@ -55,6 +56,7 @@ using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Infrastructure.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseTypeAPI;
@@ -174,9 +176,8 @@ public static class ConfigureService
 		services.AddScoped<IWarehouseAPI, WarehouseAPI>();
         services.AddScoped<ISupplierTypeAPI, SupplierTypeAPI>();
         services.AddScoped<IChartAPI, ChartAPI>();
+        services.AddScoped<IMoneyTransferAPI, MoneyTransferAPI>();
         #endregion
-
-       
 
         return services;
     }

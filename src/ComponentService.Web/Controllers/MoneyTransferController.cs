@@ -5,8 +5,12 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransfer.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
@@ -19,13 +23,17 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
 public class MoneyTransferController : BaseController
 {
+    private string _moneyTransferSlipSubPath = "money_transfer_slip";
     private readonly IBranchAPI _branchAPI;
+    private readonly IMoneyTransferAPI _moneyTransferAPI;
     public MoneyTransferController(IHttpClientRequest httpClientRequest, 
         IMapper mapper, 
         ILog4NetLogger log,
-        IBranchAPI branchAPI) : base(httpClientRequest, mapper, log)
+        IBranchAPI branchAPI,
+        IMoneyTransferAPI moneyTransferAPI) : base(httpClientRequest, mapper, log)
     {
         _branchAPI = branchAPI;
+        _moneyTransferAPI = moneyTransferAPI;
     }
 
     public async Task<IActionResult> IndexAsync()
@@ -48,34 +56,24 @@ public class MoneyTransferController : BaseController
 
     #region Http method
     [HttpGet]
-    public IActionResult GetMoneyTransfer()
+    public async Task<IActionResult> GetMoneyTransfer()
     {
         try
         {
-            List<GetMoneyTransferByCriteriaResponseDTO> resMoneyTransfer = new List<GetMoneyTransferByCriteriaResponseDTO>();
-            resMoneyTransfer.Add(new GetMoneyTransferByCriteriaResponseDTO
+            var reqAPI = new GetMoneyTransferByCriteriaQuery
             {
-                moneytransferid = 1,
-                branchid = 3,
-                branchname = "บางพลี",
-                amounttransfer = 5200,
-                description = "เงินโอนสาขาบางพลี",
-                createdby = "admin",
-                createddate = DateTime.Now.AddDays(-1),
-                transferdate = DateTime.Now.AddDays(-1)
-            });
-            resMoneyTransfer.Add(new GetMoneyTransferByCriteriaResponseDTO
+                startdate = DateTime.Now,
+                branchlist = base.UserProfile.roleid == (int)EnumModel.UserRole.Admin ? null : base.UserProfile.access_branch.Select(s => s.branchid).ToList(),
+            };
+            BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>> resMoneyTransfers = await _moneyTransferAPI.GetMoeytransferByCriteriaAsync(new GetMoneyTransferByCriteriaQuery
             {
-                moneytransferid = 2,
-                branchid = 4,
-                branchname = "บางนา",
-                amounttransfer = 7300,
-                description = "เงินโอนสาขาบางนา",
-                createdby = "admin",
-                createddate = DateTime.Now,
-                transferdate = DateTime.Now
+                startdate = DateTime.Now
             });
-            return Json(new { result = false, message = "สำเร็จ", data = resMoneyTransfer });
+            if (!resMoneyTransfers.result)
+            {
+                return Json(new { result = false, message = resMoneyTransfers.message, data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
+            }
+            return Json(new { result = true, message = "สำเร็จ", data = resMoneyTransfers.data });
         }
         catch (Exception ex)
         {
@@ -84,11 +82,21 @@ public class MoneyTransferController : BaseController
     }
 
     [HttpPost]
-    public IActionResult SearchMoneyTransfer([FromBody] SearchMoneyTransferViewModel searchData)
+    public async Task<IActionResult> SearchMoneyTransfer([FromBody] SearchMoneyTransferViewModel searchData)
     {
         try
         {
-            return Json(new { result = false, message = "สำเร็จ", data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
+            BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>> resSearch = await _moneyTransferAPI.GetMoeytransferByCriteriaAsync(new GetMoneyTransferByCriteriaQuery
+            {
+                startdate = searchData.startdate.ToDateTime(),
+                enddate = searchData.enddate.ToDateTime(),
+                branchlist = new List<int> { searchData.branchid }
+            });
+            if (!resSearch.result)
+            {
+                return Json(new { result = false, message = resSearch.error?.error?.message, data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
+            }
+            return Json(new { result = true, message = "สำเร็จ", data = resSearch.data });
         }
         catch (Exception ex)
         {
@@ -101,7 +109,7 @@ public class MoneyTransferController : BaseController
     /// </summary>
     /// <returns></returns>
     [HttpPost]
-    public IActionResult CreateTransaction(CreateMoneyTransferViewModel mTransferData)
+    public async Task<IActionResult> CreateTransaction(CreateMoneyTransferViewModel mTransferData)
     {
         string imgName = string.Empty;
         string imgSavePath = string.Empty;
@@ -117,10 +125,10 @@ public class MoneyTransferController : BaseController
             {
                 #region Image File
                 //Set Key Name
-                imgName = Guid.NewGuid().ToString() + Path.GetExtension(mTransferData.ImageFile.FileName);
+                imgName = Guid.NewGuid().ToString() + Path.GetExtension(mTransferData.ImageFile.FirstOrDefault().FileName);
 
                 //Get url To Save
-                imgSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/money_transfer_slip", imgName);
+                imgSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, imgName);
 
                 #region File Path Check
                 FileInfo fInfo = new FileInfo(imgSavePath);
@@ -132,7 +140,7 @@ public class MoneyTransferController : BaseController
 
                 using (var stream = new FileStream(imgSavePath, FileMode.Create))
                 {
-                    mTransferData.ImageFile.CopyTo(stream);
+                    mTransferData.ImageFile.FirstOrDefault().CopyTo(stream);
                 }
                 #endregion
 
@@ -140,16 +148,14 @@ public class MoneyTransferController : BaseController
             #endregion
 
             #region Preparing Object to Create
-            DateTime transferDate = mTransferData.TransferDate.ToDate();
-            string ImagePath = $"wwwroot/sale_slip/{imgName}";
-            string CreatedBy = base.UserProfile.username;
             //mTransferData.ImagePath = $"wwwroot/sale_slip/{ImageName}";
             //mTransferData.CreatedBy = base.UserProfile.username;
             //mTransferData.SaleDate = objData.SelectedDate.DCDateStringToDateTime();
             //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);
+            var resCreate = await _moneyTransferAPI.CreateAsync(PrepareCreateRequestData(mTransferData, imgSavePath));
             #endregion
 
-            return Json(new { result = false, message = "สำเร็จ" });
+            return Json(new { result = resCreate.result, message = resCreate.result ? resCreate.message : resCreate.error.error.message, data = resCreate.result ? resCreate.data : null });
         }
         catch (Exception ex)
         {
@@ -158,27 +164,37 @@ public class MoneyTransferController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> DeleteTransaction([FromBody] DeleteMoneyTransferViewModel deleteMoneyTranfer)
+    public async Task<IActionResult> UpdateTransaction([FromBody] EditMoneyTransferViewModel updateMoneyTranfer)
     {
         try
         {
-            await Task.Run(() =>
-            {
-                Thread.Sleep(100);
-            });
-            //DeleteItemCommand delItemCommand = new DeleteItemCommand { itemid = delItemObj.itemid, deletedby = base.UserProfile.username };
-            //BaseResponse<CommandResponse> resDelItem = await _itemAPI.DeleteItemAsync(delItemCommand);
-            //if (resDelItem.result)
-            //{
-            //    return Json(new JsonViewModel { result = resDelItem.result, message = resDelItem.message });
-            //}
-            return Json(new JsonViewModel { result = true, message = "สำเร็จ" });
+            var resDelete = await _moneyTransferAPI.UpdateAsync(PrepareUpdateObjectData(updateMoneyTranfer));
+            return Json(new JsonViewModel { result = resDelete.result, message = resDelete.result ? resDelete.message : resDelete.error.error.message });
         }
         catch (Exception ex)
         {
             return Json(new JsonViewModel { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
         }
     }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteTransaction([FromBody] DeleteMoneyTransferViewModel deleteMoneyTranfer)
+    {
+        try
+        {
+            var resDelete = await _moneyTransferAPI.DeleteAsync(new DeleteMoneyTransferCommand
+            {
+                moeytransferid = deleteMoneyTranfer.moneytransferid,
+                updatedby = base.UserProfile.username
+            });
+            return Json(new JsonViewModel { result = resDelete.result, message = resDelete.result ? resDelete.message : resDelete.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new JsonViewModel { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
     #endregion
 
     #region Private method
@@ -190,6 +206,34 @@ public class MoneyTransferController : BaseController
             ? resBranch.data.Where(w => base.UserProfile.access_branch.Select(s => s.branchid).Contains(w.branchid)).ToList()
             : resBranch.data;
         return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
+    }
+
+    private CreateMoneyTransferCommand PrepareCreateRequestData(CreateMoneyTransferViewModel reqData, string slipImagePath = default)
+    {
+        return new CreateMoneyTransferCommand
+        {
+            branchid = reqData.BranchID,
+            transferdate = reqData.TransferDate.ToDateTime(),
+            //description = reqData
+            amounttransfer =reqData.AmountTransfer,
+            createdby = base.UserProfile.username,
+            slipimagepath = !string.IsNullOrEmpty(slipImagePath) ? slipImagePath : null
+        };
+    }
+
+    private UpdateMoneyTransferCommand PrepareUpdateObjectData(EditMoneyTransferViewModel reqData, string slipImagePath = default)
+    {
+        return new UpdateMoneyTransferCommand
+        {
+            moneytransferid = reqData.MoneyTransferID,
+            branchid = reqData.BranchID,
+            transferdate = reqData.TransferDate.ToDateTime(),
+            amounttransfer = reqData.AmountTransfer,
+            //description = reqData
+            slipimagepath = !string.IsNullOrEmpty(slipImagePath) ? slipImagePath : null,
+            updatedby = base.UserProfile.username,
+            isactive = reqData.IsActive
+        };
     }
     #endregion
 }

@@ -71,7 +71,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                @* <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <fieldset class="form-group">
                             <h6>รูปถ่ายสลิปโอนเงิน</h6>
@@ -79,8 +79,21 @@
                                 <input type="file" class="custom-file-input" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
                                 <label class="custom-file-label" for="customFileLang">คลิก.. เพื่อเลือกไฟล์ที่ต้องการอัพโหลด</label>
                             </div>
-                            @* <span asp-validation-for="ImageFile" class="text-danger"></span> *@
                         </fieldset>
+                    </div>
+                </div> *@
+                <div class="row">
+                    <div class="col-md-8 col-sm-12">
+                        <div class="form-group">
+                            <label>รูปถ่ายสลิปโอนเงิน</label>
+                            <div class="image-upload">
+                                <input id="fileUpload" type="file" multiple accept="image/*" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                <div class="image-uploads">
+                                    <img src="~/assets/img/icons/upload.svg" alt="img">
+                                    <h4>Drag and drop a file to upload</h4>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>

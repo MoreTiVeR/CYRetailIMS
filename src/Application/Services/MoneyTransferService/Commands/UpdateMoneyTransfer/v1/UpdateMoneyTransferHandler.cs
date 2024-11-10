@@ -27,6 +27,7 @@ public class UpdateMoneyTransferHandler : BaseService, IRequestHandler<UpdateMon
         }
         resMoneyTransfer = _mapper.Map<TTMoneyTransfer>(request);
         resMoneyTransfer.SetUpdatedDate();
+        resMoneyTransfer.SetUpdatedBy(request.updatedby);
         resMoneyTransfer.AddDomainEvent(new TTMoneyTransferUpdateEvent(resMoneyTransfer));
         await _unitOfWork.SaveChangesAsync();
         return new BaseResponse<CommandResponse>

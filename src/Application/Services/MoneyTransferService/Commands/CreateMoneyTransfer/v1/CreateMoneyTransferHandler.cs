@@ -21,6 +21,7 @@ public class CreateMoneyTransferHandler : BaseService, IRequestHandler<CreateMon
     public async Task<BaseResponse<CommandResponse>> Handle(CreateMoneyTransferCommand request, CancellationToken cancellationToken)
     {
         TTMoneyTransfer mTransferEnt = _mapper.Map<TTMoneyTransfer>(request);
+        mTransferEnt.SetCreatedDate();
         mTransferEnt.AddDomainEvent(new TTMoneyTransferCreateEvent(mTransferEnt));
         await _unitOfWork.Repository<TTMoneyTransfer>().AddAsync(mTransferEnt);
         await _unitOfWork.SaveChangesAsync();

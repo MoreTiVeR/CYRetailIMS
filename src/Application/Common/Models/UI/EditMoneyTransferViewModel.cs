@@ -10,13 +10,14 @@ using Newtonsoft.Json;
 
 namespace CYRetailIMS.Application.Common.Models.UI;
 
-[JsonObject]
 [Serializable]
-public class CreateMoneyTransferViewModel
+[JsonObject]
+public class EditMoneyTransferViewModel
 {
-    //[Required(ErrorMessage = "กรุณาแนบรูปสลิปโอนเงิน")]
+    public int MoneyTransferID { get; set; }
+
     [DisplayName("คลิก เพื่อแนบไฟล์รูปสลิปโอนเงิน")]
-    public IFormFile[]? ImageFile { get; set; }
+    public IFormFile? ImageFile { get; set; }
 
     [Required(ErrorMessage = "กรุณาระบุจำนวนเงินที่โอน")]
     [DisplayName("ระบุจำนวนเงินโอน")]
@@ -30,6 +31,5 @@ public class CreateMoneyTransferViewModel
     [DisplayName("ระบุสาขา")]
     public int BranchID { get; set; }
 
-    //public DateTime SaleDate { get; set; }
-    //public string ImagePath { get; set; }
+    public bool IsActive { get; set; }
 }

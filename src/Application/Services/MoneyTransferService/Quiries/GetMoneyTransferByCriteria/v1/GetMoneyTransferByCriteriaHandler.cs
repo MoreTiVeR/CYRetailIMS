@@ -28,14 +28,14 @@ public class GetMoneyTransferByCriteriaHandler : BaseService, IRequestHandler<Ge
         }
 
         #region Filter
-        if (request.enddate.HasValue)
+        if (request.enddate.HasValue && (request.enddate.Value >= DateTime.MinValue && request.enddate.Value <= DateTime.MaxValue))
         {
             resMoneyTransfer = resMoneyTransfer.Where(w => w.TransferDate.Date <= request.enddate.Value.Date);
         }
 
-        if (request.branchid.HasValue)
+        if (request.branchlist?.Count > 0)
         {
-            resMoneyTransfer = resMoneyTransfer.Where(w => w.BranchID == request.branchid.Value);
+            resMoneyTransfer = resMoneyTransfer.Where(w => request.branchlist.Contains(w.BranchID));
         }
         #endregion
 
@@ -48,8 +48,13 @@ public class GetMoneyTransferByCriteriaHandler : BaseService, IRequestHandler<Ge
             amounttransfer = s.AmountTransfer,
             transferdate = s.TransferDate,
             createdby = s.CreatedBy,
-            createddate = s.CreatedDate
+            createddate = s.CreatedDate,
+            isactive = s.IsActive
         }).ToList();
+        if(resData.Count == 0)
+        {
+            throw new Exception("ไม่พบข้อมูล");
+        }
         return new BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>>
         {
             result = true,

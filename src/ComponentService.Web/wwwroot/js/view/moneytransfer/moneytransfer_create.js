@@ -51,6 +51,7 @@ function OnSuccess(data) {
     if (data.result) {
         $("#frmCreateMoneyTransfer")[0].reset();
         ShowMessageSuccess(data.message);
+        HideLoading();
     }
     else {
         ShowMessageError(data.message);

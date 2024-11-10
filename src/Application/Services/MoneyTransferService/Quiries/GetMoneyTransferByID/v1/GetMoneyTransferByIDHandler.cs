@@ -36,7 +36,8 @@ public class GetMoneyTransferByIDHandler : BaseService, IRequestHandler<GetMoney
             amounttransfer = s.AmountTransfer,
             transferdate = s.TransferDate,
             createdby = s.CreatedBy,
-            createddate = s.CreatedDate
+            createddate = s.CreatedDate,
+            isactive = s.IsActive
         }).ToList();
         return new BaseResponse<GetMoneyTransferByCriteriaResponseDTO>
         {

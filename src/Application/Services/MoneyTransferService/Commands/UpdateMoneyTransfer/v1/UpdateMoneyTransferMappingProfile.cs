@@ -20,5 +20,6 @@ public class UpdateMoneyTransferMappingProfile : Profile
             .ForMember(w => w.Description, f => f.MapFrom(s => s.description))
             .ForMember(w => w.SlipImagePath, f => f.MapFrom(s => s.slipimagepath))
             .ForMember(w => w.UpdatedBy, f => f.MapFrom(s => s.updatedby));
+
     }
 }

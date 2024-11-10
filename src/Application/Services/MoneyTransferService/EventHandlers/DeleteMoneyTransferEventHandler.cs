@@ -9,16 +9,16 @@ using MediatR;
 
 namespace CYRetailIMS.Application.Services.MoneyTransferService.EventHandlers;
 
-public class UpdateMoneyTransferEventHandler : INotificationHandler<TTMoneyTransferUpdateEvent>
+public class DeleteMoneyTransferEventHandler : INotificationHandler<TTMoneyTransferDeleteEvent>
 {
     private readonly ILog4NetLogger _logger;
-    public UpdateMoneyTransferEventHandler(ILog4NetLogger log4NetLogger)
+    public DeleteMoneyTransferEventHandler(ILog4NetLogger log4NetLogger)
     {
         _logger = log4NetLogger;
     }
-    public Task Handle(TTMoneyTransferUpdateEvent notification, CancellationToken cancellationToken)
+    public Task Handle(TTMoneyTransferDeleteEvent notification, CancellationToken cancellationToken)
     {
-        _logger.Info($"UpdateMoneyTransferEventHandler: {notification.GetType().Name}");
+        _logger.Info($"DeleteMoneyTransferEventHandler: {notification.GetType().Name}");
         return Task.CompletedTask;
     }
 }
