@@ -178,7 +178,7 @@ public class MoneyTransferController : BaseController
             #endregion
 
             #region Preparing Object to Create
-            mTransferData.SlipImagePath = $"wwwroot/{_moneyTransferSlipSubPath}/{imgName}";
+            mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
             //mTransferData.CreatedBy = base.UserProfile.username;
             //mTransferData.SaleDate = objData.SelectedDate.DCDateStringToDateTime();
             //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);
@@ -238,7 +238,7 @@ public class MoneyTransferController : BaseController
             #endregion
 
             #region Preparing Object to Create
-            mTransferData.SlipImagePath = $"wwwroot/{_moneyTransferSlipSubPath}/{imgName}";
+            mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
             //mTransferData.CreatedBy = base.UserProfile.username;
             //mTransferData.SaleDate = objData.SelectedDate.DCDateStringToDateTime();
             //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);

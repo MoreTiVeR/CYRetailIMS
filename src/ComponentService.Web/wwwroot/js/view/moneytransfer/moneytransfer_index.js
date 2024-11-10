@@ -50,7 +50,7 @@ datatable = $("#tbMoneyTransfer").DataTable({
             "data": { isactive: "isactive" },
             "render": function (data) {
                 if (data.isactive) {
-                    return "<span class='badges bg-lightgreen'>ปกติ</span>";
+                    return "<span class='badges bg-lightgreen'>ใช้งาน</span>";
                 }
                 else {
                     return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
@@ -59,13 +59,21 @@ datatable = $("#tbMoneyTransfer").DataTable({
             }
         },
         {
-            "data": { moneytransferid: "moneytransferid", branchid: "branchid" },
+            "data": { moneytransferid: "moneytransferid", branchid: "branchid", imgpath: "imgpath" },
             "render": function (data) {
                 var dict = {
                     "moneytransferid": data.moneytransferid,
                 };
                 /*console.log('data dic:' + dict);*/
-                return "<a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน'></a>";
+                //return "<a class='me-3' href='" + data.imgpath + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/eye.svg' alt='img'></a><a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน' title='ลบรายการโอน'></a>";
+                return "<a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน' title='ลบรายการโอน'></a>";
+            }
+        },
+        {
+            "data": { imgpath: "imgpath" },
+            "render": function (data) {
+                //return '<img src="' + data.imgpath + '" class="avatar" width="50" height="50"/>';
+                return "<a class='me-2' href='" + data.imgpath + "' target='_blank' title='คลิกเพื่อดูสลิป'><img src='" + data.imgpath + "' class='avatar' width='25' height='25' alt='img'></a>";
             }
         }
     ],

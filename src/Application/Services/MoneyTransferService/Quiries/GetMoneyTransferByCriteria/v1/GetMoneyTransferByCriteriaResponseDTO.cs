@@ -13,6 +13,7 @@ public class GetMoneyTransferByCriteriaResponseDTO
     public decimal amounttransfer { get; set; }
     public DateTime transferdate { get; set; }
     public string description { get; set; }
+    public string imgpath { get; set; }
     public string createdby { get; set; }
     public DateTime createddate { get; set; }
     public bool isactive { get; set; }

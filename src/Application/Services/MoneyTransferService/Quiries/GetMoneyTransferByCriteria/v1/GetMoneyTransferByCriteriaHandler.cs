@@ -49,6 +49,7 @@ public class GetMoneyTransferByCriteriaHandler : BaseService, IRequestHandler<Ge
             description = s.Description,
             amounttransfer = s.AmountTransfer,
             transferdate = s.TransferDate,
+            imgpath = s.SlipImagePath,
             createdby = s.CreatedBy,
             createddate = s.CreatedDate,
             isactive = s.IsActive
