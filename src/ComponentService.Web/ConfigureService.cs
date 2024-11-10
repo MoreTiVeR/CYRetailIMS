@@ -5,6 +5,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Employee;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
+using CYRetailIMS.Application.Common.Mappings.UI.MoneyTransfer;
 using CYRetailIMS.Application.Common.Mappings.UI.Report;
 using CYRetailIMS.Application.Common.Mappings.UI.Supplier;
 using CYRetailIMS.Application.Common.Mappings.UI.Transaction;
@@ -131,6 +132,10 @@ public static class ConfigureService
 
             #region Transaction
             mc.AddProfile<TransactionsMappingProfile>();
+            #endregion
+
+            #region Money Transfer
+            mc.AddProfile<EditMoneyTransferMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

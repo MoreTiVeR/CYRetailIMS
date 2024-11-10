@@ -30,6 +30,8 @@ public class CreateMoneyTransferViewModel
     [DisplayName("ระบุสาขา")]
     public int BranchID { get; set; }
 
-    //public DateTime SaleDate { get; set; }
-    //public string ImagePath { get; set; }
+    [DisplayName("ระบุรายละเอียด(ถ้ามี)")]
+    public string? Description { get; set; }
+
+    public string? SlipImagePath { get; set; }
 }

@@ -9,6 +9,6 @@ using MediatR;
 namespace CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 public record DeleteMoneyTransferCommand : IRequest<BaseResponse<CommandResponse>>
 {
-    public int moeytransferid { get; init; }
+    public int moneytransferid { get; init; }
     public string updatedby { get; init; }
 }

@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <Folder Include="Caching\" />
-    <Folder Include="Common\Mappings\UI\MoneyTransfer\" />
     <Folder Include="Common\Mappings\UI\Sale\" />
     <Folder Include="Services\ItemService\Queries\GetItemByBarcode\v2\" />
     <Folder Include="Services\SupplierContactTypeService\Commands\" />

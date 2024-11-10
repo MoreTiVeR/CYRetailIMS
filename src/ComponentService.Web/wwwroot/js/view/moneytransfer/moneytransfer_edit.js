@@ -5,7 +5,7 @@ InitialDatePicker();
 InitialCharacterRemaining();
 $('.select2').select2();
 
-$("#btnCreate").on('click', function () {
+$("#btnSave").on('click', function () {
 
     Swal.fire({
         title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
@@ -29,7 +29,7 @@ $("#btnCreate").on('click', function () {
     }).then(function (result) {
         if (result.value) {
 
-            $("#frmCreateMoneyTransfer").submit();
+            $("#frmUpdateMoneyTransfer").submit();
         }
         else if (result.dismiss === Swal.DismissReason.cancel) {
             //Condition
@@ -48,7 +48,7 @@ function OnBegin(data) {
 
 function OnSuccess(data) {
     if (data.result) {
-        $("#frmCreateMoneyTransfer")[0].reset();
+        $("#frmUpdateMoneyTransfer")[0].reset();
         ShowMessageSuccess(data.message);
         HideLoading();
     }

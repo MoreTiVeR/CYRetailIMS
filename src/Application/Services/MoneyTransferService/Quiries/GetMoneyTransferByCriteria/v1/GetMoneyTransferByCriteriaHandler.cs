@@ -20,8 +20,10 @@ public class GetMoneyTransferByCriteriaHandler : BaseService, IRequestHandler<Ge
 
     public async Task<BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>>> Handle(GetMoneyTransferByCriteriaQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<TTMoneyTransfer> resMoneyTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.TransferDate.Date >= request.startdate.Date,
+        DateTime startDate = request.startdate.HasValue ? request.startdate.Value : DateTime.Now;
+        IEnumerable <TTMoneyTransfer> resMoneyTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.TransferDate.Date >= startDate.Date,
             i => i.Include(s => s.Branch));
+        var ddd = resMoneyTransfer.ToList();
         if (!resMoneyTransfer.Any())
         {
             throw new Exception("ไม่พบข้อมูล");

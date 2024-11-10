@@ -25,7 +25,13 @@ public class UpdateMoneyTransferHandler : BaseService, IRequestHandler<UpdateMon
         {
             throw new Exception("ไม่พบข้อมูล");
         }
-        resMoneyTransfer = _mapper.Map<TTMoneyTransfer>(request);
+        //resMoneyTransfer = _mapper.Map<TTMoneyTransfer>(request);
+        resMoneyTransfer.BranchID = request.branchid;
+        resMoneyTransfer.TransferDate = request.transferdate;
+        resMoneyTransfer.AmountTransfer = request.amounttransfer;
+        resMoneyTransfer.Description = request.description;
+        resMoneyTransfer.SlipImagePath = request.slipimagepath;
+        resMoneyTransfer.IsActive = request.isactive;
         resMoneyTransfer.SetUpdatedDate();
         resMoneyTransfer.SetUpdatedBy(request.updatedby);
         resMoneyTransfer.AddDomainEvent(new TTMoneyTransferUpdateEvent(resMoneyTransfer));

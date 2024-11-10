@@ -9,7 +9,7 @@ using MediatR;
 namespace CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
 public record GetMoneyTransferByCriteriaQuery : IRequest<BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>>>
 {
-    public DateTime startdate { get; init; }
+    public DateTime? startdate { get; init; }
     public DateTime? enddate { get; init; }
     public List<int>? branchlist { get; init; }
 }

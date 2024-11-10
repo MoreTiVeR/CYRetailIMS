@@ -1,8 +1,128 @@
-﻿
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@model EditMoneyTransferViewModel
+
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
 
+<div class="page-header">
+    <div class="page-title">
+        <h4>แก้ไขรายการเงินโอน</h4>
+        <h6>แก้ไขรายการเงินโอน</h6>
+    </div>
+</div>
+
+<!-- /add -->
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <form id="frmUpdateMoneyTransfer" asp-controller="MoneyTransfer" asp-action="UpdateTransaction" method="post" enctype="multipart/form-data"
+                  data-ajax="true"
+                  data-ajax-update=""
+                  data-ajax-success="OnSuccess"
+                  data-ajax-failure="OnFailed"
+                  data-ajax-begin="OnBegin">
+                <input type="hidden" asp-for="MoneyTransferID" readonly>
+                <div class="row">
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group">
+                            <label>สาขา</label>
+                            @Html.DropDownListFor(model => model.BranchID, new SelectList(ViewBag.BranchList, "Value", "Text", null, null), "- กรุณาเลือกสาขา -", new { @class = "select2 form-control" })
+                            <span asp-validation-for="BranchID" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group">
+                            <label>วันที่โอน</label>
+                            <div class="input-groupicon">
+                                <input id="txtTransferDate" type="text" asp-for="TransferDate" placeholder="@Html.DisplayNameFor(d => d.TransferDate)" class="pickadate-saledate">
+                                <a class="addonset">
+                                    <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                </a>
+                                <span asp-validation-for="TransferDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <fieldset class="form-group">
+                            <label>จำนวนเงินโอน</label>
+                            <input type="number" class="form-control" asp-for="AmountTransfer" placeholder="@Html.DisplayNameFor(d => d.AmountTransfer)">
+                            <span asp-validation-for="AmountTransfer" class="text-danger"></span>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group">
+                            <label>สถานะ</label>
+                            @Html.DropDownListFor(model => model.IsActive, new SelectList(ViewBag.ActiveList, "Value", "Text", null, null), "- กรุณาระบุสถานะการใช้งาน -", new { @class = "select2 form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12"></div>
+                    <div class="col-md-4 col-sm-12"></div>
+                </div>
+
+                <!--Upload slip-->
+                <div class="row">
+                    <div class="col-md-12 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label>รูปถ่ายสลิปโอนเงิน</label>
+                            <div class="image-upload">
+                                <input id="fileUpload" type="file" multiple accept="image/*" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                <div class="image-uploads">
+                                    <img src="~/assets/img/icons/upload.svg" alt="img">
+                                    <h4>ลากไฟล์วางที่นี่ หรือ คลิก เพื่ออัพโหลดไฟล์</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Remark-->
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label>รายละเอียด</label>
+                            @Html.TextAreaFor(m => m.Description, new
+                                {
+                                    @class = "form-control full-width",
+                                    @style = "resize: none;",
+                                    @cols = 5,
+                                    @rows = 3,
+                                    @maxlength = 200,
+                                    value = "",
+                                    placeholder = Html.DisplayNameFor(n => n.Description)
+                                })
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="text-right">
+                <button id="btnCancel" type="submit" class="btn btn-submit me-2">ยกเลิก</button>
+                <button id="btnSave" name="btnSave" class="btn btn-submit me-2">
+                    <i class="bx bx-plus"></i>
+                    บันทึกข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /add -->
+@section Scripts {
+
+    <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+
+    <!--charactersRemaining-->
+    <script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
+    <script src="~/js/view/moneytransfer/moneytransfer_edit.js" asp-append-version="true"></script>
+}

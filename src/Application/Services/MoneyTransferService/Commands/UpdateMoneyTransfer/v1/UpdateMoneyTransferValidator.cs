@@ -12,7 +12,7 @@ public class UpdateMoneyTransferValidator : AbstractValidator<UpdateMoneyTransfe
 {
     public UpdateMoneyTransferValidator()
     {
-        RuleFor(r => r.moneytransferid).NotNull().NotEmpty().WithMessage("กรุณาหมายเลขโอน");
+        RuleFor(r => r.moneytransferid).NotNull().NotEmpty().WithMessage("กรุณาระบุหมายเลขโอน");
         RuleFor(r => r.transferdate).NotNull().WithMessage("กรุณาระบุวันโอน");
         RuleFor(r => r.amounttransfer).NotNull().NotEmpty().WithMessage("กรุณาระบุเงินโอน");
         RuleFor(r => r.updatedby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");

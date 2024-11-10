@@ -47,28 +47,28 @@ datatable = $("#tbMoneyTransfer").DataTable({
             }
         },
         {
+            "data": { isactive: "isactive" },
+            "render": function (data) {
+                if (data.isactive) {
+                    return "<span class='badges bg-lightgreen'>ปกติ</span>";
+                }
+                else {
+                    return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
+                }
+                return formatDateTime(new Date(data.createddate));
+            }
+        },
+        {
             "data": { moneytransferid: "moneytransferid", branchid: "branchid" },
             "render": function (data) {
                 var dict = {
                     "moneytransferid": data.moneytransferid,
                 };
-                console.log('data dic:' + dict);
-                return "<a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
-                //if (data.isiteminbranch) {
-                //    //Branch
-                //    return "<a id='rowid" + data.itemid + "' onclick=deleteItemInBranch(" + data.itemid + ',' + data.searchbranchid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
-                //}
-                //else {
-                //    //Warehouse
-                //    return "<a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
-                //}
-                //return "<a href='Edit?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+                /*console.log('data dic:' + dict);*/
+                return "<a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน'></a>";
             }
         }
     ],
-    //"language": {
-    //    "emptyTable": "ไม่พบข้อมูล."
-    //},
     "order": [[1, "desc"]],
     "columnDefs": [
         {
@@ -91,12 +91,12 @@ datatable = $("#tbMoneyTransfer").DataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานประวัติการโอนสินค้า',
+            title: 'รายงานบันทึกการโอนเงิน',
             text: 'ดาวโหลดไฟล์ Excel',
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [3, 4, 5, 6, 7]
+                columns: [2, 4, 5, 6, 7, 8]
             }
         },
         {
@@ -116,15 +116,33 @@ $("#btnSearch").on('click', function (event) {
     ShowLoading();
     event.preventDefault(); // Prevent the default form submission
 
-    //var transferdate = $("#txtTransferDate").val();
-
     var selectedBranch = $("#ddlBranch").val();
     var branchid = parseInt(selectedBranch);
 
-    //var selectedTransferStatus = $("#ddlTransferStatus").val();
-    //var transferstatusid = parseInt(selectedTransferStatus);
-
-    var reqdata = { "branchid": branchid };
+    var startdate = $("#txtStartDate").val();
+    var enddate = $("#txtEndDate").val();
+    //console.log('branchid:' + startdate);
+    //console.log('startdate:' + branchid);
+    //console.log('enddate:' + enddate);
+    //if (branchid === null || branchid === undefined || branchid === '') {
+    //    ShowMessageError('กรุณาระบุเงื่อนไขก่อนทำการค้นหา');
+    //    event.preventDefault();
+    //    HideLoading();
+    //    return;
+    //}
+    //if (startdate === null || startdate === undefined || startdate === '') {
+    //    ShowMessageError('กรุณาระบุเงื่อนไขก่อนทำการค้นหา');
+    //    event.preventDefault();
+    //    HideLoading();
+    //    return;
+    //}
+    //if (enddate === null || enddate === undefined || enddate === '') {
+    //    ShowMessageError('กรุณาระบุเงื่อนไขก่อนทำการค้นหา');
+    //    event.preventDefault();
+    //    HideLoading();
+    //    return;
+    //}
+    var reqdata = { "branchid": branchid, "startdate": startdate, "enddate": enddate };
     var jsonreqdata = JSON.stringify(reqdata);
     console.log(jsonreqdata);
     var request = $.ajax({

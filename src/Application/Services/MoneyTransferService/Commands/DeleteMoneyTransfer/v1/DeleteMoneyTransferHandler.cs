@@ -20,7 +20,7 @@ public class DeleteMoneyTransferHandler : BaseService, IRequestHandler<DeleteMon
 
     public async Task<BaseResponse<CommandResponse>> Handle(DeleteMoneyTransferCommand request, CancellationToken cancellationToken)
     {
-        TTMoneyTransfer resMTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FirstOrDefaultAsync(w => w.MoneyTransferID == request.moeytransferid);
+        TTMoneyTransfer resMTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FirstOrDefaultAsync(w => w.MoneyTransferID == request.moneytransferid);
         if(resMTransfer == null)
         {
             throw new Exception("ไม่พบข้อมูล");

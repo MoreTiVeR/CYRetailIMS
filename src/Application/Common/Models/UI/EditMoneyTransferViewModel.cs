@@ -17,7 +17,7 @@ public class EditMoneyTransferViewModel
     public int MoneyTransferID { get; set; }
 
     [DisplayName("คลิก เพื่อแนบไฟล์รูปสลิปโอนเงิน")]
-    public IFormFile? ImageFile { get; set; }
+    public IFormFile[]? ImageFile { get; set; }
 
     [Required(ErrorMessage = "กรุณาระบุจำนวนเงินที่โอน")]
     [DisplayName("ระบุจำนวนเงินโอน")]
@@ -30,6 +30,11 @@ public class EditMoneyTransferViewModel
     [Required(ErrorMessage = "กรุณาระบุสาขาที่โอน")]
     [DisplayName("ระบุสาขา")]
     public int BranchID { get; set; }
+
+    [DisplayName("ระบุรายละเอียด(ถ้ามี)")]
+    public string? Description { get; set; }
+
+    public string? SlipImagePath { get; set; }
 
     public bool IsActive { get; set; }
 }
