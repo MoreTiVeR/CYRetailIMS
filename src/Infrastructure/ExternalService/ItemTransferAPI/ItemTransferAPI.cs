@@ -12,6 +12,7 @@ using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransferFromDraft.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.DeleteDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByBranchID.v1;
@@ -19,6 +20,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemT
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidatePrintDraftItemTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatusByID.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
@@ -127,5 +129,17 @@ public class ItemTransferAPI : HttpClientService, IItemTransferAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse,
             CreateItemTransferFromDraftCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/createbydraft"), reqObj);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> DeleteDraftItemTransferAsync(DeleteDraftItemTransferCommand deleteDraftItemTransferCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, 
+            DeleteDraftItemTransferCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/deletedraft"), deleteDraftItemTransferCommand);
+    }
+
+    public async Task<BaseResponse<ValidatePrintDraftItemTransferResponseDTO>> ValidatePrintDraftItemTransferByDraftIDAsync(ValidatePrintDraftItemTransferQuery reqObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<ValidatePrintDraftItemTransferResponseDTO,
+                   ValidatePrintDraftItemTransferQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/validate-draft-printable"), reqObj);
     }
 }

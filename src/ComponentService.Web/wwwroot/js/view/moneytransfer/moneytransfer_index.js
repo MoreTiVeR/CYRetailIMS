@@ -55,7 +55,6 @@ datatable = $("#tbMoneyTransfer").DataTable({
                 else {
                     return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
                 }
-                return formatDateTime(new Date(data.createddate));
             }
         },
         {

@@ -14,15 +14,19 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInvent
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransferFromDraft.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.DeleteDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByCriteria.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidatePrintDraftItemTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
+using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using OfficeOpenXml;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -37,8 +41,8 @@ public class InventoryController : BaseController
     private readonly IItemInBranchAPI _itemInBranchAPI;
     public InventoryController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IBranchAPI branchAPI,
-        IItemBrandAPI itemBrandAPI, 
-        IItemTransferAPI itemTransferAPI, 
+        IItemBrandAPI itemBrandAPI,
+        IItemTransferAPI itemTransferAPI,
         IItemInBranchAPI itemInBranchAPI) : base(httpClientRequest, mapper, log)
     {
         _branchAPI = branchAPI;
@@ -144,7 +148,7 @@ public class InventoryController : BaseController
         DateTime? eDate = null;
         try
         {
-            if (searchData == null || 
+            if (searchData == null ||
                 (!searchData.branchid.HasValue && string.IsNullOrEmpty(searchData.startdate) && string.IsNullOrEmpty(searchData.enddate)))
             {
                 return Json(new { result = false, message = $"เงื่อนไขการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง", data = new List<GetDraftItemTransferByBranchIDResponseDTO>() });
@@ -377,18 +381,104 @@ public class InventoryController : BaseController
         }
     }
 
+    /// <summary>
+    /// If transferstatus equal 1 then can't delete
+    /// </summary>
+    /// <param name="deleteDraftTransferItem"></param>
+    /// <returns></returns>
     [HttpPost]
-    public async Task<IActionResult> DeleteDraft([FromBody] DeleteMoneyTransferViewModel deleteMoneyTranfer)
+    public async Task<IActionResult> DeleteDraft([FromBody] DeleteDraftTransferItemViewModel deleteDraftTransferItem)
     {
         try
         {
-            //var resDelete = await _moneyTransferAPI.DeleteAsync(new DeleteMoneyTransferCommand
-            //{
-            //    moneytransferid = deleteMoneyTranfer.moneytransferid,
-            //    updatedby = base.UserProfile.username
-            //});
-            //return Json(new JsonViewModel { result = resDelete.result, message = resDelete.result ? resDelete.message : resDelete.error.error.message });
-            return null;
+            var resDelete = await _itemTransferAPI.DeleteDraftItemTransferAsync(new DeleteDraftItemTransferCommand
+            {
+                draftid = deleteDraftTransferItem.transferheaderid,
+                updatedby = base.UserProfile.username
+            });
+            return Json(new JsonViewModel { result = resDelete.result, message = resDelete.result ? resDelete.message : resDelete.error.error.message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new JsonViewModel { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// If transferstatus not equal 1 then can't print/download excel
+    /// </summary>
+    /// <param name="draftid"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<JsonResult> PrepareGenerateExcelExport(int draftid)
+    {
+        if (draftid == 0)
+        {
+            return new JsonResult(new { result = false, message = "ข้อมูลไม่ถูกต้อง กรุณาทำรายการใหม่อีกครั้ง" });
+        }
+
+        var resValidation = await _itemTransferAPI.ValidatePrintDraftItemTransferByDraftIDAsync(new ValidatePrintDraftItemTransferQuery
+        {
+            draftid = draftid
+        });
+
+        if (!resValidation.result || !resValidation.data.ispass)
+        {
+            return Json(new JsonViewModel { result = false, message = resValidation.result ? resValidation.message : resValidation.error.error.message });
+        }
+
+        string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
+        string fName = $"รายงานโอนสินค้า_{sheetName}.xlsx";
+        return new JsonResult(new { result = true, fileName = fName, message = "Success." });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DownloadInventoryTransferExcel(int draftid)
+    {
+        try
+        {
+            var resInvItemTransfer = await _itemTransferAPI.InquiryDraftItemTransferByDraftIDAsync(new GetItemInventoryForTransferByDraftIDQuery
+            {
+                draftid = draftid
+            });
+
+            #region Generate Excel
+            System.Drawing.Color orangeColor = System.Drawing.ColorTranslator.FromHtml("#ffc336");
+            string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
+            string fName = $"รายงานโอนสินค้า_{sheetName}.xlsx";
+            byte[] result;
+            using (var package = new ExcelPackage())
+            {
+                // add a new worksheet to the empty workbook
+                var worksheet = package.Workbook.Worksheets.Add(sheetName);
+
+                //Header
+                worksheet.Cells[1, 1].Value = "ลำดับ";
+                worksheet.Cells[1, 2].Value = "รหัสสินค้า";
+                worksheet.Cells[1, 3].Value = "ชื่อสินค้า";
+                worksheet.Cells[1, 4].Value = "จำนวนที่เติม";
+                worksheet.Cells[1, 5].Value = "จำนวนรับสินค้า";
+                worksheet.Cells[1, 6].Value = "ขาด/เกิน";
+
+                //worksheet.Cells[1, 1, 1, 6].Merge = true;
+                //worksheet.Cells[1, 1, 1, 6].Value = $"Time : {DateTime.Now.ToString("dd/MM/yyyy HH:mm", new System.Globalization.CultureInfo("en-US"))}";
+                //worksheet.Cells[1, 1, 1, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                using (var range = worksheet.Cells[1, 1, 1, 6])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(orangeColor);
+                    range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    range.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    range.Style.Font.Size = 11;
+                }
+
+                result = package.GetAsByteArray();
+            }
+            #endregion
+
+            return File(result, "application/ms-excel", $"{fName}");
         }
         catch (Exception ex)
         {
@@ -474,7 +564,7 @@ public class InventoryController : BaseController
             //description = "",
             createdby = base.UserProfile.username,
             createddate = DateTime.Now,
-            transferstatus = (int)TransferStatus.Pending,
+            transferstatus = (int)TransferStatus.Draft,
             isactive = true,
             items = reqObj.detail.Where(w => w.ischeck == true).Select(s => new CreateItemTransferDetailCommand
             {

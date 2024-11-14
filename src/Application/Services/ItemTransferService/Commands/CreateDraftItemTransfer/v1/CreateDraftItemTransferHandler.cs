@@ -33,7 +33,7 @@ internal class CreateDraftItemTransferHandler : BaseService, IRequestHandler<Cre
     {
         #region Check Draft Item if exist
         var isExist = await _unitOfWork.Repository<TTDraftItemTransfer>().AnyAsync(w => w.DestinationBranchID == request.destinationid 
-        && w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
+        && w.TransferStatus == (int)EnumModel.TransferStatus.Draft);
         if (isExist)
         {
             throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากสาขาดังกล่าวมีการบันทึกฉบับร่างในระบบแล้ว");

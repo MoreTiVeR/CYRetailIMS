@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models.UI;
 
 [Serializable]
-public class DeleteDraftTransferItemViewModel
+public class PrintDraftTransferItemViewModel
 {
     public int transferheaderid { get; set; }
 }

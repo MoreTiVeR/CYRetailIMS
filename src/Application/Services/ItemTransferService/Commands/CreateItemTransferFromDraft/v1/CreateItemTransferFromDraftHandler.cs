@@ -28,7 +28,7 @@ public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<C
     {
         #region Check Draft Transaction
         TTDraftItemTransfer resDraftItemTrans = await _unitOfWork.Repository<TTDraftItemTransfer>().FirstOrDefaultAsync(w => w.TransferHeaderID == request.draftid && 
-        w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
+        w.TransferStatus == (int)EnumModel.TransferStatus.Draft);
         if(resDraftItemTrans == null)
         {
             throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลร่างโอนสินค้า");

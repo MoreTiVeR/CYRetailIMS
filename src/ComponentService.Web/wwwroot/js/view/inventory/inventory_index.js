@@ -128,90 +128,6 @@ $('#btnConfirmTransfer').on('click', function (e) {
         }
     });
 
-    //$.post("InvenrotyTransferDataValidation", { jsonData }).then(
-    //    function (results) {
-
-    //        if (results.result) {
-    //            console.log(results.msg);
-    //            Swal.fire({
-    //                //title: 'ยืนยันการบันทึกข้อมูล?',
-    //                //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-    //                //type: 'warning',
-    //                title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
-    //                icon: 'warning',
-    //                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
-    //                showCancelButton: true,
-    //                //showDenyButton: true,
-    //                confirmButtonColor: '#04B431',
-    //                confirmButtonText: 'บันทึก',
-    //                cancelButtonColor: '#D33',
-    //                cancelButtonText: "ยกเลิก",
-    //                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-    //                //denyButtonColor: '#D33',
-    //                customClass: {
-    //                    confirmButton: 'btn btn-success',
-    //                    denyButton: 'btn btn-warning ml-1',
-    //                    cancelButton: 'btn btn-danger ml-1'
-    //                },
-    //                buttonsStyling: false,
-    //                focusConfirm: true
-    //            }).then(function (result) {
-    //                if (result.value) {
-    //                    //Post: SaveInvenrotyTransfer
-    //                    ShowMessageSuccess('Post: SaveInvenrotyTransfer');
-
-    //                    var request = $.ajax({
-    //                        type: 'POST',
-    //                        url: '/Inventory/SaveInvenrotyTransfer',
-    //                        data: jsonData,
-    //                        contentType: 'application/json',
-    //                        success: function (response) {
-
-    //                            if (response.result) {
-    //                                ShowMessageSuccess(response.message);
-
-    //                                //Update the DataTable with the filtered data from the server
-    //                                /*console.log(response.data);*/
-    //                                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
-    //                            }
-    //                            else {
-    //                                AlertErrorNoTitle(response.message);
-    //                            }
-
-    //                            console.log(response.data);
-    //                            $("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
-    //                            HideLoading();
-    //                        },
-    //                        failure: function (response) {
-    //                            AlertError(response.message);
-    //                        },
-    //                        error: function (response) {
-    //                            AlertError(response.message);
-    //                        }
-    //                    });
-    //                }
-    //                else if (result.dismiss === Swal.DismissReason.cancel) {
-    //                    //Code
-    //                    ShowMessageInfo('ยกเลิก');
-    //                }
-    //            });
-    //        }
-    //        else {
-    //            ShowMessageError(results.msg);
-    //            return;
-    //        }
-
-    //    }, function (results) {
-    //        //Failed
-    //        console.log('Failed');
-    //        ShowMessageError(results.message);
-
-    //    }, function () {
-    //        ShowMessageError('Unknow error => Create Sale data.');
-    //        console.log('this will run if the deferred generates a progress update.');
-    //    }
-    //);
-
 });
 
 $('#btnSaveDraft').on('click', function (e) {
@@ -413,11 +329,14 @@ async function InitialItemsTransferDataTable() {
                     //var _transferheaderid = parseInt(data.transferheaderid);
                     console.log(data.transferheaderid);
                     if (data.transferstatus == 1) {
-                        return "<span class='badges bg-lightgreen'>บันทึกแล้ว</span>";
+                        return "<span class='badges bg-lightgreen' title='สามารถรับสินค้าได้ที่เมนู รายงาน > รายงานการโอนสินค้า'>โอนแล้ว</span>";
                     }
-                    else if (data.transferstatus == 0) {
+                    else if (data.transferstatus == 5) {
                         return "<a href='Draft?draftid=" + data.transferheaderid + "' class='me-3' title='คลิก เพื่อทำรายการโอนสินค้าต่อ'><span class='badges bg-lightyellow'>ฉบับร่าง</span></a>";
                         //return "<center><a href='../Inventory/InventoryTransfer' class='me-3' title='คลิก เพื่อทำรายการโอนสินค้าต่อ'><span class='badges bg-lightyellow'>ฉบับร่าง</span></a></center>";
+                    }
+                    else if (data.transferstatus == 99) {
+                        return "<span class='badges bg-lightred' title='รายการถูกยกเลิก'>ยกเลิก</span>";
                     }
                     else {
                         return "<span class='badges bg-lightyellow'>N/A</span>";
@@ -437,8 +356,6 @@ async function InitialItemsTransferDataTable() {
                         return data.createddate;
                     }
                     return formatDate(new Date(data.createddate));
-                    //var _createddate = new Date(data.createddate).toLocaleDateString("en-US");
-                    //return _createddate;
                 }
             },
             {
@@ -447,17 +364,25 @@ async function InitialItemsTransferDataTable() {
                     var dict = {
                         "transferheaderid": data.transferheaderid,
                     };
-                    /*console.log('data dic:' + dict);*/
-                    //return "<a class='me-3' href='" + data.imgpath + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/eye.svg' alt='img'></a><a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน' title='ลบรายการโอน'></a>";
-                    return "<a class='me-3' href='View?draftid=" + data.transferheaderid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a>"
-                        + "<a id='rowid" + data.transferheaderid + "' onclick=deleteDraft(" + data.transferheaderid + ") class='me-3' title='ลบรายการโอน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน'></a>"
-                        + "<a class='me-3' href='Print?draftid=" + data.transferheaderid + "' title='ปริ้นใบโอน'><img src='../assets/img/icons/printer.svg' alt='img'></a>";
+                    //return "<a class='me-3' href='View?draftid=" + data.transferheaderid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a>"
+                    //    + "<a id='rowid" + data.transferheaderid + "' onclick=deleteDraft(" + data.transferheaderid + ") class='me-3' title='ลบรายการโอน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน'></a>"
+                    //    + "<a class='me-3' href='Print?draftid=" + data.transferheaderid + "' title='ปริ้นใบโอน'><img src='../assets/img/icons/printer.svg' alt='img'></a>";
+                    return "<a id='rowid" + data.transferheaderid + "' onclick=deleteDraft(" + data.transferheaderid + ") class='me-3' title='ลบรายการโอน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน'></a>"
+                        + "<a class='me-3' onclick=printExcel(" + data.transferheaderid + ") title='ปริ้นใบโอน'><img src='../assets/img/icons/printer.svg' alt='img'></a>";
                 }
             }
+            //{
+            //    "data": { isactive: "isactive" },
+            //    "render": function (data) {
+            //        if (data.isactive) {
+            //            return "<span class='badges bg-lightgreen'>ใช้งาน</span>";
+            //        }
+            //        else {
+            //            return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
+            //        }
+            //    }
+            //}
         ],
-        //"language": {
-        //    "emptyTable": "ไม่พบข้อมูล."
-        //},
         "order": [[3, "asc"]],
         "columnDefs": [
             {
@@ -530,7 +455,7 @@ function deleteDraft(draftid) {
             $.ajax({
                 type: 'POST',
                 url: '/Inventory/DeleteDraft',
-                data: JSON.stringify({ moneytransferid: moneytransferid }),
+                data: JSON.stringify({ transferheaderid: draftid }),
                 contentType: 'application/json',
                 success: function (data) {
                     if (data.result) {
@@ -547,11 +472,11 @@ function deleteDraft(draftid) {
                         /* $('#tbItems').DataTable().ajax.reload();*/
                         //$('#tbItems').DataTable().ajax.reload();
 
-                        console.log("#rowid" + moneytransferid);
+                        console.log("#rowid" + draftid);
                         //$("#rowid" + itemid).closest("tr").remove();
 
                         //Reload data
-                        $('#tbMoneyTransfer').DataTable().ajax.reload();
+                        $('#tbItemsTransfer').DataTable().ajax.reload();
 
                         //$("#rowid" + itemid).closest("tr").remove().draw(false);
                         //console.log(row);
@@ -571,6 +496,57 @@ function deleteDraft(draftid) {
                 }
             });
         }
+    });
+}
+function printExcel(draftid) {
+    ShowLoading();
+    var request = $.ajax({
+        url: 'PrepareGenerateExcelExport',
+        async: true,
+        type: 'POST',
+        dataType: 'JSON',
+        data: { "draftid": draftid },
+        success: function (response) {
+            console.log(response);
+            console.log(response.result);
+            if (response.result) {
+                xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    var a;
+                    if (xhttp.readyState === 4 && xhttp.status === 200) {
+                        // Trick for making downloadable link
+                        a = document.createElement('a');
+                        a.href = window.URL.createObjectURL(xhttp.response);
+                        // Give filename you wish to download
+                        a.download = response.fileName;
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click();
+                    }
+                };
+
+                // Post data to URL which handles post request
+                xhttp.open("POST", "DownloadInventoryTransferExcel?draftid=" + draftid + "");
+                xhttp.setRequestHeader("Content-Type", "application/json");
+                // You should set responseType as blob for binary responses
+                xhttp.responseType = 'blob';
+                xhttp.send();
+                HideLoading();
+            }
+            else {
+                ShowMessageError(response.message);
+                HideLoading();
+                return;
+            }
+
+        },
+        failure: function (response) {
+            ShowMessageError(response.message);
+        },
+        error: function (response) {
+            ShowMessageError(response.message);
+        }
+
     });
 }
 

@@ -56,28 +56,7 @@ public class GetItemInventoryForTransferByDraftIDHandler : BaseService, IRequest
         #endregion
 
         #region Prepare จำนวน QTY ที่เคย draft ไว้ จาก Step.1 โดยเอา itemid มาเทียบ
-        //var source = resDraftHeader.SelectMany(s => s.TTDraftItemTransferDetails).ToList();
-        //var target = res.ToList();
-        //List<GetItemInventoryTransferResposeDTO> updatedTargetList = target
-        //    .Join(source,
-        //        target => target.itemid,   // Key from targetList
-        //        source => source.ItemID,   // Key from sourceList
-        //        (target, source) =>   // Result selector
-        //        {
-        //            target.refillqty = source.Qty; // Assign value
-        //            return target;  // Return updated target
-        //        }).ToList();
-
         IEnumerable<TTDraftItemTransferDetail> draftItems = resDraftHeader.SelectMany(s => s.TTDraftItemTransferDetails).ToList();
-        //foreach (var target in res)
-        //{
-        //    var item = draftItems.FirstOrDefault(s => s.ItemID == target.itemid);
-        //    if (item != null)
-        //    {
-        //        target.refillqty = item.Qty;
-        //    }
-        //}
-
         res = res.ToList().Select(e =>
         {
             //Update orderqty

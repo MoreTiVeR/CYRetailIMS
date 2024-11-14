@@ -9,6 +9,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInvent
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransferFromDraft.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.DeleteDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByBranchID.v1;
@@ -16,6 +17,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemT
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidatePrintDraftItemTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatusByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeByID.v1;
@@ -31,6 +33,8 @@ public interface IItemTransferAPI
     Task<BaseResponse<CommandResponse>> CreateDraftItemTransferAsync(CreateDraftItemTransferCommand createDraftItemTransferCommand);
 
     Task<BaseResponse<CommandResponse>> UpdateDraftItemTransferAsync(UpdateDraftItemTransferCommand updateDraftItemTransferCommand);
+
+    Task<BaseResponse<CommandResponse>> DeleteDraftItemTransferAsync(DeleteDraftItemTransferCommand deleteDraftItemTransferCommand);
 
     Task<BaseResponse<CommandResponse>> ReceiveItemTransferAsync(UpdateItemTransferCommand receiveItemTransferCommand);
 
@@ -53,4 +57,5 @@ public interface IItemTransferAPI
     Task<BaseResponse<GetDraftItemTransferByBranchIDResponseDTO>> GetDraftItemTransferByBranchIDAsync(GetDraftItemTransferByBranchIDQuery reqObj);
     Task<BaseResponse<List<GetDraftItemTransferByBranchIDResponseDTO>>> GetDraftItemTransferByCriteriaAsync(GetDraftItemTransferByCriteriaQuery reqObj);
     Task<BaseResponse<List<GetItemInventoryTransferResposeDTO>>> InquiryDraftItemTransferByDraftIDAsync(GetItemInventoryForTransferByDraftIDQuery reqObj);
+    Task<BaseResponse<ValidatePrintDraftItemTransferResponseDTO>> ValidatePrintDraftItemTransferByDraftIDAsync(ValidatePrintDraftItemTransferQuery reqObj);
 }
