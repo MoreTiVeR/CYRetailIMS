@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models.UI;
 public class SearchMoneyTransferViewModel
 {
-    public string startdate { get; set; }
-    public string enddate { get; set; }
-    public int branchid { get; set; }
+    public string? startdate { get; set; }
+    public string? enddate { get; set; }
+    public int? branchid { get; set; }
 }

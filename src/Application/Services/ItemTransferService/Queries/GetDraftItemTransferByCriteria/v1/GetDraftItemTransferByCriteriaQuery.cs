@@ -11,6 +11,7 @@ namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftI
 
 public record GetDraftItemTransferByCriteriaQuery : IRequest<BaseResponse<List<GetDraftItemTransferByBranchIDResponseDTO>>>
 {
-    public DateTime transferdate { get; set; }
+    public DateTime? transferdate { get; set; }
+    public DateTime? transferenddate { get; init; }
     public int? branchid { get; set; }
 }

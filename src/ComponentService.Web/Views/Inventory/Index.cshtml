@@ -42,13 +42,29 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-6 col-12">
-                        <div class="form-group" style="text-align: left">
-                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                        <div class="form-group">
+                            <div class="input-groupicon">
+                                <input id="txtStartDate" type="text" placeholder="จากวันที่" class="datetimepicker">
+                                <div class="addonset">
+                                    <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group">
+                            <div class="input-groupicon">
+                                <input id="txtEndDate" type="text" placeholder="ถึงวันที่" class="datetimepicker">
+                                <div class="addonset">
+                                    <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group" style="text-align: left">
+                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,6 +86,7 @@
                         <th>โอนไปสาขา</th>
                         <th>สร้างโดย</th>
                         <th>วันที่สร้าง</th>
+                        <th class="text-center">ดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody>

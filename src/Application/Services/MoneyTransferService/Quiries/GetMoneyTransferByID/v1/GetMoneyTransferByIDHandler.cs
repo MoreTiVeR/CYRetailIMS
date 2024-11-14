@@ -21,7 +21,7 @@ public class GetMoneyTransferByIDHandler : BaseService, IRequestHandler<GetMoney
 
     public async Task<BaseResponse<GetMoneyTransferByCriteriaResponseDTO>> Handle(GetMoneyTransferByIDQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<TTMoneyTransfer> resMoneyTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.MoneyTransferID >= request.moneytransferid,
+        IEnumerable<TTMoneyTransfer> resMoneyTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.MoneyTransferID == request.moneytransferid,
                     i => i.Include(s => s.Branch));
         if (!resMoneyTransfer.Any())
         {

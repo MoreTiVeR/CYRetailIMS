@@ -92,7 +92,8 @@ public class MoneyTransferController : BaseController
         DateTime? eDate = null;
         try
         {
-            if (searchData == null)
+            if (searchData == null ||
+                (!searchData.branchid.HasValue && string.IsNullOrEmpty(searchData.startdate) && string.IsNullOrEmpty(searchData.enddate)))
             {
                 return Json(new { result = false, message = $"เงื่อนไขการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง", data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
             }
@@ -120,7 +121,7 @@ public class MoneyTransferController : BaseController
             {
                 startdate = sDate.HasValue ? sDate.Value : null,
                 enddate = eDate.HasValue ? eDate.Value : null,
-                branchlist = new List<int> { searchData.branchid }
+                branchlist = searchData.branchid.HasValue ? new List<int> { searchData.branchid.Value } : null
             });
             if (!resSearch.result)
             {

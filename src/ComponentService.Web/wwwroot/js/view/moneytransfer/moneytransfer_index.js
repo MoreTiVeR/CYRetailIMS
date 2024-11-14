@@ -66,7 +66,7 @@ datatable = $("#tbMoneyTransfer").DataTable({
                 };
                 /*console.log('data dic:' + dict);*/
                 //return "<a class='me-3' href='" + data.imgpath + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/eye.svg' alt='img'></a><a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน' title='ลบรายการโอน'></a>";
-                return "<a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน' title='ลบรายการโอน'></a>";
+                return "<a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3' title='ลบรายการเงินโอน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการเงินโอน'></a>";
             }
         },
         {
@@ -82,6 +82,10 @@ datatable = $("#tbMoneyTransfer").DataTable({
         {
             "targets": [0, 1, 3],
             "visible": false
+        },
+        {
+            "targets": [10],
+            "className": "text-center"
         }
     ],
     "language": {

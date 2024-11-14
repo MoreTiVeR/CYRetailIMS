@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
@@ -16,6 +17,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTr
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByCriteria.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
@@ -99,15 +101,22 @@ public class InventoryController : BaseController
     [HttpPost]
     public async Task<IActionResult> SearchInvenrotyTransferForTransfer([FromBody] SearchInvenrotyTransferViewModel searchObj)
     {
+        int branchId = 0;
         try
         {
             if (searchObj == null)
             {
                 return Json(new { result = false, message = $"เงื่อนไขการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง", data = new List<GetDraftItemTransferByBranchIDResponseDTO>() });
             }
+
+            if (searchObj.branchid.HasValue)
+            {
+                branchId = searchObj.branchid.Value;
+            }
+
             BaseResponse<List<GetItemInventoryTransferResposeDTO>> resItemInventoryTransfer = await _itemInBranchAPI.GetItemInventoryForTransferAsync(new GetItemInventoryTransferQuery
             {
-                branchid = searchObj.branchid,
+                branchid = branchId,
                 brandid = searchObj.brandid
             });
             if (!resItemInventoryTransfer.result)
@@ -129,18 +138,41 @@ public class InventoryController : BaseController
     /// <param name="searchObj"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<IActionResult> SearchInvenrotyTransferForIndex([FromBody] SearchInvenrotyTransferViewModel searchObj)
+    public async Task<IActionResult> SearchInvenrotyTransferForIndex([FromBody] SearchInvenrotyTransferViewModel searchData)
     {
+        DateTime? sDate = null;
+        DateTime? eDate = null;
         try
         {
-            if (searchObj == null)
+            if (searchData == null || 
+                (!searchData.branchid.HasValue && string.IsNullOrEmpty(searchData.startdate) && string.IsNullOrEmpty(searchData.enddate)))
             {
                 return Json(new { result = false, message = $"เงื่อนไขการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง", data = new List<GetDraftItemTransferByBranchIDResponseDTO>() });
             }
+
+            #region Search date validation
+            if (!string.IsNullOrEmpty(searchData.startdate))
+            {
+                sDate = searchData.startdate.DatetimePickerToDate();
+            }
+            if (!string.IsNullOrEmpty(searchData.enddate))
+            {
+                eDate = searchData.enddate.DatetimePickerToDate();
+            }
+            if (sDate.HasValue && eDate.HasValue)
+            {
+                //StartDate > EndDate
+                if (DateTime.Compare(sDate.Value, eDate.Value) == 1)
+                {
+                    throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+            }
+            #endregion
             BaseResponse<List<GetDraftItemTransferByBranchIDResponseDTO>> resDraftItemTransfer = await _itemTransferAPI.GetDraftItemTransferByCriteriaAsync(new GetDraftItemTransferByCriteriaQuery
             {
-                transferdate = DateTime.Now,
-                branchid = searchObj.branchid
+                transferdate = sDate,
+                transferenddate = eDate,
+                branchid = searchData.branchid
             });
             if (!resDraftItemTransfer.result)
             {
@@ -342,6 +374,25 @@ public class InventoryController : BaseController
         {
             return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemInventoryTransferResposeDTO>() });
 
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteDraft([FromBody] DeleteMoneyTransferViewModel deleteMoneyTranfer)
+    {
+        try
+        {
+            //var resDelete = await _moneyTransferAPI.DeleteAsync(new DeleteMoneyTransferCommand
+            //{
+            //    moneytransferid = deleteMoneyTranfer.moneytransferid,
+            //    updatedby = base.UserProfile.username
+            //});
+            //return Json(new JsonViewModel { result = resDelete.result, message = resDelete.result ? resDelete.message : resDelete.error.error.message });
+            return null;
+        }
+        catch (Exception ex)
+        {
+            return Json(new JsonViewModel { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
         }
     }
 
