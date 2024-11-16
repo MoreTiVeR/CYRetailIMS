@@ -498,6 +498,7 @@ function deleteDraft(draftid) {
         }
     });
 }
+
 function printExcel(draftid) {
     ShowLoading();
     var request = $.ajax({

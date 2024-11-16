@@ -424,7 +424,7 @@ public class InventoryController : BaseController
 
         if (!resValidation.result || !resValidation.data.ispass)
         {
-            return Json(new JsonViewModel { result = false, message = resValidation.result ? resValidation.message : resValidation.error.error.message });
+            return Json(new JsonViewModel { result = false, message = resValidation.data.remark });
         }
 
         string sheetName = DateTime.Now.ToString("dd-MM-yyyy");

@@ -8,4 +8,5 @@ namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidateP
 public class ValidatePrintDraftItemTransferResponseDTO
 {
     public bool ispass { get; set; }
+    public string remark { get; set; }
 }
