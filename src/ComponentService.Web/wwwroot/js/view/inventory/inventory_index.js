@@ -86,6 +86,11 @@ $('#btnConfirmTransfer').on('click', function (e) {
                                 if (response.result) {
                                     ShowMessageSuccess(response.message);
 
+                                    //Return to index after 1 sec
+                                    setTimeout(function () {
+                                        window.location.href = "/Inventory/Index";
+                                    }, 1000);
+
                                     //Update the DataTable with the filtered data from the server
                                     /*console.log(response.data);*/
                                     /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
@@ -527,7 +532,7 @@ function printExcel(draftid) {
                 };
 
                 // Post data to URL which handles post request
-                xhttp.open("POST", "DownloadInventoryTransferExcel?draftid=" + draftid + "");
+                xhttp.open("POST", "DownloadInventoryTransferExcel?draftID=" + draftid + "&fName=" + response.fileName +"");
                 xhttp.setRequestHeader("Content-Type", "application/json");
                 // You should set responseType as blob for binary responses
                 xhttp.responseType = 'blob';

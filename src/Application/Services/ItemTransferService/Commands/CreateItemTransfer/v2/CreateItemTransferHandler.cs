@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
 using CYRetailIMS.Domain.Events.TMItems;
+using CYRetailIMS.Domain.Events.TTDraftItemTransferDetails;
+using CYRetailIMS.Domain.Events.TTDraftItemTransfers;
 using CYRetailIMS.Domain.Events.TTItemTransferHeaders;
 using CYRetailIMS.Domain.Events.TTItemTransfers;
 using CYRetailIMS.Domain.Infrastructure.Database;
@@ -16,17 +18,18 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 
-namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
-public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItemTransferCommand, BaseResponse<CommandResponse>>
+namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v2;
+public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItemTransferWithDraftCommand, BaseResponse<CommandResponse>>
 {
     public CreateItemTransferHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
     {
     }
 
-    public async Task<BaseResponse<CommandResponse>> Handle(CreateItemTransferCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<CommandResponse>> Handle(CreateItemTransferWithDraftCommand request, CancellationToken cancellationToken)
     {
+        string transferRefNo = $"{request.createddate:yyMMddFFF}{request.destinationid:000}";
         #region Check exist branchid and itemid in TTItemTransfer
-        var isExist = await _unitOfWork.Repository<TTItemTransfer>().AnyAsync(w => w.DestinationID == request.destinationid 
+        var isExist = await _unitOfWork.Repository<TTItemTransfer>().AnyAsync(w => w.DestinationID == request.destinationid
         && request.items.Select(s => s.itemid).Contains(w.ItemID)
         && w.TransferStatus == (int)TransferStatus.Pending);
         if (isExist)
@@ -78,20 +81,10 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
 
         #region Validate Item in Destination Branch
         resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid && itemList.Contains(w.ItemID) && w.IsActive);
-        //if (resItemInDestinationBranch.Count() != itemList.Count)
-        //{
-        //    throw new Exception("ขออภัย, ไม่พบสินค้าที่ต้องการโอนในสาขาปลายทาง! กรุณาตรวจสอบรายการโอนสินค้าใหม่อีกครั้ง");
-        //}
         #endregion
 
         #region Craete TTItemTransferHeader & TTItemTransfer
-        //ICollection<TTItemTransfer> itemTransferEntities = PrepreTTItemTransfer(request);
-        //itemTransferEntities.ToList().ForEach(e =>
-        //{
-        //    e.AddDomainEvent(new TTItemTransferCreateEvent(e));
-        //});
-        //await _unitOfWork.Repository<TTItemTransfer>().AddRangeAsync(itemTransferEntities);
-        TTItemTransferHeader itemTransferHeader = PrepareTTItemTransferHeader(request);
+        TTItemTransferHeader itemTransferHeader = PrepareTTItemTransferHeader(transferRefNo, request);
         itemTransferHeader.TTItemTransfers.ToList().ForEach(e =>
         {
             e.AddDomainEvent(new TTItemTransferCreateEvent(e));
@@ -173,7 +166,18 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
         }
         #endregion
 
-
+        #region New Added for V2 -> save transaction to TTDraftItemTransfer, TTDraftItemTransferDetail
+        TTDraftItemTransfer draftItemTransfer = PrepareTTDraftItemTransfer(transferRefNo, itemTransferHeader);
+        draftItemTransfer.SetCreatedBy(itemTransferHeader.CreatedBy);
+        draftItemTransfer.SetCreatedDate(itemTransferHeader.CreatedDate);
+        draftItemTransfer.ActiveStatus();
+        draftItemTransfer.TTDraftItemTransferDetails.ToList().ForEach(e =>
+        {
+            e.AddDomainEvent(new TTDraftItemTransferDetailCreateEvent(e));
+        });
+        draftItemTransfer.AddDomainEvent(new TTDraftItemTransferCreateEvent(draftItemTransfer));
+        await _unitOfWork.Repository<TTDraftItemTransfer>().AddAsync(draftItemTransfer);
+        #endregion
 
         #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
@@ -191,11 +195,11 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
     }
 
     #region Private Method
-    private TTItemTransferHeader PrepareTTItemTransferHeader(CreateItemTransferCommand itemTransferCommand)
+    private TTItemTransferHeader PrepareTTItemTransferHeader(string transferRefNo, CreateItemTransferCommand itemTransferCommand)
     {
         TTItemTransferHeader ItemTransferHeader = new TTItemTransferHeader
         {
-            TransferRefNo = $"{itemTransferCommand.createddate:yyMMddFFF}{itemTransferCommand.destinationid:000}",
+            TransferRefNo = transferRefNo,
             TransferTypeID = itemTransferCommand.transfertypeid,
             SourceBranchID = itemTransferCommand.sourceid,
             DestinationBranchID = itemTransferCommand.destinationid,
@@ -225,6 +229,11 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
 
     private bool ValidateQtyInBranchStock(CreateItemTransferCommand request, IEnumerable<TMItem> itemInSourceWarehouse)
     {
+        if (itemInSourceWarehouse.Any(s => s.Qty <= 0))
+        {
+            throw new Exception($"ขออภัย, จำนวนสินค้าในสต๊อกในคลังไม่เพียงพอ!");
+        }
+
         request.items.ForEach(item =>
         {
             if (!itemInSourceWarehouse.Any(stock => stock.Qty > 0 && item.qty <= stock.Qty))
@@ -245,6 +254,29 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
             }
         });
         return true;
+    }
+
+    private TTDraftItemTransfer PrepareTTDraftItemTransfer(string transferRefNo, TTItemTransferHeader itemTransferHeader)
+    {
+        TTDraftItemTransfer draftItemTransfer = new TTDraftItemTransfer
+        {
+            TransferRefNo = transferRefNo,
+            TransferTypeID = (int)EnumModel.TransferType.WTB,
+            SourceBranchID = itemTransferHeader.SourceBranchID,
+            DestinationBranchID = itemTransferHeader.DestinationBranchID,
+            Description = itemTransferHeader.Description,
+            TransferStatus = (int)EnumModel.TransferStatus.Received,
+            TTDraftItemTransferDetails = (from a in itemTransferHeader.TTItemTransfers
+                                          select new TTDraftItemTransferDetail
+                                          {
+                                              ItemID = a.ItemID,
+                                              Qty = a.Qty,
+                                              CreatedBy = itemTransferHeader.CreatedBy,
+                                              CreatedDate = itemTransferHeader.CreatedDate,
+                                              IsActive = itemTransferHeader.IsActive
+                                          }).ToList()
+        };
+        return draftItemTransfer;
     }
     #endregion
 }

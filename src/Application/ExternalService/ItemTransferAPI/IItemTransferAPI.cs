@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInvent
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v2;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransferFromDraft.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.DeleteDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
@@ -27,6 +28,8 @@ namespace CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 public interface IItemTransferAPI
 {
     Task<BaseResponse<CommandResponse>> CreateItemTransferAsync(CreateItemTransferCommand createItemTransferCommand);
+
+    Task<BaseResponse<CommandResponse>> CreateItemTransferV2Async(CreateItemTransferWithDraftCommand createItemTransferCommand);
 
     Task<BaseResponse<CommandResponse>> CreateItemTransferFromDrafAsyc(CreateItemTransferFromDraftCommand reqObj);
 

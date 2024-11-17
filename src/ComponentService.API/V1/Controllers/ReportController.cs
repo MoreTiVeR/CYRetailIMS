@@ -11,6 +11,8 @@ using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogR
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -206,4 +208,24 @@ public class ReportController : BaseApiController
         return Ok(res.data);
     }
 
+    /// <summary>
+    /// รายงานโอนสินค้าใหม่
+    /// </summary>
+    /// <param name="inventoryReportQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/inventorytransferreport")]
+    [ProducesResponseType(typeof(List<InventoryReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> InventoryTransferReportAsync(InventoryTransferReportByDraftIDQuery inventoryReportQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<InventoryTransferReportByDraftIDResponseDTO> res = await Mediator.Send(inventoryReportQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]InventoryTransferReportAsync Success");
+        return Ok(res.data);
+    }
 }

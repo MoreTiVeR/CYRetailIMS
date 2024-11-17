@@ -188,6 +188,9 @@ $('#btnConfirmTransfer').on('click', function (e) {
                                 if (response.result) {
                                     ShowMessageSuccess(response.message);
 
+                                    setTimeout(function () {
+                                        window.location.href = "/Inventory/Index";
+                                    }, 1000);
                                     //Update the DataTable with the filtered data from the server
                                     /*console.log(response.data);*/
                                     /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/

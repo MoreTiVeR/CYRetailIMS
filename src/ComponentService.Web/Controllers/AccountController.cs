@@ -69,29 +69,30 @@ public class AccountController : BaseController
         try
         {
             resLogin = await _accountAPI.LoginAsync(new LoginQuery { username = loginObj.UserName, password = loginObj.Password });
-            if (resLogin.result)
+            if (!resLogin.result)
             {
-                #region Set Profile
-                UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);
-
-				#region Set Defaul Page by Role
-				defaultPage = GetDefaultPageByRole(userProfile.roleid);
-                userProfile.homepage_url = defaultPage;
-				#endregion
-
-				//Set profile session
-				base.UserProfile = userProfile;
-                var principal = CreatePrincipal(userProfile);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                #endregion
-                return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = defaultPage });
+                _log.Error($"Authen: {resLogin.error.error.message}");
+                return Json(new JsonViewModel { result = resLogin.result, message = resLogin.message });
             }
-            return Json(new JsonViewModel { result = resLogin.result, message = resLogin.error.error.message });
+            #region Set Profile
+            UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);
+
+            #region Set Defaul Page by Role
+            defaultPage = GetDefaultPageByRole(userProfile.roleid);
+            userProfile.homepage_url = defaultPage;
+            #endregion
+
+            //Set profile session
+            base.UserProfile = userProfile;
+            var principal = CreatePrincipal(userProfile);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            #endregion
+            return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = defaultPage });
         }
         catch (Exception ex)
         {
             _log.Error(ex.Message);
-            return Json(new JsonViewModel { result = false, message = $"ไม่สามารถเข้าสู่ระบบได้ เนื่องจากเกิดข้อผิดพลาด, กรุณาลองใหม่อีกครั้ง <br>{ex.Message}" });
+            return Json(new JsonViewModel { result = false, message = $"ไม่สามารถเข้าสู่ระบบได้ เนื่องจากเกิดข้อผิดพลาด, กรุณาลองใหม่อีกครั้ง" });
         }
     }
 

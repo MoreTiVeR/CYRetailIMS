@@ -13,6 +13,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInvent
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v2;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransferFromDraft.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.DeleteDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
@@ -283,8 +284,8 @@ public class InventoryController : BaseController
             #endregion
 
             #region Prepare & Create Transaction
-            CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(inventoryTransferRequest);
-            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
+            CreateItemTransferWithDraftCommand createItemTransferCommand = CreateItemTransferCommand(inventoryTransferRequest);
+            BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferV2Async(createItemTransferCommand);
             if (!resCreateTrn.result)
             {
                 return Json(new { result = false, message = resCreateTrn.error.error.message });
@@ -433,52 +434,54 @@ public class InventoryController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> DownloadInventoryTransferExcel(int draftid)
+    public async Task<IActionResult> DownloadInventoryTransferExcel(int draftID, string fName)
     {
         try
         {
-            var resInvItemTransfer = await _itemTransferAPI.InquiryDraftItemTransferByDraftIDAsync(new GetItemInventoryForTransferByDraftIDQuery
+            BaseResponse<List<GetItemInventoryTransferResposeDTO>> resInvItemTransfer = await _itemTransferAPI.InquiryDraftItemTransferByDraftIDAsync(new GetItemInventoryForTransferByDraftIDQuery
             {
-                draftid = draftid
+                draftid = draftID
             });
 
-            #region Generate Excel
-            System.Drawing.Color orangeColor = System.Drawing.ColorTranslator.FromHtml("#ffc336");
-            string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
-            string fName = $"รายงานโอนสินค้า_{sheetName}.xlsx";
-            byte[] result;
-            using (var package = new ExcelPackage())
-            {
-                // add a new worksheet to the empty workbook
-                var worksheet = package.Workbook.Worksheets.Add(sheetName);
+            return GenerateStockTransferReport(fName, resInvItemTransfer.data);
 
-                //Header
-                worksheet.Cells[1, 1].Value = "ลำดับ";
-                worksheet.Cells[1, 2].Value = "รหัสสินค้า";
-                worksheet.Cells[1, 3].Value = "ชื่อสินค้า";
-                worksheet.Cells[1, 4].Value = "จำนวนที่เติม";
-                worksheet.Cells[1, 5].Value = "จำนวนรับสินค้า";
-                worksheet.Cells[1, 6].Value = "ขาด/เกิน";
+            //#region Generate Excel
+            //System.Drawing.Color orangeColor = System.Drawing.ColorTranslator.FromHtml("#ffc336");
+            //string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
+            //string fName = $"รายงานโอนสินค้า_{sheetName}.xlsx";
+            //byte[] result;
+            //using (var package = new ExcelPackage())
+            //{
+            //    // add a new worksheet to the empty workbook
+            //    var worksheet = package.Workbook.Worksheets.Add(sheetName);
 
-                //worksheet.Cells[1, 1, 1, 6].Merge = true;
-                //worksheet.Cells[1, 1, 1, 6].Value = $"Time : {DateTime.Now.ToString("dd/MM/yyyy HH:mm", new System.Globalization.CultureInfo("en-US"))}";
-                //worksheet.Cells[1, 1, 1, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            //    //Header
+            //    worksheet.Cells[1, 1].Value = "ลำดับ";
+            //    worksheet.Cells[1, 2].Value = "รหัสสินค้า";
+            //    worksheet.Cells[1, 3].Value = "ชื่อสินค้า";
+            //    worksheet.Cells[1, 4].Value = "จำนวนที่เติม";
+            //    worksheet.Cells[1, 5].Value = "จำนวนรับสินค้า";
+            //    worksheet.Cells[1, 6].Value = "ขาด/เกิน";
 
-                using (var range = worksheet.Cells[1, 1, 1, 6])
-                {
-                    range.Style.Font.Bold = true;
-                    range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    range.Style.Fill.BackgroundColor.SetColor(orangeColor);
-                    range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    range.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    range.Style.Font.Size = 11;
-                }
+            //    //worksheet.Cells[1, 1, 1, 6].Merge = true;
+            //    //worksheet.Cells[1, 1, 1, 6].Value = $"Time : {DateTime.Now.ToString("dd/MM/yyyy HH:mm", new System.Globalization.CultureInfo("en-US"))}";
+            //    //worksheet.Cells[1, 1, 1, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
 
-                result = package.GetAsByteArray();
-            }
-            #endregion
+            //    using (var range = worksheet.Cells[1, 1, 1, 6])
+            //    {
+            //        range.Style.Font.Bold = true;
+            //        range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+            //        range.Style.Fill.BackgroundColor.SetColor(orangeColor);
+            //        range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            //        range.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            //        range.Style.Font.Size = 11;
+            //    }
 
-            return File(result, "application/ms-excel", $"{fName}");
+            //    result = package.GetAsByteArray();
+            //}
+            //#endregion
+
+            //return File(result, "application/ms-excel", $"{fName}");
         }
         catch (Exception ex)
         {
@@ -534,9 +537,9 @@ public class InventoryController : BaseController
     /// </summary>
     /// <param name="reqObj"></param>
     /// <returns></returns>
-    private CreateItemTransferCommand CreateItemTransferCommand(CreateInvenrotyTransferViewModel reqObj)
+    private CreateItemTransferWithDraftCommand CreateItemTransferCommand(CreateInvenrotyTransferViewModel reqObj)
     {
-        return new CreateItemTransferCommand
+        return new CreateItemTransferWithDraftCommand
         {
             transfertypeid = (int)TransferType.WTB,
             sourceid = 1,
@@ -595,5 +598,48 @@ public class InventoryController : BaseController
         };
     }
 
+    #endregion
+
+    #region Generate Excel
+    private FileContentResult GenerateStockTransferReport(string fName, List<GetItemInventoryTransferResposeDTO> invReportData)
+    {
+        #region Generate Excel
+        //string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
+        //string fName = $"รายงานโอนสินค้า_{sheetName}.xlsx";
+        System.Drawing.Color orangeColor = System.Drawing.ColorTranslator.FromHtml("#ffc336");
+        byte[] result;
+        using (var package = new ExcelPackage())
+        {
+            // add a new worksheet to the empty workbook
+            var worksheet = package.Workbook.Worksheets.Add(fName);
+
+            //Header
+            worksheet.Cells[1, 1].Value = "ลำดับ";
+            worksheet.Cells[1, 2].Value = "รหัสสินค้า";
+            worksheet.Cells[1, 3].Value = "ชื่อสินค้า";
+            worksheet.Cells[1, 4].Value = "จำนวนที่เติม";
+            worksheet.Cells[1, 5].Value = "จำนวนรับสินค้า";
+            worksheet.Cells[1, 6].Value = "ขาด/เกิน";
+
+            //worksheet.Cells[1, 1, 1, 6].Merge = true;
+            //worksheet.Cells[1, 1, 1, 6].Value = $"Time : {DateTime.Now.ToString("dd/MM/yyyy HH:mm", new System.Globalization.CultureInfo("en-US"))}";
+            //worksheet.Cells[1, 1, 1, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+            using (var range = worksheet.Cells[1, 1, 1, 6])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(orangeColor);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                range.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                range.Style.Font.Size = 11;
+            }
+
+            result = package.GetAsByteArray();
+        }
+        #endregion
+
+        return File(result, "application/ms-excel", $"{fName}");
+    }
     #endregion
 }

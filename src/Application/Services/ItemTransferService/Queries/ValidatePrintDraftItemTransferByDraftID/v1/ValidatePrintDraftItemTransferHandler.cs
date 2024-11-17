@@ -30,7 +30,7 @@ public class ValidatePrintDraftItemTransferHandler : BaseService, IRequestHandle
             return new BaseResponse<ValidatePrintDraftItemTransferResponseDTO>
             {
                 result = false,
-                data = new ValidatePrintDraftItemTransferResponseDTO { ispass = false, remark = "ไม่สามารถทำรายการได้ เนื่องจากข้อมูลยังไม่บันทึกโอนหรือถูกยกเลิก" },
+                data = new ValidatePrintDraftItemTransferResponseDTO { ispass = false, remark = "ไม่สามารถทำรายการได้ เนื่องจากข้อมูลยังไม่บันทึกโอนหรือรายการถูกยกเลิก" },
                 message = "Validation failed",
                 soruce = "db",
                 status = StatusCodes.Status200OK.ToString()

@@ -40,9 +40,6 @@ public class HttpClientRequest : IHttpClientRequest
         {
             string StringBodyRequest = JsonConvert.SerializeObject(Req);
             StringContent ReqConten = new StringContent(StringBodyRequest, Encoding.UTF8, "application/json");
-            //ReqConten.Headers.ContentType = new MediaTypeHeaderValue("application/json; charset=utf-8");
-            //ReqConten.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("charset", "utf-8"));
-            //ReqConten.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("IEEE754Compatible", "true"));
             ReqMsg.Content = ReqConten;
         }
         Response = await _httpClient.SendAsync(ReqMsg);
