@@ -28,7 +28,7 @@ using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Application.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
-using CYRetailIMS.Application.ExternalService.Report;
+using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.ShipmentTypeAPI;
 using CYRetailIMS.Application.ExternalService.SupplierAPI;
 using CYRetailIMS.Application.ExternalService.SupplierContactTypeAPI;

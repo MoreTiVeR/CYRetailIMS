@@ -17,6 +17,7 @@ public class InventoryTransferReportByDraftIDResponseDTO
     public string destinationbranchname { get; set; }
     public string description { get; set; }
     public string createdby { get; set; }
+    public string createdbyname { get; set; }
     public DateTime createddate { get; set; }
 
     public List<InventoryTransferReportByDraftIDDetailDTO> detail { get; set; }

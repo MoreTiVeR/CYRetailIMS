@@ -9,12 +9,14 @@ using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 
-namespace CYRetailIMS.Application.ExternalService.Report;
+namespace CYRetailIMS.Application.ExternalService.ReportAPI;
 public interface IReportAPI
 {
 	Task<BaseResponse<CommandResponse>> CreateAuditTransactionReportAsync(CreateAuditReportCommand createAuditReportCommand);
@@ -36,4 +38,6 @@ public interface IReportAPI
     Task<BaseResponse<List<AvailableStockReportResponseDTO>>> GetAvailableItemStockByBranchReportAsync(AvailableStockByBrachReportQuery availableStockByBrachReportQuery);
 
     Task<BaseResponse<List<InventoryReportResponseDTO>>> GetInventoryReportAsync(InventoryReportQuery inventoryReportQuery);
+
+    Task<BaseResponse<InventoryTransferReportByDraftIDResponseDTO>> GetInventoryTransferByDraftReportAsync(InventoryTransferReportByDraftIDQuery inventoryTransferQuery);
 }

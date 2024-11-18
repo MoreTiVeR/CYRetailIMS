@@ -7,6 +7,7 @@ using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
+using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
@@ -21,6 +22,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemT
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidatePrintDraftItemTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Infrastructure.Common.Extensions;
@@ -40,16 +42,19 @@ public class InventoryController : BaseController
     private readonly IBranchAPI _branchAPI;
     private readonly IItemBrandAPI _itemBrandAPI;
     private readonly IItemInBranchAPI _itemInBranchAPI;
+    private readonly IReportAPI _reportAPI;
     public InventoryController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IBranchAPI branchAPI,
         IItemBrandAPI itemBrandAPI,
         IItemTransferAPI itemTransferAPI,
-        IItemInBranchAPI itemInBranchAPI) : base(httpClientRequest, mapper, log)
+        IItemInBranchAPI itemInBranchAPI,
+        IReportAPI reportAPI) : base(httpClientRequest, mapper, log)
     {
         _branchAPI = branchAPI;
         _itemBrandAPI = itemBrandAPI;
         _itemTransferAPI = itemTransferAPI;
         _itemInBranchAPI = itemInBranchAPI;
+        _reportAPI = reportAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -443,7 +448,7 @@ public class InventoryController : BaseController
                 draftid = draftID
             });
 
-            return GenerateStockTransferReport(fName, resInvItemTransfer.data);
+            return await GenerateStockTransferReport(fName, draftID, resInvItemTransfer.data);
 
             //#region Generate Excel
             //System.Drawing.Color orangeColor = System.Drawing.ColorTranslator.FromHtml("#ffc336");
@@ -601,11 +606,18 @@ public class InventoryController : BaseController
     #endregion
 
     #region Generate Excel
-    private FileContentResult GenerateStockTransferReport(string fName, List<GetItemInventoryTransferResposeDTO> invReportData)
+    private async Task<FileContentResult> GenerateStockTransferReport(string fName, int draftID, List<GetItemInventoryTransferResposeDTO> invReportData)
     {
+        #region Get Report Data
+        var resReportData = await _reportAPI.GetInventoryTransferByDraftReportAsync(new InventoryTransferReportByDraftIDQuery
+        {
+            transferid = draftID
+        });
+        #endregion
+
         #region Generate Excel
-        //string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
-        //string fName = $"รายงานโอนสินค้า_{sheetName}.xlsx";
+        int dRow = 1;
+        int dCol = 1;
         System.Drawing.Color orangeColor = System.Drawing.ColorTranslator.FromHtml("#ffc336");
         byte[] result;
         using (var package = new ExcelPackage())
@@ -625,6 +637,7 @@ public class InventoryController : BaseController
             //worksheet.Cells[1, 1, 1, 6].Value = $"Time : {DateTime.Now.ToString("dd/MM/yyyy HH:mm", new System.Globalization.CultureInfo("en-US"))}";
             //worksheet.Cells[1, 1, 1, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
 
+            //Set Header Style
             using (var range = worksheet.Cells[1, 1, 1, 6])
             {
                 range.Style.Font.Bold = true;
@@ -632,10 +645,85 @@ public class InventoryController : BaseController
                 range.Style.Fill.BackgroundColor.SetColor(orangeColor);
                 range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 range.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                range.Style.Font.Size = 11;
+                range.Style.Font.Size = 10;
+            }
+            dRow++;
+
+            foreach (var item in resReportData.data.detail)
+            {
+                worksheet.Cells[dRow, 1].Value = item.seq;
+                worksheet.Cells[dRow, 2].Value = item.itemcode;
+                worksheet.Cells[dRow, 3].Value = item.itemname;
+                worksheet.Cells[dRow, 4].Value = item.transferqty;
+                worksheet.Cells[dRow, 5].Value = item.receiveqty <= 0 ? null : item.receiveqty;
+                worksheet.Cells[dRow, 6].Value = item.excessqty <= 0 ? null : item.excessqty;
+                dRow++;
             }
 
+            //Row รวมทั้งหมด
+            worksheet.Cells[dRow, 3].Value = "รวมทั้งหมด";
+            worksheet.Cells[dRow, 4].Value = resReportData.data.totaltransferqty;
+            dRow++;
+
+            //Header SubItem
+            worksheet.Cells[dRow, 1].Value = "ลำดับ";
+            worksheet.Cells[dRow, 2].Value = "ประเภทฟิล์ม";
+            worksheet.Cells[dRow, 3].Value = "จำนวนทำออก";
+
+            //Set Header SubItem Style
+            using (var range = worksheet.Cells[dRow, 1, dRow, 3])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(orangeColor);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                range.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                range.Style.Font.Size = 10;
+            }
+            dRow++;
+
+            foreach (var item in resReportData.data.subitemdetail)
+            {
+                worksheet.Cells[dRow, 1].Value = item.seq;
+                worksheet.Cells[dRow, 2].Value = item.subitemtypename;
+                worksheet.Cells[dRow, 3].Value = item.transferqty;
+                dRow++;
+            }
+
+            //Row รวมทั้งหมด
+            worksheet.Cells[dRow, 2].Value = "จำนวนรวม";
+            worksheet.Cells[dRow, 3].Value = resReportData.data.totalsubitemtransferqty;
+            dRow++;
+
+            #region Autofit Column
+            //Make all text fit the cells
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            //Autofit with minimum size for the column.
+            double minimumSize = 10;
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns(minimumSize);
+
+            //Autofit with minimum and maximum size for the column.
+            double maximumSize = 50;
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns(minimumSize, maximumSize);
+
+            for (int col = 1; col < worksheet.Dimension.End.Column; col++)
+            {
+                //worksheet.Column(col).AutoFit();
+                worksheet.Column(col).Width = worksheet.Column(col).Width + 2;
+
+                //wrap text in the cells
+                if (col == 13)
+                {
+                    worksheet.Column(13).Style.WrapText = true;
+                }
+            }
+            #endregion
+
+            #region Assign Excel
             result = package.GetAsByteArray();
+            #endregion
+
         }
         #endregion
 

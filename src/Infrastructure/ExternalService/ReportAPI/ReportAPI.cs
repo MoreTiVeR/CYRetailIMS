@@ -5,12 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.ExternalService.Report;
+using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
@@ -87,5 +89,11 @@ public class ReportAPI : HttpClientService, IReportAPI
     {
         return await _httpClientRequest.HttpRequestToObject<List<InventoryReportResponseDTO>,
                     InventoryReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/inventoryreport"), inventoryReportQuery);
+    }
+
+    public async Task<BaseResponse<InventoryTransferReportByDraftIDResponseDTO>> GetInventoryTransferByDraftReportAsync(InventoryTransferReportByDraftIDQuery inventoryTransferQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<InventoryTransferReportByDraftIDResponseDTO,
+                    InventoryTransferReportByDraftIDQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/inventorytransferreport"), inventoryTransferQuery);
     }
 }
