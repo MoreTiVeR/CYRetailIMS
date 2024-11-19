@@ -29,6 +29,17 @@ public class DeleteDraftItemTransferHandler : BaseService, IRequestHandler<Delet
             throw new Exception("Data not found");
         }
         TTDraftItemTransfer draftItemTransfer = resDraftItem.FirstOrDefault();
+        if(draftItemTransfer.TransferStatus == (int)EnumModel.TransferStatus.Received)
+        {
+            throw new Exception("ไม่สามารถลบรายการได้ เนื่องจากได้ทำการโอน/รับโอนไปแล้ว");
+            //return new BaseResponse<CommandResponse>
+            //{
+            //    data = new CommandResponse { result = false },
+            //    status = StatusCodes.Status200OK.ToString(),
+            //    message = "ไม่สามารถลบรายการได้ เนื่องจากได้ทำการโอน/รับโอนไปแล้ว",
+            //    soruce = "db"
+            //};
+        }
         draftItemTransfer.DeActiveStatus();
         draftItemTransfer.TransferStatus = (int)EnumModel.TransferStatus.Cancel;
         draftItemTransfer.SetUpdatedBy(request.updatedby);
