@@ -72,7 +72,7 @@ public class AccountController : BaseController
             if (!resLogin.result)
             {
                 _log.Error($"Authen: {resLogin.error.error.message}");
-                return Json(new JsonViewModel { result = resLogin.result, message = resLogin.message });
+                return Json(new JsonViewModel { result = resLogin.result, message = resLogin.error.error.message });
             }
             #region Set Profile
             UserProfileViewModel userProfile = _mapper.Map<UserProfileViewModel>(resLogin.data);

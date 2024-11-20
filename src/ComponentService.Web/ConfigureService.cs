@@ -18,6 +18,7 @@ using CYRetailIMS.Application.ExternalService.ChartAPI;
 using CYRetailIMS.Application.ExternalService.CurrencyAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
+using CYRetailIMS.Application.ExternalService.ExcelAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
@@ -51,6 +52,7 @@ using CYRetailIMS.Infrastructure.ExternalService.ChartAPI;
 using CYRetailIMS.Infrastructure.ExternalService.CurrencyAPI;
 using CYRetailIMS.Infrastructure.ExternalService.DepartmentAPI;
 using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ExcelAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
 using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
@@ -182,6 +184,7 @@ public static class ConfigureService
         services.AddScoped<ISupplierTypeAPI, SupplierTypeAPI>();
         services.AddScoped<IChartAPI, ChartAPI>();
         services.AddScoped<IMoneyTransferAPI, MoneyTransferAPI>();
+        services.AddScoped<IExcelAPI, ExcelAPI>();
         #endregion
 
         return services;
