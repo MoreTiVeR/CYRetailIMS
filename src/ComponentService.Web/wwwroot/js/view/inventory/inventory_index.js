@@ -532,7 +532,7 @@ function printExcel(draftid) {
                 };
 
                 // Post data to URL which handles post request
-                xhttp.open("POST", "DownloadInventoryTransferExcel?draftID=" + draftid + "&fName=" + response.fileName +"");
+                xhttp.open("POST", "DownloadInventoryTransferExcel?draftID=" + draftid + "");
                 xhttp.setRequestHeader("Content-Type", "application/json");
                 // You should set responseType as blob for binary responses
                 xhttp.responseType = 'blob';

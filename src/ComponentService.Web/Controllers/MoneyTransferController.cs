@@ -148,7 +148,7 @@ public class MoneyTransferController : BaseController
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+                return Json(new { result = false, message = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
             }
 
             #region Image File is not null then stream image

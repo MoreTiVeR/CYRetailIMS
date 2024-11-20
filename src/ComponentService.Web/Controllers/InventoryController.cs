@@ -5,11 +5,13 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.ExternalService.ExcelAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
+using CYRetailIMS.Application.Services.ExcelService.Queries.GenerateStockTransferExcelReport.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByDraftID.v1;
@@ -22,12 +24,10 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftI
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemTransferByCriteria.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidatePrintDraftItemTransferByDraftID.v1;
-using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
-using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Infrastructure.Common.Extensions;
-using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OfficeOpenXml;
@@ -44,18 +44,21 @@ public class InventoryController : BaseController
     private readonly IItemBrandAPI _itemBrandAPI;
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IReportAPI _reportAPI;
+    private readonly IExcelAPI _excelAPI;
     public InventoryController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IBranchAPI branchAPI,
         IItemBrandAPI itemBrandAPI,
         IItemTransferAPI itemTransferAPI,
         IItemInBranchAPI itemInBranchAPI,
-        IReportAPI reportAPI) : base(httpClientRequest, mapper, log)
+        IReportAPI reportAPI,
+        IExcelAPI excelAPI) : base(httpClientRequest, mapper, log)
     {
         _branchAPI = branchAPI;
         _itemBrandAPI = itemBrandAPI;
         _itemTransferAPI = itemTransferAPI;
         _itemInBranchAPI = itemInBranchAPI;
         _reportAPI = reportAPI;
+        _excelAPI = excelAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -433,22 +436,41 @@ public class InventoryController : BaseController
         {
             return Json(new JsonViewModel { result = false, message = resValidation.data.remark });
         }
-
-        string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
-        string fName = $"รายงานโอนสินค้า_{sheetName}.xlsx";
-        return new JsonResult(new { result = true, fileName = fName, message = "Success." });
+        return new JsonResult(new { result = true, message = "Success." });
     }
 
     [HttpPost]
-    public async Task<IActionResult> DownloadInventoryTransferExcel(int draftID, string fName)
+    public async Task<IActionResult> DownloadInventoryTransferExcel(int draftID)
     {
         try
         {
-            BaseResponse<List<GetItemInventoryTransferResposeDTO>> resInvItemTransfer = await _itemTransferAPI.InquiryDraftItemTransferByDraftIDAsync(new GetItemInventoryForTransferByDraftIDQuery
+
+            BaseResponse<InventoryTransferReportByDraftIDResponseDTO> resInvItemTransfer = await _reportAPI.GetInventoryTransferByDraftReportAsync(new InventoryTransferReportByDraftIDQuery
+            {
+                transferid = draftID
+            });
+            if (!resInvItemTransfer.result)
+            {
+                return Json(new { result = false, message = resInvItemTransfer.error.error.message });
+            }
+
+            var resExcepReport = await _excelAPI.GenerateInventoryTransferExcelAsync(new GenerateStockTransferExcelReportQuery
+            {
+                draftid = draftID,
+                reportdata = resInvItemTransfer.data
+            });
+            if (!resExcepReport.result)
+            {
+                return Json(new { result = false, message = resExcepReport.error.error.message });
+            }
+
+            //return File(resExcepReport.data.filebyte, "application/ms-excel", $"{resExcepReport.data.filename}");
+
+            BaseResponse<List<GetItemInventoryTransferResposeDTO>> reportData = await _itemTransferAPI.InquiryDraftItemTransferByDraftIDAsync(new GetItemInventoryForTransferByDraftIDQuery
             {
                 draftid = draftID
             });
-            return await GenerateStockTransferReport(fName, draftID, resInvItemTransfer.data);
+            return await GenerateStockTransferReport(draftID, reportData.data);
         }
         catch (Exception ex)
         {
@@ -568,11 +590,11 @@ public class InventoryController : BaseController
     #endregion
 
     #region Generate Excel
-    private async Task<FileContentResult> GenerateStockTransferReport(string fName, int draftID, List<GetItemInventoryTransferResposeDTO> invReportData)
+    private async Task<FileContentResult> GenerateStockTransferReport(int draftID, List<GetItemInventoryTransferResposeDTO> invReportData)
     {
         int dRow = 1;
         int dCol = 1;
-
+        string sheetName = DateTime.Now.ToString("dd-MM-yyyy");
         //Autofit with minimum size for the column.
         double autofitMinimumSize = 10;
 
@@ -584,6 +606,7 @@ public class InventoryController : BaseController
         {
             transferid = draftID
         });
+        string fName = $"รายงานโอนสินค้า_{resReportData.data.destinationbranchname}_{sheetName}.xlsx";
         int branchID = resReportData.data.destinationbranchid;
         string branchName = resReportData.data.destinationbranchname;
         string createdByName = resReportData.data.createdbyname;

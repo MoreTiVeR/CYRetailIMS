@@ -683,21 +683,28 @@ public class ItemController : BaseController
     [HttpPost]
     public async Task<IActionResult> TransferItem([FromBody] ReceiveTransferItemViewModel model)
     {
-        #region Validate QTY
-        var resValidateQTY = ValidateQTYItemTransfer(model);
-        if (!resValidateQTY.result)
+        try
         {
-            return Json(new { result = false, message = resValidateQTY.message });
-        }
-        #endregion
+            #region Validate QTY
+            var resValidateQTY = ValidateQTYItemTransfer(model);
+            if (!resValidateQTY.result)
+            {
+                return Json(new JsonViewModel { result = false, message = resValidateQTY.message });
+            }
+            #endregion
 
-        UpdateItemTransferCommand updateItemCommand = PrepareReceiveItemTransferCommand(model);
-        BaseResponse<CommandResponse> resUpdateItem = await _itemTransferAPI.ReceiveItemTransferAsync(updateItemCommand);
-        if (resUpdateItem.result)
-        {
-            return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
+            UpdateItemTransferCommand updateItemCommand = PrepareReceiveItemTransferCommand(model);
+            BaseResponse<CommandResponse> resUpdateItem = await _itemTransferAPI.ReceiveItemTransferAsync(updateItemCommand);
+            if (resUpdateItem.result)
+            {
+                return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.message });
+            }
+            return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
         }
-        return Json(new JsonViewModel { result = resUpdateItem.result, message = resUpdateItem.error.error.message });
+        catch (Exception ex)
+        {
+            return Json(new JsonViewModel { result = false, message = $"เกิดข้อผิดพลาดบางประการ, กรุณาลองใหม่อีกครั้ง. {ex.Message}" });
+        }
     }
 
 
