@@ -23,4 +23,7 @@ public partial class TMItemType : BaseAuditableEntity
 
     [InverseProperty("ItemType")]
     public virtual ICollection<TMItem> TMItems { get; set; } = new List<TMItem>();
+
+    [InverseProperty("ItemType")]
+    public virtual ICollection<TMSubItemTypeInItemType> TMSubItemTypeInItemTypes { get; set; } = new List<TMSubItemTypeInItemType>();
 }

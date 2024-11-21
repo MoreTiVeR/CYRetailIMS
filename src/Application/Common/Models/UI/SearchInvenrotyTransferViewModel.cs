@@ -8,6 +8,8 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 
 public class SearchInvenrotyTransferViewModel
 {
-    public int branchid { get; set; }
+    public int? branchid { get; set; }
     public int? brandid { get; set; }
+    public string? startdate { get; set; }
+    public string? enddate { get; set; }
 }

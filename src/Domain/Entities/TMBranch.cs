@@ -29,4 +29,7 @@ public partial class TMBranch : BaseAuditableEntity
 
     [InverseProperty("Branch")]
     public virtual ICollection<TMUserInBranch> TMUserInBranches { get; set; } = new List<TMUserInBranch>();
+
+    [InverseProperty("Branch")]
+    public virtual ICollection<TTMoneyTransfer> TTMoneyTransfers { get; set; } = new List<TTMoneyTransfer>();
 }

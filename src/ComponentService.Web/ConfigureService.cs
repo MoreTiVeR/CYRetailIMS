@@ -5,6 +5,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Mappings.UI.Account;
 using CYRetailIMS.Application.Common.Mappings.UI.Employee;
 using CYRetailIMS.Application.Common.Mappings.UI.Item;
+using CYRetailIMS.Application.Common.Mappings.UI.MoneyTransfer;
 using CYRetailIMS.Application.Common.Mappings.UI.Report;
 using CYRetailIMS.Application.Common.Mappings.UI.Supplier;
 using CYRetailIMS.Application.Common.Mappings.UI.Transaction;
@@ -17,16 +18,18 @@ using CYRetailIMS.Application.ExternalService.ChartAPI;
 using CYRetailIMS.Application.ExternalService.CurrencyAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
+using CYRetailIMS.Application.ExternalService.ExcelAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Application.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
-using CYRetailIMS.Application.ExternalService.Report;
+using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.ShipmentTypeAPI;
 using CYRetailIMS.Application.ExternalService.SupplierAPI;
 using CYRetailIMS.Application.ExternalService.SupplierContactTypeAPI;
@@ -49,12 +52,14 @@ using CYRetailIMS.Infrastructure.ExternalService.ChartAPI;
 using CYRetailIMS.Infrastructure.ExternalService.CurrencyAPI;
 using CYRetailIMS.Infrastructure.ExternalService.DepartmentAPI;
 using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ExcelAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
 using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Infrastructure.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseTypeAPI;
@@ -130,6 +135,10 @@ public static class ConfigureService
             #region Transaction
             mc.AddProfile<TransactionsMappingProfile>();
             #endregion
+
+            #region Money Transfer
+            mc.AddProfile<EditMoneyTransferMappingProfile>();
+            #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();
         services.AddSingleton(mapper);
@@ -174,9 +183,9 @@ public static class ConfigureService
 		services.AddScoped<IWarehouseAPI, WarehouseAPI>();
         services.AddScoped<ISupplierTypeAPI, SupplierTypeAPI>();
         services.AddScoped<IChartAPI, ChartAPI>();
+        services.AddScoped<IMoneyTransferAPI, MoneyTransferAPI>();
+        services.AddScoped<IExcelAPI, ExcelAPI>();
         #endregion
-
-       
 
         return services;
     }

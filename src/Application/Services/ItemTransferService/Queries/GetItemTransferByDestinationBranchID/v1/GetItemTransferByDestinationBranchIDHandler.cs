@@ -47,7 +47,8 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
                            receiveqty = a.ReceiveQTY,
                            returnqty = a.ReturnQTY,
                            updatedby = a.UpdatedBy,
-                           updateddate = a.UpdatedDate
+                           updateddate = a.UpdatedDate,
+                           transferheaderid = a.TransferHeaderID
                        }).AsEnumerable();
 
         if (request.transferdate.HasValue)

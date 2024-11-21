@@ -21,10 +21,11 @@ public class GetDraftItemTransferByCriteriatHandler : BaseService, IRequestHandl
 
     public async Task<BaseResponse<List<GetDraftItemTransferByBranchIDResponseDTO>>> Handle(GetDraftItemTransferByCriteriaQuery request, CancellationToken cancellationToken)
     {
+        DateTime startDate = request.transferdate.HasValue ? request.transferdate.Value : DateTime.Now;
         var resData = (from header in await _unitOfWork.Repository<TTDraftItemTransfer>().FindWithInclude(w => w.IsActive, i => i.Include(s => s.TTDraftItemTransferDetails))
                        join b in await _unitOfWork.Repository<TMBranch>().QueryAsync() on header.DestinationBranchID equals b.BranchID into branch
                        from jBranch in branch.DefaultIfEmpty()
-                       where header.CreatedDate.Month == request.transferdate.Month
+                       where header.CreatedDate.Date >= startDate.Date
                        select new GetDraftItemTransferByBranchIDResponseDTO
                        {
                            transferheaderid = header.TransferHeaderID,
@@ -51,6 +52,13 @@ public class GetDraftItemTransferByCriteriatHandler : BaseService, IRequestHandl
             throw new Exception("ไม่พบข้อมูล");
         }
 
+        //Filter enddate
+        if (request.transferenddate.HasValue)
+        {
+            resData = resData.Where(w => w.createddate.Date <= request.transferenddate.Value.Date);
+        }
+
+        //Filter branchid
         if (request.branchid.HasValue)
         {
             if (request.branchid <= 0)

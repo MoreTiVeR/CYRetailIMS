@@ -45,16 +45,17 @@ public class ItemMappingProfile : Profile
 			.ForMember(x => x.IsActive, f => f.MapFrom(ff => ff.isactive))
 			.ForMember(x => x.Name, f => f.MapFrom(ff => ff.itemname));
 
-		CreateMap<GetItemTransferResponseDTO, ReceiveTransferItemViewModel>()
-			.ForMember(x => x.TransferID, f => f.MapFrom(ff => ff.transferid))
-			.ForMember(x => x.TransferTypeID, f => f.MapFrom(ff => ff.transfertypeid))
-			.ForMember(x => x.SourceID, f => f.MapFrom(ff => ff.sourceid))
-			.ForMember(x => x.DestinationID, f => f.MapFrom(ff => ff.destinationid))
-			.ForMember(x => x.Description, f => f.MapFrom(ff => ff.description))
-			.ForMember(x => x.ItemID, f => f.MapFrom(ff => ff.itemid))
+        CreateMap<GetItemTransferResponseDTO, ReceiveTransferItemViewModel>()
+            .ForMember(x => x.TransferID, f => f.MapFrom(ff => ff.transferid))
+            .ForMember(x => x.TransferTypeID, f => f.MapFrom(ff => ff.transfertypeid))
+            .ForMember(x => x.SourceID, f => f.MapFrom(ff => ff.sourceid))
+            .ForMember(x => x.DestinationID, f => f.MapFrom(ff => ff.destinationid))
+            .ForMember(x => x.Description, f => f.MapFrom(ff => ff.description))
+            .ForMember(x => x.ItemID, f => f.MapFrom(ff => ff.itemid))
             //.ForMember(x => x.ItemName, f => f.MapFrom(ff => ff.itemname))
             .ForMember(x => x.QTY, f => f.MapFrom(ff => ff.qty))
-			.ForMember(x => x.TransferStatusID, f => f.MapFrom(ff => ff.transferstatusid));
+            .ForMember(x => x.TransferStatusID, f => f.MapFrom(ff => ff.transferstatusid))
+            .ForMember(x => x.TransferHeaderID, f => f.MapFrom(ff => ff.transferheaderid));
 
 		CreateMap<GetItemInBranchByBranchIDItemResponseDTO, GetItemListResponseDTO>()
 			.ForMember(w => w.itemid, f => f.MapFrom(w => w.itemid))

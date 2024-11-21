@@ -35,5 +35,6 @@ public class GetItemTransferResponseDTO
     public string transferstatusname_th { get; set; }
     public string transferstatusname_en { get; set; }
 
-    
+    public int? transferheaderid { get; set; }
+
 }

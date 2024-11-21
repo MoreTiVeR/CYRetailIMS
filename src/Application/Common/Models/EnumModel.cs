@@ -62,6 +62,7 @@ public static class EnumModel
         Pending = 0,
         Received = 1,
         Reject = 2,
+        Draft = 5,
         Cancel = 99
     }
 

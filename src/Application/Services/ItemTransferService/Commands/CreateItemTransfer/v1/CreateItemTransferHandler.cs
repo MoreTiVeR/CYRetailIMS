@@ -35,7 +35,7 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
         }
         #endregion
 
-        #region Validate Qty In Stock
+        #region Begin transaction
         await _unitOfWork.BeginTransactionAsync();
         #endregion
 
@@ -173,6 +173,8 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
         }
         #endregion
 
+
+
         #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
         await _unitOfWork.CommitTransactionAsync();
@@ -189,25 +191,6 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
     }
 
     #region Private Method
-    //private ICollection<TTItemTransfer> PrepreTTItemTransfer(CreateItemTransferCommand itemTransferCommand)
-    //{
-    //    return (from a in itemTransferCommand.items
-    //            let t = itemTransferCommand
-    //            select new TTItemTransfer
-    //            {
-    //                TransferTypeID = t.transfertypeid,
-    //                SourceID = t.sourceid,
-    //                DestinationID = t.destinationid,
-    //                ItemID = a.itemid,
-    //                Qty = a.qty,
-    //                Description = t.description,
-    //                CreatedBy = t.createdby,
-    //                CreatedDate = itemTransferCommand.createddate,
-    //                IsActive = t.isactive,
-    //                TransferStatus = t.transferstatus
-    //            }).ToList();
-    //}
-
     private TTItemTransferHeader PrepareTTItemTransferHeader(CreateItemTransferCommand itemTransferCommand)
     {
         TTItemTransferHeader ItemTransferHeader = new TTItemTransferHeader

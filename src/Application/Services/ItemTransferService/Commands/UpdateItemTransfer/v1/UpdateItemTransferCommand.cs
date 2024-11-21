@@ -20,4 +20,5 @@ public record UpdateItemTransferCommand : IRequest<BaseResponse<CommandResponse>
     public int transferstatusid { get; init; }
     public string updatedby { get; set; }
     public DateTime updateddate { get; set; }
+    public int transferheaderid { get; set; }
 }

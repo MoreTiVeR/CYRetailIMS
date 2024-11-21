@@ -20,6 +20,10 @@ public class GetItemInventoryTransferHandler : BaseService, IRequestHandler<GetI
 
     public async Task<BaseResponse<List<GetItemInventoryTransferResposeDTO>>> Handle(GetItemInventoryTransferQuery request, CancellationToken cancellationToken)
     {
+        if(request.branchid < 0)
+        {
+            throw new Exception("กรุณาระบุสาขาที่ต้องการก่อนทำรายการ");
+        }
         IEnumerable<GetItemInventoryTransferResposeDTO> res = (from itembranch in await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.IsActive && w.BranchID == request.branchid)
                                                                join item in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.IsActive) on itembranch.ItemID equals item.ItemID
                                                                where itembranch.Qty < itembranch.NotifyMinQty

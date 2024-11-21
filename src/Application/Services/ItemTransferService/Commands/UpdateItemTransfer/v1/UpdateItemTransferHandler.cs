@@ -151,7 +151,7 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         #region Update TTItemTransferHeader if all TransferStatus in TTItemTransfer is 1 (Received)
         IEnumerable<TTItemTransferHeader> transferHeader = await _unitOfWork.Repository<TTItemTransferHeader>().FindWithInclude(w => w.TransferHeaderID == resTTItemTransfer.TransferHeaderID,
             i => i.Include(s => s.TTItemTransfers));
-        if (transferHeader.Any()
+        if(transferHeader.Any() 
             && (transferHeader.SelectMany(s => s.TTItemTransfers).Count() == transferHeader.SelectMany(s => s.TTItemTransfers).Where(w => w.TransferStatus != (int)TransferStatus.Pending).Count()))
         {
             transferHeader.FirstOrDefault().TransferStatus = (int)TransferStatus.Received;

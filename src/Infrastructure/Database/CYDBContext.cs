@@ -56,6 +56,10 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMStockType> TMStockTypes { get; set; }
 
+    public virtual DbSet<TMSubItemType> TMSubItemTypes { get; set; }
+
+    public virtual DbSet<TMSubItemTypeInItemType> TMSubItemTypeInItemTypes { get; set; }
+
     public virtual DbSet<TMSubMenus> TMSubMenus { get; set; }
 
     public virtual DbSet<TMSupplier> TMSuppliers { get; set; }
@@ -83,6 +87,8 @@ public partial class CYDBContext : DbContext
     public virtual DbSet<TTItemTransfer> TTItemTransfers { get; set; }
 
     public virtual DbSet<TTItemTransferHeader> TTItemTransferHeaders { get; set; }
+
+    public virtual DbSet<TTMoneyTransfer> TTMoneyTransfers { get; set; }
 
     public virtual DbSet<TTPurchaseOrder> TTPurchaseOrders { get; set; }
 
@@ -178,11 +184,15 @@ public partial class CYDBContext : DbContext
 
         modelBuilder.Entity<TMItem>(entity =>
         {
-            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
-            entity.Property(e => e.NotifyMinQty).HasDefaultValueSql("((0))");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
             entity.HasOne(d => d.Brand).WithMany(p => p.TMItems).HasConstraintName("FK_TMItem_TMItemBrand");
 
             entity.HasOne(d => d.ItemType).WithMany(p => p.TMItems).HasConstraintName("FK_TMItem_TMItemType");
+
+            entity.HasOne(d => d.SubItemType).WithMany(p => p.TMItems)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TMItem_TMSubItemType");
 
             entity.HasOne(d => d.UnitOfMeasure).WithMany(p => p.TMItems).HasConstraintName("FK_TMItem_TMUnitOfMeasure");
         });
@@ -279,6 +289,22 @@ public partial class CYDBContext : DbContext
         modelBuilder.Entity<TMStockType>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+        });
+
+        modelBuilder.Entity<TMSubItemType>(entity =>
+        {
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<TMSubItemTypeInItemType>(entity =>
+        {
+            entity.HasKey(e => new { e.ItemTypeID, e.SubItemTypeID }).HasName("PK_TMItemSubtypeInItems");
+
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.ItemType).WithMany(p => p.TMSubItemTypeInItemTypes).HasConstraintName("FK_TMSubItemTypeInItem_TMItemType");
+
+            entity.HasOne(d => d.SubItemType).WithMany(p => p.TMSubItemTypeInItemTypes).HasConstraintName("FK_TMSubItemTypeInItem_TMSubItemType");
         });
 
         modelBuilder.Entity<TMSubMenus>(entity =>
@@ -383,6 +409,25 @@ public partial class CYDBContext : DbContext
 
             entity.HasOne(d => d.TransferType).WithMany(p => p.TTItemTransfers).HasConstraintName("FK_TTItemTransfer_TMTransferType");
         });
+
+        modelBuilder.Entity<TTMoneyTransfer>(entity =>
+        {
+            entity.HasKey(e => e.MoneyTransferID).HasName("PK_TTMoneyTransfer");
+
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Branch).WithMany(p => p.TTMoneyTransfers).HasConstraintName("FK_TTMoneyTransfers_TMBranch");
+        });
+
+        modelBuilder.Entity<TTMoneyTransfer>(entity =>
+        {
+            entity.HasKey(e => e.MoneyTransferID).HasName("PK_TTMoneyTransfer");
+
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Branch).WithMany(p => p.TTMoneyTransfers).HasConstraintName("FK_TTMoneyTransfers_TMBranch");
+        });
+
         modelBuilder.Entity<TTPurchaseOrder>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");

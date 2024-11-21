@@ -1,0 +1,66 @@
+﻿
+var datatable;
+
+InitialDatePicker();
+InitialCharacterRemaining();
+$('.select2').select2();
+
+$("#btnSave").on('click', function () {
+
+    Swal.fire({
+        title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+        icon: 'warning',
+        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+        showCancelButton: true,
+        //showDenyButton: true,
+        confirmButtonColor: '#04B431',
+        confirmButtonText: 'บันทึก',
+        cancelButtonColor: '#D33',
+        cancelButtonText: "ยกเลิก",
+        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+        //denyButtonColor: '#D33',
+        customClass: {
+            confirmButton: 'btn btn-success',
+            denyButton: 'btn btn-warning ml-1',
+            cancelButton: 'btn btn-danger ml-1'
+        },
+        buttonsStyling: false,
+        focusConfirm: true
+    }).then(function (result) {
+        if (result.value) {
+
+            $("#frmUpdateMoneyTransfer").submit();
+        }
+        else if (result.dismiss === Swal.DismissReason.cancel) {
+            //Condition
+        }
+    });
+});
+
+$("#btnCancel").on('click', function (e) {
+    window.location.href = '/MoneyTransfer/Index';
+});
+
+function OnBegin(data) {
+    console.log(data);
+    ShowLoading();
+}
+
+function OnSuccess(data) {
+    if (data.result) {
+        $("#frmUpdateMoneyTransfer")[0].reset();
+        ShowMessageSuccess(data.message);
+        HideLoading();
+    }
+    else {
+        ShowMessageError(data.message);
+        HideLoading();
+    }
+}
+
+function OnFailed(data) {
+    console.log(data);
+    ShowMessageError(data.message);
+    HideLoading();
+}
+
