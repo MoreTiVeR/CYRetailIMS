@@ -15,6 +15,10 @@ public class GetItemInBranchByBranchIDItemResponseDTO
 
 	public string itemname { get; set; }
 
+    public int? subitemtypeid { get; set; }
+
+    public string subitemtypename { get; set; }
+
     public string shortname { get; set; }
 
     public decimal cost { get; set; }

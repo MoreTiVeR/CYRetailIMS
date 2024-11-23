@@ -48,6 +48,21 @@ datatable = $("#tbItems").DataTable({
         { "data": "itemcode" },
         { "data": "name" },
         { "data": "itemtypename" },
+        {
+            "data": { subitemtypeid: "subitemtypeid", subitemtypename: "subitemtypename" },
+            "render": function (data) {
+                console.log("before subitemtypeid: " + data.subitemtypeid)
+                var _subitemid = parseInt(data.subitemtypeid);
+                console.log("before _subitemid: " + data._subitemid)
+                if (_subitemid > 0) {
+                    return data.subitemtypename;
+                }
+                else {
+                    return null;
+                }
+
+            }
+        },
         { "data": "brandname" },
         {
             "data": { qty: "qty", notifyminqty: "notifyminqty" },
@@ -125,7 +140,7 @@ datatable = $("#tbItems").DataTable({
             "className": "text-center"
         },
         {
-            "targets": [16],
+            "targets": [17],
             "className": "text-center"
         }
     ],
@@ -149,7 +164,7 @@ datatable = $("#tbItems").DataTable({
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
             }
         },
         {

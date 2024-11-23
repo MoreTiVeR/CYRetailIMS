@@ -17,6 +17,10 @@ public class GetItemByIDResponseDTO
 
     public string itemtypename { get; set; }
 
+    public int? subitemtypeid { get; set; }
+
+    public string subitemtypename { get; set; }
+
     public int unitofmeasureid { get; set; }
 
     public string unitofmeasurename { get; set; }

@@ -28,7 +28,8 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                     i => i.Include(x => x.Item),
                     i => i.Include(x => x.Item.Brand),
                     i => i.Include(x => x.Item.ItemType),
-                    i => i.Include(x => x.Item.UnitOfMeasure));
+                    i => i.Include(x => x.Item.UnitOfMeasure),
+                    i => i.Include(x => x.Item.SubItemType));
 
         if (!resItemBranch.Any())
         {
@@ -45,6 +46,8 @@ public class GetItemInBranchByCriteriaHandler : BaseService, IRequestHandler<Get
                         itemid = x.ItemID,
                         itemname = x.Item.Name,
                         itemcode = x.Item.ItemCode,
+                        subitemtypeid = x.Item.SubItemTypeID,
+                        subitemtypename = x.Item?.SubItemType?.SubTypeNameTH,
                         cost = x.Item.Cost,
                         brandid = x.Item.BrandID,
                         brandname = x.Item.Brand.BrandName,

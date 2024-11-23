@@ -828,7 +828,8 @@ public class ItemController : BaseController
                         decimal cost = worksheet.Cells[row, 6].GetValue<decimal>();
                         decimal price = worksheet.Cells[row, 7].GetValue<decimal>();
                         int minqty = worksheet.Cells[row, 8].GetValue<int>();
-                        string description = worksheet.Cells[row, 9].GetValue<string>();
+                        int maxqty = worksheet.Cells[row, 9].GetValue<int>();
+                        string description = worksheet.Cells[row, 10].GetValue<string>();
                         if (!string.IsNullOrEmpty(itemcode)
                             && !string.IsNullOrEmpty(itemname)
                             && !string.IsNullOrEmpty(itemtype)
@@ -844,6 +845,7 @@ public class ItemController : BaseController
                                 cost = cost,
                                 price = price,
                                 minqty = minqty,
+                                maxqty = maxqty,
                                 description = description
                             });
                         }
@@ -1142,6 +1144,7 @@ public class ItemController : BaseController
                 price = s.price,
                 qty = s.qty,
                 notifyminqty = s.minqty,
+                notifymaxqty = s.maxqty,
                 createdby = base.UserProfile.username,
                 isactive = true,
                 discountpercent = 0,

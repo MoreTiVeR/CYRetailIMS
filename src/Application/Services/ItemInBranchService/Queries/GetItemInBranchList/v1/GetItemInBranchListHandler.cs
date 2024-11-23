@@ -26,7 +26,8 @@ public class GetItemInBranchListHandler : BaseService, IRequestHandler<GetItemIn
             i => i.Include(x => x.Item),
             i => i.Include(x => x.Item.Brand),
             i => i.Include(x => x.Item.ItemType),
-            i => i.Include(x => x.Item.UnitOfMeasure));
+            i => i.Include(x => x.Item.UnitOfMeasure),
+            i => i.Include(x => x.Item.SubItemType));
         if (!resItemBranch.Any())
         {
             throw new Exception("Data not found");
@@ -42,6 +43,8 @@ public class GetItemInBranchListHandler : BaseService, IRequestHandler<GetItemIn
                             itemid = x.ItemID,
                             itemname = x.Item.Name,
                             itemcode = x.Item.ItemCode,
+                            subitemtypeid = x.Item.SubItemTypeID,
+                            subitemtypename = x.Item?.SubItemType?.SubTypeNameTH,
                             cost = x.Item.Cost,
                             brandid = x.Item.BrandID,
                             brandname = x.Item.Brand.BrandName,
