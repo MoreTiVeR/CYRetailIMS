@@ -16,4 +16,10 @@ public class GetItemBrandByIDResponseDTO
     public string brandshortname { get; set; }
 
     public string description { get; set; }
+
+    public string createdby { get; set; }
+
+    public DateTime createddate { get; set; }
+
+    public bool isactive { get; set; }
 }
