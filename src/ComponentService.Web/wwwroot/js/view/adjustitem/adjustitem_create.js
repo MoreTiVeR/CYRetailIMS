@@ -1,6 +1,7 @@
 ﻿var dataTable;
 
 InitialTableAdjustItem();
+$('.select2').select2();
 
 function InitialTableAdjustItem() {
     dataTable = $('#tbItems').DataTable({

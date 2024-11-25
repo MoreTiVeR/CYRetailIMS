@@ -14,7 +14,7 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>สาขา</label>
-                            <select class="select" asp-for="nbranchid">
+                            <select class="ddl-select2 select2 ddl-source-branch" asp-for="nbranchid">
                                 @if (ViewBag.BranchList.result)
                                 {
                                     <option value="">-- เลือกสาขา --</option>
@@ -34,7 +34,7 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>ปรับเภทการปรับสต๊อก</label>
-                            <select class="select" asp-for="nadjusttypeid">
+                            <select class="ddl-select2 select2 ddl-source-adjusttypeid" asp-for="nadjusttypeid">
                                 @if (ViewBag.AdjustItemType.result)
                                 {
                                     <option value="">-- เลือกประเภทสต๊อก --</option>
@@ -54,7 +54,7 @@
                     <div class="col-lg-3 col-sm-12 col-12">
                         <div class="form-group">
                             <label>สินค้า</label>
-                            <select class="select" asp-for="nitemid">
+                            <select class="ddl-select2 select2 ddl-source-itemid" asp-for="nitemid">
                                 @if (ViewBag.ItemList.result)
                                 {
                                     <option value="">-- เลือกสินค้า --</option>

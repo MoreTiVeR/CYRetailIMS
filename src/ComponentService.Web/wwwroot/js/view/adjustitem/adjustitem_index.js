@@ -1,5 +1,7 @@
 ﻿var dataTable;
 
+$('.select2').select2();
+
 datatable = $("#tbAdjustItems").DataTable({
     "destroy": true,
     "bFilter": true,

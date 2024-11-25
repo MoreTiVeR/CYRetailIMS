@@ -1,5 +1,6 @@
 ﻿
 var datatable;
+$('.select2').select2();
 
 datatable = $("#tbItems").DataTable({
     "destroy": true,

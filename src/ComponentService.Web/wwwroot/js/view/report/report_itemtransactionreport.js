@@ -87,7 +87,7 @@ datatable = $("#tbItemTransactionLogReport").DataTable({
         }
     ]
 });
-
+$('.select2').select2();
 
 $("#btnSearch").on('click', function (event) {
     ShowLoading();
