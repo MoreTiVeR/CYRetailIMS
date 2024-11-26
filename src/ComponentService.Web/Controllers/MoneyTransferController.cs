@@ -8,6 +8,7 @@ using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
@@ -44,6 +45,12 @@ public class MoneyTransferController : BaseController
     }
 
     public async Task<IActionResult> CreateAsync()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        return View();
+    }
+
+    public async Task<IActionResult> NewAsync()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
         return View();
@@ -191,6 +198,103 @@ public class MoneyTransferController : BaseController
         catch (Exception ex)
         {
             return Json(new { result = false, message = ex.Message });
+        }
+    }
+
+
+    /// <summary>
+    /// Create Transaction with transfer slip version2
+    /// </summary>
+    /// <param name="mTransferData"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> CreateTransactionV2(CreateMoneyTransferViewModel mTransferData)
+    {
+        try
+        {
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("outer-item-group")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลการโอนไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            #region PrePare ItemTransfer List
+            List<CreateItemTransferDetailCommand> itemTransferList = new List<CreateItemTransferDetailCommand>();
+            #endregion
+
+            decimal totalAmt = 0;
+            decimal totalProfitAmt = 0;
+            int idx = form.Count / 4;
+            for (int i = 0; i < idx; i++)
+            {
+                var transferAmount = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferAmount]").FirstOrDefault().Value[0];
+                var transferTime = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferTime]").FirstOrDefault().Value[0];
+                //var currentQty = form.Where(w => w.Key == $"outer-item-group[{i}][txtCurrentQty]").FirstOrDefault().Value[0];
+                //var transferQty = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferQty]").FirstOrDefault().Value[0];
+
+                if (!string.IsNullOrEmpty(transferAmount) && !string.IsNullOrEmpty(transferTime))
+                {
+                    //itemTransferList.Add(new CreateItemTransferDetailCommand
+                    //{
+                    //    itemid = itemid.ToInt32(),
+                    //    qty = transferQty.ToInt32()
+                    //});
+                }
+            }
+
+            #region Prepare & Create Transaction
+            //CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(transferItemObj, itemTransferList);
+            //BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
+            //if (!resCreateTrn.result)
+            //{
+            //    return Json(new { result = false, message = resCreateTrn.error.error.message });
+            //}
+            #endregion
+
+            return Json(new { result = true, message = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> MoneyTransferDataValidation(CreateMoneyTransferViewModel transferItemObj)
+    {
+        try
+        {
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("data[outer-item-group]")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, message = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            #region Validate Selling Item
+            bool isValidData = form.Where(w => w.Key.Contains("data[outer-item-group]")).Any(w => !string.IsNullOrEmpty(w.Value[0]));
+            if (!isValidData)
+            {
+                return Json(new { result = false, message = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            return Json(new { result = true, message = "ตรวจสอบข้อมูลถูกต้อง." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = true, message = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
         }
     }
 

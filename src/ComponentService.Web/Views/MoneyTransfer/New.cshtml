@@ -1,0 +1,153 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@model CreateMoneyTransferViewModel
+
+@{
+    ViewData["Title"] = "เพิ่มรายการโอนเงิน";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>เพิ่มรายการโอนเงินลูกค้า</h4>
+        <h6>บันทึกเงินโอนแยกตามสาขา</h6>
+    </div>
+    <div class="page-btn">
+        <a asp-controller="MoneyTransfer" asp-action="Create" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มรายการใหม่</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="form-group">
+                <form id="frmMoneyTransfer" class="form repeater-default" asp-action="CreateTransactionV2" asp-controller="MoneyTransfer" method="post"
+                      data-ajax="true"
+                      data-ajax-update=""
+                      data-ajax-success="OnSuccess"
+                      data-ajax-failure=""
+                      data-ajax-begin="">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>สาขา</label>
+                                @Html.DropDownListFor(model => model.BranchID, new SelectList(ViewBag.BranchList, "Value", "Text", null, null), "- กรุณาเลือกสาขา -", new { @class = "select2 form-control" })
+                                <span asp-validation-for="BranchID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label>วันที่โอน</label>
+                                <div class="input-groupicon">
+                                    <input id="txtTransferDate" type="text" asp-for="TransferDate" placeholder="@Html.DisplayNameFor(d => d.TransferDate)" class="pickadate-saledate">
+                                    <a class="addonset">
+                                        <img src="~/assets/img/icons/calendars.svg" alt="img">
+                                    </a>
+                                    <span asp-validation-for="TransferDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6 col-12">
+                            <fieldset class="form-group">
+                                <label>จำนวนเงินโอน</label>
+                                <input type="number" class="form-control" asp-for="AmountTransfer" placeholder="@Html.DisplayNameFor(d => d.AmountTransfer)">
+                                <span asp-validation-for="AmountTransfer" class="text-danger"></span>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row" id="divMoneyTransfer">
+                        <input id="totalrow" name="totalrow" value="1" hidden />
+                        <div id="repeater" data-repeater-list="outer-item-group" class="outer-item-group money-transfer-repeater">
+                            <div data-repeater-item class="outer-item-group money-transfer-repeater">
+                                <div class="row justify-content-between">
+                                    <div class="col-md-3 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtTransferAmount" name="txtTransferAmount" class="form-control" placeholder="จำนวนเงินที่โอน" readonly>
+                                            <div class="form-control-position">
+                                                <i class="bx bxs-keyboard"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="number" id="txtTransferTime" name="txtTransferTime" class="form-control" placeholder="เวลาที่โอน" readonly>
+                                            <div class="form-control-position">
+                                                <i class="bx bx-money"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @* <div class="col-md-2 col-sm-12 form-group">
+                                    <div class="position-relative has-icon-left">
+                                    <input type="number" id="txtTransferQty" name="txtTransferQty" onchange="return ValidateTransferQty(this.value, this.name)" class="form-control" placeholder="ระบุจำนวนโอน">
+                                    <div class="form-control-position">
+                                    <i class="bx bx-money"></i>
+                                    </div>
+                                    </div>
+                                    </div> *@
+                                    <div class="col-md-2 col-sm-12 form-group">
+                                        <button id="btnDeleteRow" class="btn btn-danger text-nowrap" data-repeater-delete type="button">
+                                            <i class="fe fe-x"></i>
+                                            ลบรายการ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-lg-12 col-sm-12 col-12">
+                            <button id="btnAdd" class="btn btn-primary" data-repeater-create type="button">
+                                <i class="fe fe-plus"></i>
+                                เพิ่มรายการใหม่
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="form-label">หมายเหตุ</label>
+                                @Html.TextAreaFor(m => m.Description, new
+                                    {
+                                        @class = "form-control full-width",
+                                        @style = "resize: none;",
+                                        @cols = 5,
+                                        @rows = 3,
+                                        @maxlength = 50,
+                                        value = "",
+                                        placeholder = Html.DisplayNameFor(n => n.Description)
+                                    })
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <a asp-action="TransferHistory" asp-controller="Item" class="btn btn-cancel me-2">ยกเลิก</a>
+                <button id="btnSave" name="btnSave" class="btn btn-submit me-2">
+                    <i class="bx bx-plus"></i>
+                    บันทึกข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
+
+    <!--charactersRemaining-->
+    <script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
+    <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+    <script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+
+    <!--Page Script-->
+    <script src="~/js/view/moneytransfer/moneytransfer_create_v2.js" asp-append-version="true"></script>
+}
