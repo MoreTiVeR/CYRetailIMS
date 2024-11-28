@@ -9,6 +9,12 @@
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
 
+<style>
+    input[type=time]::-webkit-datetime-edit-ampm-field {
+        display: none;
+    }
+</style>
+
 <div class="page-header">
     <div class="page-title">
         <h4>เพิ่มรายการโอนเงินลูกค้า</h4>
@@ -23,21 +29,21 @@
     <div class="card-body">
         <div class="row">
             <div class="form-group">
-                <form id="frmMoneyTransfer" class="form repeater-default" asp-action="CreateTransactionV2" asp-controller="MoneyTransfer" method="post"
+                <form id="frmMoneyTransfer" class="form repeater-default" asp-action="CreateTransactionV2" asp-controller="MoneyTransfer" method="post" enctype="multipart/form-data"
                       data-ajax="true"
                       data-ajax-update=""
                       data-ajax-success="OnSuccess"
                       data-ajax-failure=""
                       data-ajax-begin="">
                     <div class="row">
-                        <div class="col-lg-4 col-sm-6 col-12">
+                        <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>สาขา</label>
                                 @Html.DropDownListFor(model => model.BranchID, new SelectList(ViewBag.BranchList, "Value", "Text", null, null), "- กรุณาเลือกสาขา -", new { @class = "select2 form-control" })
                                 <span asp-validation-for="BranchID" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-sm-6 col-12">
+                        <div class="col-lg-3 col-sm-6 col-12">
                             <div class="form-group">
                                 <label>วันที่โอน</label>
                                 <div class="input-groupicon">
@@ -49,13 +55,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-sm-6 col-12">
+                        <div class="col-lg-3 col-sm-6 col-12">
                             <fieldset class="form-group">
                                 <label>จำนวนเงินโอน</label>
                                 <input type="number" class="form-control" asp-for="AmountTransfer" placeholder="@Html.DisplayNameFor(d => d.AmountTransfer)">
                                 <span asp-validation-for="AmountTransfer" class="text-danger"></span>
                             </fieldset>
                         </div>
+                        <div class="col-lg-2 col-sm-6 col-12"></div>
                     </div>
                     <div class="row" id="divMoneyTransfer">
                         <input id="totalrow" name="totalrow" value="1" hidden />
@@ -64,26 +71,50 @@
                                 <div class="row justify-content-between">
                                     <div class="col-md-3 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left">
-                                            <input type="number" id="txtTransferAmount" name="txtTransferAmount" class="form-control" placeholder="จำนวนเงินที่โอน" readonly>
+                                            <input type="number" id="txtTransferAmount" name="txtTransferAmount" class="form-control" placeholder="จำนวนเงินที่โอน">
                                             <div class="form-control-position">
                                                 <i class="bx bxs-keyboard"></i>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 col-sm-12 form-group">
+                                    <div class="col-md-3 col-sm-12 form-group">
                                         <div class="position-relative has-icon-left">
-                                            <input type="number" id="txtTransferTime" name="txtTransferTime" class="form-control" placeholder="เวลาที่โอน" readonly>
+                                            @* <input type="time" id="myTime" class="form-control" value="16:00:55"> *@
+                                            @* <input type="datetime-local" id="txtTransferTime" name="txtTransferTime" class="form-control" /> *@
+                                            <input type="time" in="00:00" max="23:59" id="txtTransferTime" name="txtTransferTime" class="form-control" />
+                                            @* <input type="time" id="txtTransferTime" name="txtTransferTime" class="form-control" placeholder="เวลาที่โอน">
                                             <div class="form-control-position">
                                                 <i class="bx bx-money"></i>
-                                            </div>
+                                            </div> *@
                                         </div>
                                     </div>
-                                    @* <div class="col-md-2 col-sm-12 form-group">
-                                    <div class="position-relative has-icon-left">
-                                    <input type="number" id="txtTransferQty" name="txtTransferQty" onchange="return ValidateTransferQty(this.value, this.name)" class="form-control" placeholder="ระบุจำนวนโอน">
-                                    <div class="form-control-position">
-                                    <i class="bx bx-money"></i>
+                                    @* <div class="col-md-3 col-sm-12 form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-text">เวลา</span>
+                                            <select id="hr" class="form-control">
+                                                <option>00:00</option>
+                                            </select>
+                                        </div>
+                                    </div> *@
+                                    <div class="col-md-4 col-sm-12 form-group">
+                                        <div class="position-relative has-icon-left">
+                                            <!--default upload style-->
+                                            @* <div class="image-upload">
+                                                <input type="file" id="fileUpload" name="fileUpload" class="form-control" accept="image/*" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                                <div class="image-uploads">
+                                                    <img src="~/assets/img/icons/upload.svg" alt="img">
+                                                    <h4>ลากไฟล์วางที่นี่ หรือ คลิก เพื่ออัพโหลดไฟล์</h4>
+                                                </div>
+                                            </div> *@
+                                            <!--default-->
+                                            <input type="file" id="fileUpload" name="fileUpload" class="form-control" accept="image/*" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                        </div>
                                     </div>
+                                    @* <div class="image-upload">
+                                    <input id="fileUpload" name="fileUpload" type="file" multiple accept="image/*" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                    <div class="image-uploads">
+                                    <img src="~/assets/img/icons/upload.svg" alt="img">
+                                    <h4>ลากไฟล์วางที่นี่ หรือ คลิก เพื่ออัพโหลดไฟล์</h4>
                                     </div>
                                     </div> *@
                                     <div class="col-md-2 col-sm-12 form-group">
@@ -137,7 +168,14 @@
 </div>
 
 @section Scripts {
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+    <script>
+        $('#timepicker').timepicker({
+            minuteStep: 60,
+            showMeridian: false,
+            defaultTime: '00:00'
+        });
+    </script>
     <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
 
     <!--charactersRemaining-->
@@ -150,4 +188,5 @@
 
     <!--Page Script-->
     <script src="~/js/view/moneytransfer/moneytransfer_create_v2.js" asp-append-version="true"></script>
+
 }

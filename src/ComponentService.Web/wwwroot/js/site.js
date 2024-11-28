@@ -111,6 +111,18 @@ function InitialEditDatePicker() {
     /*datepicker.set('select', new Date())*/
 }
 
+function InitialTimePicker() {
+    //$('.timepicker').pickatime();
+    $('.timepicker').pickatime({
+        disable: [
+            [0, 30],
+            [2, 0],
+            [8, 30],
+            [9, 0]
+        ]
+    })
+}
+
 function InitialTransactionDate() {
     $("#txtTransactionDate").val(formatDateTime(new Date($("#txtTransactionDate").val())));
 }

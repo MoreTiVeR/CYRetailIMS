@@ -29,7 +29,7 @@ public class CreateMoneyTransferHandler : BaseService, IRequestHandler<CreateMon
         {
             result = true,
             data = new CommandResponse { result = true },
-            message = "สำเร็จ",
+            message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()
         };

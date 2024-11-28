@@ -10,6 +10,7 @@ using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransfer.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransferList.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
@@ -17,6 +18,8 @@ using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTran
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NuGet.Packaging;
+using NUglify.Helpers;
 using SixLabors.ImageSharp;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -212,6 +215,9 @@ public class MoneyTransferController : BaseController
     {
         try
         {
+            List<MoneyTransferFileUploadModel> files = new List<MoneyTransferFileUploadModel>();
+            List<CreateMoneyTransferCommand> moneyTransferCommands = new List<CreateMoneyTransferCommand>();
+
             #region Get form value
             List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
             #endregion
@@ -228,36 +234,83 @@ public class MoneyTransferController : BaseController
             List<CreateItemTransferDetailCommand> itemTransferList = new List<CreateItemTransferDetailCommand>();
             #endregion
 
+            DateTime transferDate = mTransferData.TransferDate.ToDate();
             decimal totalAmt = 0;
             decimal totalProfitAmt = 0;
-            int idx = form.Count / 4;
+            int idx = form.Count / 2;
             for (int i = 0; i < idx; i++)
             {
                 var transferAmount = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferAmount]").FirstOrDefault().Value[0];
                 var transferTime = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferTime]").FirstOrDefault().Value[0];
-                //var currentQty = form.Where(w => w.Key == $"outer-item-group[{i}][txtCurrentQty]").FirstOrDefault().Value[0];
-                //var transferQty = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferQty]").FirstOrDefault().Value[0];
-
+                IFormFile postedFile = Request.Form?.Files[$"outer-item-group[{i}][fileUpload]"];
+                string fileName = Path.GetFileName(postedFile?.FileName);
                 if (!string.IsNullOrEmpty(transferAmount) && !string.IsNullOrEmpty(transferTime))
                 {
-                    //itemTransferList.Add(new CreateItemTransferDetailCommand
-                    //{
-                    //    itemid = itemid.ToInt32(),
-                    //    qty = transferQty.ToInt32()
-                    //});
+                    string imgName = string.Empty;
+                    string imgSavePath = string.Empty;
+                    if (postedFile != null)
+                    {
+                        //Set Image Name
+                        imgName = Guid.NewGuid().ToString() + Path.GetExtension(fileName);
+
+                        //Get url To Save
+                        imgSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, imgName);
+                        files.Add(new MoneyTransferFileUploadModel
+                        {
+                            filename = imgName,
+                            filepath = imgSavePath,
+                            filedata = postedFile
+                        });
+                    }
+
+                    string[] time = transferTime.Split(":");
+                    DateTime transferDateTime = new DateTime(transferDate.Year, transferDate.Month, transferDate.Day, time.First().ToInt32(), time.Last().ToInt32(), 00);
+                    moneyTransferCommands.Add(new CreateMoneyTransferCommand
+                    {
+                        branchid = mTransferData.BranchID,
+                        description = mTransferData.Description,
+                        createdby = base.UserProfile.username,
+                        slipimagepath = postedFile != null ? $"../{_moneyTransferSlipSubPath}/{imgName}" : null,
+                        transferdate = transferDateTime,
+                        amounttransfer = transferAmount.ToDecimal()
+                    });
                 }
             }
 
-            #region Prepare & Create Transaction
-            //CreateItemTransferCommand createItemTransferCommand = CreateItemTransferCommand(transferItemObj, itemTransferList);
-            //BaseResponse<CommandResponse> resCreateTrn = await _itemTransferAPI.CreateItemTransferAsync(createItemTransferCommand);
-            //if (!resCreateTrn.result)
-            //{
-            //    return Json(new { result = false, message = resCreateTrn.error.error.message });
-            //}
+            #region Stream Image File
+
+            files.Where(w => w.filedata != null).ForEach(e =>
+            {
+                #region File Path Check
+                FileInfo fInfo = new FileInfo(e.filepath);
+                if (!fInfo.Directory.Exists)
+                {
+                    fInfo.Directory.Create();
+                }
+                #endregion
+
+                using (var stream = new FileStream(e.filepath, FileMode.Create))
+                {
+                    e.filedata.CopyTo(stream);
+                }
+            });
+
             #endregion
 
-            return Json(new { result = true, message = "บันทึกข้อมูลสำเร็จ." });
+            #region Preparing Object to Create
+            //mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
+            //mTransferData.CreatedBy = base.UserProfile.username;
+            //mTransferData.SaleDate = objData.SelectedDate.DCDateStringToDateTime();
+            //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);
+            var resCreate = await _moneyTransferAPI.BulkCreateAsync(new CreateMoneyTransferListCommand
+            {
+                mtransferdata = moneyTransferCommands
+            });
+            #endregion
+
+            return Json(new { result = resCreate.result, message = resCreate.result ? resCreate.message : resCreate.error.error.message, data = resCreate.result ? resCreate.data : null });
+
+            //return Json(new { result = true, message = "บันทึกข้อมูลสำเร็จ." });
         }
         catch (Exception ex)
         {

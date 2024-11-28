@@ -1,5 +1,6 @@
 ﻿
 
+using System.Text.RegularExpressions;
 using CYRetailIMS.Application.Common.Models;
 using Newtonsoft.Json;
 
@@ -93,6 +94,18 @@ public static class ObjectExtensions
         catch
         {
             return default;
+        }
+    }
+
+    public static string ToNonAssci(this string msg)
+    {
+        try
+        {
+            return Regex.Replace(msg, @"[^\u0000-\u007F]+", string.Empty);
+        }
+        catch
+        {
+            return "N/A";
         }
     }
 }

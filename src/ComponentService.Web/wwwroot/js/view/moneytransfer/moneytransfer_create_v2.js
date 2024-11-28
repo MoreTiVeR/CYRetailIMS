@@ -18,7 +18,7 @@ $("#btnSave").on('click', function () {
             function (results) {
 
                 if (results.result) {
-                    console.log(results.msg);
+                    console.log(results.message);
                     Swal.fire({
                         //title: 'ยืนยันการบันทึกข้อมูล?',
                         //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
@@ -42,8 +42,9 @@ $("#btnSave").on('click', function () {
                         buttonsStyling: false,
                         focusConfirm: true
                     }).then(function (result) {
+                        console.log(result);
                         if (result.value) {
-                            $("#frmTransferItem").submit();
+                            $("#frmMoneyTransfer").submit();
                         }
                         else if (result.dismiss === Swal.DismissReason.cancel) {
                             //Code
@@ -52,7 +53,7 @@ $("#btnSave").on('click', function () {
                     });
                 }
                 else {
-                    ShowMessageError(results.msg);
+                    ShowMessageError(results.message);
                     return;
                 }
 
@@ -84,6 +85,7 @@ function InitialItemRepeater() {
             var seen = {}; // Object to store encountered values
             var isDuplicate = false;
             $(".outer-item-group :input").each(function (e) {
+                console.log(this.id);
                 if (this.type == 'select-one') {
                     if (this.value != '') {
                         seen[this.value];
@@ -96,7 +98,16 @@ function InitialItemRepeater() {
                         }
                     }
                 }
+
+                //add css
+                //if (this.id === "txtTransferTime") {
+                //    console.log("Add css timepicker to" + this.name);
+                //    //this.addClass("timepicker");
+                //    $(this).addClass("timepicker");
+                //    //this.Attributes.Add("class", "timepicker");
+                //}
             });
+
             if (!isDuplicate) {
                 $(this).slideDown();
                 $(this).find('select').each(function () {
@@ -194,7 +205,7 @@ function OnBegin(data) {
 
 function OnSuccess(data) {
     if (data.result) {
-        $("#frmCreateMoneyTransfer")[0].reset();
+        $("#frmMoneyTransfer")[0].reset();
         ShowMessageSuccess(data.message);
         HideLoading();
     }
