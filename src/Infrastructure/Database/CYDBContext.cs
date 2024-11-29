@@ -90,6 +90,10 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTMoneyTransfer> TTMoneyTransfers { get; set; }
 
+    public virtual DbSet<TTMoneyTransferSlip> TTMoneyTransferSlips { get; set; }
+
+    public virtual DbSet<TTMoneyTransferSlipsDetail> TTMoneyTransferSlipsDetails { get; set; }
+
     public virtual DbSet<TTPurchaseOrder> TTPurchaseOrders { get; set; }
 
     public virtual DbSet<TTPurchaseOrderDetail> TTPurchaseOrderDetails { get; set; }
@@ -123,6 +127,7 @@ public partial class CYDBContext : DbContext
     public virtual DbSet<TTDraftItemTransfer> TTDraftItemTransfers { get; set; }
 
     public virtual DbSet<TTDraftItemTransferDetail> TTDraftItemTransferDetails { get; set; }
+
     public virtual DbSet<TTItemTransactionLog> TTItemTransactionLogs { get; set; }
 
 
@@ -417,15 +422,24 @@ public partial class CYDBContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
             entity.HasOne(d => d.Branch).WithMany(p => p.TTMoneyTransfers).HasConstraintName("FK_TTMoneyTransfers_TMBranch");
+
+            entity.HasOne(d => d.MoneyTransferSlip).WithMany(p => p.TTMoneyTransfers)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TTMoneyTransfers_TTMoneyTransferSlips");
         });
 
-        modelBuilder.Entity<TTMoneyTransfer>(entity =>
+        modelBuilder.Entity<TTMoneyTransferSlip>(entity =>
         {
-            entity.HasKey(e => e.MoneyTransferID).HasName("PK_TTMoneyTransfer");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<TTMoneyTransferSlipsDetail>(entity =>
+        {
+            entity.HasKey(e => e.MoneyTransferSlipDetailID).HasName("PK_TTMoneyTransferSlipDetail");
 
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            entity.HasOne(d => d.Branch).WithMany(p => p.TTMoneyTransfers).HasConstraintName("FK_TTMoneyTransfers_TMBranch");
+            entity.HasOne(d => d.MoneyTransferSlip).WithMany(p => p.TTMoneyTransferSlipsDetails).HasConstraintName("FK_TTMoneyTransferSlipsDetail_TTMoneyTransferSlips");
         });
 
         modelBuilder.Entity<TTPurchaseOrder>(entity =>

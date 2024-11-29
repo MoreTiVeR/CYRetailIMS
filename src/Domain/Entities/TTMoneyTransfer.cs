@@ -24,10 +24,15 @@ public partial class TTMoneyTransfer : BaseAuditableEntity
     [Unicode(false)]
     public string? Description { get; set; }
 
+    [StringLength(80)]
     [Unicode(false)]
     public string? SlipImagePath { get; set; }
 
     [ForeignKey("BranchID")]
     [InverseProperty("TTMoneyTransfers")]
     public virtual TMBranch Branch { get; set; } = null!;
+
+    [ForeignKey("MoneyTransferSlipID")]
+    [InverseProperty("TTMoneyTransfers")]
+    public virtual TTMoneyTransferSlip? MoneyTransferSlip { get; set; }
 }

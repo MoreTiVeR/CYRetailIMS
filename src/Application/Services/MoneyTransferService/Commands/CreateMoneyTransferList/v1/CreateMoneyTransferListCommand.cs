@@ -11,4 +11,5 @@ namespace CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateM
 public record CreateMoneyTransferListCommand : IRequest<BaseResponse<CommandResponse>>
 {
     public List<CreateMoneyTransferCommand> mtransferdata { get; init; }
+    public List<CreateMoneyTransferSlipCommand> transferslipdetail { get; init; }
 }

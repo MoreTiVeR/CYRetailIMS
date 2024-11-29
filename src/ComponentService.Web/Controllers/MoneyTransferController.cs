@@ -28,7 +28,7 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
 public class MoneyTransferController : BaseController
 {
-    private string _moneyTransferSlipSubPath = "money_transfer_slip";
+    private readonly string _moneyTransferSlipSubPath = "money_transfer_slip";
     private readonly IBranchAPI _branchAPI;
     private readonly IMoneyTransferAPI _moneyTransferAPI;
     public MoneyTransferController(IHttpClientRequest httpClientRequest, 
@@ -217,6 +217,7 @@ public class MoneyTransferController : BaseController
         {
             List<MoneyTransferFileUploadModel> files = new List<MoneyTransferFileUploadModel>();
             List<CreateMoneyTransferCommand> moneyTransferCommands = new List<CreateMoneyTransferCommand>();
+            List<CreateMoneyTransferSlipCommand> createMoneyTransferSlipCommands = new List<CreateMoneyTransferSlipCommand>();
 
             #region Get form value
             List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
@@ -277,6 +278,29 @@ public class MoneyTransferController : BaseController
                 }
             }
 
+            #region Check image from upload all
+            if(mTransferData.ImageFile != null && mTransferData.ImageFile.Count() > 0)
+            {
+                mTransferData.ImageFile.ForEach(file =>
+                {
+                    string fileName = Path.GetFileName(file.FileName);
+                    string fileSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, fileName);
+                    files.Add(new MoneyTransferFileUploadModel
+                    {
+                        filename = fileName,
+                        filepath = fileSavePath,
+                        filedata = file
+                    });
+
+                    createMoneyTransferSlipCommands.Add(new CreateMoneyTransferSlipCommand
+                    {
+                        slipimagepath = $"../{_moneyTransferSlipSubPath}/{fileName}"
+                    });
+                });
+
+            }
+            #endregion
+
             #region Stream Image File
 
             files.Where(w => w.filedata != null).ForEach(e =>
@@ -304,7 +328,8 @@ public class MoneyTransferController : BaseController
             //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);
             var resCreate = await _moneyTransferAPI.BulkCreateAsync(new CreateMoneyTransferListCommand
             {
-                mtransferdata = moneyTransferCommands
+                mtransferdata = moneyTransferCommands,
+                transferslipdetail = createMoneyTransferSlipCommands
             });
             #endregion
 
