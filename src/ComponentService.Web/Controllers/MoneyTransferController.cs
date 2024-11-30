@@ -95,6 +95,62 @@ public class MoneyTransferController : BaseController
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetImageData(int mTransferID)
+    {
+        try
+        {
+            await Task.Run(() =>
+            {
+                Thread.Sleep(200);
+            });
+            //var inquiryObj = new GetMoneyTransferByCriteriaQuery
+            //{
+            //    startdate = DateTime.Now,
+            //    branchlist = base.UserProfile.roleid == (int)EnumModel.UserRole.Admin ? null : base.UserProfile.access_branch.Select(s => s.branchid).ToList(),
+            //};
+            //BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>> resMoneyTransfers = await _moneyTransferAPI.GetMoeytransferByCriteriaAsync(inquiryObj);
+            //if (!resMoneyTransfers.result)
+            //{
+            //    return Json(new { result = false, message = resMoneyTransfers.message, data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
+            //}
+            List<MoneyTransferSlipDetailModel> imgData = new List<MoneyTransferSlipDetailModel>();
+            if(mTransferID >= 16)
+            {
+                imgData.Add(new MoneyTransferSlipDetailModel
+                {
+                    title = "img1",
+                    src = "../money_transfer_slip/img1.jpg"
+                });
+                imgData.Add(new MoneyTransferSlipDetailModel
+                {
+                    title = "img2",
+                    src = "../money_transfer_slip/img2.jpg"
+                });
+
+            }
+            else
+            {
+                imgData.Add(new MoneyTransferSlipDetailModel
+                {
+                    title = "S__97951782_0",
+                    src = "../money_transfer_slip/S__97951782_0.jpg"
+                });
+                imgData.Add(new MoneyTransferSlipDetailModel
+                {
+                    title = "S__97951770_0",
+                    src = "../money_transfer_slip/S__97951770_0.jpg"
+                });
+            }
+            
+            return Json(new { result = true, message = "สำเร็จ", data = imgData.ToArray() });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = ex.Message, data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
+        }
+    }
+
     [HttpPost]
     public async Task<IActionResult> SearchMoneyTransfer([FromBody] SearchMoneyTransferViewModel searchData)
     {

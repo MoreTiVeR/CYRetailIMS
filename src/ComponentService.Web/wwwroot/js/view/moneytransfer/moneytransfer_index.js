@@ -65,16 +65,16 @@ datatable = $("#tbMoneyTransfer").DataTable({
                 };
                 /*console.log('data dic:' + dict);*/
                 //return "<a class='me-3' href='" + data.imgpath + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/eye.svg' alt='img'></a><a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='ลบรายการโอน' title='ลบรายการโอน'></a>";
-                return "<a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3' title='ลบรายการเงินโอน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการเงินโอน'></a>";
-            }
-        },
-        {
-            "data": { imgpath: "imgpath" },
-            "render": function (data) {
-                //return '<img src="' + data.imgpath + '" class="avatar" width="50" height="50"/>';
-                return "<a class='me-2' href='" + data.imgpath + "' target='_blank' title='คลิกเพื่อดูสลิป'><img src='" + data.imgpath + "' class='avatar' width='25' height='25' alt='img'></a>";
+                return "<a id='rowid" + data.moneytransferid + "' onclick=showGallery(" + data.moneytransferid + ") class='me-3' title='ดูรูปสลิปเงินโอน'><img src='../assets/img/icons/eye.svg' alt='ดูรูปสลิป'></a><a class='me-3' href='Edit?mTransferID=" + data.moneytransferid + "' title='แก้ไขรายการโอน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.moneytransferid + "' onclick=deleteMoneyTransfer(" + data.moneytransferid + ") class='me-3' title='ลบรายการเงินโอน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการเงินโอน'></a>";
             }
         }
+        //{
+        //    "data": { moneytransferid: "moneytransferid", imgpath: "imgpath" },
+        //    "render": function (data) {
+        //        return "<button onclick='showGallery(1, " + data.moneytransferid + ")'>Show</button>";
+        //        //return "<a class='me-2' href='" + data.imgpath + "' target='_blank' title='คลิกเพื่อดูสลิป'><img src='" + data.imgpath + "' class='avatar' width='25' height='25' alt='img'></a>";
+        //    }
+        //}
     ],
     "order": [[1, "desc"]],
     "columnDefs": [
@@ -256,3 +256,181 @@ function deleteMoneyTransfer(moneytransferid) {
     });
 }
 
+
+/*spotlight image view*/
+var gallery = [];
+var gallery1 = [{
+    title: "Lorem ipsum dolor sit amet",
+    description: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    src: "../money_transfer_slip/img1.jpg",
+    button: "Download Image",
+    onclick: Spotlight.download,
+    like: false
+}, {
+    title: "At vero eos et accusam",
+    description: "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    src: "../money_transfer_slip/img2.jpg",
+    button: "Next Slide",
+    onclick: Spotlight.next,
+    like: false,
+}, {
+    title: "Duis autem vel eum iriure dolor",
+    description: "In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim.",
+    src: "../money_transfer_slip/fe662643-2379-4a63-82bf-05814a41bf52.jpg",
+    button: "Close Gallery",
+    onclick: Spotlight.close,
+    like: false
+    }];
+
+var gallery2 = [{
+    title: "Lorem ipsum dolor sit amet",
+    description: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    src: "../money_transfer_slip/S__97951782_0.jpg",
+    button: "Download Image",
+    onclick: Spotlight.download,
+    like: false
+}, {
+    title: "At vero eos et accusam",
+    description: "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    src: "../money_transfer_slip/S__97951770_0.jpg",
+    button: "Next Slide",
+    onclick: Spotlight.next,
+    like: false,
+}];
+
+function showGallery(moneytransferid) {
+    ShowLoading();
+    //index = image index for first popup
+    var index = 1;
+    var request = $.ajax({
+        type: 'GET',
+        url: '/MoneyTransfer/GetImageData?mTransferID=' + moneytransferid +'',
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+                ShowMessageSuccess(response.message);
+                gallery = response.data;
+
+                //const control = to_array(document.getElementById("control").getElementsByTagName("input"));
+                //const animation = to_array(document.getElementById("animation").getElementsByTagName("input"));
+                //const modifier = document.getElementById("modifier").getElementsByTagName("input");
+                const control = ['page', 'theme', 'fullscreen', 'close', 'download', 'play', 'prev', 'next'];
+                const animation = ['slide', 'fade'];
+                //const modifier = ['autoplay', 'infinite', 'spinner', 'preload', 'autohide', 'cover', 'contain', 'white' ];
+
+                console.log("--imgdata--");
+                console.log(gallery);
+
+                // store the button element to apply dom changes to it
+                let like;
+                // store the current index
+                let slide = 0;
+
+                function handler() {
+
+                    // get the current like state
+                    // at this point we use the stored last index from the variable "slide"
+                    const current_like_state = !gallery[slide].like;
+
+                    // toggles the current like state
+                    gallery[slide].like = current_like_state;
+
+                    // assign the state as class to visually represent the current like state
+                    this.classList.toggle("on");
+
+                    if (current_like_state) {
+
+                        // do something if liked ...
+                    }
+                    else {
+
+                        // do something if unliked ...
+                    }
+                }
+
+                const options = {
+
+                    class: "only-this-gallery",
+                    index: index,
+                    control: control,
+                    animation: animation,
+                    // fires when gallery opens
+                    onshow: function (index) {
+
+                        // the method "addControl" returns the new created control element
+                        like = Spotlight.addControl("like", handler);
+                    },
+                    // fires when gallery change to another page
+                    onchange: function (index, options) {
+
+                        // store the current index for the button listener
+                        // the slide index start from 1 (as "page 1")
+                        slide = index - 1;
+
+                        // initially apply the stored like state when slide is openened
+                        // at this point we use the stored like element
+                        like.classList.toggle("on", gallery[slide].like);
+                    },
+                    // fires when gallery is requested to close
+                    onclose: function (index) {
+
+                        // remove the custom button, so you are able
+                        // to open next gallery without this custom control
+                        Spotlight.removeControl("like");
+                    }
+                };
+
+                //assign(options, modifier);
+
+                Spotlight.show(gallery, options);
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+            }
+            console.log(response.data);
+            HideLoading();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        }
+    });
+
+    
+};
+
+function to_array(nodelist) {
+
+    const arr = [];
+
+    for (let i = 0, node; i < nodelist.length; i++) {
+
+        node = nodelist[i];
+        node.checked && arr.push(node.value);
+    }
+
+    return arr;
+}
+
+function assign(options, nodelist) {
+
+    for (let i = 0, node; i < nodelist.length; i++) {
+
+        node = nodelist[i];
+
+        if (node.checked) {
+
+            if (node.name) {
+
+                options[node.name] = node.value;
+            }
+            else {
+
+                options[node.value] = node.checked;
+            }
+        }
+    }
+}

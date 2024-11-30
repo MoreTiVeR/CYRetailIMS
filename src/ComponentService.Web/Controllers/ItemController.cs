@@ -168,6 +168,7 @@ public class ItemController : BaseController
 
     /// <summary>
     /// Default Item Transfer History
+    /// Allow only Admin, Stock
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -176,7 +177,7 @@ public class ItemController : BaseController
         BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
         try
         {
-            if (base.UserProfile.roleid == (int)UserRole.Admin)
+            if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
             {
                 transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
             }
