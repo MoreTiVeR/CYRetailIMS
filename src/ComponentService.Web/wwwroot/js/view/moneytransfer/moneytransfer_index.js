@@ -3,6 +3,12 @@ var datatable;
 
 $('.select2').select2();
 
+/*spotlight image view*/
+const control = ['page', 'theme', 'fullscreen', 'close', 'download', 'play', 'prev', 'next'];
+const animation = ['slide', 'fade'];
+//const modifier = ['autoplay', 'infinite', 'spinner', 'preload', 'autohide', 'cover', 'contain', 'white' ];
+
+
 datatable = $("#tbMoneyTransfer").DataTable({
     "destroy": true,
     "bFilter": true,
@@ -199,9 +205,13 @@ function deleteMoneyTransfer(moneytransferid) {
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
         confirmButtonText: "ยืนยัน",
-        confirmButtonClass: "btn btn-primary",
         cancelButtonText: "ยกเลิก",
-        cancelButtonClass: "btn btn-danger ml-1",
+        //confirmButtonClass: "btn btn-primary",
+        //cancelButtonClass: "btn btn-danger ml-1",
+        customClass: {
+            confirmButton: "btn btn-primary",
+            cancelButton: "btn btn-danger ml-1"
+        },
         buttonsStyling: false,
     }).then(function (t) {
         if (t.value) {
@@ -256,48 +266,6 @@ function deleteMoneyTransfer(moneytransferid) {
     });
 }
 
-
-/*spotlight image view*/
-var gallery = [];
-var gallery1 = [{
-    title: "Lorem ipsum dolor sit amet",
-    description: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    src: "../money_transfer_slip/img1.jpg",
-    button: "Download Image",
-    onclick: Spotlight.download,
-    like: false
-}, {
-    title: "At vero eos et accusam",
-    description: "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    src: "../money_transfer_slip/img2.jpg",
-    button: "Next Slide",
-    onclick: Spotlight.next,
-    like: false,
-}, {
-    title: "Duis autem vel eum iriure dolor",
-    description: "In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim.",
-    src: "../money_transfer_slip/fe662643-2379-4a63-82bf-05814a41bf52.jpg",
-    button: "Close Gallery",
-    onclick: Spotlight.close,
-    like: false
-    }];
-
-var gallery2 = [{
-    title: "Lorem ipsum dolor sit amet",
-    description: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    src: "../money_transfer_slip/S__97951782_0.jpg",
-    button: "Download Image",
-    onclick: Spotlight.download,
-    like: false
-}, {
-    title: "At vero eos et accusam",
-    description: "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    src: "../money_transfer_slip/S__97951770_0.jpg",
-    button: "Next Slide",
-    onclick: Spotlight.next,
-    like: false,
-}];
-
 function showGallery(moneytransferid) {
     ShowLoading();
     //index = image index for first popup
@@ -309,18 +277,8 @@ function showGallery(moneytransferid) {
         success: function (response) {
 
             if (response.result) {
-                ShowMessageSuccess(response.message);
+                //ShowMessageSuccess(response.message);
                 gallery = response.data;
-
-                //const control = to_array(document.getElementById("control").getElementsByTagName("input"));
-                //const animation = to_array(document.getElementById("animation").getElementsByTagName("input"));
-                //const modifier = document.getElementById("modifier").getElementsByTagName("input");
-                const control = ['page', 'theme', 'fullscreen', 'close', 'download', 'play', 'prev', 'next'];
-                const animation = ['slide', 'fade'];
-                //const modifier = ['autoplay', 'infinite', 'spinner', 'preload', 'autohide', 'cover', 'contain', 'white' ];
-
-                console.log("--imgdata--");
-                console.log(gallery);
 
                 // store the button element to apply dom changes to it
                 let like;
@@ -388,7 +346,7 @@ function showGallery(moneytransferid) {
             else {
                 AlertErrorNoTitle(response.message);
             }
-            console.log(response.data);
+            
             HideLoading();
         },
         failure: function (response) {

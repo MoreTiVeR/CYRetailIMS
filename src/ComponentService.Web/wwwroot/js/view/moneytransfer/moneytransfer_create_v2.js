@@ -3,8 +3,10 @@ var datatable;
 
 $('.select2').select2();
 InitialDatePicker();
+InitialTimePicker();
 InitialCharacterRemaining();
 InitialItemRepeater();
+//first row of repeater
 $("input[ID='txtTransferAmount']").trigger("focus");
 
 $("#btnSave").on('click', function () {
@@ -95,6 +97,39 @@ function InitialItemRepeater() {
 
             //Focus on txtTransferAmount
             $("input[ID='txtTransferAmount']").trigger("focus");
+            //$("input[ID='txtTransferTime']").addClass("timepicker");
+            //$("input[ID='txtTransferTime']").datepicker({
+            //    dateFormat: 'dd/mm/yy'
+            //});
+
+            InitialTimePicker();
+
+            //pickatime
+            //$('.timepicker').pickatime({
+            //    format: 'HH:i',
+            //    interval: 150
+            //});
+
+            //bootstrap datetimepicker
+            //$('.timepicker').datetimepicker({
+            //    format: 'HH:mm',
+            //    pickDate: false,
+            //    pickSeconds: false,
+            //    pick12HourFormat: false
+            //});
+
+            //$('.timepicker').datetimepicker({
+            //    format: 'LT'
+            //});
+
+            //$("input[ID='txtTransferTime']").datetimepicker({
+            //    pickDate: false,
+            //    minuteStepping: 30,
+            //    format: 'hh:mm',
+            //    pickTime: true,
+            //    language: 'en',
+            //    use24hours: true
+            //});
         },
         hide: function (deleteElement, e) {
 

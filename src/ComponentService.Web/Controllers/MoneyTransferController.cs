@@ -6,6 +6,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
+using CYRetailIMS.Application.ExternalService.MoneyTransferSlipAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
@@ -15,6 +16,7 @@ using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoney
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetSlipByMoneyTransferID.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -31,14 +33,17 @@ public class MoneyTransferController : BaseController
     private readonly string _moneyTransferSlipSubPath = "money_transfer_slip";
     private readonly IBranchAPI _branchAPI;
     private readonly IMoneyTransferAPI _moneyTransferAPI;
+    private readonly IMoneyTransferSlipAPI _moneyTransferSlipAPI;
     public MoneyTransferController(IHttpClientRequest httpClientRequest, 
         IMapper mapper, 
         ILog4NetLogger log,
         IBranchAPI branchAPI,
-        IMoneyTransferAPI moneyTransferAPI) : base(httpClientRequest, mapper, log)
+        IMoneyTransferAPI moneyTransferAPI,
+        IMoneyTransferSlipAPI moneyTransferSlipAPI) : base(httpClientRequest, mapper, log)
     {
         _branchAPI = branchAPI;
         _moneyTransferAPI = moneyTransferAPI;
+        _moneyTransferSlipAPI = moneyTransferSlipAPI;
     }
 
     public async Task<IActionResult> IndexAsync()
@@ -100,50 +105,20 @@ public class MoneyTransferController : BaseController
     {
         try
         {
-            await Task.Run(() =>
+            BaseResponse<GetSlipByMoneyTransferIDResponseDTO> resSlipData = await _moneyTransferSlipAPI.GetMoneyTransferSlipByMoneyTransferIDAsync(new GetSlipByMoneyTransferIDQuery
             {
-                Thread.Sleep(200);
+                moneytransferid = mTransferID
             });
-            //var inquiryObj = new GetMoneyTransferByCriteriaQuery
-            //{
-            //    startdate = DateTime.Now,
-            //    branchlist = base.UserProfile.roleid == (int)EnumModel.UserRole.Admin ? null : base.UserProfile.access_branch.Select(s => s.branchid).ToList(),
-            //};
-            //BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>> resMoneyTransfers = await _moneyTransferAPI.GetMoeytransferByCriteriaAsync(inquiryObj);
-            //if (!resMoneyTransfers.result)
-            //{
-            //    return Json(new { result = false, message = resMoneyTransfers.message, data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
-            //}
-            List<MoneyTransferSlipDetailModel> imgData = new List<MoneyTransferSlipDetailModel>();
-            if(mTransferID >= 16)
+            if (!resSlipData.result)
             {
-                imgData.Add(new MoneyTransferSlipDetailModel
-                {
-                    title = "img1",
-                    src = "../money_transfer_slip/img1.jpg"
-                });
-                imgData.Add(new MoneyTransferSlipDetailModel
-                {
-                    title = "img2",
-                    src = "../money_transfer_slip/img2.jpg"
-                });
-
+                return Json(new { result = false, message = resSlipData.error.error.message });
             }
-            else
+            MoneyTransferSlipDetailModel[] imgData = resSlipData.data.slipdetail.Select(s => new MoneyTransferSlipDetailModel
             {
-                imgData.Add(new MoneyTransferSlipDetailModel
-                {
-                    title = "S__97951782_0",
-                    src = "../money_transfer_slip/S__97951782_0.jpg"
-                });
-                imgData.Add(new MoneyTransferSlipDetailModel
-                {
-                    title = "S__97951770_0",
-                    src = "../money_transfer_slip/S__97951770_0.jpg"
-                });
-            }
-            
-            return Json(new { result = true, message = "สำเร็จ", data = imgData.ToArray() });
+                title = s.imgtitle,
+                src = s.imgpath
+            }).ToArray();
+            return Json(new { result = true, message = "สำเร็จ", data = imgData });
         }
         catch (Exception ex)
         {
@@ -308,7 +283,7 @@ public class MoneyTransferController : BaseController
                     if (postedFile != null)
                     {
                         //Set Image Name
-                        imgName = Guid.NewGuid().ToString() + Path.GetExtension(fileName);
+                        imgName = $"{Guid.NewGuid().ToString()}_{Path.GetExtension(fileName)}";
 
                         //Get url To Save
                         imgSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, imgName);
@@ -339,7 +314,7 @@ public class MoneyTransferController : BaseController
             {
                 mTransferData.ImageFile.ForEach(file =>
                 {
-                    string fileName = Path.GetFileName(file.FileName);
+                    string fileName = $"{Guid.NewGuid().ToString()}_{Path.GetExtension(file.FileName)}";
                     string fileSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, fileName);
                     files.Add(new MoneyTransferFileUploadModel
                     {
@@ -378,10 +353,6 @@ public class MoneyTransferController : BaseController
             #endregion
 
             #region Preparing Object to Create
-            //mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
-            //mTransferData.CreatedBy = base.UserProfile.username;
-            //mTransferData.SaleDate = objData.SelectedDate.DCDateStringToDateTime();
-            //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);
             var resCreate = await _moneyTransferAPI.BulkCreateAsync(new CreateMoneyTransferListCommand
             {
                 mtransferdata = moneyTransferCommands,
@@ -389,10 +360,8 @@ public class MoneyTransferController : BaseController
             });
             #endregion
 
-            return Json(new { result = resCreate.result, message = resCreate.result ? resCreate.message : resCreate.error.error.message, data = resCreate.result ? resCreate.data : null });
-
-            //return Json(new { result = true, message = "บันทึกข้อมูลสำเร็จ." });
-        }
+            return Json(new { result = resCreate.result, message = "บันทึกข้อมูลสำเร็จ", data = resCreate.result ? resCreate.data : null });
+            }
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });

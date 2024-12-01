@@ -206,16 +206,32 @@ public class ItemController : BaseController
         BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
         try
         {
-            #region Prepare Date
-            DateTime transferDt = DateTime.Now;
-            if (!string.IsNullOrEmpty(searchItem.transferdate))
+            #region Prepare Search Start & End Date
+            DateTime? transferSrtartDate = null;
+            DateTime? transferEndDate = null;
+            if (!string.IsNullOrEmpty(searchItem.transferstrtdate))
             {
-                string[] transferDate = searchItem.transferdate.Split("-");
-                if (transferDate.Count() != 3)
+                string[] sTransferDate = searchItem.transferstrtdate.Split("-");
+                if (sTransferDate.Count() != 3)
                 {
                     throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
                 }
-                transferDt = new DateTime(transferDate[2].ToInt32(), transferDate[1].ToInt32(), transferDate[0].ToInt32());
+                transferSrtartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
+            }
+
+            if (!string.IsNullOrEmpty(searchItem.transferenddate))
+            {
+                string[] sTransferEndDate = searchItem.transferenddate.Split("-");
+                if (sTransferEndDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                transferEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
+            }
+            if((transferSrtartDate.HasValue && transferEndDate.HasValue) 
+                && DateTime.Compare(transferSrtartDate.Value, transferEndDate.Value) == 1)
+            {
+                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
             }
             #endregion
 
@@ -224,7 +240,8 @@ public class ItemController : BaseController
                 transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery
                 {
                     branchid = searchItem.branchid,
-                    transferdate = transferDt,
+                    transferstartdate = transferSrtartDate,
+                    transferenddate = transferEndDate,
                     transferstatusid = searchItem.transferstatusid
                 });
             }
@@ -233,45 +250,15 @@ public class ItemController : BaseController
                 transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
                 {
                     destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
-                    transferdate = transferDt,
+                    transferstartdate = transferSrtartDate,
+                    transferenddate = transferEndDate,
                     transferstatusid = searchItem.transferstatusid
                 });
             }
-
-            //if (searchItem.branchid.HasValue)
-            //{
-            //    transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
-            //    {
-            //        destinationbranchid = searchItem.branchid.Value
-            //    });
-            //}
-            //else
-            //{
-            //    transferHistory = await _itemTransferAPI.GetItemTransferListAsync();
-            //}
-
             if (!transferHistory.result)
             {
                 return Json(new { result = false, message = $"ไม่พบข้อมูลการโอนสินค้า", data = new List<GetItemTransferResponseDTO>() });
             }
-
-            #region Where with condition SearchItemTransferHistoryViewModel
-            //if (searchItem.transferstatusid.HasValue)
-            //{
-            //    transferHistory.data = transferHistory.data.Where(w => w.transferstatusid == searchItem.transferstatusid.Value).ToList();
-            //}
-
-            //if (!string.IsNullOrEmpty(searchItem.transferdate))
-            //{
-            //    string[] transferDate = searchItem.transferdate.Split("-");
-            //    if(transferDate.Count() != 3)
-            //    {
-            //        throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            //    }
-            //    DateTime transferDt = new DateTime(transferDate[2].ToInt32(), transferDate[1].ToInt32(), transferDate[0].ToInt32());
-            //    transferHistory.data = transferHistory.data.Where(w => w.createddate.Date == transferDt.Date).ToList();
-            //}
-            #endregion
 
             if (transferHistory.data.Count == 0)
             {
@@ -288,18 +275,9 @@ public class ItemController : BaseController
 
     public async Task<IActionResult> BarcodeTransferAsync()
     {
-        //TransferItemViewModel transferItemViewModel = new TransferItemViewModel();
-        //transferItemViewModel.transfertypeid = 1;
-        //transferItemViewModel.source_branchid = "1";
-        //transferItemViewModel.destination_branchid = "28";
-
-
         #region Get- Set Item
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
         #endregion
-
-        //BaseResponse<List<GetItemListResponseDTO>> resItemList = await _itemAPI.GetItemListAsync();
-        //ViewBag.ItemList = resItemList;
         ViewBag.BranchList = await PrepareSelectBranch();
         ViewBag.ItemTransferList = await GetItemTransferItemListByTransferType((int)TransferType.WTB);
         ViewBag.ItemTransaferTypeList = await PrepareSelectItemTransferType(); ;

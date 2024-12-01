@@ -30,7 +30,7 @@ public class CreateMoneyTransferListHandler : BaseService, IRequestHandler<Creat
         {
             slipEnt = new TTMoneyTransferSlip
             {
-                TotalAmountTransfer = 1,
+                TotalAmountTransfer = request.mtransferdata.Sum(s => s.amounttransfer),
                 CreatedBy = request.mtransferdata.FirstOrDefault().createdby,
                 CreatedDate = createdDate,
                 IsActive = true

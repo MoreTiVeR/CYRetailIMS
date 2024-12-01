@@ -26,6 +26,7 @@ using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
+using CYRetailIMS.Application.ExternalService.MoneyTransferSlipAPI;
 using CYRetailIMS.Application.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
@@ -60,6 +61,7 @@ using CYRetailIMS.Infrastructure.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Infrastructure.ExternalService.MoneyTransferAPI;
+using CYRetailIMS.Infrastructure.ExternalService.MoneyTransferSlipAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseTypeAPI;
@@ -93,11 +95,22 @@ public static class ConfigureService
 
         services.Configure<ErrorViewModel>(configuration.GetSection("ExceptionSettings"));
 
-        services.AddSession(opts =>
+        //services.AddSession(opts =>
+        //{
+        //    opts.Cookie.Name = "CY.Session";
+        //    opts.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);//You can set Time
+        //    opts.Cookie.IsEssential = true;
+        //});
+        services.AddDistributedMemoryCache();
+        services.AddSession();
+        services.ConfigureApplicationCookie(options =>
         {
-            opts.Cookie.Name = "CY.Session";
-            opts.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);//You can set Time
-            opts.Cookie.IsEssential = true;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.Name = "CY.Session";
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeout);
+            options.LoginPath = "/Account/Login";
+            options.AccessDeniedPath = "/Permission/AccessDenied";
+            options.SlidingExpiration = true;
         });
 
         services.AddDataProtection();
@@ -185,6 +198,7 @@ public static class ConfigureService
         services.AddScoped<IChartAPI, ChartAPI>();
         services.AddScoped<IMoneyTransferAPI, MoneyTransferAPI>();
         services.AddScoped<IExcelAPI, ExcelAPI>();
+        services.AddScoped<IMoneyTransferSlipAPI, MoneyTransferSlipAPI>();
         #endregion
 
         return services;

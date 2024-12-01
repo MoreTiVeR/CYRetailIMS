@@ -112,15 +112,21 @@ function InitialEditDatePicker() {
 }
 
 function InitialTimePicker() {
-    //$('.timepicker').pickatime();
-    $('.timepicker').pickatime({
-        disable: [
-            [0, 30],
-            [2, 0],
-            [8, 30],
-            [9, 0]
-        ]
-    })
+    //$('.timepicker').pickatime({
+    //    language: 'th-th',
+    //    format: 'HH:i'
+    //})
+
+    //$('.timepicker').datetimepicker({
+    //    format: 'HH:mm',
+    //    pickDate: false,
+    //    pickSeconds: false,
+    //    pick12HourFormat: false
+    //});
+
+    $('.timepicker').datetimepicker({
+        format: 'LT'
+    });
 }
 
 function InitialTransactionDate() {
