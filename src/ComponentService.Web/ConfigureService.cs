@@ -94,15 +94,14 @@ public static class ConfigureService
         });
 
         services.Configure<ErrorViewModel>(configuration.GetSection("ExceptionSettings"));
-
-        //services.AddSession(opts =>
-        //{
-        //    opts.Cookie.Name = "CY.Session";
-        //    opts.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);//You can set Time
-        //    opts.Cookie.IsEssential = true;
-        //});
+        
         services.AddDistributedMemoryCache();
-        services.AddSession();
+        services.AddSession(opts =>
+        {
+            opts.Cookie.Name = "CY.Session";
+            opts.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);
+            opts.Cookie.IsEssential = true;
+        });
         services.ConfigureApplicationCookie(options =>
         {
             options.Cookie.HttpOnly = true;

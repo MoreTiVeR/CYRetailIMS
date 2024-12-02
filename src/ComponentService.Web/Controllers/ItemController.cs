@@ -209,9 +209,9 @@ public class ItemController : BaseController
             #region Prepare Search Start & End Date
             DateTime? transferSrtartDate = null;
             DateTime? transferEndDate = null;
-            if (!string.IsNullOrEmpty(searchItem.transferstrtdate))
+            if (!string.IsNullOrEmpty(searchItem.transferstartdate))
             {
-                string[] sTransferDate = searchItem.transferstrtdate.Split("-");
+                string[] sTransferDate = searchItem.transferstartdate.Split("-");
                 if (sTransferDate.Count() != 3)
                 {
                     throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");

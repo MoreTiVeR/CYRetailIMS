@@ -131,7 +131,7 @@ $("#btnSearch").on('click', function (event) {
     var selectedTransferStatus = $("#ddlTransferStatus").val();
     var transferstatusid = parseInt(selectedTransferStatus);
 
-    var reqdata = { "transferdate": transferStartdate, "transferenddate": transferEndDate, "branchid": branchid, "transferstatusid": transferstatusid };
+    var reqdata = { "transferstartdate": transferStartdate, "transferenddate": transferEndDate, "branchid": branchid, "transferstatusid": transferstatusid };
     var jsonreqdata = JSON.stringify(reqdata);
     console.log(jsonreqdata);
     var request = $.ajax({
