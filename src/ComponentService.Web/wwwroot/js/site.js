@@ -111,6 +111,24 @@ function InitialEditDatePicker() {
     /*datepicker.set('select', new Date())*/
 }
 
+function InitialTimePicker() {
+    //$('.timepicker').pickatime({
+    //    language: 'th-th',
+    //    format: 'HH:i'
+    //})
+
+    //$('.timepicker').datetimepicker({
+    //    format: 'HH:mm',
+    //    pickDate: false,
+    //    pickSeconds: false,
+    //    pick12HourFormat: false
+    //});
+
+    $('.timepicker').datetimepicker({
+        format: 'LT'
+    });
+}
+
 function InitialTransactionDate() {
     $("#txtTransactionDate").val(formatDateTime(new Date($("#txtTransactionDate").val())));
 }

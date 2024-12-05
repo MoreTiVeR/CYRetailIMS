@@ -122,7 +122,8 @@ $("#btnSearch").on('click', function (event) {
     ShowLoading();
     event.preventDefault(); // Prevent the default form submission
 
-    var transferdate = $("#txtTransferDate").val();
+    var transferStartdate = $("#txtTransferDate").val();
+    var transferEndDate = $("#txtTransferEndDate").val();
 
     var selectedBranch = $("#ddlTransferBranch").val();
     var branchid = parseInt(selectedBranch);
@@ -130,7 +131,7 @@ $("#btnSearch").on('click', function (event) {
     var selectedTransferStatus = $("#ddlTransferStatus").val();
     var transferstatusid = parseInt(selectedTransferStatus);
 
-    var reqdata = { "transferdate": transferdate, "branchid": branchid, "transferstatusid": transferstatusid };
+    var reqdata = { "transferstartdate": transferStartdate, "transferenddate": transferEndDate, "branchid": branchid, "transferstatusid": transferstatusid };
     var jsonreqdata = JSON.stringify(reqdata);
     console.log(jsonreqdata);
     var request = $.ajax({

@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransfer.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransferList.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
@@ -24,6 +25,12 @@ public class MoneyTransferAPI : HttpClientService, IMoneyTransferAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, 
             CreateMoneyTransferCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/moneytransfer/v1/create"), moneyTransferCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> BulkCreateAsync(CreateMoneyTransferListCommand moneyTransferCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse,
+            CreateMoneyTransferListCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/moneytransfer/v1/bulk-create"), moneyTransferCommand);
     }
 
     public async Task<BaseResponse<CommandResponse>> UpdateAsync(UpdateMoneyTransferCommand moneyTransferCommand)

@@ -6,16 +6,22 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.MoneyTransferAPI;
+using CYRetailIMS.Application.ExternalService.MoneyTransferSlipAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransfer.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransferList.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetSlipByMoneyTransferID.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NuGet.Packaging;
+using NUglify.Helpers;
 using SixLabors.ImageSharp;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -24,17 +30,20 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
 public class MoneyTransferController : BaseController
 {
-    private string _moneyTransferSlipSubPath = "money_transfer_slip";
+    private readonly string _moneyTransferSlipSubPath = "money_transfer_slip";
     private readonly IBranchAPI _branchAPI;
     private readonly IMoneyTransferAPI _moneyTransferAPI;
+    private readonly IMoneyTransferSlipAPI _moneyTransferSlipAPI;
     public MoneyTransferController(IHttpClientRequest httpClientRequest, 
         IMapper mapper, 
         ILog4NetLogger log,
         IBranchAPI branchAPI,
-        IMoneyTransferAPI moneyTransferAPI) : base(httpClientRequest, mapper, log)
+        IMoneyTransferAPI moneyTransferAPI,
+        IMoneyTransferSlipAPI moneyTransferSlipAPI) : base(httpClientRequest, mapper, log)
     {
         _branchAPI = branchAPI;
         _moneyTransferAPI = moneyTransferAPI;
+        _moneyTransferSlipAPI = moneyTransferSlipAPI;
     }
 
     public async Task<IActionResult> IndexAsync()
@@ -44,6 +53,12 @@ public class MoneyTransferController : BaseController
     }
 
     public async Task<IActionResult> CreateAsync()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        return View();
+    }
+
+    public async Task<IActionResult> NewAsync()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
         return View();
@@ -78,6 +93,32 @@ public class MoneyTransferController : BaseController
                 return Json(new { result = false, message = resMoneyTransfers.message, data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
             }
             return Json(new { result = true, message = "สำเร็จ", data = resMoneyTransfers.data });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = ex.Message, data = new List<GetMoneyTransferByCriteriaResponseDTO>() });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetImageData(int mTransferID)
+    {
+        try
+        {
+            BaseResponse<GetSlipByMoneyTransferIDResponseDTO> resSlipData = await _moneyTransferSlipAPI.GetMoneyTransferSlipByMoneyTransferIDAsync(new GetSlipByMoneyTransferIDQuery
+            {
+                moneytransferid = mTransferID
+            });
+            if (!resSlipData.result)
+            {
+                return Json(new { result = false, message = resSlipData.error.error.message });
+            }
+            MoneyTransferSlipDetailModel[] imgData = resSlipData.data.slipdetail.Select(s => new MoneyTransferSlipDetailModel
+            {
+                title = s.imgtitle,
+                src = s.imgpath
+            }).ToArray();
+            return Json(new { result = true, message = "สำเร็จ", data = imgData });
         }
         catch (Exception ex)
         {
@@ -191,6 +232,172 @@ public class MoneyTransferController : BaseController
         catch (Exception ex)
         {
             return Json(new { result = false, message = ex.Message });
+        }
+    }
+
+
+    /// <summary>
+    /// Create Transaction with transfer slip version2
+    /// </summary>
+    /// <param name="mTransferData"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> CreateTransactionV2(CreateMoneyTransferViewModel mTransferData)
+    {
+        try
+        {
+            List<MoneyTransferFileUploadModel> files = new List<MoneyTransferFileUploadModel>();
+            List<CreateMoneyTransferCommand> moneyTransferCommands = new List<CreateMoneyTransferCommand>();
+            List<CreateMoneyTransferSlipCommand> createMoneyTransferSlipCommands = new List<CreateMoneyTransferSlipCommand>();
+
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("outer-item-group")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลการโอนไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            #region PrePare ItemTransfer List
+            List<CreateItemTransferDetailCommand> itemTransferList = new List<CreateItemTransferDetailCommand>();
+            #endregion
+
+            DateTime transferDate = mTransferData.TransferDate.ToDate();
+            decimal totalAmt = 0;
+            decimal totalProfitAmt = 0;
+            int idx = form.Count / 2;
+            for (int i = 0; i < idx; i++)
+            {
+                var transferAmount = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferAmount]").FirstOrDefault().Value[0];
+                var transferTime = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferTime]").FirstOrDefault().Value[0];
+                IFormFile postedFile = Request.Form?.Files[$"outer-item-group[{i}][fileUpload]"];
+                string fileName = Path.GetFileName(postedFile?.FileName);
+                if (!string.IsNullOrEmpty(transferAmount) && !string.IsNullOrEmpty(transferTime))
+                {
+                    string imgName = string.Empty;
+                    string imgSavePath = string.Empty;
+                    if (postedFile != null)
+                    {
+                        //Set Image Name
+                        imgName = $"{Guid.NewGuid().ToString()}_{Path.GetExtension(fileName)}";
+
+                        //Get url To Save
+                        imgSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, imgName);
+                        files.Add(new MoneyTransferFileUploadModel
+                        {
+                            filename = imgName,
+                            filepath = imgSavePath,
+                            filedata = postedFile
+                        });
+                    }
+
+                    string[] time = transferTime.Split(":");
+                    DateTime transferDateTime = new DateTime(transferDate.Year, transferDate.Month, transferDate.Day, time.First().ToInt32(), time.Last().ToInt32(), 00);
+                    moneyTransferCommands.Add(new CreateMoneyTransferCommand
+                    {
+                        branchid = mTransferData.BranchID,
+                        description = mTransferData.Description,
+                        createdby = base.UserProfile.username,
+                        slipimagepath = postedFile != null ? $"../{_moneyTransferSlipSubPath}/{imgName}" : null,
+                        transferdate = transferDateTime,
+                        amounttransfer = transferAmount.ToDecimal()
+                    });
+                }
+            }
+
+            #region Check image from upload all
+            if(mTransferData.ImageFile != null && mTransferData.ImageFile.Count() > 0)
+            {
+                mTransferData.ImageFile.ForEach(file =>
+                {
+                    string fileName = $"{Guid.NewGuid().ToString()}_{Path.GetExtension(file.FileName)}";
+                    string fileSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, fileName);
+                    files.Add(new MoneyTransferFileUploadModel
+                    {
+                        filename = fileName,
+                        filepath = fileSavePath,
+                        filedata = file
+                    });
+
+                    createMoneyTransferSlipCommands.Add(new CreateMoneyTransferSlipCommand
+                    {
+                        slipimagepath = $"../{_moneyTransferSlipSubPath}/{fileName}"
+                    });
+                });
+
+            }
+            #endregion
+
+            #region Stream Image File
+
+            files.Where(w => w.filedata != null).ForEach(e =>
+            {
+                #region File Path Check
+                FileInfo fInfo = new FileInfo(e.filepath);
+                if (!fInfo.Directory.Exists)
+                {
+                    fInfo.Directory.Create();
+                }
+                #endregion
+
+                using (var stream = new FileStream(e.filepath, FileMode.Create))
+                {
+                    e.filedata.CopyTo(stream);
+                }
+            });
+
+            #endregion
+
+            #region Preparing Object to Create
+            var resCreate = await _moneyTransferAPI.BulkCreateAsync(new CreateMoneyTransferListCommand
+            {
+                mtransferdata = moneyTransferCommands,
+                transferslipdetail = createMoneyTransferSlipCommands
+            });
+            #endregion
+
+            return Json(new { result = resCreate.result, message = "บันทึกข้อมูลสำเร็จ", data = resCreate.result ? resCreate.data : null });
+            }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> MoneyTransferDataValidation(CreateMoneyTransferViewModel transferItemObj)
+    {
+        try
+        {
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("data[outer-item-group]")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, message = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            #region Validate Selling Item
+            bool isValidData = form.Where(w => w.Key.Contains("data[outer-item-group]")).Any(w => !string.IsNullOrEmpty(w.Value[0]));
+            if (!isValidData)
+            {
+                return Json(new { result = false, message = $"ขออภัย ข้อมูลขายสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            return Json(new { result = true, message = "ตรวจสอบข้อมูลถูกต้อง." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = true, message = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
         }
     }
 

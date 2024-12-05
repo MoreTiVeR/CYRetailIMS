@@ -1,6 +1,6 @@
 ﻿
 var datatable;
-
+$('.select2').select2();
 datatable = $("#tbItemQtyReport").DataTable({
     "destroy": true,
     "bFilter": true,

@@ -6,8 +6,8 @@
 
 <div class="page-header">
     <div class="page-title">
-        <h4>โอนสินค้า</h4>
-        <h6>ทำรายการโอนสินค้า</h6>
+        <h4>สต๊อกสินค้า</h4>
+        <h6>รายการสต๊อกสินค้าคงคลัง</h6>
     </div>
     <div class="page-btn">
         <a asp-action="Create" asp-controller="Item" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มสินค้าใหม่</a>
@@ -43,7 +43,7 @@
                 <div class="row">
                     <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
-                            <select id="ddlBranch" class="select">
+                            <select id="ddlBranch" class="ddl-select2 select2 ddl-source-branch">
                                 <option>เลือกสาขา</option>
                                 @if (ViewBag.BranchList.result)
                                 {
@@ -86,6 +86,7 @@
                         <th>รหัสสินค้า</th>
                         <th>ชื่อสินค้า</th>
                         <th>ประเภท</th>
+                        <th>ประเภทย่อย</th>
                         <th>แบรนด์</th>
                         <th>จำนวน</th>
                         <th>ต้นทุน</th>

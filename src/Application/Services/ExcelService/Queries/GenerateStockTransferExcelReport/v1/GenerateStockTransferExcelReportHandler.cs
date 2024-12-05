@@ -225,7 +225,7 @@ public class GenerateStockTransferExcelReportHandler : BaseService,  IRequestHan
             #region SubItem
             //Header SubItem
             worksheet.Cells[dRow, 1].Value = "ลำดับ";
-            worksheet.Cells[dRow, 2].Value = "ประเภทฟิล์ม";
+            worksheet.Cells[dRow, 2].Value = "ประเภท";
             worksheet.Cells[dRow, 3].Value = "จำนวนทำออก";
 
             //Set Header SubItem Style
@@ -276,28 +276,6 @@ public class GenerateStockTransferExcelReportHandler : BaseService,  IRequestHan
             #region ท้ายตาราง ชื่อพนักงาน/ วันที่รับสินค้า/ วันที่นับสินค้า
             dRow++;
             //ชื่อพนักงาน, วันที่รับสินค้า, วันที่นับสินค้า
-            worksheet.Cells[dRow, 1, dRow, 2].Value = "ชื่อพนักงาน";
-            using (var range = worksheet.Cells[dRow, 1, dRow, 2])
-            {
-                range.Merge = true;
-                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            }
-
-            worksheet.Cells[dRow, 3, dRow, 4].Value = "วันที่รับสินค้า";
-            using (var range = worksheet.Cells[dRow, 3, dRow, 4])
-            {
-                range.Merge = true;
-                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            }
-
-            worksheet.Cells[dRow, 5, dRow, 6].Value = "วันที่นับสินค้า";
-            using (var range = worksheet.Cells[dRow, 5, dRow, 6])
-            {
-                range.Merge = true;
-                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            }
-            dRow++;
-
             worksheet.Cells[dRow, 1, dRow, 2].Value = "(………………………………………)";
             using (var range = worksheet.Cells[dRow, 1, dRow, 2])
             {
@@ -319,24 +297,31 @@ public class GenerateStockTransferExcelReportHandler : BaseService,  IRequestHan
                 range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
             dRow++;
-            dRow++;
 
-            //ตำแหน่ง, เวลา
-            worksheet.Cells[dRow, 1, dRow, 2].Value = "ตำแหน่ง";
+            worksheet.Cells[dRow, 1, dRow, 2].Value = "ชื่อพนักงาน";
             using (var range = worksheet.Cells[dRow, 1, dRow, 2])
             {
                 range.Merge = true;
                 range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
 
-            worksheet.Cells[dRow, 3, dRow, 4].Value = "เวลา";
+            worksheet.Cells[dRow, 3, dRow, 4].Value = "วันที่รับสินค้า";
             using (var range = worksheet.Cells[dRow, 3, dRow, 4])
             {
                 range.Merge = true;
                 range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
+
+            worksheet.Cells[dRow, 5, dRow, 6].Value = "วันที่นับสินค้า";
+            using (var range = worksheet.Cells[dRow, 5, dRow, 6])
+            {
+                range.Merge = true;
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+            dRow++;
             dRow++;
 
+            //ตำแหน่ง, เวลา
             worksheet.Cells[dRow, 1, dRow, 2].Value = "(………………………………………)";
             using (var range = worksheet.Cells[dRow, 1, dRow, 2])
             {
@@ -345,6 +330,21 @@ public class GenerateStockTransferExcelReportHandler : BaseService,  IRequestHan
             }
 
             worksheet.Cells[dRow, 3, dRow, 4].Value = "(……………………………………………………………)";
+            using (var range = worksheet.Cells[dRow, 3, dRow, 4])
+            {
+                range.Merge = true;
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+            dRow++;
+
+            worksheet.Cells[dRow, 1, dRow, 2].Value = "ตำแหน่ง";
+            using (var range = worksheet.Cells[dRow, 1, dRow, 2])
+            {
+                range.Merge = true;
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            worksheet.Cells[dRow, 3, dRow, 4].Value = "เวลา";
             using (var range = worksheet.Cells[dRow, 3, dRow, 4])
             {
                 range.Merge = true;

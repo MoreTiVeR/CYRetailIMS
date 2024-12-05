@@ -50,14 +50,19 @@ public class GetItemTransferListhandler : BaseService, IRequestHandler<GetItemTr
                            updateddate = a.UpdatedDate
                        }).AsEnumerable();
 
-        if (request.transferdate.HasValue)
+        if (request.transferstartdate.HasValue)
         {
-            resData = resData.Where(w => w.createddate.Date == request.transferdate.Value.Date);
+            resData = resData.Where(w => w.createddate.Date >= request.transferstartdate.Value.Date);
         }
         else
         {
             //Current Month
-            resData = resData.Where(w => w.createddate.Month == DateTime.Now.Month);
+            resData = resData.Where(w => w.createddate.Month >= DateTime.Now.Month);
+        }
+
+        if (request.transferenddate.HasValue)
+        {
+            resData = resData.Where(w => w.createddate.Date <= request.transferenddate.Value.Date);
         }
 
         if (request.transferstatusid.HasValue)

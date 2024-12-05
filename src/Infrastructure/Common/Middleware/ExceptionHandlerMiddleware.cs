@@ -54,7 +54,7 @@ public class ExceptionHandlerMiddleware
         httpContext.Response.ContentType = "application/json";
         httpContext.Response.Headers.Add("x-status", StatusCodes.Status500InternalServerError.ToString());
         httpContext.Response.Headers.Add("x-source", ex.TargetSite.Module.Assembly.FullName.ToString().Split(",").FirstOrDefault());
-        httpContext.Response.Headers.Add("x-message", errorData.message.Replace(System.Environment.NewLine, string.Empty));
+        httpContext.Response.Headers.Add("x-message", errorData.message.ToNonAssci().Replace(System.Environment.NewLine, string.Empty));
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         return httpContext.Response.WriteAsync(errorData.ToJson());
     }

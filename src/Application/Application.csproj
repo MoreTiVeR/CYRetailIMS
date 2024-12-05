@@ -12,7 +12,6 @@
     <Folder Include="Caching\" />
     <Folder Include="Common\Mappings\UI\Sale\" />
     <Folder Include="Services\ItemService\Queries\GetItemByBarcode\v2\" />
-    <Folder Include="Services\MoneyTransferService\Commands\" />
     <Folder Include="Services\MoneyTransferService\EventHandlers\" />
     <Folder Include="Services\SupplierContactTypeService\Commands\" />
     <Folder Include="Services\SupplierContactTypeService\EventHandlers\" />
@@ -31,7 +30,6 @@
     <Folder Include="Services\CurrencyService\EventHandlers\" />
     <Folder Include="Services\DepartmentService\Commands\" />
     <Folder Include="Services\DepartmentService\EventHandlers\" />
-    <Folder Include="Services\ItemBrandService\Commands\UpdateBrand\v1\" />
     <Folder Include="Services\ItemInBranchService\Commands\CreateItemInBranch\v1\" />
     <Folder Include="Services\ItemTransferStatusService\Commands\" />
     <Folder Include="Services\ItemTransferStatusService\EventHandlers\" />

@@ -13,6 +13,7 @@ namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTr
 public record GetItemTransferByDestinationBranchIDQuery : IRequest<BaseResponse<List<GetItemTransferResponseDTO>>>
 {
     public int destinationbranchid { get; init; }
-    public DateTime? transferdate { get; init; }
+    public DateTime? transferstartdate { get; init; }
+    public DateTime? transferenddate { get; init; }
     public int? transferstatusid { get; init; }
 }

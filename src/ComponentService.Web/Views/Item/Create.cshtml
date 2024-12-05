@@ -29,7 +29,7 @@
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>ประเภทสินค้า</label>
-                        <select class="select" asp-for="ItemTypeID">
+                        <select class="ddl-select2 select2 ddl-source-itemtype" asp-for="ItemTypeID">
                             @if (ViewBag.ItemTypeList.result)
                             {
                                 <option value="">--เลือกประเภทสินค้า--</option>
@@ -49,7 +49,7 @@
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>แบรนด์สินค้า</label>
-                        <select class="select" asp-for="BrandID">
+                        <select class="ddl-select2 select2 ddl-source-brand" asp-for="BrandID">
                             @if (ViewBag.ItemBrandList.result)
                             {
                                 <option value="">--เลือกแบรนด์สินค้า--</option>
@@ -118,14 +118,14 @@
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>ราคาต้นทุน</label>
-                        <input type="text" asp-for="Cost">
+                        <input type="number" class="form-control" asp-for="Cost">
                         <span asp-validation-for="Cost" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>ราคาสินค้า</label>
-                        <input type="text" asp-for="Price">
+                        <input type="number" class="form-control" asp-for="Price">
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
                 </div>

@@ -12,7 +12,8 @@ namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTr
 [Serializable]
 public record GetItemTransferListQuery : IRequest<BaseResponse<List<GetItemTransferResponseDTO>>> 
 {
-    public DateTime? transferdate { get; init; }
+    public DateTime? transferstartdate { get; init; }
+    public DateTime? transferenddate { get; init; }
     public int? transferstatusid { get; init; }
     public int? branchid { get; init; }
 }

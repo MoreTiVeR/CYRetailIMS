@@ -10,7 +10,7 @@
         <h6>รายการบันทึกเงินโอนแยกตามสาขา</h6>
     </div>
     <div class="page-btn">
-        <a asp-controller="MoneyTransfer" asp-action="Create" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มรายการใหม่</a>
+        <a asp-controller="MoneyTransfer" asp-action="New" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มรายการใหม่</a>
     </div>
 </div>
 
@@ -90,7 +90,6 @@
                         <th>วันที่สร้าง</th>
                         <th>สถานะ</th>
                         <th class="text-center">ดำเนินการ</th>
-                        <th>รูปสลิป</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -102,6 +101,9 @@
 <!-- /container -->
 
 @section Scripts{
+    
+    <script type="text/javascript" charset="utf8" src="~/assets/plugins/spotlight-gallery-0.7.8/spotlight.bundle.js" asp-append-version="true"></script>
+
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>

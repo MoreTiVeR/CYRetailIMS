@@ -41,6 +41,9 @@ public class EditItemViewModel
     [DisplayName("ระบุแบรนด์สินค้า")]
     public int BrandID { get; set; }
 
+    [DisplayName("ระบุประเภทย่อย(ถ้ามี)")]
+    public int? SubItemTypeID { get; set; }
+
     [Required(ErrorMessage = "*กรุณาระบุชื่อสินค้า")]
     [DisplayName("ระบุชื่อสินค้า")]
     public string Name { get; set; }

@@ -1,10 +1,10 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemBrandService.Commands.CreateBrand.v1;
+using CYRetailIMS.Application.Services.ItemBrandService.Commands.DeleteBrand.v1;
+using CYRetailIMS.Application.Services.ItemBrandService.Commands.UpdateBrand.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
-using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeByID.v1;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
@@ -22,14 +22,46 @@ public class ItemBrandController : BaseApiController
     [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateItemBranchAsync(CreateBrandCommand createBrandCommand)
+    public async Task<IActionResult> CreateItemBrandAsync(CreateBrandCommand createBrandCommand)
     {
         DateTime dtStart = DateTime.Now;
         BaseResponse<CommandResponse> res = await Mediator.Send(createBrandCommand);
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
-        _log.Debug($"[{DateTime.Now}]CreateItemBranchAsync Success");
+        _log.Debug($"[{DateTime.Now}]CreateItemBrandAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/update")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateItemBrandAsync(UpdateBrandCommand updateBrandCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(updateBrandCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]UpdateItemBrandAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/delete")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteItemBrandAsync(DeleteBrandCommand deleteBrandCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(deleteBrandCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]DeleteItemBrandAsync Success");
         return Ok(res.data);
     }
 

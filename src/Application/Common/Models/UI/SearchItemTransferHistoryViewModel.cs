@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models.UI;
 public class SearchItemTransferHistoryViewModel
 {
-    public string? transferdate { get; set; }
+    public string? transferstartdate { get; set; }
+    public string? transferenddate { get; set; }
     public int? branchid { get; set; }
     public int? transferstatusid { get; set; }
 

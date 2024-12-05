@@ -27,12 +27,16 @@ public class GetItemByIDHandler : BaseService, IRequestHandler<GetItemByIDQuery,
                                                        join emp in await _unitOfWork.Repository<TMEmployee>().FindWithInclude(w => w.IsActive, i => i.Include(ic => ic.User))
                                                            on a.CreatedBy equals emp.User.UserName into tUser
                                                        from jUser in tUser.DefaultIfEmpty()
+                                                       join isub in await _unitOfWork.Repository<TMSubItemType>().QueryAsync(s => s.IsActive) on a.SubItemTypeID equals isub.SubItemTypeID into jsubitem
+                                                       from subitem in jsubitem.DefaultIfEmpty()
                                                        where a.ItemID == request.itemid && a.IsActive
                                                        select new GetItemByIDResponseDTO
                                                        {
                                                            itemid = a.ItemID,
                                                            itemcode = a.ItemCode,
                                                            name = a.Name,
+                                                           subitemtypeid = a.SubItemTypeID,
+                                                           subitemtypename = subitem != null ? subitem.SubTypeNameTH : null,
                                                            shortname = a.ShortName,
                                                            itemtypeid = a.ItemTypeID,
                                                            itemtypename = b.ItemTypeName,

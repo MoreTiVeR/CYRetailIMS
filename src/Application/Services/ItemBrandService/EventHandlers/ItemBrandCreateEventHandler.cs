@@ -9,6 +9,7 @@ using CYRetailIMS.Domain.Events.TMItemBrands;
 using MediatR;
 
 namespace CYRetailIMS.Application.Services.ItemBrandService.EventHandlers;
+
 public class ItemBrandCreateEventHandler : INotificationHandler<TMItemBrandCreateEvent>
 {
     private readonly ILog4NetLogger _logger;
@@ -16,6 +17,7 @@ public class ItemBrandCreateEventHandler : INotificationHandler<TMItemBrandCreat
     {
         _logger = log4NetLogger;
     }
+
     public Task Handle(TMItemBrandCreateEvent notification, CancellationToken cancellationToken)
     {
         _logger.Info($"ItemBrandCreateEventHandler: {notification.GetType().Name}");
