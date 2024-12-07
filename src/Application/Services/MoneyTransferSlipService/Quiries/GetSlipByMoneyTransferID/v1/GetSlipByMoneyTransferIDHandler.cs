@@ -23,29 +23,36 @@ public class GetSlipByMoneyTransferIDHandler : BaseService, IRequestHandler<GetS
         IEnumerable<TTMoneyTransfer> res = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.MoneyTransferID == request.moneytransferid,
             i => i.Include(s => s.MoneyTransferSlip),
             ii => ii.Include(s => s.MoneyTransferSlip.TTMoneyTransferSlipsDetails));
-        if(res == null || !res.Any())
+        if (res == null || !res.Any())
         {
             throw new Exception("ไม่พบข้อมูลสลิปโอนเงิน");
         }
 
-        if(res.First().MoneyTransferSlipID == null || res.First().MoneyTransferSlipID == 0)
-        {
-            throw new Exception("ไม่พบข้อมูลสลิปโอนเงิน");
-        }
+        //if (res.First().MoneyTransferSlipID == null || res.First().MoneyTransferSlipID == 0)
+        //{
+        //    throw new Exception("ไม่พบข้อมูลสลิปโอนเงิน");
+        //}
 
         GetSlipByMoneyTransferIDResponseDTO resData = res.Select(s => new GetSlipByMoneyTransferIDResponseDTO
         {
             moneytransferid = s.MoneyTransferID,
             sliptransferid = s.MoneyTransferSlipID,
-            totalamounttransfer = s.MoneyTransferSlip.TotalAmountTransfer,
+            totalamounttransfer = s.MoneyTransferSlip != null ? s.MoneyTransferSlip.TotalAmountTransfer : s.AmountTransfer,
             createdby = s.CreatedBy,
             createddate = s.CreatedDate,
-            slipdetail = s.MoneyTransferSlip.TTMoneyTransferSlipsDetails.Select(d => new GetSlipByMoneyTransferIDDetailResponseDTO
+            slipdetail = !string.IsNullOrEmpty(s.SlipImagePath) ? new List<GetSlipByMoneyTransferIDDetailResponseDTO>
+            { 
+                new GetSlipByMoneyTransferIDDetailResponseDTO {
+                slipdetailid = 0,
+                imgtitle = s.SlipImagePath.Split("/")?.LastOrDefault(),
+                imgpath = s.SlipImagePath
+                }
+            } : s.MoneyTransferSlip != null ? s.MoneyTransferSlip.TTMoneyTransferSlipsDetails.Select(d => new GetSlipByMoneyTransferIDDetailResponseDTO
             {
                 slipdetailid = d.MoneyTransferSlipDetailID,
                 imgtitle = d.SlipImagePath.Split("/")?.LastOrDefault(),
                 imgpath = d.SlipImagePath
-            }).OrderBy(o => o.slipdetailid).ToList()
+            }).OrderBy(o => o.slipdetailid).ToList() : null
         }).First();
         return new BaseResponse<GetSlipByMoneyTransferIDResponseDTO>
         {

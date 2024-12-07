@@ -37,4 +37,10 @@ public class EditMoneyTransferViewModel
     public string? SlipImagePath { get; set; }
 
     public bool IsActive { get; set; }
+
+    public string? TransferAmount { get; set; }
+    public string? TransferTime { get; set; }
+
+    [DisplayName("คลิก เพื่อแนบไฟล์รูปสลิปโอนเงิน")]
+    public IFormFile? imgfileupload { get; set; }
 }

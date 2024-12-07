@@ -34,8 +34,8 @@ public class MoneyTransferController : BaseController
     private readonly IBranchAPI _branchAPI;
     private readonly IMoneyTransferAPI _moneyTransferAPI;
     private readonly IMoneyTransferSlipAPI _moneyTransferSlipAPI;
-    public MoneyTransferController(IHttpClientRequest httpClientRequest, 
-        IMapper mapper, 
+    public MoneyTransferController(IHttpClientRequest httpClientRequest,
+        IMapper mapper,
         ILog4NetLogger log,
         IBranchAPI branchAPI,
         IMoneyTransferAPI moneyTransferAPI,
@@ -73,6 +73,8 @@ public class MoneyTransferController : BaseController
             moneytransferid = mTransferID
         });
         EditMoneyTransferViewModel editMoneyTransfer = _mapper.Map<EditMoneyTransferViewModel>(resData.data);
+        editMoneyTransfer.TransferAmount = editMoneyTransfer.AmountTransfer.ToString();
+        editMoneyTransfer.TransferTime = $"{editMoneyTransfer.TransferDate:HHmm}";
         return View(editMoneyTransfer);
     }
 
@@ -310,7 +312,7 @@ public class MoneyTransferController : BaseController
             }
 
             #region Check image from upload all
-            if(mTransferData.ImageFile != null && mTransferData.ImageFile.Count() > 0)
+            if (mTransferData.ImageFile != null && mTransferData.ImageFile.Count() > 0)
             {
                 mTransferData.ImageFile.ForEach(file =>
                 {
@@ -361,7 +363,7 @@ public class MoneyTransferController : BaseController
             #endregion
 
             return Json(new { result = resCreate.result, message = "บันทึกข้อมูลสำเร็จ", data = resCreate.result ? resCreate.data : null });
-            }
+        }
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
@@ -415,7 +417,30 @@ public class MoneyTransferController : BaseController
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+                return Json(new { result = false, message = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
+
+            #region Prepare new from with not empty value
+            form = form.Where(w => w.Key.Contains("outer-item-group")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
+            if (form.Count == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ข้อมูลการโอนไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+            }
+            #endregion
+
+            decimal totalAmt = 0;
+            decimal totalProfitAmt = 0;
+            int idx = form.Count / 2;
+            for (int i = 0; i < idx; i++)
+            {
+                var transferAmount = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferAmount]").FirstOrDefault().Value[0];
+                var transferTime = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferTime]").FirstOrDefault().Value[0];
+                IFormFile postedFile = Request.Form?.Files[$"outer-item-group[{i}][imgfileupload]"];
+                string fileName = Path.GetFileName(postedFile?.FileName);
             }
 
             #region Image File is not null then stream image
@@ -494,7 +519,7 @@ public class MoneyTransferController : BaseController
 
     private List<SelectListItem> PrepareSelectIsActive()
     {
-        List<SelectListItem> selectListItems = new List<SelectListItem> 
+        List<SelectListItem> selectListItems = new List<SelectListItem>
         {
             new SelectListItem { Text = "เปิดใช้งาน", Value = "true" },
             new SelectListItem { Text = "ยกเลิก", Value = "false" }

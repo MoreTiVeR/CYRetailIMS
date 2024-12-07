@@ -9,6 +9,9 @@
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
 
+<link rel="stylesheet" type="text/css" href="~/assets/css/icons.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
+
 <div class="page-header">
     <div class="page-title">
         <h4>แก้ไขรายการเงินโอน</h4>
@@ -20,7 +23,7 @@
 <div class="card">
     <div class="card-body">
         <div class="row">
-            <form id="frmUpdateMoneyTransfer" asp-controller="MoneyTransfer" asp-action="UpdateTransaction" method="post" enctype="multipart/form-data"
+            <form id="frmUpdateMoneyTransfer" class="form repeater-default" asp-controller="MoneyTransfer" asp-action="UpdateTransaction" method="post" enctype="multipart/form-data"
                   data-ajax="true"
                   data-ajax-update=""
                   data-ajax-success="OnSuccess"
@@ -28,14 +31,14 @@
                   data-ajax-begin="OnBegin">
                 <input type="hidden" asp-for="MoneyTransferID" readonly>
                 <div class="row">
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
                             <label>สาขา</label>
                             @Html.DropDownListFor(model => model.BranchID, new SelectList(ViewBag.BranchList, "Value", "Text", null, null), "- กรุณาเลือกสาขา -", new { @class = "select2 form-control" })
                             <span asp-validation-for="BranchID" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
                             <label>วันที่โอน</label>
                             <div class="input-groupicon">
@@ -47,15 +50,57 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-lg-3 col-sm-6 col-12">
                         <fieldset class="form-group">
                             <label>จำนวนเงินโอน</label>
                             <input type="number" class="form-control" asp-for="AmountTransfer" placeholder="@Html.DisplayNameFor(d => d.AmountTransfer)">
                             <span asp-validation-for="AmountTransfer" class="text-danger"></span>
                         </fieldset>
                     </div>
+                    <div class="col-lg-2 col-sm-6 col-12"></div>
                 </div>
-
+                <div class="row" id="divMoneyTransfer">
+                    <input id="totalrow" name="totalrow" value="1" hidden />
+                    <div id="repeater" data-repeater-list="outer-item-group" class="outer-item-group money-transfer-repeater">
+                        <div data-repeater-item class="outer-item-group money-transfer-repeater">
+                            <div class="row justify-content-between">
+                                <div class="col-md-3 col-sm-12 form-group">
+                                    <div class="position-relative has-icon-left">
+                                        <input type="number" id="txtTransferAmount" name="txtTransferAmount" asp-for="AmountTransfer" onchange="return CalculateTotalAmountTransfer(this.value, this.name)" class="form-control" placeholder="จำนวนเงินที่โอน">
+                                        <div class="form-control-position">
+                                            <i class="bx bxs-keyboard"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-12 form-group">
+                                    <div class="position-relative has-icon-left">
+                                        <input type="text" id="txtTransferTime" name="txtTransferTime" asp-for="TransferAmount" data-format="hh:mm:ss" class="form-control timepicker" placeholder="เวลาที่โอน">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-12 form-group">
+                                    <div class="position-relative has-icon-left">
+                                        <!--default-->
+                                        <input type="file" id="imgfileupload" name="imgfileupload" class="form-control" accept="image/*" asp-for="imgfileupload" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-12 form-group">
+                                    <button id="btnDeleteRow" class="btn btn-danger text-nowrap" data-repeater-delete type="button">
+                                        <i class="fe fe-x"></i>
+                                        ลบรายการ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-lg-12 col-sm-12 col-12">
+                        <button id="btnAdd" class="btn btn-primary" data-repeater-create type="button">
+                            <i class="fe fe-plus"></i>
+                            เพิ่มรายการใหม่
+                        </button>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-4 col-sm-12">
                         <div class="form-group">
@@ -73,7 +118,7 @@
                         <div class="form-group">
                             <label>รูปถ่ายสลิปโอนเงิน</label>
                             <div class="image-upload">
-                                <input id="fileUpload" type="file" multiple accept="image/*" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
+                                <input id="fileupload" type="file" accept="image/*" asp-for="ImageFile" lang="th" placeholder="@Html.DisplayNameFor(d => d.ImageFile)">
                                 <div class="image-uploads">
                                     <img src="~/assets/img/icons/upload.svg" alt="img">
                                     <h4>ลากไฟล์วางที่นี่ หรือ คลิก เพื่ออัพโหลดไฟล์</h4>
@@ -114,6 +159,12 @@
 </div>
 <!-- /add -->
 @section Scripts {
+
+    <!--bootstrap-datetimepicker-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <!--repeater-->
+    <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
 
     <script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
     <script src="~/assets/plugins/pickers/pickadate/picker.js"></script>

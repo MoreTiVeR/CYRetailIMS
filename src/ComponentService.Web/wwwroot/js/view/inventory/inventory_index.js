@@ -482,16 +482,6 @@ function deleteDraft(draftid) {
 
                         //Reload data
                         $('#tbItemsTransfer').DataTable().ajax.reload();
-
-                        //$("#rowid" + itemid).closest("tr").remove().draw(false);
-                        //console.log(row);
-                        //$('#tbItems').DataTable().row(row).remove().draw(false);
-
-                        //var row = $('#dataTable').DataTable().rows('.remove-row').closest('tr');
-                        //alert('test -> ' + row);
-                        //var rowdata = $('#tbItems').DataTable().row(row).data();
-                        //alert('data -> ' + rowdata)
-                        //AlertSuccess('ลบแถวสำเร็จ');
                     }
                     else {
                         //ShowMessageError(data.message);

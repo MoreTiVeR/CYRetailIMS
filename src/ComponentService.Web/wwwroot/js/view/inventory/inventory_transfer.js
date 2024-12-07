@@ -44,6 +44,13 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         //},
         { "data": "branchid" },
         { "data": "itemid" },
+        {
+            "data": { itemid: "itemid", refillqty: "refillqty", "itemcode": "itemcode" },
+            "render": function (data) {
+                console.log('columns : render => ' + data);
+                return "<input type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid + "' value='" + data.refillqty + "'>";
+            }
+        },
         { "data": "itemcode" },
         { "data": "itemname" },
         { "data": "brandname" },
@@ -51,19 +58,8 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         { "data": "qtyinbranch" },
         { "data": "notifyminqty" },
         { "data": "orderqty" },
-        //{ "data": "refillqty" },
-        {
-            "data": { itemid: "itemid", refillqty: "refillqty", "itemcode": "itemcode" },
-            "render": function (data) {
-                console.log('columns : render => ' + data);
-                return "<input type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid +"' value='" + data.refillqty +"'>";
-            }
-        },
         { "data": "refillqty" }
     ],
-    //"language": {
-    //    "emptyTable": "ไม่พบข้อมูล."
-    //},
     "order": [[2, "asc"]],
     "columnDefs": [
         {

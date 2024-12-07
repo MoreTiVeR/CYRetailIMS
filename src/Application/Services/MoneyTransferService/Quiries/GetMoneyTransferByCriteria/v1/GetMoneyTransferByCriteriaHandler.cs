@@ -22,7 +22,8 @@ public class GetMoneyTransferByCriteriaHandler : BaseService, IRequestHandler<Ge
     {
         DateTime startDate = request.startdate.HasValue ? request.startdate.Value : DateTime.Now;
         IEnumerable <TTMoneyTransfer> resMoneyTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.TransferDate.Date >= startDate.Date,
-            i => i.Include(s => s.Branch));
+            i => i.Include(s => s.Branch),
+            i => i.Include(s => s.MoneyTransferSlip));
         var ddd = resMoneyTransfer.ToList();
         if (!resMoneyTransfer.Any())
         {

@@ -23,6 +23,13 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
     {
     }
 
+    /// <summary>
+    /// Disable Check exist branchid and itemid in TTItemTransfer 12-7-2024
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<BaseResponse<CommandResponse>> Handle(CreateItemTransferCommand request, CancellationToken cancellationToken)
     {
         #region Check exist branchid and itemid in TTItemTransfer
