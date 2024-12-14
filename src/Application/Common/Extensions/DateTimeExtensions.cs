@@ -24,7 +24,21 @@ public static class DateTimeExtensions
         }
     }
 
-    //public static DateTime ToDateTime(this string value) => DateTime.ParseExact(value, "dd/MM/yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-US"));
+    public static DateTime ToDateTime(this string value, string sTime)
+    {
+        try
+        {
+            string time = !string.IsNullOrEmpty(sTime) ? sTime : DateTime.Now.ToString("HH:mm:ss");
+            var sDateTime = $"{value} {time}:00";
+            DateTime fullDateTime = DateTime.ParseExact(sDateTime, "dd/MM/yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-US"));
+            return fullDateTime;
+        }
+        catch
+        {
+            return DateTime.Now;
+        }
+    }
+
     public static DateTime ToDateTime(this string value)
     {
         try

@@ -74,7 +74,7 @@ public class MoneyTransferController : BaseController
         });
         EditMoneyTransferViewModel editMoneyTransfer = _mapper.Map<EditMoneyTransferViewModel>(resData.data);
         editMoneyTransfer.TransferAmount = editMoneyTransfer.AmountTransfer.ToString();
-        editMoneyTransfer.TransferTime = $"{editMoneyTransfer.TransferDate:HHmm}";
+        editMoneyTransfer.TransferTime = $"{resData.data.transferdate:HH:mm:ss}";
         return View(editMoneyTransfer);
     }
 
@@ -424,25 +424,6 @@ public class MoneyTransferController : BaseController
             List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
             #endregion
 
-            #region Prepare new from with not empty value
-            form = form.Where(w => w.Key.Contains("outer-item-group")).Where(w => !string.IsNullOrEmpty(w.Value[0])).ToList();
-            if (form.Count == 0)
-            {
-                return Json(new { result = false, msg = $"ขออภัย ข้อมูลการโอนไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
-            }
-            #endregion
-
-            decimal totalAmt = 0;
-            decimal totalProfitAmt = 0;
-            int idx = form.Count / 2;
-            for (int i = 0; i < idx; i++)
-            {
-                var transferAmount = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferAmount]").FirstOrDefault().Value[0];
-                var transferTime = form.Where(w => w.Key == $"outer-item-group[{i}][txtTransferTime]").FirstOrDefault().Value[0];
-                IFormFile postedFile = Request.Form?.Files[$"outer-item-group[{i}][imgfileupload]"];
-                string fileName = Path.GetFileName(postedFile?.FileName);
-            }
-
             #region Image File is not null then stream image
             if (mTransferData.ImageFile != null)
             {
@@ -467,14 +448,12 @@ public class MoneyTransferController : BaseController
                 }
                 #endregion
 
+                //Assign new image path
+                mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
             }
             #endregion
 
-            #region Preparing Object to Create
-            mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
-            //mTransferData.CreatedBy = base.UserProfile.username;
-            //mTransferData.SaleDate = objData.SelectedDate.DCDateStringToDateTime();
-            //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);
+            #region Preparing Object to Create            
             var resUpdate = await _moneyTransferAPI.UpdateAsync(PrepareUpdateObjectData(mTransferData));
             #endregion
 
@@ -546,7 +525,7 @@ public class MoneyTransferController : BaseController
         {
             moneytransferid = reqData.MoneyTransferID,
             branchid = reqData.BranchID,
-            transferdate = reqData.TransferDate.ToDate(),
+            transferdate = reqData.TransferDate.ToDateTime(reqData.TransferTime),
             amounttransfer = reqData.AmountTransfer,
             description = reqData.Description,
             slipimagepath = reqData.SlipImagePath,

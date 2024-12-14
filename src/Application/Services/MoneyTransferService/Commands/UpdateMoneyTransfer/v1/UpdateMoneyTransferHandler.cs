@@ -25,12 +25,19 @@ public class UpdateMoneyTransferHandler : BaseService, IRequestHandler<UpdateMon
         {
             throw new Exception("ไม่พบข้อมูล");
         }
-        //resMoneyTransfer = _mapper.Map<TTMoneyTransfer>(request);
+
         resMoneyTransfer.BranchID = request.branchid;
-        resMoneyTransfer.TransferDate = request.transferdate;
+        //transfer date not same
+        if(DateTime.Compare(request.transferdate, resMoneyTransfer.TransferDate) != 0)
+        {
+            resMoneyTransfer.TransferDate = request.transferdate;
+        }
         resMoneyTransfer.AmountTransfer = request.amounttransfer;
         resMoneyTransfer.Description = request.description;
-        resMoneyTransfer.SlipImagePath = request.slipimagepath;
+        if (!string.IsNullOrEmpty(request.slipimagepath))
+        {
+            resMoneyTransfer.SlipImagePath = request.slipimagepath;
+        }
         resMoneyTransfer.IsActive = request.isactive;
         resMoneyTransfer.SetUpdatedDate();
         resMoneyTransfer.SetUpdatedBy(request.updatedby);
@@ -40,7 +47,7 @@ public class UpdateMoneyTransferHandler : BaseService, IRequestHandler<UpdateMon
         {
             result = true,
             data = new CommandResponse { result = true },
-            message = "สำเร็จ",
+            message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()
         };
