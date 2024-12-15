@@ -1,4 +1,6 @@
 ﻿
+$('.select2').select2();
+
 $('#aDownloadTemplateFile').on('click', function (e) {
     ShowMessageInfo('กำลังดาวน์โหลดไฟล์เทมเพลต...');
     e.preventDefault();  //stop the browser from following
@@ -7,10 +9,13 @@ $('#aDownloadTemplateFile').on('click', function (e) {
 
 $('#btnUpload').on('click', function () {
 
-    ShowMessageSuccess('กำลังอัพนำเข้าไฟล์สินค้า...');
+    ShowMessageSuccess('กำลังนำเข้าไฟล์สินค้า...');
     ShowLoading();
     // Checking whether FormData is available in browser  
     if (window.FormData !== undefined) {
+
+        var selectedBranchId = $("#branchid").val();
+        var branchid = parseInt(selectedBranchId);
 
         var fileUpload = $("#fileUpload").get(0);
         var files = fileUpload.files;
@@ -24,7 +29,7 @@ $('#btnUpload').on('click', function () {
         }
 
         // Adding one more key to FormData object  
-        fileData.append('username', 'Manas');
+        fileData.append('branchid', branchid);
 
         $.ajax({
             url: '/Item/UploadFiles',
