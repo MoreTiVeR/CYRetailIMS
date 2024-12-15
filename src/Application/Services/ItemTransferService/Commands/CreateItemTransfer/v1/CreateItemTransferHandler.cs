@@ -23,16 +23,23 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
     {
     }
 
+    /// <summary>
+    /// Disable Check exist branchid and itemid in TTItemTransfer 12-7-2024
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<BaseResponse<CommandResponse>> Handle(CreateItemTransferCommand request, CancellationToken cancellationToken)
     {
         #region Check exist branchid and itemid in TTItemTransfer
-        var isExist = await _unitOfWork.Repository<TTItemTransfer>().AnyAsync(w => w.DestinationID == request.destinationid 
-        && request.items.Select(s => s.itemid).Contains(w.ItemID)
-        && w.TransferStatus == (int)TransferStatus.Pending);
-        if (isExist)
-        {
-            throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากสาขาดังกล่าวมีรายการค้างรับโอนในระบบ");
-        }
+        //var isExist = await _unitOfWork.Repository<TTItemTransfer>().AnyAsync(w => w.DestinationID == request.destinationid 
+        //&& request.items.Select(s => s.itemid).Contains(w.ItemID)
+        //&& w.TransferStatus == (int)TransferStatus.Pending);
+        //if (isExist)
+        //{
+        //    throw new Exception("ไม่สามารถทำรายการได้ เนื่องจากสาขาดังกล่าวมีรายการค้างรับโอนในระบบ");
+        //}
         #endregion
 
         #region Begin transaction

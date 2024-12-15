@@ -23,30 +23,68 @@ public class GetSlipByMoneyTransferIDHandler : BaseService, IRequestHandler<GetS
         IEnumerable<TTMoneyTransfer> res = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.MoneyTransferID == request.moneytransferid,
             i => i.Include(s => s.MoneyTransferSlip),
             ii => ii.Include(s => s.MoneyTransferSlip.TTMoneyTransferSlipsDetails));
-        if(res == null || !res.Any())
+        if (res == null || !res.Any())
         {
             throw new Exception("ไม่พบข้อมูลสลิปโอนเงิน");
         }
 
-        if(res.First().MoneyTransferSlipID == null || res.First().MoneyTransferSlipID == 0)
+        //Get first ent
+        TTMoneyTransfer slipData = res.First();
+
+        GetSlipByMoneyTransferIDResponseDTO resData = new GetSlipByMoneyTransferIDResponseDTO
         {
-            throw new Exception("ไม่พบข้อมูลสลิปโอนเงิน");
+            moneytransferid = slipData.MoneyTransferID,
+            sliptransferid = slipData.MoneyTransferSlipID,
+            totalamounttransfer = slipData.MoneyTransferSlip != null ? slipData.MoneyTransferSlip.TotalAmountTransfer : slipData.AmountTransfer,
+            createdby = slipData.CreatedBy,
+            createddate = slipData.CreatedDate
+            //slipdetail = !string.IsNullOrEmpty(s.SlipImagePath) ? new List<GetSlipByMoneyTransferIDDetailResponseDTO>
+            //{
+            //    new GetSlipByMoneyTransferIDDetailResponseDTO
+            //    {
+            //        slipdetailid = 0,
+            //        imgtitle = s.SlipImagePath.Split("/")?.LastOrDefault(),
+            //        imgpath = s.SlipImagePath
+            //    }
+            //} : s.MoneyTransferSlip != null ? s.MoneyTransferSlip.TTMoneyTransferSlipsDetails.Select(d => new GetSlipByMoneyTransferIDDetailResponseDTO
+            //{
+            //    slipdetailid = d.MoneyTransferSlipDetailID,
+            //    imgtitle = d.SlipImagePath.Split("/")?.LastOrDefault(),
+            //    imgpath = d.SlipImagePath
+            //}).OrderBy(o => o.slipdetailid).ToList() : null
+        };
+
+        //1. Add slip each transaction first
+        if (!string.IsNullOrEmpty(slipData.SlipImagePath))
+        {
+            resData.slipdetail = new List<GetSlipByMoneyTransferIDDetailResponseDTO>
+            {
+                new GetSlipByMoneyTransferIDDetailResponseDTO
+                {
+                    slipdetailid = 0,
+                    imgtitle = slipData.SlipImagePath.Split("/")?.LastOrDefault(),
+                    imgpath = slipData.SlipImagePath
+                }
+            }.ToList();
         }
 
-        GetSlipByMoneyTransferIDResponseDTO resData = res.Select(s => new GetSlipByMoneyTransferIDResponseDTO
+        //2. Add bundle slip
+        if(slipData.MoneyTransferSlip != null)
         {
-            moneytransferid = s.MoneyTransferID,
-            sliptransferid = s.MoneyTransferSlipID,
-            totalamounttransfer = s.MoneyTransferSlip.TotalAmountTransfer,
-            createdby = s.CreatedBy,
-            createddate = s.CreatedDate,
-            slipdetail = s.MoneyTransferSlip.TTMoneyTransferSlipsDetails.Select(d => new GetSlipByMoneyTransferIDDetailResponseDTO
+            if(resData.slipdetail == null)
+            {
+                resData.slipdetail = new List<GetSlipByMoneyTransferIDDetailResponseDTO>();
+            }
+            resData.slipdetail.AddRange(slipData.MoneyTransferSlip.TTMoneyTransferSlipsDetails.Select(d => new GetSlipByMoneyTransferIDDetailResponseDTO
             {
                 slipdetailid = d.MoneyTransferSlipDetailID,
                 imgtitle = d.SlipImagePath.Split("/")?.LastOrDefault(),
                 imgpath = d.SlipImagePath
-            }).OrderBy(o => o.slipdetailid).ToList()
-        }).First();
+            }).OrderBy(o => o.slipdetailid));
+        }
+
+        var refinal = resData;
+
         return new BaseResponse<GetSlipByMoneyTransferIDResponseDTO>
         {
             result = true,

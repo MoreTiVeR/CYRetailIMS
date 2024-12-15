@@ -31,6 +31,12 @@ function formatDateDDMMYYYY(date) {
     return `${day}${month}${year}`;
 }
 
+function formatTimeHHMM(date) {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
 function InitialDatePicker() {
     var now = new Date();
     var $input = $('.pickadate-saledate').pickadate({

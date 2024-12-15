@@ -1,4 +1,6 @@
-﻿
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@model ImportItemViewModel
+
 @{
     ViewData["Title"] = "Import";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -14,15 +16,38 @@
 <!-- /product list -->
 <div class="card">
 	<div class="card-body">
-		<div class="requiredfield">
+        @* <div class="table-top">
+            <div class="search-set">
+            </div>
+            <div class="wordset">
+                <ul>
+                    <li>
+                        <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์เทมเพลต"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
+                    </li>
+                </ul>
+            </div>
+        </div> *@
+		@* <div class="requiredfield">
 			<h4>แนะนำไฟล์ CSV</h4>
-		</div>
+		</div> *@
 		<div class="row">
-			<div class="col-lg-3 col-sm-6 col-12">
+            <div class="col-lg-3 col-sm-6 col-12"></div>
+            <div class="col-lg-3 col-sm-6 col-12"></div>
+            <div class="col-lg-3 col-sm-6 col-12"></div>
+            <div class="col-lg-3 col-sm-6 col-12">
 				<div class="form-group">
-					<a id="aDownloadTemplateFile" class="btn btn-submit w-100 download">ดาวน์โหลดไฟล์เทมเพลต</a>
+					<a id="aDownloadTemplateFile" class="btn btn-submit w-100 download">ดาวน์โหลดไฟล์เทมเพลต (*.CSV)</a>
 				</div>
 			</div>
+            <hr />
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group">
+                    <label>สาขา</label>
+                    @Html.DropDownListFor(model => model.branchid, new SelectList(ViewBag.BranchList, "Value", "Text", null, null), "- กรุณาเลือกสาขา -", new { @class = "select2 form-control" })
+                    <span asp-validation-for="branchid" class="text-danger"></span>
+                </div>
+            </div>
+
 			<div class="col-lg-12">
 				<div class="form-group">
 					<label>	อัพโหดลด CSV ไฟล์</label>

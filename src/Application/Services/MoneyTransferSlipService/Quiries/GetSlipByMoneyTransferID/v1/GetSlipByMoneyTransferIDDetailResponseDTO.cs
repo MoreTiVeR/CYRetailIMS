@@ -8,7 +8,7 @@ namespace CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetS
 public class GetSlipByMoneyTransferIDDetailResponseDTO
 {
     public int slipdetailid { get; set; }
-    public string imgtitle { get; set; }
-    public string imgdesc { get; set; }
+    public string? imgtitle { get; set; }
+    public string? imgdesc { get; set; }
     public string imgpath { get; set; }
 }

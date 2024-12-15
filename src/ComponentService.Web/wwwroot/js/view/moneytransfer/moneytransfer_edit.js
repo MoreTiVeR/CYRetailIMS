@@ -1,9 +1,10 @@
 ﻿
 var datatable;
 
-InitialDatePicker();
-InitialCharacterRemaining();
 $('.select2').select2();
+InitialDatePicker();
+InitialTimePicker();
+InitialCharacterRemaining();
 
 $("#btnSave").on('click', function () {
 
@@ -29,7 +30,7 @@ $("#btnSave").on('click', function () {
     }).then(function (result) {
         if (result.value) {
 
-            $("#frmUpdateMoneyTransfer").submit();
+            $("#frmUpdateMoneyTransfer").trigger("submit");
         }
         else if (result.dismiss === Swal.DismissReason.cancel) {
             //Condition
@@ -48,7 +49,7 @@ function OnBegin(data) {
 
 function OnSuccess(data) {
     if (data.result) {
-        $("#frmUpdateMoneyTransfer")[0].reset();
+        //$("#frmUpdateMoneyTransfer")[0].reset();
         ShowMessageSuccess(data.message);
         HideLoading();
     }

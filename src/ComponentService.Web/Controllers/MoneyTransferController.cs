@@ -34,8 +34,8 @@ public class MoneyTransferController : BaseController
     private readonly IBranchAPI _branchAPI;
     private readonly IMoneyTransferAPI _moneyTransferAPI;
     private readonly IMoneyTransferSlipAPI _moneyTransferSlipAPI;
-    public MoneyTransferController(IHttpClientRequest httpClientRequest, 
-        IMapper mapper, 
+    public MoneyTransferController(IHttpClientRequest httpClientRequest,
+        IMapper mapper,
         ILog4NetLogger log,
         IBranchAPI branchAPI,
         IMoneyTransferAPI moneyTransferAPI,
@@ -73,6 +73,8 @@ public class MoneyTransferController : BaseController
             moneytransferid = mTransferID
         });
         EditMoneyTransferViewModel editMoneyTransfer = _mapper.Map<EditMoneyTransferViewModel>(resData.data);
+        editMoneyTransfer.TransferAmount = editMoneyTransfer.AmountTransfer.ToString();
+        editMoneyTransfer.TransferTime = $"{resData.data.transferdate:HH:mm:ss}";
         return View(editMoneyTransfer);
     }
 
@@ -310,7 +312,7 @@ public class MoneyTransferController : BaseController
             }
 
             #region Check image from upload all
-            if(mTransferData.ImageFile != null && mTransferData.ImageFile.Count() > 0)
+            if (mTransferData.ImageFile != null && mTransferData.ImageFile.Count() > 0)
             {
                 mTransferData.ImageFile.ForEach(file =>
                 {
@@ -361,7 +363,7 @@ public class MoneyTransferController : BaseController
             #endregion
 
             return Json(new { result = resCreate.result, message = "บันทึกข้อมูลสำเร็จ", data = resCreate.result ? resCreate.data : null });
-            }
+        }
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
@@ -415,8 +417,12 @@ public class MoneyTransferController : BaseController
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
+                return Json(new { result = false, message = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!." });
             }
+
+            #region Get form value
+            List<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> form = Request.Form.ToList();
+            #endregion
 
             #region Image File is not null then stream image
             if (mTransferData.ImageFile != null)
@@ -442,14 +448,12 @@ public class MoneyTransferController : BaseController
                 }
                 #endregion
 
+                //Assign new image path
+                mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
             }
             #endregion
 
-            #region Preparing Object to Create
-            mTransferData.SlipImagePath = $"../{_moneyTransferSlipSubPath}/{imgName}";
-            //mTransferData.CreatedBy = base.UserProfile.username;
-            //mTransferData.SaleDate = objData.SelectedDate.DCDateStringToDateTime();
-            //var resCreate = await _saleSlipLogService.CreateSlipLog(objData);
+            #region Preparing Object to Create            
             var resUpdate = await _moneyTransferAPI.UpdateAsync(PrepareUpdateObjectData(mTransferData));
             #endregion
 
@@ -494,7 +498,7 @@ public class MoneyTransferController : BaseController
 
     private List<SelectListItem> PrepareSelectIsActive()
     {
-        List<SelectListItem> selectListItems = new List<SelectListItem> 
+        List<SelectListItem> selectListItems = new List<SelectListItem>
         {
             new SelectListItem { Text = "เปิดใช้งาน", Value = "true" },
             new SelectListItem { Text = "ยกเลิก", Value = "false" }
@@ -521,7 +525,7 @@ public class MoneyTransferController : BaseController
         {
             moneytransferid = reqData.MoneyTransferID,
             branchid = reqData.BranchID,
-            transferdate = reqData.TransferDate.ToDate(),
+            transferdate = reqData.TransferDate.ToDateTime(reqData.TransferTime),
             amounttransfer = reqData.AmountTransfer,
             description = reqData.Description,
             slipimagepath = reqData.SlipImagePath,

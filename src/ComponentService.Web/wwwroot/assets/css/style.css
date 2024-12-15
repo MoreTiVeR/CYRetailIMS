@@ -8201,3 +8201,129 @@ span.select2-container.select2-container--default.select2-container--open {
 .text-right {
     text-align: left !important;
 }
+
+/*Custom CY Page Icon*/
+.table-top-head {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    justify-content: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+}
+
+@media (max-width: 575px) {
+    .table-top-head.low-stock-top-head {
+        flex-wrap: wrap;
+        justify-content: start;
+    }
+}
+
+.table-top-head.low-stock-top-head li {
+    margin-bottom: 10px;
+}
+
+    .table-top-head.low-stock-top-head li:last-child {
+        margin-right: 0;
+    }
+
+.table-top-head li {
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+    .table-top-head li:last-child {
+        margin-right: 0;
+    }
+
+    .table-top-head li #collapse-header {
+        margin-right: 0;
+    }
+
+@media (max-width: 991.98px) {
+    .table-top-head li #collapse-header {
+        display: none;
+    }
+}
+
+.table-top-head li a {
+    height: 38px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    justify-content: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    border: 1px solid #e8ebed;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 6px;
+}
+
+    .table-top-head li a svg {
+        color: #092C4C;
+    }
+
+    .table-top-head li a:hover {
+        background: #e3e3e3;
+    }
+
+    .table-top-head li a label {
+        margin-right: 10px;
+    }
+
+    .table-top-head li a.btn-secondary {
+        background-color: #092C4C;
+        color: #ffffff;
+        padding: 10px;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+        .table-top-head li a.btn-secondary:hover {
+            background-color: #FF9F43;
+        }
+
+        .table-top-head li a.btn-secondary svg {
+            width: 16px;
+            margin-right: 5px;
+            color: #ffffff;
+        }
+
+@media (max-width: 767px) {
+    .table-top-head li a.btn-secondary {
+        padding: 5px;
+        font-size: 14px;
+    }
+}
+
+.table-top-head li a .action-edit.sales-action {
+    color: #3577f1;
+}
+
+.table-top-head li .status-toggle {
+    height: 38px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    justify-content: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    border: 1px solid #f3f6f9;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+    .table-top-head li .status-toggle label {
+        margin-right: 10px;
+    }

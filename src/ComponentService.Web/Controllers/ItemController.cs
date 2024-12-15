@@ -132,8 +132,9 @@ public class ItemController : BaseController
         return View();
     }
 
-    public IActionResult Import()
+    public async Task<IActionResult> ImportAsync()
     {
+        ViewBag.BranchList = await PrepareSelectBranch();
         return View();
     }
 
@@ -779,12 +780,27 @@ public class ItemController : BaseController
         int errCount = 0;
         try
         {
+            //Branch
+            string branchid = Request.Form.FirstOrDefault(w => w.Key == "branchid").Value;
+            if(string.IsNullOrEmpty(branchid) || branchid.ToInt32() <= 0)
+            {
+                return Json(new { result = false, message = "กรุณาระบุสาขาก่อนทำรายการ!" });
+            }
+
+            if(branchid.ToInt32() != 1)
+            {
+                return Json(new { result = false, message = "อนุญาตให้นำเข้าเฉพาะสำนักงานใหญ่เท่านั้น!" });
+            }
+
             if (Request.Form.Files.Count > 0)
             {
                 List<int> errRow = new List<int>();
                 List<ImportItemViewModel> itemList = new List<ImportItemViewModel>();
 
                 IFormFile file = Request.Form.Files[0];
+
+                //Branch
+                //string branchid = Request.Form.FirstOrDefault(w => w.Key == "branchid").Value;
 
                 using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
@@ -864,7 +880,7 @@ public class ItemController : BaseController
                 return Json(new { result = true, message = "นำเข้าสินค้าสำเร็จ" });
             }
 
-            return Json(new { result = false, message = "ไม่พบไฟล์สินค้า" });
+            return Json(new { result = false, message = "ไม่พบไฟล์นำเข้าสินค้า" });
         }
         catch (Exception ex)
         {

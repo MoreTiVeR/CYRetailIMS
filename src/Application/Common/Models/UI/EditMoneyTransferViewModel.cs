@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.Application.Common.Models.UI;
 
@@ -37,4 +38,12 @@ public class EditMoneyTransferViewModel
     public string? SlipImagePath { get; set; }
 
     public bool IsActive { get; set; }
+
+    public string? TransferAmount { get; set; }
+
+    //[BindProperty, DisplayFormat(DataFormatString = "{0:HH:mm}", ApplyFormatInEditMode = true)]
+    public string? TransferTime { get; set; }
+
+    [DisplayName("คลิก เพื่อแนบไฟล์รูปสลิปโอนเงิน")]
+    public IFormFile? imgfileupload { get; set; }
 }

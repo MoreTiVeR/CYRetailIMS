@@ -22,7 +22,8 @@ public class GetMoneyTransferByIDHandler : BaseService, IRequestHandler<GetMoney
     public async Task<BaseResponse<GetMoneyTransferByCriteriaResponseDTO>> Handle(GetMoneyTransferByIDQuery request, CancellationToken cancellationToken)
     {
         IEnumerable<TTMoneyTransfer> resMoneyTransfer = await _unitOfWork.Repository<TTMoneyTransfer>().FindWithInclude(w => w.MoneyTransferID == request.moneytransferid,
-                    i => i.Include(s => s.Branch));
+                    i => i.Include(s => s.Branch),
+                    i => i.Include(s => s.MoneyTransferSlip));
         if (!resMoneyTransfer.Any())
         {
             throw new Exception("ไม่พบข้อมูล");

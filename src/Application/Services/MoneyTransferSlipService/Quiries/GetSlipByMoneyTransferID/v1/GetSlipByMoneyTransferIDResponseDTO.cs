@@ -12,5 +12,5 @@ public class GetSlipByMoneyTransferIDResponseDTO
     public decimal totalamounttransfer { get; set; }
     public string createdby { get; set; }
     public DateTime createddate { get; set; }
-    public List<GetSlipByMoneyTransferIDDetailResponseDTO> slipdetail { get; set; }
+    public List<GetSlipByMoneyTransferIDDetailResponseDTO>? slipdetail { get; set; }
 }

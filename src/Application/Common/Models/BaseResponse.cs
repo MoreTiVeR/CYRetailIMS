@@ -16,7 +16,8 @@ public class BaseResponse<T>
     {
         get
         {
-            return _msg.ToNonAssci();
+            return _msg;
+            //return _msg.ToNonAssci();
         }
         set
         {

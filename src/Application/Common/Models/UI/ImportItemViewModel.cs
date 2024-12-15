@@ -17,6 +17,6 @@ public class ImportItemViewModel
 	public int minqty { get; set; }
     public int maxqty { get; set; }
     public string description { get; set; }
-
     public bool isupdate { get; set; }
+    public int branchid { get; set; }
 }

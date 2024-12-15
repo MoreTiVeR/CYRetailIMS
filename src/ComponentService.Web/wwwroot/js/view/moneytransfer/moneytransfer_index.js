@@ -37,6 +37,15 @@ datatable = $("#tbMoneyTransfer").DataTable({
                 return formatDate(new Date(data.transferdate));
             }
         },
+        {
+            "data": { transferdate: "transferdate" },
+            "render": function (data) {
+                if (data.transferdate === null || data.transferdate == null) {
+                    return data.transferdate;
+                }
+                return formatTimeHHMM(new Date(data.transferdate));
+            }
+        },
         { "data": "branchid" },
         { "data": "branchname" },
         { "data": "amounttransfer" },
@@ -85,7 +94,7 @@ datatable = $("#tbMoneyTransfer").DataTable({
     "order": [[1, "desc"]],
     "columnDefs": [
         {
-            "targets": [0, 1, 3],
+            "targets": [0, 1, 4],
             "visible": false
         },
         {
