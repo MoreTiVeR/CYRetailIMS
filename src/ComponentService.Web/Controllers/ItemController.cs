@@ -236,7 +236,7 @@ public class ItemController : BaseController
             }
             #endregion
 
-            if (base.UserProfile.roleid == (int)UserRole.Admin)
+            if (base.UserProfile.roleid == (int)UserRole.Admin || base.UserProfile.roleid == (int)UserRole.Stock)
             {
                 transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery
                 {

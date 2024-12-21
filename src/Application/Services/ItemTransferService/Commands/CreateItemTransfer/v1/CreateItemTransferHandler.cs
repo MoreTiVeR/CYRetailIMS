@@ -180,8 +180,6 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
         }
         #endregion
 
-
-
         #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
         await _unitOfWork.CommitTransactionAsync();
