@@ -75,6 +75,8 @@ using CYRetailIMS.Infrastructure.ExternalService.UserAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
 using CYRetailIMS.Infrastructure.ExternalService.WarehouseAPI;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace CYRetailIMS.ComponentService.Web;
 
@@ -94,7 +96,30 @@ public static class ConfigureService
         });
 
         services.Configure<ErrorViewModel>(configuration.GetSection("ExceptionSettings"));
-        
+
+        #region Limit Max Request
+        //Max Request For application running on Kestrel
+        //services.Configure<KestrelServerOptions>(options =>
+        //{
+        //    options.Limits.MaxRequestBodySize = int.MaxValue;
+        //});
+
+        //Max Request For application running on IIS
+        services.Configure<IISServerOptions>(options =>
+        {
+            options.MaxRequestBodySize = int.MaxValue;
+        });
+
+        //Form's MultipartBodyLengthLimit
+        services.Configure<FormOptions>(options =>
+        {
+            options.ValueLengthLimit = int.MaxValue;
+            options.MultipartBodyLengthLimit = int.MaxValue;
+            options.MultipartHeadersLengthLimit = int.MaxValue;
+        });
+        #endregion
+
+
         services.AddDistributedMemoryCache();
         services.AddSession(opts =>
         {

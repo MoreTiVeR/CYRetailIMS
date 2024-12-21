@@ -243,6 +243,9 @@ public class MoneyTransferController : BaseController
     /// </summary>
     /// <param name="mTransferData"></param>
     /// <returns></returns>
+    //[DisableRequestSizeLimit]
+    [RequestSizeLimit(int.MaxValue)]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
     [HttpPost]
     public async Task<IActionResult> CreateTransactionV2(CreateMoneyTransferViewModel mTransferData)
     {
@@ -269,6 +272,9 @@ public class MoneyTransferController : BaseController
             #endregion
 
             DateTime transferDate = mTransferData.TransferDate.ToDate();
+            string datePath = $"{DateTime.Now:ddMMyyyy}";
+            string branchPath = mTransferData.BranchID.ToString();
+            string branchTime = $"{transferDate:HHss}";
             decimal totalAmt = 0;
             decimal totalProfitAmt = 0;
             int idx = form.Count / 2;
@@ -288,7 +294,7 @@ public class MoneyTransferController : BaseController
                         imgName = $"{Guid.NewGuid().ToString()}_{Path.GetExtension(fileName)}";
 
                         //Get url To Save
-                        imgSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, imgName);
+                        imgSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, datePath, branchPath, imgName);
                         files.Add(new MoneyTransferFileUploadModel
                         {
                             filename = imgName,
@@ -304,7 +310,7 @@ public class MoneyTransferController : BaseController
                         branchid = mTransferData.BranchID,
                         description = mTransferData.Description,
                         createdby = base.UserProfile.username,
-                        slipimagepath = postedFile != null ? $"../{_moneyTransferSlipSubPath}/{imgName}" : null,
+                        slipimagepath = postedFile != null ? $"../{_moneyTransferSlipSubPath}/{datePath}/{branchPath}/{imgName}" : null,
                         transferdate = transferDateTime,
                         amounttransfer = transferAmount.ToDecimal()
                     });
@@ -317,7 +323,7 @@ public class MoneyTransferController : BaseController
                 mTransferData.ImageFile.ForEach(file =>
                 {
                     string fileName = $"{Guid.NewGuid().ToString()}_{Path.GetExtension(file.FileName)}";
-                    string fileSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, fileName);
+                    string fileSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, datePath, branchPath, fileName);
                     files.Add(new MoneyTransferFileUploadModel
                     {
                         filename = fileName,
@@ -327,7 +333,7 @@ public class MoneyTransferController : BaseController
 
                     createMoneyTransferSlipCommands.Add(new CreateMoneyTransferSlipCommand
                     {
-                        slipimagepath = $"../{_moneyTransferSlipSubPath}/{fileName}"
+                        slipimagepath = $"../{_moneyTransferSlipSubPath}/{datePath}/{branchPath}/{fileName}"
                     });
                 });
 
@@ -335,23 +341,7 @@ public class MoneyTransferController : BaseController
             #endregion
 
             #region Stream Image File
-
-            files.Where(w => w.filedata != null).ForEach(e =>
-            {
-                #region File Path Check
-                FileInfo fInfo = new FileInfo(e.filepath);
-                if (!fInfo.Directory.Exists)
-                {
-                    fInfo.Directory.Create();
-                }
-                #endregion
-
-                using (var stream = new FileStream(e.filepath, FileMode.Create))
-                {
-                    e.filedata.CopyTo(stream);
-                }
-            });
-
+            await StreamImageAsync(files);
             #endregion
 
             #region Preparing Object to Create
@@ -533,5 +523,37 @@ public class MoneyTransferController : BaseController
             isactive = reqData.IsActive
         };
     }
+
+    private async Task<bool> StreamImageAsync(List<MoneyTransferFileUploadModel> files)
+    {
+        try
+        {
+            await Task.Run(() =>
+            {
+                files.Where(w => w.filedata != null).ForEach(async e =>
+                {
+                    #region File Path Check
+                    FileInfo fInfo = new FileInfo(e.filepath);
+                    if (!fInfo.Directory.Exists)
+                    {
+                        fInfo.Directory.Create();
+                    }
+                    #endregion
+
+                    using (var stream = new FileStream(e.filepath, FileMode.Create))
+                    {
+                        await e.filedata.CopyToAsync(stream);
+                    }
+                });
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"[ERROR]StreamImageAsync: {ex.Message}");
+            return false;
+        }
+    }
+
     #endregion
 }

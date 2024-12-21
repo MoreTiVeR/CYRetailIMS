@@ -239,4 +239,8 @@ _Pvt_Extensions
 **/*.DS_Store
 
 # Ignore transfer image slip
+<<<<<<< HEAD
 src/ComponentService.Web/wwwroot/money_transfer_slip
+=======
+src/ComponentService.Web/wwwroot/money_transfer_slip
+>>>>>>> develop

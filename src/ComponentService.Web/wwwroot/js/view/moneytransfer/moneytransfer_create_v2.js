@@ -215,7 +215,11 @@ function OnSuccess(data) {
 
 function OnFailed(data) {
     console.log(data);
-    ShowMessageError(data.message);
+    var errMsg = data.message;
+    if (data.status == "413") {
+        errMsg = "ไม่สามารถอัพโหลดไฟล์ได้<br>เนื่องจากไฟล์รวมมีขนาดเกิน 100MB <br>กรุณาลองใหม่อีกครั้ง";
+    }
+    ShowMessageError(errMsg);
     HideLoading();
 }
 

@@ -1,7 +1,9 @@
 
 using System.Globalization;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace CYRetailIMS.ComponentService.Web;
 
@@ -61,6 +63,19 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseSession();
+
+        #region Limit Request Body Size
+        //app.Use(async (context, next) =>
+        //{
+        //    var httpMaxRequestBodySizeFeature = context.Features.Get<IHttpMaxRequestBodySizeFeature>();
+
+        //    if (httpMaxRequestBodySizeFeature is not null)
+        //    {
+        //        httpMaxRequestBodySizeFeature.MaxRequestBodySize = 300_000_000;
+        //    }
+        //    await next(context);
+        //});
+        #endregion
 
         //app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.MapControllerRoute(
