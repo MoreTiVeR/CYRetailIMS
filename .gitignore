@@ -237,3 +237,6 @@ _Pvt_Extensions
 /.mfractor
 
 **/*.DS_Store
+
+# Ignore transfer image slip
+src/ComponentService.Web/wwwroot/money_transfer_slip
