@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models.UI;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByCriteria.v1;
 
 namespace CYRetailIMS.Application.Common.Mappings.UI.MoneyTransfer;
 public class EditMoneyTransferMappingProfile : Profile

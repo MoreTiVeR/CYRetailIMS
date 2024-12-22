@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
-namespace CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
+namespace CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByCriteria.v1;
 public record GetMoneyTransferByCriteriaQuery : IRequest<BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>>>
 {
     public DateTime? startdate { get; init; }

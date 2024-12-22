@@ -1,8 +1,8 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByID.v1;
-using CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetSlipByMoneyTransferID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByCriteria.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferSlipService.Queries.GetSlipByMoneyTransferID.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

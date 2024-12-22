@@ -11,8 +11,8 @@ using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoney
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.CreateMoneyTransferList.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoneyTransfer.v1;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByCriteria.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByID.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.MoneyTransferAPI;
 public class MoneyTransferAPI : HttpClientService, IMoneyTransferAPI

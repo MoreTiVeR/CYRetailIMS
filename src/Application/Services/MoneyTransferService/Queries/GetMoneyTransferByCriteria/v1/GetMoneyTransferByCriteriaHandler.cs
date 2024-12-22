@@ -11,7 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
+namespace CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByCriteria.v1;
 public class GetMoneyTransferByCriteriaHandler : BaseService, IRequestHandler<GetMoneyTransferByCriteriaQuery, BaseResponse<List<GetMoneyTransferByCriteriaResponseDTO>>>
 {
     public GetMoneyTransferByCriteriaHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)

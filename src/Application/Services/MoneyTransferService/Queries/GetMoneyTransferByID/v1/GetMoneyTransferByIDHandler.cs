@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByCriteria.v1;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByID.v1;
+namespace CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByID.v1;
 public class GetMoneyTransferByIDHandler : BaseService, IRequestHandler<GetMoneyTransferByIDQuery, BaseResponse<GetMoneyTransferByCriteriaResponseDTO>>
 {
     public GetMoneyTransferByIDHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)

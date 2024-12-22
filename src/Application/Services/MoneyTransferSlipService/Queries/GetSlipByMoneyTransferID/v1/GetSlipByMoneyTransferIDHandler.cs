@@ -11,7 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetSlipByMoneyTransferID.v1;
+namespace CYRetailIMS.Application.Services.MoneyTransferSlipService.Queries.GetSlipByMoneyTransferID.v1;
 public class GetSlipByMoneyTransferIDHandler : BaseService, IRequestHandler<GetSlipByMoneyTransferIDQuery, BaseResponse<GetSlipByMoneyTransferIDResponseDTO>>
 {
     public GetSlipByMoneyTransferIDHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
@@ -30,6 +30,11 @@ public class GetSlipByMoneyTransferIDHandler : BaseService, IRequestHandler<GetS
 
         //Get first ent
         TTMoneyTransfer slipData = res.First();
+
+        if (string.IsNullOrEmpty(slipData.SlipImagePath) && slipData.MoneyTransferSlipID is null)
+        {
+            throw new Exception("ไม่พบข้อมูลสลิปโอนเงิน");
+        }
 
         GetSlipByMoneyTransferIDResponseDTO resData = new GetSlipByMoneyTransferIDResponseDTO
         {
@@ -82,8 +87,6 @@ public class GetSlipByMoneyTransferIDHandler : BaseService, IRequestHandler<GetS
                 imgpath = d.SlipImagePath
             }).OrderBy(o => o.slipdetailid));
         }
-
-        var refinal = resData;
 
         return new BaseResponse<GetSlipByMoneyTransferIDResponseDTO>
         {

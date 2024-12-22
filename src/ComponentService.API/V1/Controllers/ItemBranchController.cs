@@ -2,6 +2,7 @@
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
@@ -20,6 +21,22 @@ public class ItemBranchController : BaseApiController
 {
     public ItemBranchController(ILog4NetLogger log) : base(log)
     {
+    }
+
+    [HttpPost]
+    [Route("v1/bulkcreate")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateItemInBranchAsync(CreateItemInBranchListCommand createItemInBranchCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(createItemInBranchCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CreateItemInBranchAsync Success");
+        return Ok(res.data);
     }
 
     [HttpPost]
