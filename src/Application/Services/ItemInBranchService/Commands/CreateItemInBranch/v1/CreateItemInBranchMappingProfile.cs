@@ -23,5 +23,14 @@ public class CreateItemInBranchMappingProfile : Profile
             .ForMember(m => m.DiscountPercent, f => f.MapFrom(x => x.discountpercent))
             .ForMember(m => m.CreatedBy, f => f.MapFrom(x => x.createdby))
             .ForMember(m => m.IsActive, f => f.MapFrom(x => x.isactive));
+
+        //CreateMap<TMItemInBranch, TTStockImportHistory>()
+        //    .ForMember(s => s.BranchID, f => f.MapFrom(ss => ss.BranchID))
+        //    .ForMember(s => s.ItemID, f => f.MapFrom(ss => ss.ItemID))
+        //    .ForMember(s => s.Price, f => f.MapFrom(ss => ss.Price))
+        //    .ForMember(s => s.DiscountPercent, f => f.MapFrom(ss => ss.DiscountPercent))
+        //    .ForMember(s => s.Qty, f => f.MapFrom(ss => ss.Qty))
+        //    .ForMember(s => s.NotifyMinQty, f => f.MapFrom(ss => ss.NotifyMinQty))
+        //    .ForMember(s => s.NotifyMaxQty, f => f.MapFrom(ss => ss.NotifyMaxQty));
     }
 }

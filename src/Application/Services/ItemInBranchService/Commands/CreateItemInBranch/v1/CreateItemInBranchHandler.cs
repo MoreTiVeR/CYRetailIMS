@@ -9,6 +9,7 @@ using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
 using CYRetailIMS.Domain.Events.TMItems;
+using CYRetailIMS.Domain.Events.TTStockImportHistories;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +23,7 @@ public class CreateItemInBranchHandler : BaseService, IRequestHandler<CreateItem
 
     public async Task<BaseResponse<CommandResponse>> Handle(CreateItemInBranchListCommand request, CancellationToken cancellationToken)
     {
+        bool isNewImport = false;
         DateTime createdDate = DateTime.Now;
         string createdBy = request.items.FirstOrDefault().createdby;
 
@@ -33,43 +35,72 @@ public class CreateItemInBranchHandler : BaseService, IRequestHandler<CreateItem
         }
         #endregion
 
-        #region Set current item in branch isactvie is false
-        var resItemInBranch = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => w.BranchID == request.branchid);
+        #region Get item in branch
+        IEnumerable<TMItemInBranch> resItemInBranch = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => w.BranchID == request.branchid);
         if (!resItemInBranch.Any())
         {
-            throw new Exception("ไม่พบข้อมูลสินค้าสาขา!");
+            isNewImport = true;
         }
-        resItemInBranch.ToList().ForEach(e =>
-        {
-            e.IsActive = false;
-            e.SetUpdatedBy(createdBy);
-            e.SetUpdatedDate(createdDate);
-            e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
-        });
         #endregion
 
-        #region Create Item in branch history before import
+        #region Create Item in branch history before import -> TTStockImportHistory
+        if (!isNewImport)
+        {
+            List<TTStockImportHistory> stockHistory = resItemInBranch.Select(s => new TTStockImportHistory
+            {
+                BranchID = s.BranchID,
+                ItemID = s.ItemID,
+                Price = s.Price,
+                DiscountPercent = s.DiscountPercent,
+                Qty = s.Qty,
+                NotifyMinQty = s.NotifyMinQty,
+                NotifyMaxQty = s.NotifyMaxQty,
+                ImportedBy = createdBy,
+                ImportedDate = createdDate
+            }).ToList();
+            stockHistory.ForEach(e =>
+            {
+                e.AddDomainEvent(new TTStockImportHistoryCreateEvent(e));
+            });
+            await _unitOfWork.Repository<TTStockImportHistory>().AddRangeAsync(stockHistory);
+        }
+        #endregion
 
+        #region Set current item in branch isactvie is false, qty = 0
+        if (!isNewImport)
+        {
+            resItemInBranch.ToList().ForEach(e =>
+            {
+                e.Qty = 0;
+                e.IsActive = false;
+                e.SetUpdatedBy(createdBy);
+                e.SetUpdatedDate(createdDate);
+                e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
+            });
+        }
         #endregion
 
         #region Update only matched CreateItemInBranchCommand request and set isactvie is true
-        List<CreateItemInBranchDetailCommand> updateItemEntity = request.items.Where(w => w.isupdate).ToList();
-        if (updateItemEntity.Count > 0)
+        if (!isNewImport)
         {
-            List<int> itemIdList = updateItemEntity.Select(s => s.itemid).ToList();
-            IEnumerable<TMItemInBranch> resUpdateItemEnt = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => itemIdList.Contains(w.ItemID));
-            resUpdateItemEnt.ToList().ForEach(e =>
+            List<CreateItemInBranchDetailCommand> updateItemEntity = request.items.Where(w => w.isupdate).ToList();
+            if (updateItemEntity.Count > 0)
             {
-                CreateItemInBranchDetailCommand reqItem = updateItemEntity.FirstOrDefault(w => w.itemid == e.ItemID);
-                e.Qty = e.Qty + reqItem.qty;
-                e.Price = reqItem.price;
-                e.NotifyMinQty = reqItem.notifyminqty;
-                e.NotifyMaxQty = reqItem.notifymaxqty;
-                e.SetUpdatedBy(createdBy);
-                e.SetUpdatedDate(createdDate);
-                e.ActiveStatus();
-                e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
-            });
+                List<int> itemIdList = updateItemEntity.Select(s => s.itemid).ToList();
+                IEnumerable<TMItemInBranch> resUpdateItemEnt = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => itemIdList.Contains(w.ItemID));
+                resUpdateItemEnt.ToList().ForEach(e =>
+                {
+                    CreateItemInBranchDetailCommand reqItem = updateItemEntity.FirstOrDefault(w => w.itemid == e.ItemID);
+                    e.Qty = reqItem.qty;
+                    e.Price = reqItem.price;
+                    e.NotifyMinQty = reqItem.notifyminqty;
+                    e.NotifyMaxQty = reqItem.notifymaxqty;
+                    e.SetUpdatedBy(createdBy);
+                    e.SetUpdatedDate(createdDate);
+                    e.ActiveStatus();
+                    e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
+                });
+            }
         }
         #endregion
 
@@ -95,6 +126,7 @@ public class CreateItemInBranchHandler : BaseService, IRequestHandler<CreateItem
         return new BaseResponse<CommandResponse>
         {
             result = true,
+            data = new CommandResponse { result = true },
             soruce = "db",
             message = "Success",
             status = StatusCodes.Status200OK.ToString()

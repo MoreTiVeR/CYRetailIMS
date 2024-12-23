@@ -52,6 +52,8 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTr
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchForImportByBranchID.v1;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByIDList.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -788,11 +790,6 @@ public class ItemController : BaseController
                 return Json(new { result = false, message = "กรุณาระบุสาขาก่อนทำรายการ!" });
             }
 
-            //if(branchid.ToInt32() != 1)
-            //{
-            //    return Json(new { result = false, message = "อนุญาตให้นำเข้าเฉพาะสำนักงานใหญ่เท่านั้น!" });
-            //}
-
             if (Request.Form.Files.Count > 0)
             {
                 List<int> errRow = new List<int>();
@@ -1178,81 +1175,103 @@ public class ItemController : BaseController
         #region Mapping ItemTypeID by itemtype, Mapping ItemBrandID by itembrand
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemType = await _itemTypeAPI.GetItemTypeListAsync();
         BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrand = await _itemBrandAPI.GetItemBrandListAsync();
+        BaseResponse<List<GetItemInBranchForImportByBranchIDResponseDTO>> resItemsInBranch = await _itemInBranchAPI.GetItemBranchForImportAsync(new GetItemInBranchForImportByBranchIDQuery
+        {
+            branchid = branchID
+        });
+
         BaseResponse<List<GetItemListResponseDTO>> resItems = await _itemAPI.GetItemListAsync();
-        BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemsInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(branchID);
+        //if (resItemsInBranch.data != null && resItemsInBranch.data?.Count > 0)
+        //{
+        //    resItems = await _itemAPI.GetItemByIDListAsync(new GetItemByIDListQuery
+        //    {
+        //        itemidlist = resItemsInBranch.data.Select(s => s.itemid).ToList()
+        //    });
+        //}
+        //else
+        //{
+        //    resItems = await _itemAPI.GetItemListAsync();
+        //}
 
         List<CreateItemInBranchDetailCommand> createItemInBranchDetailCommands = new List<CreateItemInBranchDetailCommand>();
-        itemViewModel.ForEach(s =>
+        try
         {
-            //Check isexist itemcode
-            GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim() == s.itemcode.Trim());
-            GetItemInBranchByBranchIDItemResponseDTO itembranch = resItemsInBranch.data.itemlist.FirstOrDefault(w => w.itemid == item.itemid);
-            if (itembranch != null)
+            itemViewModel.ForEach(s =>
             {
-                s.isupdate = true;
-            }
+                //Check isexist itemcode
+                GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim() == s.itemcode.Trim());
+                var itembranch = resItemsInBranch.data?.FirstOrDefault(w => w.itemid == item.itemid);
+                if (itembranch != null)
+                {
+                    s.isupdate = true;
+                }
 
-            //Check isexist itemtype
-            GetItemTypeListResponseDTO itemType = resItemType.data?.FirstOrDefault(w => w.itemtypename.Trim().ToLower() == s.itemtype.Trim().ToLower());
-            if (itemType == null)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
-            }
+                //Check isexist itemtype
+                GetItemTypeListResponseDTO itemType = resItemType.data?.FirstOrDefault(w => w.itemtypename.Trim().ToLower() == s.itemtype.Trim().ToLower());
+                if (itemType == null)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
+                }
 
-            //Check isexist itembrand
-            GetItemBrandListResponseDTO itemBrand = resItemBrand.data?.FirstOrDefault(w => w.brandname.Trim().ToLower() == s.itembrand.Trim().ToLower());
-            if (itemBrand == null)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
-            }
+                //Check isexist itembrand
+                GetItemBrandListResponseDTO itemBrand = resItemBrand.data?.FirstOrDefault(w => w.brandname.Trim().ToLower() == s.itembrand.Trim().ToLower());
+                if (itemBrand == null)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
+                }
 
-            //Check Description length
-            if (s.itemcode.Length > 12)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
-            }
+                //Check Description length
+                if (s.itemcode.Length > 12)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
+                }
 
-            if (s.itemname.Length > 100)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
-            }
+                if (s.itemname.Length > 100)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
+                }
 
-            if (!string.IsNullOrEmpty(s.description) && s.description.Length > 200)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
-            }
+                if (!string.IsNullOrEmpty(s.description) && s.description.Length > 200)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
+                }
 
-            CreateItemInBranchDetailCommand itemEnt = new CreateItemInBranchDetailCommand
-            {
-                branchid = branchID,
-                itemid = item.itemid,
-                itemcode = s.itemcode,
-                itemtypeid = itemType.itemtypeid,
-                brandid = itemBrand.brandid,
-                unitofmeasureid = 1,
-                name = s.itemname,
-                //barcode = null,
-                description = s.description,
-                //shortname = !string.IsNullOrEmpty(s.itemname) ? s.itemname : s.itemname,
-                itemimageurl = "../assets/img/product/noimage.png",
-                price = s.price,
-                qty = s.qty,
-                notifyminqty = s.minqty,
-                notifymaxqty = s.maxqty,
-                createdby = base.UserProfile.username,
-                isactive = true,
-                discountpercent = 0,
-                isupdate = s.isupdate,
-                cost = s.cost
-            };
-            createItemInBranchDetailCommands.Add(itemEnt);
-            rowCount++;
-        });
+                CreateItemInBranchDetailCommand itemEnt = new CreateItemInBranchDetailCommand
+                {
+                    branchid = branchID,
+                    itemid = item.itemid,
+                    itemcode = s.itemcode,
+                    itemtypeid = itemType.itemtypeid,
+                    brandid = itemBrand.brandid,
+                    unitofmeasureid = 1,
+                    name = s.itemname,
+                    //barcode = null,
+                    description = s.description,
+                    //shortname = !string.IsNullOrEmpty(s.itemname) ? s.itemname : s.itemname,
+                    itemimageurl = "../assets/img/product/noimage.png",
+                    price = s.price,
+                    qty = s.qty,
+                    notifyminqty = s.minqty,
+                    notifymaxqty = s.maxqty,
+                    createdby = base.UserProfile.username,
+                    isactive = true,
+                    discountpercent = 0,
+                    isupdate = s.isupdate,
+                    cost = s.cost
+                };
+                createItemInBranchDetailCommands.Add(itemEnt);
+                rowCount++;
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount} | ข้อผิดพลาด: {ex.Message}");
+        }
         #endregion
 
         return new CreateItemInBranchListCommand

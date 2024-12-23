@@ -35,6 +35,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return entity;
     }
 
+    public async Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entity)
+    {
+        await _context.Set<T>().AddRangeAsync(entity);
+        return entity;
+    }
+
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await _context.Set<T>().AnyAsync(predicate);
 
     public int Count() => _context.Set<T>().Count();

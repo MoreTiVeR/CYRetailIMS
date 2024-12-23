@@ -10,6 +10,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemIn
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchForImportByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 
@@ -24,4 +25,5 @@ public interface IItemInBranchAPI
     Task<BaseResponse<CommandResponse>> UpdateItemInBranchAsync(UpdateItemInBranchCommand updateCommand);
     Task<BaseResponse<CommandResponse>> DeleteItemInBranchAsync(DeleteItemInBranchCommand deleteCommand);
     Task<BaseResponse<List<GetItemInventoryTransferResposeDTO>>> GetItemInventoryForTransferAsync(GetItemInventoryTransferQuery inventoryTransferQuery);
+    Task<BaseResponse<List<GetItemInBranchForImportByBranchIDResponseDTO>>> GetItemBranchForImportAsync(GetItemInBranchForImportByBranchIDQuery inventoryTransferQuery);
 }

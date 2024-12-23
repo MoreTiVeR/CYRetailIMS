@@ -6,6 +6,7 @@ using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByIDList.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.MenuService.Queries.GetMenuByRoleID.v1;
 using Microsoft.AspNetCore.Http;
@@ -147,6 +148,22 @@ public class ItemController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetItemByBarCodeV2Async Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/getitembyids")]
+    [ProducesResponseType(typeof(List<GetItemListResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemsByIDListAsync(GetItemByIDListQuery listQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetItemListResponseDTO>> res = await Mediator.Send(listQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemsByIDListAsync Success");
         return Ok(res.data);
     }
 }
