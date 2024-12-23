@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Validators;
 
-namespace CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetSlipByMoneyTransferID.v1;
+namespace CYRetailIMS.Application.Services.MoneyTransferSlipService.Queries.GetSlipByMoneyTransferID.v1;
 public class GetSlipByMoneyTransferIDValidator : AbstractValidator<GetSlipByMoneyTransferIDQuery>
 {
     public GetSlipByMoneyTransferIDValidator()

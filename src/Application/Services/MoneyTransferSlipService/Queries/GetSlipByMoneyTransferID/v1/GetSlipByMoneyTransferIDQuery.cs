@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
-namespace CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetSlipByMoneyTransferID.v1;
+namespace CYRetailIMS.Application.Services.MoneyTransferSlipService.Queries.GetSlipByMoneyTransferID.v1;
 public record GetSlipByMoneyTransferIDQuery : IRequest<BaseResponse<GetSlipByMoneyTransferIDResponseDTO>>
 {
     public int moneytransferid { get; init; }

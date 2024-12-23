@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.MoneyTransferSlipAPI;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByCriteria.v1;
-using CYRetailIMS.Application.Services.MoneyTransferService.Quiries.GetMoneyTransferByID.v1;
-using CYRetailIMS.Application.Services.MoneyTransferSlipService.Quiries.GetSlipByMoneyTransferID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByCriteria.v1;
+using CYRetailIMS.Application.Services.MoneyTransferService.Queries.GetMoneyTransferByID.v1;
+using CYRetailIMS.Application.Services.MoneyTransferSlipService.Queries.GetSlipByMoneyTransferID.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.MoneyTransferSlipAPI;
 public class MoneyTransferSlipAPI : HttpClientService, IMoneyTransferSlipAPI

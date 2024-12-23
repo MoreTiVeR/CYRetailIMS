@@ -30,7 +30,6 @@
     <Folder Include="Services\CurrencyService\EventHandlers\" />
     <Folder Include="Services\DepartmentService\Commands\" />
     <Folder Include="Services\DepartmentService\EventHandlers\" />
-    <Folder Include="Services\ItemInBranchService\Commands\CreateItemInBranch\v1\" />
     <Folder Include="Services\ItemTransferStatusService\Commands\" />
     <Folder Include="Services\ItemTransferStatusService\EventHandlers\" />
     <Folder Include="Services\ItemTypeService\EventHandlers\" />

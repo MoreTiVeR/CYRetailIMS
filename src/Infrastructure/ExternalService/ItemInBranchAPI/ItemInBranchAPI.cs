@@ -7,11 +7,13 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchForImportByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 
@@ -62,5 +64,17 @@ public class ItemInBranchAPI : HttpClientService, IItemInBranchAPI
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetItemInventoryTransferResposeDTO>, GetItemInventoryTransferQuery>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/getiteminventorytransfer"), inventoryTransferQuery);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> CreateItemInBranchListAsync(CreateItemInBranchListCommand createCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateItemInBranchListCommand>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/bulkcreate"), createCommand);
+    }
+
+    public async Task<BaseResponse<List<GetItemInBranchForImportByBranchIDResponseDTO>>> GetItemBranchForImportAsync(GetItemInBranchForImportByBranchIDQuery inventoryTransferQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetItemInBranchForImportByBranchIDResponseDTO>, GetItemInBranchForImportByBranchIDQuery>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itembranch/v1/getitemimport"), inventoryTransferQuery);
     }
 }

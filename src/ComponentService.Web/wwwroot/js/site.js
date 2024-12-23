@@ -118,17 +118,6 @@ function InitialEditDatePicker() {
 }
 
 function InitialTimePicker() {
-    //$('.timepicker').pickatime({
-    //    language: 'th-th',
-    //    format: 'HH:i'
-    //})
-
-    //$('.timepicker').datetimepicker({
-    //    format: 'HH:mm',
-    //    pickDate: false,
-    //    pickSeconds: false,
-    //    pick12HourFormat: false
-    //});
 
     $('.timepicker').datetimepicker({
         format: 'LT'

@@ -2,11 +2,13 @@
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchForImportByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +22,22 @@ public class ItemBranchController : BaseApiController
 {
     public ItemBranchController(ILog4NetLogger log) : base(log)
     {
+    }
+
+    [HttpPost]
+    [Route("v1/bulkcreate")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateItemInBranchAsync(CreateItemInBranchListCommand createItemInBranchCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(createItemInBranchCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CreateItemInBranchAsync Success");
+        return Ok(res.data);
     }
 
     [HttpPost]
@@ -131,6 +149,22 @@ public class ItemBranchController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetItemInventoryTransferAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/getitemimport")]
+    [ProducesResponseType(typeof(List<GetItemInBranchForImportByBranchIDResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemBranchForImportAsync(GetItemInBranchForImportByBranchIDQuery importByBranchIDQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetItemInBranchForImportByBranchIDResponseDTO>> res = await Mediator.Send(importByBranchIDQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemBranchForImportAsync Success");
         return Ok(res.data);
     }
 }

@@ -130,6 +130,7 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTItemTransactionLog> TTItemTransactionLogs { get; set; }
 
+    public virtual DbSet<TTStockImportHistory> TTStockImportHistories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

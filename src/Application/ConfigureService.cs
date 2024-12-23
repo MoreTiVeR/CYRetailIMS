@@ -18,6 +18,7 @@ using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartments.
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
+using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchList.v1;
@@ -132,6 +133,9 @@ public static class ConfigureService
 
             mc.AddProfile<CreateMoneyTransferMappingProfile>();
             mc.AddProfile<UpdateMoneyTransferMappingProfile>();
+
+            mc.AddProfile<CreateItemInBranchMappingProfile>();
+
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

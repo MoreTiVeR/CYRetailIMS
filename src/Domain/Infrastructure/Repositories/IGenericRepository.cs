@@ -48,7 +48,9 @@ public interface IGenericRepository<T> where T : class
 
 	Task<ICollection<T>> AddRangeAsync(ICollection<T> entity);
 
-	T Update(T updated);
+    Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entity);
+
+    T Update(T updated);
 
 	T UpdateRange(T updated);
 
