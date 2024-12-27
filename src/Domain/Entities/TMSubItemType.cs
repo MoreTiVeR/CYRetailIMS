@@ -13,6 +13,10 @@ public partial class TMSubItemType : BaseAuditableEntity
     [Key]
     public int SubItemTypeID { get; set; }
 
+    [StringLength(20)]
+    [Unicode(false)]
+    public string SubItemCode { get; set; } = null!;
+
     [StringLength(50)]
     [Unicode(false)]
     public string SubTypeNameTH { get; set; } = null!;

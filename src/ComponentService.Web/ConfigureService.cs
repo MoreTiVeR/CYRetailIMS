@@ -32,6 +32,7 @@ using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.ShipmentTypeAPI;
+using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.SupplierAPI;
 using CYRetailIMS.Application.ExternalService.SupplierContactTypeAPI;
 using CYRetailIMS.Application.ExternalService.SupplierTypeAPI;
@@ -67,6 +68,7 @@ using CYRetailIMS.Infrastructure.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ShipmentTypeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.SupplierAPI;
 using CYRetailIMS.Infrastructure.ExternalService.SupplierContactTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.SupplierTypeAPI;
@@ -223,6 +225,7 @@ public static class ConfigureService
         services.AddScoped<IMoneyTransferAPI, MoneyTransferAPI>();
         services.AddScoped<IExcelAPI, ExcelAPI>();
         services.AddScoped<IMoneyTransferSlipAPI, MoneyTransferSlipAPI>();
+        services.AddScoped<ISubItemTypeAPI, SubItemTypeAPI>();
         #endregion
 
         return services;

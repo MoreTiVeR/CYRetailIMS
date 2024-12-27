@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using FluentValidation;
 
-namespace CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
+namespace CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v2;
 
-public class CreateItemInBranchValidatorV2 : AbstractValidator<CreateItemInBranchListCommand>
+public class CreateItemInBranchValidatorV2 : AbstractValidator<CreateItemInBranchListCommandV2>
 {
     public CreateItemInBranchValidatorV2()
     {
@@ -16,7 +16,7 @@ public class CreateItemInBranchValidatorV2 : AbstractValidator<CreateItemInBranc
     }
 }
 
-public class CreateItemInBranchDetailValidator : AbstractValidator<CreateItemInBranchDetailCommand>
+public class CreateItemInBranchDetailValidator : AbstractValidator<CreateItemInBranchDetailCommandV2>
 {
     public CreateItemInBranchDetailValidator()
     {

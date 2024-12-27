@@ -38,23 +38,15 @@ using CYRetailIMS.Infrastructure.Common.Extensions;
 using NUglify.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
-using System.Text.RegularExpressions;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
-using System.Linq;
-using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
-using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInventoryForTransferByBranchID.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateItemTransfer.v1;
-using CYRetailIMS.Application.Services.ItemTransferService.Commands.UpdateDraftItemTransfer.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchForImportByBranchID.v1;
-using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByIDList.v1;
-
+using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
+using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.Stock)]
@@ -69,6 +61,7 @@ public class ItemController : BaseController
     private readonly IBranchAPI _branchAPI;
     private readonly IItemTransferAPI _itemTransferAPI;
     private readonly IItemInBranchAPI _itemInBranchAPI;
+    private readonly ISubItemTypeAPI _subItemTypeAPI;
     private string _sessionTempTransferItemName => "TEMP_TRANSFER_ITEM_DATA";
 
     public ItemController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
@@ -80,7 +73,8 @@ public class ItemController : BaseController
         IItemUnitOfMeasureAPI itemUnitOfMeasureAPI,
         IBranchAPI branchAPI,
         IItemTransferAPI itemTransferAPI,
-        IItemInBranchAPI itemInBranchAPI) : base(httpClientRequest, mapper, log)
+        IItemInBranchAPI itemInBranchAPI,
+        ISubItemTypeAPI subItemTypeAPI) : base(httpClientRequest, mapper, log)
     {
         _env = webHostEnvironment;
         _appConfig = appConfig;
@@ -91,6 +85,7 @@ public class ItemController : BaseController
         _branchAPI = branchAPI;
         _itemTransferAPI = itemTransferAPI;
         _itemInBranchAPI = itemInBranchAPI;
+        _subItemTypeAPI = subItemTypeAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -816,13 +811,14 @@ public class ItemController : BaseController
                         string itemcode = worksheet.Cells[row, 1].GetValue<string>();
                         string itemname = worksheet.Cells[row, 2].GetValue<string>();
                         string itemtype = worksheet.Cells[row, 3].GetValue<string>();
-                        string itembrand = worksheet.Cells[row, 4].GetValue<string>();
-                        int qty = worksheet.Cells[row, 5].GetValue<int>();
-                        decimal cost = worksheet.Cells[row, 6].GetValue<decimal>();
-                        decimal price = worksheet.Cells[row, 7].GetValue<decimal>();
-                        int minqty = worksheet.Cells[row, 8].GetValue<int>();
-                        int maxqty = worksheet.Cells[row, 9].GetValue<int>();
-                        string description = worksheet.Cells[row, 10].GetValue<string>();
+                        string subitemtypecode = worksheet.Cells[row, 4].GetValue<string>();
+                        string itembrand = worksheet.Cells[row, 5].GetValue<string>();
+                        int qty = worksheet.Cells[row, 6].GetValue<int>();
+                        decimal cost = worksheet.Cells[row, 7].GetValue<decimal>();
+                        decimal price = worksheet.Cells[row, 8].GetValue<decimal>();
+                        int minqty = worksheet.Cells[row, 9].GetValue<int>();
+                        int maxqty = worksheet.Cells[row, 10].GetValue<int>();
+                        string description = worksheet.Cells[row, 11].GetValue<string>();
                         if (!string.IsNullOrEmpty(itemcode)
                             && !string.IsNullOrEmpty(itemname)
                             && !string.IsNullOrEmpty(itemtype)
@@ -831,6 +827,7 @@ public class ItemController : BaseController
                             itemList.Add(new ImportItemViewModel
                             {
                                 itemcode = itemcode,
+                                subitemtypecode = subitemtypecode,
                                 itemname = itemname,
                                 itemtype = itemtype,
                                 itembrand = itembrand,
@@ -1090,76 +1087,97 @@ public class ItemController : BaseController
         BaseResponse<List<GetItemTypeListResponseDTO>> resItemType = await _itemTypeAPI.GetItemTypeListAsync();
         BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrand = await _itemBrandAPI.GetItemBrandListAsync();
         BaseResponse<List<GetItemListResponseDTO>> resItems = await _itemAPI.GetItemListAsync();
+        BaseResponse<List<GetSubItemTypeResponseDTO>> resSubItemType = await _subItemTypeAPI.GetSubItemTypeListAsync();
 
         List<CreateItemDetailCommand> createItemDetailCommands = new List<CreateItemDetailCommand>();
-        itemViewModel.ForEach(s =>
+        try
         {
-            //Check isexist itemcode
-            GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim() == s.itemcode.Trim());
-            if (item != null)
+            itemViewModel.ForEach(s =>
             {
-                s.isupdate = true;
-            }
+                //Check isexist itemcode
+                GetItemListResponseDTO item = resItems.data?.FirstOrDefault(w => w.itemcode.Trim() == s.itemcode.Trim());
+                if (item != null)
+                {
+                    s.isupdate = true;
+                }
 
-            //Check isexist itemtype
-            GetItemTypeListResponseDTO itemType = resItemType.data?.FirstOrDefault(w => w.itemtypename.Trim().ToLower() == s.itemtype.Trim().ToLower());
-            if (itemType == null)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
-            }
+                //Check subitemtype
+                GetSubItemTypeResponseDTO subItemType = null;
+                if (!string.IsNullOrEmpty(s.subitemtypecode))
+                {
+                    subItemType = resSubItemType.data?.FirstOrDefault(w => w.subitemcode.Trim().ToLower() == s.subitemtypecode.Trim().ToLower());
+                    if (subItemType == null)
+                    {
+                        errRow.Add(rowCount);
+                        throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบระเภทย่อยสินค้าแถวที่ -> {rowCount}");
+                    }
+                }
 
-            //Check isexist itembrand
-            GetItemBrandListResponseDTO itemBrand = resItemBrand.data?.FirstOrDefault(w => w.brandname.Trim().ToLower() == s.itembrand.Trim().ToLower());
-            if (itemBrand == null)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
-            }
+                //Check isexist itemtype
+                GetItemTypeListResponseDTO itemType = resItemType.data?.FirstOrDefault(w => w.itemtypename.Trim().ToLower() == s.itemtype.Trim().ToLower());
+                if (itemType == null)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
+                }
 
-            //Check Description length
-            if(s.itemcode.Length > 12)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
-            }
+                //Check isexist itembrand
+                GetItemBrandListResponseDTO itemBrand = resItemBrand.data?.FirstOrDefault(w => w.brandname.Trim().ToLower() == s.itembrand.Trim().ToLower());
+                if (itemBrand == null)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
+                }
 
-            if(s.itemname.Length > 100)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
-            }
+                //Check Description length
+                if (s.itemcode.Length > 12)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
+                }
 
-            if(!string.IsNullOrEmpty(s.description) && s.description.Length > 200)
-            {
-                errRow.Add(rowCount);
-                throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
-            }
+                if (s.itemname.Length > 100)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
+                }
 
-            CreateItemDetailCommand itemEnt = new CreateItemDetailCommand
-            {
-                itemcode = s.itemcode,
-                itemtypeid = itemType.itemtypeid,
-                brandid = itemBrand.brandid,
-                unitofmeasureid = 1,
-                name = s.itemname,
-                //barcode = null,
-                description = s.description,
-                //shortname = !string.IsNullOrEmpty(s.itemname) ? s.itemname : s.itemname,
-                itemimageurl = "../assets/img/product/noimage.png",
-                price = s.price,
-                qty = s.qty,
-                notifyminqty = s.minqty,
-                notifymaxqty = s.maxqty,
-                createdby = base.UserProfile.username,
-                isactive = true,
-                discountpercent = 0,
-                isupdate = s.isupdate,
-                cost = s.cost
-            };
-            createItemDetailCommands.Add(itemEnt);
-            rowCount++;
-        });
+                if (!string.IsNullOrEmpty(s.description) && s.description.Length > 200)
+                {
+                    errRow.Add(rowCount);
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
+                }
+
+                CreateItemDetailCommand itemEnt = new CreateItemDetailCommand
+                {
+                    itemcode = s.itemcode,
+                    itemtypeid = itemType.itemtypeid,
+                    subitemtypeid = subItemType != null ? subItemType.subitemtypeid : null,
+                    brandid = itemBrand.brandid,
+                    unitofmeasureid = 1,
+                    name = s.itemname,
+                    //barcode = null,
+                    description = s.description,
+                    //shortname = !string.IsNullOrEmpty(s.itemname) ? s.itemname : s.itemname,
+                    itemimageurl = "../assets/img/product/noimage.png",
+                    price = s.price,
+                    qty = s.qty,
+                    notifyminqty = s.minqty,
+                    notifymaxqty = s.maxqty,
+                    createdby = base.UserProfile.username,
+                    isactive = true,
+                    discountpercent = 0,
+                    isupdate = s.isupdate,
+                    cost = s.cost
+                };
+                createItemDetailCommands.Add(itemEnt);
+                rowCount++;
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount} | ข้อผิดพลาด: {ex.Message}");
+        }
         #endregion
 
         return new CreateItemListCommand
@@ -1179,19 +1197,9 @@ public class ItemController : BaseController
         {
             branchid = branchID
         });
-
         BaseResponse<List<GetItemListResponseDTO>> resItems = await _itemAPI.GetItemListAsync();
-        //if (resItemsInBranch.data != null && resItemsInBranch.data?.Count > 0)
-        //{
-        //    resItems = await _itemAPI.GetItemByIDListAsync(new GetItemByIDListQuery
-        //    {
-        //        itemidlist = resItemsInBranch.data.Select(s => s.itemid).ToList()
-        //    });
-        //}
-        //else
-        //{
-        //    resItems = await _itemAPI.GetItemListAsync();
-        //}
+        //BaseResponse<List<GetSubItemTypeResponseDTO>> resSubItemType = await _subItemTypeAPI.GetSubItemTypeListAsync();
+
 
         List<CreateItemInBranchDetailCommand> createItemInBranchDetailCommands = new List<CreateItemInBranchDetailCommand>();
         try
@@ -1205,6 +1213,14 @@ public class ItemController : BaseController
                 {
                     s.isupdate = true;
                 }
+
+                //Check subitemtype
+                //GetSubItemTypeResponseDTO subItemType = resSubItemType.data?.FirstOrDefault(w => w.subitemcode.Trim().ToLower() == s.subitemtypecode.Trim().ToLower());
+                //if (subItemType == null)
+                //{
+                //    errRow.Add(rowCount);
+                //    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบระเภทย่อยสินค้าแถวที่ -> {rowCount}");
+                //}
 
                 //Check isexist itemtype
                 GetItemTypeListResponseDTO itemType = resItemType.data?.FirstOrDefault(w => w.itemtypename.Trim().ToLower() == s.itemtype.Trim().ToLower());

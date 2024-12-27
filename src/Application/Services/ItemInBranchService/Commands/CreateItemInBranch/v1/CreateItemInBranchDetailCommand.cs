@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
 public record CreateItemInBranchDetailCommand
@@ -19,6 +13,8 @@ public record CreateItemInBranchDetailCommand
 
     [Required]
     public int itemtypeid { get; init; }
+
+    public int? subitemtypeid { get; set; }
 
     [Required]
     public int unitofmeasureid { get; init; }

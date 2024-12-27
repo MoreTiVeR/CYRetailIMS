@@ -4,7 +4,7 @@ $('.select2').select2();
 $('#aDownloadTemplateFile').on('click', function (e) {
     ShowMessageInfo('กำลังดาวน์โหลดไฟล์เทมเพลต...');
     e.preventDefault();  //stop the browser from following
-    window.location.href = '../excel_template/Import_Item_temp.xlsx';
+    window.location.href = '../excel_template/Import_Item_temp_v1.9.0.0.xlsx';
 });
 
 $('#btnUpload').on('click', function () {
