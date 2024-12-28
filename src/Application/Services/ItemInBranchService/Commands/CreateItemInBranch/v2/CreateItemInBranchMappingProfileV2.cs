@@ -7,13 +7,13 @@ using AutoMapper;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItemList;
 using CYRetailIMS.Domain.Entities;
 
-namespace CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
+namespace CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v2;
 
 public class CreateItemInBranchMappingProfileV2 : Profile
 {
     public CreateItemInBranchMappingProfileV2()
     {
-        CreateMap<CreateItemInBranchDetailCommand, TMItemInBranch>()
+        CreateMap<CreateItemInBranchDetailCommandV2, TMItemInBranch>()
             .ForMember(m => m.BranchID, f => f.MapFrom(x => x.branchid))
             .ForMember(m => m.ItemID, f => f.MapFrom(x => x.itemid))
             .ForMember(m => m.Price, f => f.MapFrom(x => x.price))
@@ -23,14 +23,5 @@ public class CreateItemInBranchMappingProfileV2 : Profile
             .ForMember(m => m.DiscountPercent, f => f.MapFrom(x => x.discountpercent))
             .ForMember(m => m.CreatedBy, f => f.MapFrom(x => x.createdby))
             .ForMember(m => m.IsActive, f => f.MapFrom(x => x.isactive));
-
-        //CreateMap<TMItemInBranch, TTStockImportHistory>()
-        //    .ForMember(s => s.BranchID, f => f.MapFrom(ss => ss.BranchID))
-        //    .ForMember(s => s.ItemID, f => f.MapFrom(ss => ss.ItemID))
-        //    .ForMember(s => s.Price, f => f.MapFrom(ss => ss.Price))
-        //    .ForMember(s => s.DiscountPercent, f => f.MapFrom(ss => ss.DiscountPercent))
-        //    .ForMember(s => s.Qty, f => f.MapFrom(ss => ss.Qty))
-        //    .ForMember(s => s.NotifyMinQty, f => f.MapFrom(ss => ss.NotifyMinQty))
-        //    .ForMember(s => s.NotifyMaxQty, f => f.MapFrom(ss => ss.NotifyMaxQty));
     }
 }

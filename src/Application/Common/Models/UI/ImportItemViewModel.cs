@@ -19,4 +19,5 @@ public class ImportItemViewModel
     public string description { get; set; }
     public bool isupdate { get; set; }
     public int branchid { get; set; }
+    public string subitemtypecode { get; set; }
 }

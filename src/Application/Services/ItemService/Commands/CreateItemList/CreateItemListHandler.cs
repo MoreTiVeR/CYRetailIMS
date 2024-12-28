@@ -9,6 +9,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItems;
+using CYRetailIMS.Domain.Events.TMSubItemTypeInItemTypes;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -35,7 +36,7 @@ public class CreateItemListHandler : BaseService, IRequestHandler<CreateItemList
 
         #endregion
 
-        //Update
+        #region Update
         var updateItemEntity = request.items.Where(w => w.isupdate).ToList();
         if (updateItemEntity.Count > 0)
         {
@@ -45,6 +46,7 @@ public class CreateItemListHandler : BaseService, IRequestHandler<CreateItemList
             {
                 CreateItemDetailCommand reqItem = updateItemEntity.FirstOrDefault(w => w.itemcode == e.ItemCode);
                 e.ItemTypeID = reqItem.itemtypeid;
+                e.SubItemTypeID = reqItem.subitemtypeid;
                 e.BrandID = reqItem.brandid;
                 e.Qty = e.Qty + reqItem.qty;
                 e.Cost = reqItem.cost;
@@ -57,9 +59,10 @@ public class CreateItemListHandler : BaseService, IRequestHandler<CreateItemList
                 e.AddDomainEvent(new TMItemUpdateEvent(e));
             });
         }
+        #endregion
 
-        //Create new
-        var newItemEntity = request.items.Where(w => !w.isupdate).ToList();
+        #region Create new
+        List<CreateItemDetailCommand> newItemEntity = request.items.Where(w => !w.isupdate).ToList();
         if (newItemEntity.Count > 0)
         {
             List<TMItem> newItemEntities = _mapper.Map<List<TMItem>>(newItemEntity);
@@ -71,8 +74,10 @@ public class CreateItemListHandler : BaseService, IRequestHandler<CreateItemList
             });
             await _unitOfWork.Repository<TMItem>().AddRangeAsync(newItemEntities);
         }
+        #endregion
 
         await _unitOfWork.SaveChangesAsync();
+
         return new BaseResponse<CommandResponse>
         {
             result = true,

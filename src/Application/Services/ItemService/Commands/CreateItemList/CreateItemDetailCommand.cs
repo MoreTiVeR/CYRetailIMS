@@ -16,7 +16,9 @@ public record CreateItemDetailCommand
 	[Required]
 	public int itemtypeid { get; init; }
 
-	[Required]
+    public int? subitemtypeid { get; set; }
+
+    [Required]
 	public int unitofmeasureid { get; init; }
 
 	[Required]

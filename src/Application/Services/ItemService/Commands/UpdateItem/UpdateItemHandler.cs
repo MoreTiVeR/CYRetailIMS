@@ -49,8 +49,11 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
             _unitOfWork.Repository<TTItemTransactionLog>().Add(itemTransactionLog);
         }
         #region Update
-        //itemEnt = _mapper.Map<TMItem>(request);
         itemEnt.Name = request.name;
+        if (request.subitemid.HasValue)
+        {
+            itemEnt.SubItemTypeID = request.subitemid.Value;
+        }
         itemEnt.ShortName = request.shortname;
         itemEnt.BarCode = !string.IsNullOrEmpty(request.barcode) ? request.barcode : null;
         itemEnt.Description = request.description;

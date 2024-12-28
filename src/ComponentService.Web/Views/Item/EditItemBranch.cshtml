@@ -31,54 +31,14 @@
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>ประเภทสินค้า</label>
-                        <select class="select" asp-for="ItemTypeID">
-                            @if (ViewBag.ItemTypeList.result)
-                            {
-                                <option value="">--เลือกประเภทสินค้า--</option>
-                                foreach (var item in ViewBag.ItemTypeList.data)
-                                {
-                                    if (@item.itemtypeid == Model.ItemTypeID)
-                                    {
-                                        <option value="@item.itemtypeid" selected>@item.itemtypename</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@item.itemtypeid">@item.itemtypename</option>
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                <option>--ไม่พบข้อมูลประเภทสินค้า--</option>
-                            }
-                        </select>
+                        @Html.DropDownListFor(model => model.ItemTypeID, new SelectList(ViewBag.ItemTypeList, "Value", "Text", null, null), "- เลือกประเภทสินค้า -", new { @class = "select2 form-control", @disabled = "disabled" })
                         <span asp-validation-for="ItemTypeID" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>แบรนด์สินค้า</label>
-                        <select class="select" asp-for="BrandID" disabled readonly>
-                            @if (ViewBag.ItemBrandList.result)
-                            {
-                                <option value="">--เลือกแบรนด์สินค้า--</option>
-                                foreach (var item in ViewBag.ItemBrandList.data)
-                                {
-                                    if (@item.brandid == Model.BrandID)
-                                    {
-                                        <option value="@item.brandid" selected>@item.brandname</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@item.brandid">@item.brandname</option>
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                <option>--ไม่พบข้อมูลแบรนด์สินค้า--</option>
-                            }
-                        </select>
+                        @Html.DropDownListFor(model => model.BrandID, new SelectList(ViewBag.ItemBrandList, "Value", "Text", null, null), "- เลือกแบรนด์สินค้า -", new { @class = "select2 form-control", @disabled = "disabled" })
                         <span asp-validation-for="BrandID" class="text-danger"></span>
                     </div>
                 </div>
@@ -93,11 +53,17 @@
                 </div>
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
+                        <label>ประเภทย่อย</label>
+                        @Html.DropDownListFor(model => model.SubItemTypeID, new SelectList(ViewBag.SubItemTypeList, "Value", "Text", null, null), "- เลือกประเภทย่อย -", new { @class = "select2 form-control", @disabled = "disabled" })
+                        <span asp-validation-for="SubItemTypeID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group">
                         <label>บาร์โค้ดสินค้า</label>
                         <input type="text" class="form-control" asp-for="BarCode">
                     </div>
                 </div>
-                <div class="col-lg-4 col-sm-6 col-12"></div>
 
                 <!--ROW4-->
                 <div class="col-lg-4 col-sm-6 col-12">

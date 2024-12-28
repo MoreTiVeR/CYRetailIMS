@@ -18,6 +18,8 @@ public class UpdateItemCommand : IRequest<BaseResponse<CommandResponse>>
     [Required]
     public string name { get; init; }
 
+    public int? subitemid { get; set; }
+
     public string shortname { get; init; }
 
     public string description { get; init; }
