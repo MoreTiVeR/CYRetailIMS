@@ -63,7 +63,7 @@
                 <div class="col-lg-4 col-sm-6 col-12">
                     <div class="form-group">
                         <label>แบรนด์สินค้า</label>
-                        @Html.DropDownListFor(model => model.BrandID, new SelectList(ViewBag.ItemBrandList, "Value", "Text", null, null), "- เลือกแบรนด์สินค้า -", new { @class = "select2 form-control", @disabled = "disabled" })
+                        @Html.DropDownListFor(model => model.BrandID, new SelectList(ViewBag.ItemBrandList, "Value", "Text", null, null), "- เลือกแบรนด์สินค้า -", new { @class = "select2 form-control" })
                         <span asp-validation-for="BrandID" class="text-danger"></span>
                     </div>
                 </div>
