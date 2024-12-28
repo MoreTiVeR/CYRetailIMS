@@ -312,13 +312,14 @@ public class ItemController : BaseController
         viewModel.BarCodeBase64 = GenerateItemBarcode(viewModel.BarCode);
 
         //Get Master Data
-        BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
-        BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
-        BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
+        //BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
+        //BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
+        //BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
 
-        ViewBag.ItemTypeList = resItemTypeList;
-        ViewBag.ItemBrandList = resItemBrandList;
-        ViewBag.ItemUOMList = resUnitOfMeasureList;
+        ViewBag.ItemTypeList = await PrepareSelectItemType();
+        ViewBag.ItemBrandList = await PrepareSelectBrand();
+        ViewBag.ItemUOMList = await PrepareSelectUnitOfMeasure();
+        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
         return View(viewModel);
     }
 
@@ -331,13 +332,15 @@ public class ItemController : BaseController
         viewModel.BranchID = branchid;
 
         //Get Master Data
-        BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
-        BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
-        BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
+        //BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
+        //BaseResponse<List<GetItemBrandListResponseDTO>> resItemBrandList = await _itemBrandAPI.GetItemBrandListAsync();
+        //BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resUnitOfMeasureList = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
 
-        ViewBag.ItemTypeList = resItemTypeList;
-        ViewBag.ItemBrandList = resItemBrandList;
-        ViewBag.ItemUOMList = resUnitOfMeasureList;
+        ViewBag.ItemTypeList = await PrepareSelectItemType();
+        ViewBag.ItemBrandList = await PrepareSelectBrand();
+        ViewBag.ItemUOMList = await PrepareSelectUnitOfMeasure();
+        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
+
         return View(viewModel);
     }
 
@@ -892,190 +895,8 @@ public class ItemController : BaseController
         }
         catch (Exception ex)
         {
-            return Json(new { result = false, message = $"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาลองใหม่อีกครั้ง | ข้อผิดพลาด -> {ex.Message}" });
+            return Json(new { result = false, message = ex.Message });
         }
-    }
-
-    private async Task SaveExcelToDirectory(string fileName, ExcelPackage excelPackage)
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                //SET FOLDER TO COPY FILE, CREATE IF FOLDER DOES NOT EXISTS
-                string filePath = Path.Combine(AppContext.BaseDirectory, _appConfig.GetImportItemFilePath());
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    Directory.CreateDirectory(filePath);
-                }
-
-                //SETUP FILENAME
-                string dateRef = DateTime.Now.ToString("yyyyMMddhhmmss");
-                filePath = Path.Combine(filePath, dateRef + "_" + fileName);
-
-                //Write content to excel file 
-                FileInfo fInfo = new FileInfo(filePath);
-                excelPackage.SaveAs(fInfo);
-                excelPackage.Dispose();
-            });
-        }
-        catch (Exception ex)
-        {
-            _log.Error($"ไม่สามารถเขียนไฟล์นำเข้าสินค้า[{fileName}] -> error: {ex.Message}");
-        }
-    }
-
-    public async Task<List<SelectListItem>> GetTransferSourcehBranchItemListAsync(int transferTypeID)
-    {
-        List<SelectListItem> res = new List<SelectListItem>();
-        try
-        {
-            BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
-            if (!resBranch.result)
-            {
-                return res;
-            }
-
-            //คลัง ไป สาขา
-            if (transferTypeID == (int)TransferType.WTB)
-            {
-                res = (from a in resBranch.data
-                       where a.branchid == 1
-                       select new SelectListItem
-                       {
-                           Text = a.branchname,
-                           Value = a.branchid.ToString()
-                       }).ToList();
-
-                //res.Add(new SelectListItem
-                //{
-                //    Text = "คลังสินค้าสำนักงานใหญ่",
-                //    Value = "99",
-                //});
-            }
-            else
-            {
-                res = (from a in resBranch.data
-                       select new SelectListItem
-                       {
-                           Text = a.branchname,
-                           Value = a.branchid.ToString()
-                       }).ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            _log.Error(ex.Message, ex);
-        }
-        return res;
-    }
-
-    public async Task<List<SelectListItem>> GetTransferDestinationBranchItemListAsync(int transferTypeID, int filterOutBranchID = 0)
-    {
-        List<SelectListItem> res = new List<SelectListItem>();
-        try
-        {
-            BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
-            if (!resBranch.result)
-            {
-                return res;
-            }
-            //คลัง ไป สาขา
-            if (transferTypeID == (int)TransferType.WTW)
-            {
-                res = (from a in resBranch.data
-                       where a.branchid == 1
-                       select new SelectListItem
-                       {
-                           Text = a.branchname,
-                           Value = a.branchid.ToString()
-                       }).ToList();
-            }
-            else
-            {
-                //Filter out branch
-                if (filterOutBranchID > 0)
-                {
-                    resBranch.data = resBranch.data.Where(w => w.branchid != filterOutBranchID).ToList();
-                }
-                res = (from a in resBranch.data
-                       select new SelectListItem
-                       {
-                           Text = a.branchname,
-                           Value = a.branchid.ToString()
-                       }).ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            _log.Error(ex.Message, ex);
-        }
-        return res;
-    }
-
-    public async Task<List<SelectListItem>> GetItemTransferItemListByTransferType(int transferTypeID, int brnchID = 0)
-    {
-        List<int> branchList = new List<int>();
-        if (transferTypeID == (int)TransferType.WTB)
-        {
-            var resItem = await _itemAPI.GetItemListAsync();
-            if (!resItem.result)
-            {
-                return new List<SelectListItem>();
-            }
-            return (from a in resItem.data
-                    select new SelectListItem
-                    {
-                        Text = a.name,
-                        Value = a.itemid.ToString()
-                    }).ToList();
-        }
-        else
-        {
-            if (brnchID == 0)
-            {
-                return new List<SelectListItem>();
-            }
-            var resItemBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(brnchID);
-            if (!resItemBranch.result)
-            {
-                return new List<SelectListItem>();
-            }
-            return (from a in resItemBranch.data.itemlist
-                    select new SelectListItem
-                    {
-                        Text = a.itemname,
-                        Value = a.itemid.ToString()
-                    }).ToList();
-        }
-    }
-
-    public async Task<List<SelectListItem>> PrepareSelectBranch()
-    {
-
-        BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
-        resBranch.data = base.UserProfile.roleid == (int)EnumModel.UserRole.Sale 
-            ? resBranch.data.Where(w => base.UserProfile.access_branch.Select(s => s.branchid).Contains(w.branchid)).ToList()
-            : resBranch.data;
-        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
-    }
-
-    public async Task<List<SelectListItem>> PrepareSelectBrand()
-    {
-        BaseResponse<List<GetItemBrandListResponseDTO>> resBranch = await _itemBrandAPI.GetItemBrandListAsync();
-        return resBranch.data.Select(s => new SelectListItem { Text = s.brandname, Value = s.brandid.ToString() }).ToList();
-    }
-
-    public async Task<List<SelectListItem>> PrepareSelectItemTransferType()
-    {
-        BaseResponse<List<GetTransferTypeListResponseDTO>> resItemTransaferTypeList = await _itemTransferAPI.GetItemTransferTypeAsync();
-        return resItemTransaferTypeList.data.Select(s => new SelectListItem { Text = s.transfertypename, Value = s.transfertypeid.ToString() }).ToList();
-    }
-
-    public async Task<List<SelectListItem>> PrepareSelectItemTransferStatus()
-    {
-        BaseResponse<List<GetItemTransferStatusResponseDTO>> resTransferSttus = await _itemTransferAPI.GetItemTransferStatusAsync();
-        return resTransferSttus.data.Select(s => new SelectListItem { Text = s.transferstatusname_th, Value = s.transferstatusid.ToString() }).ToList();
     }
 
     #region Private Method
@@ -1109,7 +930,7 @@ public class ItemController : BaseController
                     if (subItemType == null)
                     {
                         errRow.Add(rowCount);
-                        throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบระเภทย่อยสินค้าแถวที่ -> {rowCount}");
+                        throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบระเภทย่อยสินค้าแถวที่ -> {rowCount}");
                     }
                 }
 
@@ -1118,7 +939,7 @@ public class ItemController : BaseController
                 if (itemType == null)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
                 }
 
                 //Check isexist itembrand
@@ -1126,26 +947,26 @@ public class ItemController : BaseController
                 if (itemBrand == null)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
                 }
 
                 //Check Description length
                 if (s.itemcode.Length > 12)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
                 }
 
                 if (s.itemname.Length > 100)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
                 }
 
                 if (!string.IsNullOrEmpty(s.description) && s.description.Length > 200)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
                 }
 
                 CreateItemDetailCommand itemEnt = new CreateItemDetailCommand
@@ -1176,7 +997,7 @@ public class ItemController : BaseController
         }
         catch (Exception ex)
         {
-            throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount} | ข้อผิดพลาด: {ex.Message}");
+            throw new Exception($"ขออภัย, เกิดข้อผิดพลาด<br>{ex.Message}");
         }
         #endregion
 
@@ -1227,7 +1048,7 @@ public class ItemController : BaseController
                 if (itemType == null)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลประเภทสินค้าแถวที่ -> {rowCount}");
                 }
 
                 //Check isexist itembrand
@@ -1235,26 +1056,26 @@ public class ItemController : BaseController
                 if (itemBrand == null)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลแบรนด์สินค้าแถวที่ -> {rowCount}");
                 }
 
                 //Check Description length
                 if (s.itemcode.Length > 12)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลรหัสสินค้าแถวที่ -> {rowCount}");
                 }
 
                 if (s.itemname.Length > 100)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลชื่อสินค้าแถวที่ -> {rowCount}");
                 }
 
                 if (!string.IsNullOrEmpty(s.description) && s.description.Length > 200)
                 {
                     errRow.Add(rowCount);
-                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
+                    throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า<br>กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount}");
                 }
 
                 CreateItemInBranchDetailCommand itemEnt = new CreateItemInBranchDetailCommand
@@ -1286,7 +1107,7 @@ public class ItemController : BaseController
         }
         catch (Exception ex)
         {
-            throw new Exception($"ไม่สามารถนำเข้าไฟล์สินค้า, กรุณาตรวจสอบข้อมูลรายละเอียดสินค้าแถวที่ -> {rowCount} | ข้อผิดพลาด: {ex.Message}");
+            throw new Exception($"ขออภัย, เกิดข้อผิดพลาด<br>{ex.Message}");
         }
         #endregion
 
@@ -1334,6 +1155,7 @@ public class ItemController : BaseController
         return new UpdateItemCommand
         {
             itemid = itemViewModel.ItemID,
+            subitemid = itemViewModel.SubItemTypeID.HasValue ? itemViewModel.SubItemTypeID.Value : null,
             name = itemViewModel.Name,
             barcode = itemViewModel.BarCode,
             description = itemViewModel.Description,
@@ -1700,4 +1522,204 @@ public class ItemController : BaseController
         return res;
     }
 
+    private async Task SaveExcelToDirectory(string fileName, ExcelPackage excelPackage)
+    {
+        try
+        {
+            await Task.Run(() =>
+            {
+                //SET FOLDER TO COPY FILE, CREATE IF FOLDER DOES NOT EXISTS
+                string filePath = Path.Combine(AppContext.BaseDirectory, _appConfig.GetImportItemFilePath());
+                if (!System.IO.Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                }
+
+                //SETUP FILENAME
+                string dateRef = DateTime.Now.ToString("yyyyMMddhhmmss");
+                filePath = Path.Combine(filePath, dateRef + "_" + fileName);
+
+                //Write content to excel file 
+                FileInfo fInfo = new FileInfo(filePath);
+                excelPackage.SaveAs(fInfo);
+                excelPackage.Dispose();
+            });
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"ไม่สามารถเขียนไฟล์นำเข้าสินค้า[{fileName}] -> error: {ex.Message}");
+        }
+    }
+
+    private async Task<List<SelectListItem>> GetTransferSourcehBranchItemListAsync(int transferTypeID)
+    {
+        List<SelectListItem> res = new List<SelectListItem>();
+        try
+        {
+            BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+            if (!resBranch.result)
+            {
+                return res;
+            }
+
+            //คลัง ไป สาขา
+            if (transferTypeID == (int)TransferType.WTB)
+            {
+                res = (from a in resBranch.data
+                       where a.branchid == 1
+                       select new SelectListItem
+                       {
+                           Text = a.branchname,
+                           Value = a.branchid.ToString()
+                       }).ToList();
+
+                //res.Add(new SelectListItem
+                //{
+                //    Text = "คลังสินค้าสำนักงานใหญ่",
+                //    Value = "99",
+                //});
+            }
+            else
+            {
+                res = (from a in resBranch.data
+                       select new SelectListItem
+                       {
+                           Text = a.branchname,
+                           Value = a.branchid.ToString()
+                       }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex.Message, ex);
+        }
+        return res;
+    }
+
+    private async Task<List<SelectListItem>> GetTransferDestinationBranchItemListAsync(int transferTypeID, int filterOutBranchID = 0)
+    {
+        List<SelectListItem> res = new List<SelectListItem>();
+        try
+        {
+            BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+            if (!resBranch.result)
+            {
+                return res;
+            }
+            //คลัง ไป สาขา
+            if (transferTypeID == (int)TransferType.WTW)
+            {
+                res = (from a in resBranch.data
+                       where a.branchid == 1
+                       select new SelectListItem
+                       {
+                           Text = a.branchname,
+                           Value = a.branchid.ToString()
+                       }).ToList();
+            }
+            else
+            {
+                //Filter out branch
+                if (filterOutBranchID > 0)
+                {
+                    resBranch.data = resBranch.data.Where(w => w.branchid != filterOutBranchID).ToList();
+                }
+                res = (from a in resBranch.data
+                       select new SelectListItem
+                       {
+                           Text = a.branchname,
+                           Value = a.branchid.ToString()
+                       }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex.Message, ex);
+        }
+        return res;
+    }
+
+    private async Task<List<SelectListItem>> GetItemTransferItemListByTransferType(int transferTypeID, int brnchID = 0)
+    {
+        List<int> branchList = new List<int>();
+        if (transferTypeID == (int)TransferType.WTB)
+        {
+            var resItem = await _itemAPI.GetItemListAsync();
+            if (!resItem.result)
+            {
+                return new List<SelectListItem>();
+            }
+            return (from a in resItem.data
+                    select new SelectListItem
+                    {
+                        Text = a.name,
+                        Value = a.itemid.ToString()
+                    }).ToList();
+        }
+        else
+        {
+            if (brnchID == 0)
+            {
+                return new List<SelectListItem>();
+            }
+            var resItemBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(brnchID);
+            if (!resItemBranch.result)
+            {
+                return new List<SelectListItem>();
+            }
+            return (from a in resItemBranch.data.itemlist
+                    select new SelectListItem
+                    {
+                        Text = a.itemname,
+                        Value = a.itemid.ToString()
+                    }).ToList();
+        }
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectBranch()
+    {
+
+        BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+        resBranch.data = base.UserProfile.roleid == (int)EnumModel.UserRole.Sale
+            ? resBranch.data.Where(w => base.UserProfile.access_branch.Select(s => s.branchid).Contains(w.branchid)).ToList()
+            : resBranch.data;
+        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectBrand()
+    {
+        BaseResponse<List<GetItemBrandListResponseDTO>> resBranch = await _itemBrandAPI.GetItemBrandListAsync();
+        return resBranch.data.Select(s => new SelectListItem { Text = s.brandname, Value = s.brandid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectItemTransferType()
+    {
+        BaseResponse<List<GetTransferTypeListResponseDTO>> resItemTransaferTypeList = await _itemTransferAPI.GetItemTransferTypeAsync();
+        return resItemTransaferTypeList.data.Select(s => new SelectListItem { Text = s.transfertypename, Value = s.transfertypeid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectItemTransferStatus()
+    {
+        BaseResponse<List<GetItemTransferStatusResponseDTO>> resTransferSttus = await _itemTransferAPI.GetItemTransferStatusAsync();
+        return resTransferSttus.data.Select(s => new SelectListItem { Text = s.transferstatusname_th, Value = s.transferstatusid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectSubItemType()
+    {
+        BaseResponse<List<GetSubItemTypeResponseDTO>> resData = await _subItemTypeAPI.GetSubItemTypeListAsync();
+        return resData.data.Select(s => new SelectListItem { Text = s.subitemcode, Value = s.subitemtypeid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectItemType()
+    {
+        BaseResponse<List<GetItemTypeListResponseDTO>> resData = await _itemTypeAPI.GetItemTypeListAsync();
+        return resData.data.Select(s => new SelectListItem { Text = s.itemtypename, Value = s.itemtypeid.ToString() }).ToList();
+    }
+
+    //GetUnitOfMeasureListAsync
+    private async Task<List<SelectListItem>> PrepareSelectUnitOfMeasure()
+    {
+        BaseResponse<List<GetUnitOfMeasureListResponseDTO>> resData = await _itemUnitOfMeasureAPI.GetUnitOfMeasureListAsync();
+        return resData.data.Select(s => new SelectListItem { Text = s.unitofmeasurename, Value = s.unitofmeasureid.ToString() }).ToList();
+    }
 }

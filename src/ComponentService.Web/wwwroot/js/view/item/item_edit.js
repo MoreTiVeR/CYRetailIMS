@@ -1,4 +1,6 @@
 ﻿
+$('.select2').select2();
+
 function EditItem(form) {
 
     $("#global-loader").css('display', '');

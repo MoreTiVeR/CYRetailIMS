@@ -1,4 +1,5 @@
 ﻿
+$('.select2').select2();
 
 function EditItem(form) {
 

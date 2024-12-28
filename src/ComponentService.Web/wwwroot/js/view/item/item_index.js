@@ -1,7 +1,7 @@
 ﻿
 var datatable;
 $('.select2').select2();
-IitialDataTable();
+InitialDataTable();
 
 
 $("#btnSearch").on('click', function (event) {
@@ -182,7 +182,7 @@ function deleteItemInBranch(itemid, searchbranchid) {
     });
 }
 
-function IitialDataTable() {
+function InitialDataTable() {
 
     ShowLoading();
     datatable = $("#tbItems").DataTable({
@@ -290,7 +290,6 @@ function IitialDataTable() {
                         //Warehouse
                         return "<a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
                     }
-                    //return "<a href='Edit?itemid=" + data.itemid + "'  class='me-3' title='แก้ไขข้อมูลสินค้า'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.itemid + "' onclick=deleteItem(" + data.itemid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
                 }
             },
         ],
