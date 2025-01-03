@@ -23,9 +23,9 @@ public static class ConfigureService
             ServiceLifetime.Scoped);
 
         #region Common
-        services.AddTransient<IAppConfig, AppConfig>();
-        services.AddTransient<IEncryptionString, EncryptionString>();
-        services.AddTransient<ILog4NetLogger, Log4NetLogger>();
+        services.AddScoped<IAppConfig, AppConfig>();
+        services.AddScoped<IEncryptionString, EncryptionString>();
+        services.AddScoped<ILog4NetLogger, Log4NetLogger>();
         #endregion
 
         #region Repositories & Database

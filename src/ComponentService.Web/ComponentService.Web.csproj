@@ -6,17 +6,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>1.9.0.0</Version>
-    <FileVersion>1.9.0.0</FileVersion>
-    <AssemblyVersion>1.9.0.0</AssemblyVersion>
+    <Version>2.0.0.2</Version>
+    <FileVersion>2.0.0.2</FileVersion>
+    <AssemblyVersion>2.0.0.2</AssemblyVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Common\Mappings\Account\**" />
+    <Compile Remove="wwwroot\money_transfer_slip\22122024\**" />
     <Content Remove="Common\Mappings\Account\**" />
+    <Content Remove="wwwroot\money_transfer_slip\22122024\**" />
     <EmbeddedResource Remove="Common\Mappings\Account\**" />
+    <EmbeddedResource Remove="wwwroot\money_transfer_slip\22122024\**" />
     <None Remove="Common\Mappings\Account\**" />
+    <None Remove="wwwroot\money_transfer_slip\22122024\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,6 +60,7 @@
     <Folder Include="Views\Setting\_SettingPartailPage\" />
     <Folder Include="Views\Stock\_PartialPage\" />
     <Folder Include="wwwroot\assets\js\bundle\" />
+    <Folder Include="wwwroot\money_transfer_slip\" />
   </ItemGroup>
 
   <ItemGroup>
