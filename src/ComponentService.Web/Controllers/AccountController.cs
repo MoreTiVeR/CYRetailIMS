@@ -16,6 +16,9 @@ using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.Application.Services.AccountService.Queries.Logout.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
+using System.Security.Claims;
+using System.Security.Principal;
+using CYRetailIMS.Application.Common.Confiuration;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class AccountController : BaseController
@@ -23,16 +26,22 @@ public class AccountController : BaseController
     private readonly IAccountAPI _accountAPI;
     private readonly IEmployeeAPI _employeeAPI;
     private readonly IBranchAPI _branchAPI;
+    private readonly IAppConfig _appConfig;
+    private readonly int _sessionTimeoutMin;
+
     public AccountController(IHttpClientRequest httpClientRequest, IMapper mapper,
         ILog4NetLogger log4NetLogger,
+        IAppConfig appConfig,
         IAccountAPI accountAPI,
         IEmployeeAPI employeeAPI,
         IBranchAPI branchAPI)
         : base(httpClientRequest, mapper, log4NetLogger)
     {
+        _appConfig = appConfig;
         _accountAPI = accountAPI;
         _employeeAPI = employeeAPI;
         _branchAPI = branchAPI;
+        _sessionTimeoutMin = _appConfig.GetSessionTimeoutMinute();
     }
 
     public IActionResult Login()
@@ -84,8 +93,15 @@ public class AccountController : BaseController
 
             //Set profile session
             base.UserProfile = userProfile;
-            var principal = CreatePrincipal(userProfile);
+            ClaimsPrincipal principal = CreatePrincipal(userProfile);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            //await HttpContext.SignInAsync(principal,
+            //    new AuthenticationProperties
+            //    {
+            //        IsPersistent = true,
+            //        ExpiresUtc = DateTime.UtcNow.AddMinutes(_sessionTimeoutMin),
+            //        AllowRefresh = true
+            //    });
             #endregion
             return Json(new JsonViewModel { result = resLogin.result, message = $"ล็อกอินสำเร็จ, ยินดีต้อนรับ {userProfile.username}", url = defaultPage });
         }

@@ -338,7 +338,11 @@ public class MoneyTransferController : BaseController
             #endregion
 
             #region Stream Image File
-            await StreamImageAsync(files);
+            var isAbleCopyFile = await StreamImageAsync(files);
+            if (!isAbleCopyFile)
+            {
+                return Json(new { result = false, message = "ไม่สามารถอัพโหลดไฟล์ได้<br>กรุณาลองใหม่อีกครั้ง" });
+            }
             #endregion
 
             #region Preparing Object to Create
@@ -525,24 +529,20 @@ public class MoneyTransferController : BaseController
     {
         try
         {
-            await Task.Run(() =>
+            var fileData = files.Where(w => w.filedata != null && w.filedata.Length > 0).ToList();
+            foreach (var item in fileData)
             {
-                files.Where(w => w.filedata != null).ForEach(async e =>
+                #region File Path Check
+                FileInfo fInfo = new FileInfo(item.filepath);
+                if (!fInfo.Directory.Exists)
                 {
-                    #region File Path Check
-                    FileInfo fInfo = new FileInfo(e.filepath);
-                    if (!fInfo.Directory.Exists)
-                    {
-                        fInfo.Directory.Create();
-                    }
-                    #endregion
+                    fInfo.Directory.Create();
+                }
+                #endregion
 
-                    using (var stream = new FileStream(e.filepath, FileMode.Create))
-                    {
-                        await e.filedata.CopyToAsync(stream);
-                    }
-                });
-            });
+                var stream = new FileStream(item.filepath, FileMode.OpenOrCreate);
+                await item.filedata.CopyToAsync(stream);
+            }
             return true;
         }
         catch (Exception ex)

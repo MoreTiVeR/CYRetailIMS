@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using System.Threading;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Common.Interfaces;
@@ -78,7 +79,6 @@ using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
 using CYRetailIMS.Infrastructure.ExternalService.WarehouseAPI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace CYRetailIMS.ComponentService.Web;
 
@@ -90,8 +90,10 @@ public static class ConfigureService
         int sessionTimeout = configuration.GetSection("Appsettings")["SESSION_TIMEOUT"] != null ? int.Parse(configuration.GetSection("Appsettings")["SESSION_TIMEOUT"]) : 60;
         #endregion
 
-        //Allow Re-Complie .cshtml at runtime
-        services.AddMvc().AddRazorRuntimeCompilation();
+        #region Add Razor compile at runtime
+        services.AddRazorPages().AddRazorRuntimeCompilation();
+        #endregion
+
         services.AddControllersWithViews(opt =>
         {
             opt.Filters.Add<GlobalExceptionFilter>();
@@ -121,31 +123,54 @@ public static class ConfigureService
         });
         #endregion
 
+        #region Allow edit razor and redendering
+        services.AddControllersWithViews().AddRazorRuntimeCompilation();
+        services.AddMvc().AddRazorRuntimeCompilation();
+        #endregion
+
+        #region Cookie & Session
+        //services
+        //    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        //    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+        //    {
+        //        options.Cookie.SameSite = SameSiteMode.None;
+        //        options.Cookie.HttpOnly = true;
+        //        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        //        options.AccessDeniedPath = new PathString("/Permission/AccessDenied");
+        //        options.LoginPath = new PathString("/Account/Login");
+        //        options.LogoutPath = new PathString("/Account/logout");
+        //        options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeout);
+        //        options.ReturnUrlParameter = "/";
+        //    });
+        //services.Configure<CookiePolicyOptions>(options =>
+        //{
+        //    options.CheckConsentNeeded = context => true;
+        //    options.MinimumSameSitePolicy = SameSiteMode.None;
+        //});
+
+        //services.AddDistributedMemoryCache();
+        //services.AddSession(options =>
+        //{
+        //    options.Cookie.Name = ".CYWeb.Session";
+        //    options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout); // Set session timeout
+        //    options.Cookie.HttpOnly = true; // Ensures the session cookie is accessible only by the server
+        //    options.Cookie.IsEssential = true; // Required for GDPR compliance
+        //});
 
         services.AddDistributedMemoryCache();
-        services.AddSession(opts =>
+        services.AddSession(options =>
         {
-            opts.Cookie.Name = "CY.Session";
-            opts.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);
-            opts.Cookie.IsEssential = true;
+            options.Cookie.Name = ".CYWeb.Session";
+            options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout);//You can set Time
+            options.Cookie.IsEssential = true;
         });
-        services.ConfigureApplicationCookie(options =>
-        {
-            options.Cookie.HttpOnly = true;
-            options.Cookie.Name = "CY.Session";
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeout);
-            options.LoginPath = "/Account/Login";
-            options.AccessDeniedPath = "/Permission/AccessDenied";
-            options.SlidingExpiration = true;
-        });
-
-        services.AddDataProtection();
 
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
         {
             options.AccessDeniedPath = "/AccessDenied";
             options.LoginPath = "/Login";
         });
+        #endregion
 
         #region Auto Mapper Configurations
         var mappingConfig = new MapperConfiguration(mc =>
@@ -186,8 +211,9 @@ public static class ConfigureService
         #region Service
         services.AddHttpContextAccessor();
         services.AddHttpClient<IHttpClientRequest, HttpClientRequest>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-        services.AddTransient<IDateTimeProvider, DateTimeService>();
+        services.AddSingleton<IDateTimeProvider, DateTimeService>();
 		#endregion
 
 		#region Common
@@ -228,6 +254,7 @@ public static class ConfigureService
         services.AddScoped<ISubItemTypeAPI, SubItemTypeAPI>();
         #endregion
 
+        services.AddControllersWithViews();
         return services;
     }
 

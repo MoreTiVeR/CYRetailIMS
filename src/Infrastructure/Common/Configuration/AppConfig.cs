@@ -25,4 +25,6 @@ public class AppConfig : IAppConfig
     public string GetUserSecretKey() => Configuration.GetSection("AppSettings:SECRET_KEY").Get<string>();
 
     public string GetImportItemFilePath() => Configuration.GetSection("AppSettings:IMPORT_FILE_PATH").Get<string>();
+
+    public int GetSessionTimeoutMinute() => Configuration.GetSection("AppSettings:SESSION_TIMEOUT").Get<int>();
 }
