@@ -15,6 +15,11 @@ public class GetItemBrandByIDMappingProfile : Profile
             .ForMember(m => m.brandid, f => f.MapFrom(w => w.BrandID))
             .ForMember(m => m.brandname, f => f.MapFrom(w => w.BrandName))
             .ForMember(m => m.brandshortname, f => f.MapFrom(w => w.BrandShortName))
-            .ForMember(m => m.description, f => f.MapFrom(w => w.Description));
+            .ForMember(m => m.description, f => f.MapFrom(w => w.Description))
+            .ForMember(m => m.createdby, f => f.MapFrom(w => w.CreatedBy))
+            .ForMember(m => m.createddate, f => f.MapFrom(w => w.CreatedDate))
+            .ForMember(m => m.updatedby, f => f.MapFrom(w => w.UpdatedBy))
+            .ForMember(m => m.updateddate, f => f.MapFrom(w => w.UpdatedDate))
+            .ForMember(m => m.isactive, f => f.MapFrom(w => w.IsActive));
     }
 }

@@ -50,20 +50,6 @@ public class Program
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
-        #region Old 31/12/2024
-        //app.UseCookiePolicy(new CookiePolicyOptions
-        //{
-        //    Secure = CookieSecurePolicy.None,
-        //    MinimumSameSitePolicy = SameSiteMode.None,
-        //    HttpOnly = HttpOnlyPolicy.None
-        //});
-
-        //app.UseRouting();
-        //app.UseAuthentication();
-        //app.UseAuthorization();
-        //app.UseSession();
-        #endregion
-
         #region New
         app.UseRouting();
 
@@ -71,7 +57,6 @@ public class Program
         app.UseAuthorization();
         app.UseSession();
         #endregion
-
 
         //app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.MapControllerRoute(

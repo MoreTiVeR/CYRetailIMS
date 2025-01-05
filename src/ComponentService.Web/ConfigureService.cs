@@ -41,7 +41,6 @@ using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
 using CYRetailIMS.Application.ExternalService.WarehouseAPI;
-using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.Configuration;
@@ -129,34 +128,6 @@ public static class ConfigureService
         #endregion
 
         #region Cookie & Session
-        //services
-        //    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        //    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-        //    {
-        //        options.Cookie.SameSite = SameSiteMode.None;
-        //        options.Cookie.HttpOnly = true;
-        //        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        //        options.AccessDeniedPath = new PathString("/Permission/AccessDenied");
-        //        options.LoginPath = new PathString("/Account/Login");
-        //        options.LogoutPath = new PathString("/Account/logout");
-        //        options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeout);
-        //        options.ReturnUrlParameter = "/";
-        //    });
-        //services.Configure<CookiePolicyOptions>(options =>
-        //{
-        //    options.CheckConsentNeeded = context => true;
-        //    options.MinimumSameSitePolicy = SameSiteMode.None;
-        //});
-
-        //services.AddDistributedMemoryCache();
-        //services.AddSession(options =>
-        //{
-        //    options.Cookie.Name = ".CYWeb.Session";
-        //    options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeout); // Set session timeout
-        //    options.Cookie.HttpOnly = true; // Ensures the session cookie is accessible only by the server
-        //    options.Cookie.IsEssential = true; // Required for GDPR compliance
-        //});
-
         services.AddDistributedMemoryCache();
         services.AddSession(options =>
         {

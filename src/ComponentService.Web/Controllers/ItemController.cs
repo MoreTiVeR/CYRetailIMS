@@ -47,6 +47,8 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemIn
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchForImportByBranchID.v1;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
+using System.Linq;
+using Newtonsoft.Json;
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.Stock)]
@@ -170,12 +172,56 @@ public class ItemController : BaseController
     /// Allow only Admin, Stock
     /// </summary>
     /// <returns></returns>
+    //[Route("item/itemtransferhistory")]
     [HttpGet]
     public async Task<IActionResult> GetItemTransferHistory()
     {
-        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
+        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory;
         try
         {
+            #region Filter & Paging
+            //Request.Form.TryGetValue("draw", out var draw);
+            //Request.Form.TryGetValue("start", out var start);
+            //Request.Form.TryGetValue("length", out var length);
+            ////var draw = Request.Form.GetValues("draw").FirstOrDefault();
+            ////var start = Request.Form.GetValues("start").FirstOrDefault();
+            ////var length = Request.Form.GetValues("length").FirstOrDefault();
+
+            //Request.Form.TryGetValue("order[0][column]", out var sColumn);
+            ////Request.Form.TryGetValue("length", out var length);
+            ////var sortColumn = Request.Form.GetValues("columns[" + Request.Form.GetValues("order[0][column]").FirstOrDefault() + "][name]").FirstOrDefault();
+            ////var sortColumnDir = Request.Form.GetValues("order[0][dir]").FirstOrDefault();
+            ////var searchValue = Request.Form.GetValues("search[value]").FirstOrDefault();
+
+            //int pageSize = length.FirstOrDefault() != null ? Convert.ToInt32(length) : 0;
+            //int skip = start.FirstOrDefault() != null ? Convert.ToInt32(start) : 0;
+            //int recordsTotal = 0;
+
+            //var form = Request.Form.ToList();
+            //string filterType = string.Empty;
+            //string filterValue = string.Empty;
+            //var frmSearch = form.Where(w => w.Key == "search[value]").FirstOrDefault(); //.Value[0];
+            //string filter = frmSearch.Value[0].ToLower().Trim();
+            //if (!string.IsNullOrEmpty(filter) && filter.Split("|").Count() > 1 && !string.IsNullOrEmpty(filter.Split("|")[1]))
+            //{
+            //    filterType = filter.Split("|")[0].Trim().ToLower();
+            //    filterValue = filter.Split("|")[1].Trim();
+            //}
+
+            //if (filter.Contains("|") == false)
+            //{
+            //    filterType = "searchbox";
+            //    filterValue = filter;
+            //}
+
+            //string draw = form.Where(w => w.Key == "draw").FirstOrDefault().Value[0];
+            //var start = form.Where(w => w.Key == "start").FirstOrDefault().Value[0];
+            //var length = form.Where(w => w.Key == "length").FirstOrDefault().Value[0];
+
+            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            //int skip = start != null ? Convert.ToInt32(start) : 0;
+            #endregion
+
             if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
             {
                 transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
@@ -191,7 +237,171 @@ public class ItemController : BaseController
             {
                 return Json(new { data = new List<GetItemTransferResponseDTO>() });
             }
+
+            //test
+            //transferHistory.data = transferHistory.data.Skip(skip).Take(pageSize).ToList();
+
             return Json(new { data = transferHistory.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetItemTransferResponseDTO>() });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetItemTransferHistoryV3()
+    {
+        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory;
+        try
+        {
+            #region Filter & Paging
+            Request.Form.TryGetValue("draw", out var draw);
+            Request.Form.TryGetValue("start", out var start);
+            Request.Form.TryGetValue("length", out var length);
+            //var draw = Request.Form.GetValues("draw").FirstOrDefault();
+            //var start = Request.Form.GetValues("start").FirstOrDefault();
+            //var length = Request.Form.GetValues("length").FirstOrDefault();
+
+            Request.Form.TryGetValue("order[0][column]", out var sColumn);
+            //Request.Form.TryGetValue("length", out var length);
+            //var sortColumn = Request.Form.GetValues("columns[" + sColumn.FirstOrDefault() + "][name]").FirstOrDefault();
+            Request.Form.TryGetValue("columns[" + sColumn.FirstOrDefault() + "][name]", out var sortColumn);
+
+            //var sortColumnDir = Request.Form.GetValues("order[0][dir]").FirstOrDefault();
+            //var searchValue = Request.Form.GetValues("search[value]").FirstOrDefault();
+            Request.Form.TryGetValue("order[0][dir]", out var sortColumnDir);
+            Request.Form.TryGetValue("search[value]", out var searchValue);
+
+            int pageSize = length.FirstOrDefault() != null ? Convert.ToInt32(length) : 0;
+            int skip = start.FirstOrDefault() != null ? Convert.ToInt32(start) : 0;
+            int recordsTotal = 0;
+
+            //var form = Request.Form.ToList();
+            //string filterType = string.Empty;
+            //string filterValue = string.Empty;
+            //var frmSearch = form.Where(w => w.Key == "search[value]").FirstOrDefault(); //.Value[0];
+            //string filter = frmSearch.Value[0].ToLower().Trim();
+            //if (!string.IsNullOrEmpty(filter) && filter.Split("|").Count() > 1 && !string.IsNullOrEmpty(filter.Split("|")[1]))
+            //{
+            //    filterType = filter.Split("|")[0].Trim().ToLower();
+            //    filterValue = filter.Split("|")[1].Trim();
+            //}
+
+            //if (filter.Contains("|") == false)
+            //{
+            //    filterType = "searchbox";
+            //    filterValue = filter;
+            //}
+
+            //string draw = form.Where(w => w.Key == "draw").FirstOrDefault().Value[0];
+            //var start = form.Where(w => w.Key == "start").FirstOrDefault().Value[0];
+            //var length = form.Where(w => w.Key == "length").FirstOrDefault().Value[0];
+
+            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            //int skip = start != null ? Convert.ToInt32(start) : 0;
+            #endregion
+
+            if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
+            {
+                transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
+            }
+            else
+            {
+                transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
+                {
+                    destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid
+                });
+            }
+            if (!transferHistory.result)
+            {
+                return Json(new { data = new List<GetItemTransferResponseDTO>() });
+            }
+
+            //test
+            draw = draw.FirstOrDefault();
+            recordsTotal = transferHistory.data.Count;
+            transferHistory.data = transferHistory.data.Skip(skip).Take(pageSize).ToList();
+            return Json(new { draw, recordsFiltered = recordsTotal, recordsTotal, transferHistory.data });
+
+            //return Json(new { data = transferHistory.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetItemTransferResponseDTO>() });
+        }
+    }
+
+    [HttpPost]
+    public JsonResult GetItemTransferHistoryV2(Pagination pagination)
+    {
+        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory;
+        DTResponse DTResponse = new DTResponse();
+        try
+        {
+            #region Filter & Paging
+            //var form = Request.Form.ToList();
+            //string filterType = string.Empty;
+            //string filterValue = string.Empty;
+            //var frmSearch = form.Where(w => w.Key == "search[value]").FirstOrDefault(); //.Value[0];
+            //string filter = frmSearch.Value[0].ToLower().Trim();
+            //if (!string.IsNullOrEmpty(filter) && filter.Split("|").Count() > 1 && !string.IsNullOrEmpty(filter.Split("|")[1]))
+            //{
+            //    filterType = filter.Split("|")[0].Trim().ToLower();
+            //    filterValue = filter.Split("|")[1].Trim();
+            //}
+
+            //if (filter.Contains("|") == false)
+            //{
+            //    filterType = "searchbox";
+            //    filterValue = filter;
+            //}
+
+            //string draw = form.Where(w => w.Key == "draw").FirstOrDefault().Value[0];
+            //var start = form.Where(w => w.Key == "start").FirstOrDefault().Value[0];
+            //var length = form.Where(w => w.Key == "length").FirstOrDefault().Value[0];
+
+            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            //int skip = start != null ? Convert.ToInt32(start) : 0;
+            #endregion
+
+            //if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
+            //{
+            //    transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
+            //}
+            //else
+            //{
+            //    transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
+            //    {
+            //        destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid
+            //    });
+            //}
+
+            //test
+            //transferHistory.data = transferHistory.data.Skip(skip).Take(pageSize).ToList();
+            List<EmployeeTest> employeeTests = new List<EmployeeTest>();
+            for (int i = 1; i <= 1000; i++)
+            {
+                employeeTests.Add(new EmployeeTest
+                {
+                    EmployeeID = i,
+                    FirstName = $"{i:###}_test",
+                    LastName = $"{i:###}_eg",
+                    Address = "ddd",
+                    City = "dsd",
+                    Country = "th",
+                    HomePhone = "912121444",
+                    PostalCode = 81130,
+                    Title = "x",
+                    TitleOfCourtesy = "w"
+                });
+            }
+            
+            DTResponse.recordsTotal = employeeTests.Count;
+            DTResponse.recordsFiltered = Convert.ToInt32(1);
+            DTResponse.data = JsonConvert.SerializeObject(employeeTests);
+            return Json(DTResponse);
+            //return Json(new { data = transferHistory.data });
         }
         catch
         {

@@ -19,7 +19,7 @@ public class GetItemBrandListHandler : BaseService, IRequestHandler<GetItemBrand
 
     public async Task<BaseResponse<List<GetItemBrandListResponseDTO>>> Handle(GetItemBrandListQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<TMItemBrand> resItemsBrand = await _unitOfWork.Repository<TMItemBrand>().FindListAsync(w => w.IsActive);
+        IEnumerable<TMItemBrand> resItemsBrand = await _unitOfWork.Repository<TMItemBrand>().QueryAsync();
         if (!resItemsBrand.Any())
         {
             throw new Exception("Data not found");
@@ -27,7 +27,7 @@ public class GetItemBrandListHandler : BaseService, IRequestHandler<GetItemBrand
         return new BaseResponse<List<GetItemBrandListResponseDTO>>
         {
             result = true,
-            data = _mapper.Map<List<GetItemBrandListResponseDTO>>(resItemsBrand),
+            data = _mapper.Map<List<GetItemBrandListResponseDTO>>(resItemsBrand.OrderBy(s => s.BrandID)),
             message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()
