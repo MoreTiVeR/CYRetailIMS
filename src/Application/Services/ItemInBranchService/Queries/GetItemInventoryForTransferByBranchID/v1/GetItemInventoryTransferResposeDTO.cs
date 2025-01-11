@@ -16,6 +16,7 @@ public class GetItemInventoryTransferResposeDTO
     public string itemname { get; set; }
     public int brandid { get; set; }
     public string brandname { get; set; }
+    public string subitemtypename { get; set; }
     public int qtyinstock { get; set; }
     public int qtyinbranch { get; set; }
     public int notifyminqty { get; set; }

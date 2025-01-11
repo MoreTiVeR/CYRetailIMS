@@ -114,6 +114,59 @@ $(document).on('change', '.select2', function (e) {
     //ShowMessageInfo('Selected value :' + selectedValue);
 });
 
+var sumUserRefilQty = 0;
+$(document).on('change', ':checkbox', function () {
+
+    //-------- method 1
+    //var data = datatable.$('input, select').serialize();
+    //var object_update = {
+    //    InventoryTransferDataList: datatable.rows()
+    //        .data()
+    //        .toArray()
+    //        .map((el) => {
+    //            //console.log(el.itemid);
+    //            var txtRefillQty = datatable.$('input[name=itemid_' + el.itemid + '], select');
+    //            var isCheck = datatable.$('input[name=select_itemid_' + el.itemid + '], select');
+    //            el.ischeck = isCheck.is(":checked");
+    //            el.refillqty = parseInt(txtRefillQty.val());
+    //            if (isCheck.is(":checked")) {
+    //                alert('checked');
+    //            }
+    //            return el;
+    //        })
+    //}
+    //console.log(object_update);
+    //var reqData = { "detail": object_update.InventoryTransferDataList };
+    //var jsonData = JSON.stringify(reqData);
+    //console.log(jsonData);
+
+    //-------- method 2
+    var checkedItemID = parseInt(this.name.split("_")[2]);
+    var txtRefillQty = datatable.$('input[name=itemid_' + checkedItemID + '], select');
+
+    var curSumUserRefilQty = (isNaN(parseInt(sumUserRefilQty))) ? 0 : parseInt(sumUserRefilQty);
+    var refillQtyValue = (isNaN(parseInt(txtRefillQty.val()))) ? 0 : parseInt(txtRefillQty.val());
+    console.log(curSumUserRefilQty);
+    console.log(refillQtyValue);
+    if ($(this).is(':checked'))
+    {
+        //Plus
+        console.log($(this).val() + ' is now checked');
+        sumUserRefilQty = curSumUserRefilQty + refillQtyValue;
+        $('#txtSumUserRefillQTY').val(sumUserRefilQty);
+    }
+    else
+    {
+        //Minus
+        console.log($(this).val() + ' is now unchecked');
+
+        sumUserRefilQty = curSumUserRefilQty - refillQtyValue;
+        $('#txtSumUserRefillQTY').val(sumUserRefilQty);
+    }
+
+
+});
+
 $('#btnConfirmTransfer').on('click', function (e) {
 
     ShowLoading();
