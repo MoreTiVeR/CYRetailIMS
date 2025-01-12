@@ -37,7 +37,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         {
             "data": { itemid: "itemid", refillqty: "refillqty", "itemcode": "itemcode" },
             "render": function (data) {
-                return "<input class='itemid-refillqty' type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid + "' value='" + data.refillqty + "' onkeyup='if(this.value<0){this.value= this.value * -1}' />";
+                return "<input class='itemid-refillqty' type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid + "' value='" + data.refillqty + "' onkeyup='if(this.value<0){this.value= this.value * -1}' min='1' />";
             }
         },
         { "data": "itemcode" },
