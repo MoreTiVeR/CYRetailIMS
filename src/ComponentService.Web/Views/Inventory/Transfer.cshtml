@@ -4,6 +4,18 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .input-group-text{
+        width: 70%;
+    }
+
+    input[type="text"]:read-only {
+        cursor: default;
+        background-color: #ffffff;
+        color: #000;
+    }
+</style>
+
 <div class="page-header">
     <div class="page-title">
         <h4>โอนสินค้าเร่งด่วน</h4>
@@ -50,15 +62,38 @@
                             <option value="">--เลือกแบรนด์--</option>
                         </select>
                     </div>
+                    @* <div class="col-lg-3 col-sm-6 col-12">
+                        <select id="ddlBrand" class="ddl-select2 select2 ddl-source-brand" asp-items="@(new SelectList(ViewBag.SubItemTypeList, "Value", "Text", null, null))">
+                            <option value="">--เลือกประเภทย่อย--</option>
+                        </select>
+                    </div> *@
                     <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group" style="text-align: left">
                             <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-sm-6 col-12">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-sm-6 col-lg-4 col-12">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-text">จำนวน</span>
+                        <input id="txtSumUserRefillQTY" type="text" class="form-control allownumericwithdecimal">
                     </div>
                 </div>
             </div>
+            <div class="col-lg-3 col-sm-6 col-lg-4 col-12">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-text">จำนวนที่ต้องเติม</span>
+                        <input id="txtSumSystemTotalRefillQTY" type="text" onkeyup="if(this.value<0){this.value= this.value * -1}" min="1" class="form-control allownumericwithdecimal">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-lg-4 col-12"></div>
+            <div class="col-lg-3 col-sm-6 col-lg-4 col-12"></div>
         </div>
         <!-- /Filter -->
         <div class="table-responsive">
@@ -67,7 +102,7 @@
                     <tr>
                         <th>
                             <label class="checkboxs">
-                                <input type="checkbox" id="select-all">
+                                <input type="checkbox" id="select-all-items">
                                 <span class="checkmarks"></span>
                             </label>
                         </th>

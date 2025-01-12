@@ -10,6 +10,7 @@ using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTransferAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
+using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ExcelService.Queries.GenerateStockTransferExcelReport.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
@@ -26,6 +27,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemT
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidatePrintDraftItemTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
+using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Infrastructure.Common.Extensions;
@@ -47,13 +49,15 @@ public class InventoryController : BaseController
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IReportAPI _reportAPI;
     private readonly IExcelAPI _excelAPI;
+    private readonly ISubItemTypeAPI _subItemTypeAPI;
     public InventoryController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IBranchAPI branchAPI,
         IItemBrandAPI itemBrandAPI,
         IItemTransferAPI itemTransferAPI,
         IItemInBranchAPI itemInBranchAPI,
         IReportAPI reportAPI,
-        IExcelAPI excelAPI) : base(httpClientRequest, mapper, log)
+        IExcelAPI excelAPI,
+        ISubItemTypeAPI subItemTypeAPI) : base(httpClientRequest, mapper, log)
     {
         _branchAPI = branchAPI;
         _itemBrandAPI = itemBrandAPI;
@@ -61,6 +65,7 @@ public class InventoryController : BaseController
         _itemInBranchAPI = itemInBranchAPI;
         _reportAPI = reportAPI;
         _excelAPI = excelAPI;
+        _subItemTypeAPI = subItemTypeAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -85,6 +90,7 @@ public class InventoryController : BaseController
     {
         ViewBag.BranchList = await PrepareSelectBranch();
         ViewBag.ItemBrandList = await PrepareSelectBrand();
+        //ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
         return View();
     }
 
@@ -502,6 +508,12 @@ public class InventoryController : BaseController
     {
         BaseResponse<List<GetItemBrandListResponseDTO>> resBranch = await _itemBrandAPI.GetItemBrandListAsync();
         return resBranch.data.Select(s => new SelectListItem { Text = s.brandname, Value = s.brandid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectSubItemType()
+    {
+        BaseResponse<List<GetSubItemTypeResponseDTO>> resBranch = await _subItemTypeAPI.GetSubItemTypeListAsync();
+        return resBranch.data.Select(s => new SelectListItem { Text = s.subitemcode, Value = s.subitemtypeid.ToString() }).ToList();
     }
 
     /// <summary>

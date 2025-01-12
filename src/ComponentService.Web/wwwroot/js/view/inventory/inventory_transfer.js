@@ -2,17 +2,15 @@
 var datatable;
 InitialNumberInput();
 $('.select2').select2();
+$("#txtSumUserRefillQTY").attr('readonly', true);
+$("#txtSumSystemTotalRefillQTY").attr('readonly', true);
 
-//var editor = new DataTable.Editor({
-//    ajax: '/Inventory/GetItemInventoryTransfer',
-//    fields: [
-//        {
-//            label: 'จำนวน/แก้ไขได้:',
-//            name: 'orderqty'
-//        }
-//    ],
-//    table: '#tbItemInventoryTransfer'
-//});
+var total = 0;
+var sumUserRefilQty = 0;
+var sumSystemRefilQty = 0;
+
+var selectAllItems = "#select-all-items";
+var checkboxItem = ":checkbox";
 
 datatable = $("#tbItemInventoryTransfer").DataTable({
     "destroy": true,
@@ -31,24 +29,15 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         {
             "data": { itemid: "itemid", "itemcode": "itemcode" },
             "render": function (data) {
-                console.log('render columns : checkbox');
-                return "<label class='checkboxs'><input type='checkbox' id='select-all' name='select_itemid_" + data.itemid +"'><span class='checkmarks'></span></label>";
+                return "<label class='checkboxs'><input type='checkbox' id='select-all-items' class='select-item' name='select_itemid_" + data.itemid +"'><span class='checkmarks'></span></label>";
             }
         },
-        //{
-        //    "data": { itemimageurl: "itemimageurl", name: "name" },
-        //    "render": function (data) {
-        //        console.log('columns : render => ' + data);
-        //        return "<a asp-action='Detail' asp-controller='Item' asp-all-route-data='aItemID'>" + data.name + "</a>";
-        //    }
-        //},
         { "data": "branchid" },
         { "data": "itemid" },
         {
             "data": { itemid: "itemid", refillqty: "refillqty", "itemcode": "itemcode" },
             "render": function (data) {
-                console.log('columns : render => ' + data);
-                return "<input type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid + "' value='" + data.refillqty + "'>";
+                return "<input class='itemid-refillqty' type='number' id='itemid_" + data.itemid + "' name='itemid_" + data.itemid + "' value='" + data.refillqty + "' onkeyup='if(this.value<0){this.value= this.value * -1}' min='1' />";
             }
         },
         { "data": "itemcode" },
@@ -59,6 +48,14 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         { "data": "notifyminqty" },
         { "data": "orderqty" },
         { "data": "refillqty" }
+        //{
+        //    "data": { itemid: "itemid", refillqty: "refillqty" },
+        //    "render": function (data) {
+        //        console.log('refillqty: ' + data.refillqty);
+        //        return "<label class='checkboxs'><input type='checkbox' id='select-all' name='select_itemid_" + data.itemid + "'><span class='checkmarks'></span></label>";
+        //        //return "<lable id='refillqty_itemid_" + data.itemid + "' name='refillqty_itemid_" + data.itemid + "'>" + data.refillqty + "</lable>";
+        //    }
+        //},
     ],
     "order": [[2, "asc"]],
     "columnDefs": [
@@ -78,6 +75,71 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         $('.dataTables_filter').appendTo("#tbItemInventoryTransfer");
         $('.dataTables_filter').appendTo('.search-input');
     },
+    //rowCallback: function (row, data) {
+    //    //alert(row);
+    //    //$(row).css("cursor", "pointer");
+    //    var ccc = $(row).find('.itemid-refillqty').val();
+    //    console.log('ccc -> ' + ccc);
+
+    //    $(row).on("change", ".itemid-refillqty", function () {
+    //        var input = $(this);
+    //        //console.log(row);
+    //        //console.log(data);
+
+    //        //getting the previous value
+    //        var previousValue = $(this).data("val");
+    //        console.log($(this).data());
+
+    //        //get current value
+    //        var curValue = input.val();
+    //        console.log('curValue -> ' + curValue);
+
+    //        //new value
+    //        var newValue = $(row).find('.itemid-refillqty').val();
+    //        console.log('newValue -> ' + newValue);
+
+    //        //final value
+    //        var finalVal = newValue - curValue;
+    //        console.log('finalVal -> ' + finalVal);
+
+    //        //set new value
+    //        //var intNewValue = (isNaN(parseInt(newValue))) ? 0 : parseInt(newValue)
+    //        //$(this).val(intNewValue);
+
+
+    //        var isCheck = $(row).find('#select-all-items').is(':checked');
+    //        if (isCheck) {
+                
+    //            var name = "select_itemid_" + data.itemid;
+    //            //console.log('name: ' + name);
+    //            alert(name);
+    //            var systemRefilQty = (isNaN(parseInt(data.refillqty))) ? 0 : parseInt(data.refillqty);
+
+    //            var newValue = $(row).find('.itemid-refillqty').val();
+    //            var intNewValue = (isNaN(parseInt(newValue))) ? 0 : parseInt(newValue);
+
+    //            var minus = intNewValue - systemRefilQty;
+
+    //            var name2 = "#itemid_" + data.itemid;
+    //            //$(name2).val(intNewValue);
+
+    //            //CalculateTotalUserRefillQTYByInputName(name, isCheck);
+    //            CalculateTotalUserRefillQTYByInputNameAndMinusValue(name, isCheck);
+    //        }
+    //        //console.log(ddd);
+
+    //        //console.log(data);
+    //        //console.log(data.refillqty);
+    //        //var input = $(this);
+    //        //console.log($(this).val());
+    //        //var lastval = input.data("lastval");
+    //        //console.log('lastval -> ' + lastval);
+    //        //input.val(input.val());
+    //    });
+    //    //$('.itemid-refillqty').bind("input", function (event) {
+    //    //    console.log('success');
+    //    //});
+    //},
     /*dom: 'Bfrtip',*/
     buttons: [
         {
@@ -102,6 +164,31 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     ]
 });
 
+$('#tbItemInventoryTransfer').on('input', '.itemid-refillqty', function () {
+    updateTotal();
+});
+
+// Function to update total
+function updateTotal() {
+    total = 0; // reset total
+    $('#tbItemInventoryTransfer tbody tr').each(function () {
+        var $row = $(this);
+        //var checkbox = $row.find('.select-item');
+        var isCheck = $row.find('#select-all-items').is(':checked');
+        //var value = parseFloat($row.find('.itemid-refillqty').val()) || 0; // get new value
+        var value = (isNaN(parseInt($row.find('.itemid-refillqty').val()))) ? 0 : parseInt($row.find('.itemid-refillqty').val());
+
+        // Only add if checkbox is checked
+        if (isCheck) {
+            total += Math.abs(value);
+        }
+    });
+
+    console.log('recalculate total: ' + Math.abs(total));
+    // Update total display
+    $('#txtSumUserRefillQTY').val(Math.abs(total));
+}
+
 $(document).on('change', '.select2', function (e) {
 
     // Get the selected value
@@ -111,7 +198,35 @@ $(document).on('change', '.select2', function (e) {
     console.log($(this).data('name'));
     // Log the selected value for the current row (you can replace this with your desired logic)
     console.log("Row " + row + ": " + selectedValue);
-    //ShowMessageInfo('Selected value :' + selectedValue);
+});
+
+$(selectAllItems).on('click', function () {
+    console.log('reset counter');
+    sumUserRefilQty = 0;
+    sumSystemRefilQty = 0;
+    if (this.checked) {
+        $(checkboxItem).each(function (e) {
+            this.checked = true;
+            CalculateTotalUserRefillQTYByInputName(this.name, this.checked);
+            CalculateTotalSystemRefillQTYByRow($(this).closest('tr'), this.checked);
+        });
+    } else {
+        $(checkboxItem).each(function () {
+            this.checked = false;
+        });
+    }
+});
+
+$(document).on('change', ':checkbox', function (e) {
+
+    //Get data from row at column จำนวนที่ต้องเติม
+    var row = $(this).closest('tr');
+    CalculateTotalSystemRefillQTYByRow(row, $(this).is(':checked'));
+
+    //จำนวนที่เติม edit by user
+    //CalculateTotalUserRefillQTYByInputName(this.name, $(this).is(':checked'));
+    updateTotal();
+
 });
 
 $('#btnConfirmTransfer').on('click', function (e) {
@@ -418,10 +533,9 @@ $("#btnSearch").on('click', function (event) {
     var branchid = parseInt(sbranchid);
     var brandid = parseInt(sbrandid);
 
-    //SearchTransferData(branchid, brandid);
     var reqdata = { "branchid": branchid, "brandid": brandid };
     var jsonData = JSON.stringify(reqdata);
-    console.log(jsonData);
+    //console.log(jsonData);
     var request = $.ajax({
         type: 'POST',
         url: '/Inventory/SearchInvenrotyTransferForTransfer',
@@ -440,7 +554,6 @@ $("#btnSearch").on('click', function (event) {
                 AlertErrorNoTitle(response.message);
             }
 
-            console.log(response.data);
             $("#tbItemInventoryTransfer").DataTable().clear().rows.add(response.data).draw();
             HideLoading();
         },
@@ -491,4 +604,43 @@ function SearchTransferData(branchid, brandid) {
             AlertError(response.message);
         }
     });
+}
+
+function CalculateTotalUserRefillQTYByInputName(inputname, ischecked) {
+    var checkedItemID = parseInt(inputname.split("_")[2]);
+    var txtRefillQty = datatable.$('input[name=itemid_' + checkedItemID + '], select');
+    console.log('input[name=itemid_' + checkedItemID + ']' + txtRefillQty.val());
+
+    var curSumUserRefilQty = (isNaN(parseInt(sumUserRefilQty))) ? 0 : parseInt(sumUserRefilQty);
+    console.log('curSumUserRefilQty: ' + curSumUserRefilQty);
+
+    var refillQtyValue = (isNaN(parseInt(txtRefillQty.val()))) ? 0 : parseInt(txtRefillQty.val());
+    console.log('refillQtyValue: ' + refillQtyValue);
+
+    if (ischecked) {
+        sumUserRefilQty = curSumUserRefilQty + refillQtyValue;
+        console.log('ischecked:true -> sumUserRefilQty: ' + sumUserRefilQty);
+        $('#txtSumUserRefillQTY').val(sumUserRefilQty);
+    }
+    else {
+        sumUserRefilQty = curSumUserRefilQty - refillQtyValue;
+        console.log('ischecked:false -> sumUserRefilQty: ' + sumUserRefilQty);
+        $('#txtSumUserRefillQTY').val(sumUserRefilQty);
+    }
+}
+
+function CalculateTotalSystemRefillQTYByRow(row, ischecked) {
+    //var row = $(this).closest('tr');
+    var cValue = row.find("td:eq(8)").html()
+    var curSystemRefilQty = (isNaN(parseInt(cValue))) ? 0 : parseInt(cValue)
+    var totalSystemRefilQty = (isNaN(parseInt(sumSystemRefilQty))) ? 0 : parseInt(sumSystemRefilQty);
+
+    if (ischecked) {
+        sumSystemRefilQty = totalSystemRefilQty + curSystemRefilQty;
+        $('#txtSumSystemTotalRefillQTY').val(sumSystemRefilQty);
+    }
+    else {
+        sumSystemRefilQty = totalSystemRefilQty - curSystemRefilQty;
+        $('#txtSumSystemTotalRefillQTY').val(sumSystemRefilQty);
+    }
 }
