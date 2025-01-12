@@ -8,6 +8,12 @@
     .input-group-text{
         width: 70%;
     }
+
+    input[type="text"]:read-only {
+        cursor: default;
+        background-color: #ffffff;
+        color: #000;
+    }
 </style>
 
 <div class="page-header">
@@ -82,7 +88,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-text">จำนวนที่ต้องเติม</span>
-                        <input id="txtSumSystemTotalRefillQTY" type="text" class="form-control allownumericwithdecimal">
+                        <input id="txtSumSystemTotalRefillQTY" type="text" onkeyup="if(this.value<0){this.value= this.value * -1}" min="1" class="form-control allownumericwithdecimal">
                     </div>
                 </div>
             </div>
@@ -96,7 +102,7 @@
                     <tr>
                         <th>
                             <label class="checkboxs">
-                                <input type="checkbox" id="select-all">
+                                <input type="checkbox" id="select-all-items">
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
