@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>2.0.1.0</Version>
-    <FileVersion>2.0.1.0</FileVersion>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <Version>2.0.2.0</Version>
+    <FileVersion>2.0.2.0</FileVersion>
+    <AssemblyVersion>2.0.2.0</AssemblyVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
@@ -488,6 +488,10 @@
     </Content>
     <Content Update="wwwroot\assets\img\product\product66.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\view\itembrand\itembrand_index.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 

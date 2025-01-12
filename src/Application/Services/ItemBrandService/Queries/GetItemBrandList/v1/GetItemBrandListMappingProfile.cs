@@ -19,6 +19,8 @@ internal class GetItemBrandListMappingProfile : Profile
             .ForMember(m => m.description, f => f.MapFrom(w => w.Description))
             .ForMember(m => m.createdby, f => f.MapFrom(w => w.CreatedBy))
             .ForMember(m => m.createddate, f => f.MapFrom(w => w.CreatedDate))
+            .ForMember(m => m.updatedby, f => f.MapFrom(w => w.UpdatedBy))
+            .ForMember(m => m.updateddate, f => f.MapFrom(w => w.UpdatedDate))
             .ForMember(m => m.isactive, f => f.MapFrom(w => w.IsActive));
     }
 }

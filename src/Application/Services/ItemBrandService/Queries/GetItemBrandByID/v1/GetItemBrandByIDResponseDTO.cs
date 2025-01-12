@@ -21,5 +21,8 @@ public class GetItemBrandByIDResponseDTO
 
     public DateTime createddate { get; set; }
 
+    public string? updatedby { get; set; }
+
+    public DateTime? updateddate { get; set; }
     public bool isactive { get; set; }
 }

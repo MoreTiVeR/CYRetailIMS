@@ -29,7 +29,7 @@ $("#btnCreate").on('click', function () {
     }).then(function (result) {
         if (result.value) {
 
-            $("#frmCreateMoneyTransfer").submit();
+            $("#frmCreateMoneyTransfer").trigger("submit");
         }
         else if (result.dismiss === Swal.DismissReason.cancel) {
             //Condition
