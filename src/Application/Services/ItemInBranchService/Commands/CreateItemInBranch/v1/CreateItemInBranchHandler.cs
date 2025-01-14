@@ -86,8 +86,13 @@ public class CreateItemInBranchHandler : BaseService, IRequestHandler<CreateItem
             List<CreateItemInBranchDetailCommand> updateItemEntity = request.items.Where(w => w.isupdate).ToList();
             if (updateItemEntity.Count > 0)
             {
+                //Get update list items
                 List<int> itemIdList = updateItemEntity.Select(s => s.itemid).ToList();
-                IEnumerable<TMItemInBranch> resUpdateItemEnt = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => itemIdList.Contains(w.ItemID));
+                
+                //Get update item by requested branch
+                IEnumerable<TMItemInBranch> resUpdateItemEnt = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => itemIdList.Contains(w.ItemID) 
+                && w.BranchID == request.branchid);
+
                 resUpdateItemEnt.ToList().ForEach(e =>
                 {
                     CreateItemInBranchDetailCommand reqItem = updateItemEntity.FirstOrDefault(w => w.itemid == e.ItemID);
