@@ -29,6 +29,7 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
         {
             "data": { itemid: "itemid", "itemcode": "itemcode" },
             "render": function (data) {
+                console.log('render columns : checkbox');
                 return "<label class='checkboxs'><input type='checkbox' id='select-all-items' class='select-item' name='select_itemid_" + data.itemid +"'><span class='checkmarks'></span></label>";
             }
         },
@@ -170,6 +171,26 @@ $('#tbItemInventoryTransfer').on('input', '.itemid-refillqty', function () {
 
 // Function to update total
 function updateTotal() {
+    total = 0; // reset total
+    $('#tbItemInventoryTransfer tbody tr').each(function () {
+        var $row = $(this);
+        //var checkbox = $row.find('.select-item');
+        var isCheck = $row.find('#select-all-items').is(':checked');
+        //var value = parseFloat($row.find('.itemid-refillqty').val()) || 0; // get new value
+        var value = (isNaN(parseInt($row.find('.itemid-refillqty').val()))) ? 0 : parseInt($row.find('.itemid-refillqty').val());
+
+        // Only add if checkbox is checked
+        if (isCheck) {
+            total += Math.abs(value);
+        }
+    });
+
+    console.log('recalculate total: ' + Math.abs(total));
+    // Update total display
+    $('#txtSumUserRefillQTY').val(Math.abs(total));
+}
+
+function updateTotal(row) {
     total = 0; // reset total
     $('#tbItemInventoryTransfer tbody tr').each(function () {
         var $row = $(this);

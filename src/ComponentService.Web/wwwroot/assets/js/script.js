@@ -555,16 +555,16 @@ $(document).ready(function(){
 		
 	var selectAllItems = "#select-all";
 	var checkboxItem = ":checkbox";
-	$(selectAllItems).click(function() {
+    $(selectAllItems).on('click', function() {
 		
 		if (this.checked) {
-		$(checkboxItem).each(function() {
-			this.checked = true;
-		});
+            $(checkboxItem).each(function () {
+                this.checked = true;
+            });
 		} else {
-		$(checkboxItem).each(function() {
-			this.checked = false;
-		});
+            $(checkboxItem).each(function () {
+                this.checked = false;
+            });
 		}
 		
 	});
