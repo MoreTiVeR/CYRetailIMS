@@ -145,7 +145,7 @@ public class InventoryController : BaseController
             {
                 return Json(new { result = false, message = $"ไม่พบข้อมูล", data = new List<GetItemInventoryTransferResposeDTO>() });
             }
-            return Json(new { result = true, message = resItemInventoryTransfer.message, data = resItemInventoryTransfer.data });
+            return Json(new { result = true, message = resItemInventoryTransfer.message, data = resItemInventoryTransfer.data, totalrefillqty = resItemInventoryTransfer.data.Sum(s => s.refillqty) });
 
         }
         catch (Exception ex)
