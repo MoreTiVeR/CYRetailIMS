@@ -105,53 +105,34 @@ datatable = $("#tbItemInventoryTransfer").DataTable({
     ]
 });
 
-// Function to calculate and update the total sum
-function updateTotalSum() {
-    let totalSum = 0;
-    $('.select-item:checked').each(function () {
-        const itemId = $(this).val();
-        const quantityInput = $('#itemid_' + itemId);
-        if (quantityInput.length) {
-            const qty = parseFloat(quantityInput.val()) || 0; // Get the value or default to 0
-            totalSum += qty;
-        }
-    });
-    $('#txtSumUserRefillQTY').val(totalSum); // Update the sum in the textbox
-}
-
 // Handle click on "Select all" control
-$('#select-all-items').on('click', function () {
+$(selectAllItems).on('click', function () {
 
     // Check/uncheck all checkboxes in the table
     var rows = datatable.rows({ 'search': 'applied' }).nodes();
     $('input[type="checkbox"]', rows).prop('checked', this.checked);
 
-    //var data = datatable.rows('.itemid-refillqty').val();
-    //var data = datatable.column(11).data().sum();
+    //var rowCount = datatable.rows().count();
+    //if (rowCount == 0) {
+    //    $('#txtSumUserRefillQTY').val('');
+    //}
+    //else {
+    //    var totalSum = 0;
+    //    if (this.checked) {
+    //        totalSum = $('#tbItemInventoryTransfer').DataTable().column(11).data().sum();
+    //        $('#txtSumUserRefillQTY').val(totalSum);
+    //    }
+    //    else {
+    //        $('#txtSumUserRefillQTY').val(''); // Update the sum in the textbox
+    //    }
+    //    sumSystemRefilQty = totalSum;
+    //}
 
-    var rowCount = datatable.rows().count();
-    if (rowCount == 0) {
-        $('#txtSumUserRefillQTY').val();
-    }
-    else {
-        var totalSum = 0;
-        if (this.checked) {
-            totalSum = $('#tbItemInventoryTransfer').DataTable().column(11).data().sum();
-            $('#txtSumUserRefillQTY').val(totalSum);
-        }
-        else {
-            $('#txtSumUserRefillQTY').val(''); // Update the sum in the textbox
-        }
-        sumSystemRefilQty = totalSum;
-    }
-
-    getSelectedItemQuantities();
+    SumSelectedItemQty();
 });
 
 // Handle click on checkbox to set state of "Select all" control
 $('#tbItemInventoryTransfer tbody').on('change', 'input[type="checkbox"]', function () {
-    alert('Checked!');
-
     //var checkedItemID = parseInt(this.name.split("_")[2]);
     //var refillQty = $("input[name='itemid_" + checkedItemID + "']").val();
     //var qty = (isNaN(parseInt(refillQty))) ? 0 : parseInt(refillQty);
@@ -173,119 +154,24 @@ $('#tbItemInventoryTransfer tbody').on('change', 'input[type="checkbox"]', funct
     //}
     //$('#txtSumUserRefillQTY').val(sumSystemRefilQty);
 
-    getSelectedItemQuantities();
+    //var sumCol4 = sumColumn4();
+    //$('#txtSumUserRefillQTY').val(sumCol4);
+    SumSelectedItemQty();
 });
 
-//// Handle the select all functionality
-//$('#select-all-items').on('change', function () {
-//    var checked = this.checked;
-//    $('.select-item').each(function () {
-//        this.checked = checked;
-//        var itemId = $(this).val();
-//        if (checked) {
-//            selectedItems.add(itemId); // Add ID to selected sets
-//        } else {
-//            selectedItems.delete(itemId); // Remove ID from selected sets
-//        }
-//    });
-//    updateTotalSum(); // Update total sum when select all is changed
-//});
-
-//// Handle individual item selection
-//$('#tbItemInventoryTransfer tbody').on('change', '.select-item', function () {
-//    alert('value changed!');
-//    var itemId = $(this).val();
-//    if (this.checked) {
-//        selectedItems.add(itemId); // Add ID to selected sets
-//    } else {
-//        selectedItems.delete(itemId); // Remove ID from selected sets
-//    }
-//    updateTotalSum(); // Update total sum when individual item is changed
-//});
-
-//// Update total sum when input values change
-//$('#tbItemInventoryTransfer tbody').on('keyup', '.itemid-refillqty', function () {
-//    alert('value changed!');
-//    updateTotalSum(); // Recalculate total sum on input change
-//});
-
-// Update total sum when input values change
-//$('#tbItemInventoryTransfer tbody').on('keyup', '.itemid-refillqty', function () {
-//    alert('value changed!');
-//    updateTotalSum(); // Recalculate total sum on input change
-//});
 
 $('#tbItemInventoryTransfer').on('input', '.itemid-refillqty', function (e) {
-    alert('value changed!' + ' | ' + 'name: ' + this.name);
-    //console.log($(this).val());
-
-    //var newSum = $('#tbItemInventoryTransfer').DataTable().column(11).data().sum();
-    //console.log(newSum);
-    //updateTotalSum();
-    getSelectedItemQuantities();
-    // Check/uncheck all checkboxes in the table
-    //var rows = datatable.rows({ 'search': 'applied' }).nodes();
-    //$('input[type="checkbox"]', rows).prop('checked', this.checked);
-
-    //var data = datatable.rows('.itemid-refillqty').val();
-    //var data = datatable.column(11).data().sum();
-
-    //updateTotalSum();
+    SumSelectedItemQty();
 });
 
-// Function to get selected item quantities
-function getSelectedItemQuantities() {
-    var selectedQuantities = [];
-    var sumSystemRefilQty = 0;
-    // Iterate through each row
-    datatable.rows().every(function (rowIdx, tableLoop, rowLoop) {
-        var data = this.data();
-        var itemId = data.itemid;
-        var textbox = $(`input[name='itemid_${itemId}']`); 
-        var textboxValue = textbox.val(); // Get the value of the textbox
-        var qty = (isNaN(parseInt(textboxValue))) ? 0 : parseInt(textboxValue);
-        
-
-        var checkbox = this.node().querySelector('.select-item'); // 
-        if (checkbox.checked) {
-            //sumSystemRefilQty += qty;
-            selectedQuantities.push(qty);
-            console.log(qty);
-        }
-        //console.log(tableLoop);
-        //console.log(rowLoop);
-        //console.log(this.name);
-        //var data = this.data(); // Get the data for this row
-        //var itemId = data.itemid; // Assuming itemid is accessible in your data structure
-        //var quantity = 0;
-
-        //// Find the input field with name pattern itemid_{itemid} 
-        //var quantityField = $(`input[name='itemid_${itemId}']`);
-        //var quantityValue = quantityField.val() || 0; // Get the value or default to 0
-
-        //// If the associated select-item checkbox is checked
-        //if (this.node().querySelector('.select-item:checked')) {
-        //    //console.log('quantity' + quantity);
-        //    selectedQuantities.push({
-        //        itemId: itemId,
-        //        quantity: parseFloat(quantityValue) || 0 // Parse to float
-        //    });
-        //}
-    });
-
-    var sum = 0;
-    $.each(selectedQuantities, function () { sum += parseInt(this) || 0; });
-    console.log('total: ' + sum);
-    //return selectedQuantities; // Returns an array of selected quantities
-}
-
-//// Restore checkbox states on page change
+// Restore checkbox states on page change
 //datatable.on('draw.dt', function () {
 //    $('.select-item').each(function () {
 //        var itemId = $(this).val();
 //        this.checked = selectedItems.has(itemId); // Check if itemId is in the selectedItems
+//        console.log('itemId: ' + itemId + ' | ' + 'checked: ' + this.checked)
 //    });
-//    updateTotalSum(); // Update total sum on draw
+//    SumSelectedItemQty(); // Update total sum on draw
 //});
 
 $('#btnConfirmTransfer').on('click', function (e) {
@@ -402,90 +288,6 @@ $('#btnConfirmTransfer').on('click', function (e) {
             AlertError(response.message);
         }
     });
-
-    //$.post("InvenrotyTransferDataValidation", { jsonData }).then(
-    //    function (results) {
-
-    //        if (results.result) {
-    //            console.log(results.msg);
-    //            Swal.fire({
-    //                //title: 'ยืนยันการบันทึกข้อมูล?',
-    //                //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-    //                //type: 'warning',
-    //                title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
-    //                icon: 'warning',
-    //                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
-    //                showCancelButton: true,
-    //                //showDenyButton: true,
-    //                confirmButtonColor: '#04B431',
-    //                confirmButtonText: 'บันทึก',
-    //                cancelButtonColor: '#D33',
-    //                cancelButtonText: "ยกเลิก",
-    //                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-    //                //denyButtonColor: '#D33',
-    //                customClass: {
-    //                    confirmButton: 'btn btn-success',
-    //                    denyButton: 'btn btn-warning ml-1',
-    //                    cancelButton: 'btn btn-danger ml-1'
-    //                },
-    //                buttonsStyling: false,
-    //                focusConfirm: true
-    //            }).then(function (result) {
-    //                if (result.value) {
-    //                    //Post: SaveInvenrotyTransfer
-    //                    ShowMessageSuccess('Post: SaveInvenrotyTransfer');
-
-    //                    var request = $.ajax({
-    //                        type: 'POST',
-    //                        url: '/Inventory/SaveInvenrotyTransfer',
-    //                        data: jsonData,
-    //                        contentType: 'application/json',
-    //                        success: function (response) {
-
-    //                            if (response.result) {
-    //                                ShowMessageSuccess(response.message);
-
-    //                                //Update the DataTable with the filtered data from the server
-    //                                /*console.log(response.data);*/
-    //                                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
-    //                            }
-    //                            else {
-    //                                AlertErrorNoTitle(response.message);
-    //                            }
-
-    //                            console.log(response.data);
-    //                            $("#tblInventoryReport").DataTable().clear().rows.add(response.data).draw();
-    //                            HideLoading();
-    //                        },
-    //                        failure: function (response) {
-    //                            AlertError(response.message);
-    //                        },
-    //                        error: function (response) {
-    //                            AlertError(response.message);
-    //                        }
-    //                    });
-    //                }
-    //                else if (result.dismiss === Swal.DismissReason.cancel) {
-    //                    //Code
-    //                    ShowMessageInfo('ยกเลิก');
-    //                }
-    //            });
-    //        }
-    //        else {
-    //            ShowMessageError(results.msg);
-    //            return;
-    //        }
-
-    //    }, function (results) {
-    //        //Failed
-    //        console.log('Failed');
-    //        ShowMessageError(results.message);
-
-    //    }, function () {
-    //        ShowMessageError('Unknow error => Create Sale data.');
-    //        console.log('this will run if the deferred generates a progress update.');
-    //    }
-    //);
 
 });
 
@@ -605,12 +407,14 @@ $("#btnSearch").on('click', function (event) {
             if (response.result) {
                 ShowMessageSuccess(response.message);
 
+                ResetControls();
                 //Update the DataTable with the filtered data from the server
                 /*console.log(response.data);*/
                 /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
             }
             else {
                 AlertErrorNoTitle(response.message);
+                ResetControls();
             }
 
             $("#tbItemInventoryTransfer").DataTable().clear().rows.add(response.data).draw();
@@ -714,4 +518,67 @@ function CalculateTotalSystemRefillQTYByRow(row, ischecked) {
         sumSystemRefilQty = totalSystemRefilQty - curSystemRefilQty;
         $('#txtSumSystemTotalRefillQTY').val(sumSystemRefilQty);
     }
+}
+
+// Function to get the sum of values in column 4 (assuming numeric data in textbox)
+function SumColumn4() {
+    var totalSum = 0;
+
+    // Iterate through each row
+    datatable.rows().every(function () {
+        // Find the textbox in the current row (column index 4)
+        var quantityInput = this.node().querySelector('input.itemid-refillqty'); // Adjust the selector if necessary
+        if (quantityInput) {
+            var value = parseFloat(quantityInput.value) || 0; // Get the textbox value, default to 0 if NaN
+            //console.log('value: ' + value);
+            totalSum += value; // Add the value to the sum
+        }
+    });
+    return totalSum; // Return the total sum
+}
+
+// Function to get the sum of values in column 11 (assuming numeric data)
+function SumColumn11() {
+    var column11Sum = $('#tbItemInventoryTransfer').DataTable().column(11).data().sum();
+    return column11Sum; // Return the total sum
+}
+
+// Function to get selected item quantities
+function SumSelectedItemQty() {
+    var selectedQuantities = [];
+    var sumSystemRefilQty = 0;
+    var count = 0;
+
+    datatable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+        var quantityInput = this.node().querySelector('input.itemid-refillqty'); // Adjust the selector if necessary
+        if (quantityInput) {
+
+            var value = parseInt(quantityInput.value) || 0; // Get the textbox value, default to 0 if NaN
+            //console.log('value: ' + value);
+            //totalSum += value; // Add the value to the sum
+
+            var checkbox = this.node().querySelector('.select-item'); //
+            // If the associated select-item checkbox is checked
+            if (checkbox.checked) {
+                //console.log('quantity' + quantity);
+                selectedQuantities.push(value);
+            }
+        }
+    });
+
+    var sum = 0;
+    $.each(selectedQuantities, function () { sum += parseInt(this) || 0; });
+    console.log('[getSelectedItemQuantities] Total: ' + sum);
+    if (sum == 0) {
+        $('#txtSumUserRefillQTY').val('');
+    }
+    else {
+        $('#txtSumUserRefillQTY').val(sum);
+    }
+}
+
+
+function ResetControls() {
+    $("#select-all-items").prop('checked', false);
+    $("#txtSumUserRefillQTY").val('');
 }

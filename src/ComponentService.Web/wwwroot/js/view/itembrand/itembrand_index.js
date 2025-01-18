@@ -141,11 +141,12 @@ function deleteBrand(brandid) {
                         AlertSuccess('ลบข้อมูลสำเร็จ');
                         HideLoading();
 
-                        console.log("#rowid" + moneytransferid);
                         //$("#rowid" + itemid).closest("tr").remove();
 
                         //Reload data
-                        $('#tbBrands').DataTable().ajax.reload();
+                        //$('#tbBrands').DataTable().ajax.reload();
+                        datatable.ajax.reload(null, false);
+                        //$('#tbBrands').DataTable().clear().rows.add(response.data).draw();
                     }
                     else {
                         AlertError(data.message);
