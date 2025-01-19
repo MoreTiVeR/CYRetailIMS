@@ -25,7 +25,8 @@
 <div class="card">
     <div class="card-body">
         <form id="frmEditItem" class="form-edit-item" onsubmit="return EditItem(this)">
-            <input type="hidden" asp-for="ItemID" readonly>
+			<input type="hidden" asp-for="ItemID" readonly>
+			@* <input type="hidden" asp-for="BranchID" readonly> *@
             @if (!string.IsNullOrEmpty(Model.BarCodeBase64))
             {
                 <div class="bar-code-view">

@@ -20,6 +20,13 @@ function EditItem(form) {
             formData.NotifyMaxQty = 0;
         }
 
+        // Check SubItemTypeID is null value
+        if (formData.SubItemTypeID === null || formData.SubItemTypeID === undefined || formData.SubItemTypeID === '') {
+
+            // Set default SubItemTypeID is null
+            formData.SubItemTypeID = null;
+        }
+
         var jsonData = JSON.stringify(formData);
         $.ajax({
             type: 'POST',
@@ -28,7 +35,6 @@ function EditItem(form) {
             contentType: 'application/json',
             success: function (response) {
                 if (response.result) {
-                    //popup.dialog('close');
 
                     console.log(response);
                     //AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');
