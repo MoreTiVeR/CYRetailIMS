@@ -159,20 +159,9 @@ $('#tbItemInventoryTransfer tbody').on('change', 'input[type="checkbox"]', funct
     SumSelectedItemQty();
 });
 
-
 $('#tbItemInventoryTransfer').on('input', '.itemid-refillqty', function (e) {
     SumSelectedItemQty();
 });
-
-// Restore checkbox states on page change
-//datatable.on('draw.dt', function () {
-//    $('.select-item').each(function () {
-//        var itemId = $(this).val();
-//        this.checked = selectedItems.has(itemId); // Check if itemId is in the selectedItems
-//        console.log('itemId: ' + itemId + ' | ' + 'checked: ' + this.checked)
-//    });
-//    SumSelectedItemQty(); // Update total sum on draw
-//});
 
 $('#btnConfirmTransfer').on('click', function (e) {
 
@@ -576,7 +565,6 @@ function SumSelectedItemQty() {
         $('#txtSumUserRefillQTY').val(sum);
     }
 }
-
 
 function ResetControls() {
     $("#select-all-items").prop('checked', false);
