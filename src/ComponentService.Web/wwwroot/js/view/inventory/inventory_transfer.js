@@ -15,6 +15,62 @@ var previousValue = 0;
 var selectAllItems = "#select-all-items";
 var checkboxItem = ":checkbox";
 
+// Initialize the DataTable
+var summaryTable = $("#tbSummaryItemTransfer").DataTable({
+    "destroy": true,
+    "bFilter": true,
+    "sDom": 'fBtlpi',
+    "pagingType": 'numbers',
+    "ordering": true,
+    "pageLength": 10,
+    "autoWidth": false,
+    columns: [
+        { data: 'subitemtypeid' },
+        { data: 'subitemtypecode' },
+        { data: 'totalrefillqty' },
+        { data: 'totalcheckedqty' }
+    ],
+    "order": [[0, "asc"]],
+    "columnDefs": [
+        {
+            "targets": [0],
+            "visible": false
+        },
+        {
+            "targets": [2],
+            "className": "text-center"
+        },
+        {
+            "targets": [3],
+            "className": "text-center"
+        }
+    ],
+    "language": {
+        search: ' ',
+        sLengthMenu: '_MENU_',
+        searchPlaceholder: "ค้นหาข้อมูล...",
+        info: "_START_ - _END_ of _TOTAL_ items",
+        "emptyTable": "ไม่พบข้อมูล."
+    },
+    buttons: [
+        {
+            extend: 'excelHtml5',
+            title: 'สรุปรายการโอนแบ่งตามประเภท',
+            text: 'ดาวโหลดไฟล์ Excel',
+            class: 'btn-primary',
+            exportOptions: {
+                columns: [1, 2, 3]
+            }
+        },
+        {
+            extend: 'pdfHtml5',
+            title: 'PDF',
+            text: 'Export to PDF'
+        }
+    ]
+});
+
+// Initial Inventory Transfer table
 datatable = $("#tbItemInventoryTransfer").DataTable({
     "destroy": true,
     "bFilter": true,
@@ -301,7 +357,6 @@ $('#btnSaveDraft').on('click', function (e) {
 
     var reqData = { "detail": object_update.InventoryTransferDataList };
     var jsonData = JSON.stringify(reqData);
-    console.log(jsonData);
 
     Swal.fire({
         //title: 'ยืนยันการบันทึกข้อมูล?',
@@ -396,6 +451,9 @@ $("#btnSearch").on('click', function (event) {
             if (response.result) {
                 ShowMessageSuccess(response.message);
 
+                const modalElement = document.getElementById('divDisplaySummary');
+                modalElement.removeAttribute('hidden');
+
                 ResetControls();
                 //Update the DataTable with the filtered data from the server
                 /*console.log(response.data);*/
@@ -432,6 +490,59 @@ $(document).on('change', '.select2', function (e) {
     console.log($(this).data('name'));
     // Log the selected value for the current row (you can replace this with your desired logic)
     console.log("Row " + row + ": " + selectedValue);
+});
+
+$("#btnViewSummary").on('click', function (event) {
+    ShowLoading();
+    event.preventDefault();
+
+    var data = datatable.$('input, select').serialize();
+    var object_update = {
+        InventoryTransferDataList: datatable.rows()
+            .data()
+            .toArray()
+            .map((el) => {
+                //console.log(el.itemid);
+                var txtRefillQty = datatable.$('input[name=itemid_' + el.itemid + '], select');
+                var isCheck = datatable.$('input[name=select_itemid_' + el.itemid + '], select');
+                el.ischeck = isCheck.is(":checked");
+                el.refillqty = parseInt(txtRefillQty.val());
+                return el;
+            })
+    }
+    console.log(object_update);
+
+    var reqData = { "detail": object_update.InventoryTransferDataList };
+    var jsonData = JSON.stringify(reqData);
+
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Inventory/ViewSummaryItemTransfer',
+        data: jsonData,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+
+                // Clear the current DataTable data and add the new data
+                summaryTable.clear().rows.add(response.data).draw();
+                OpenModal();
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+            }
+            HideLoading();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        },
+        done: function (response) {
+            alert('ddd');
+        }
+    });
 });
 
 function SearchTransferData(branchid, brandid) {
@@ -570,3 +681,45 @@ function ResetControls() {
     $("#select-all-items").prop('checked', false);
     $("#txtSumUserRefillQTY").val('');
 }
+
+// Function to open the modal
+function OpenModal() {
+    //const modalElement = document.getElementById('con-close-modal');
+    //modalElement.setAttribute('aria-hidden', 'false');
+    //modalElement.style.display = 'block';
+    //modalElement.classList.add('show');
+    //modalElement.focus();
+    const modal = new bootstrap.Modal(document.getElementById('con-close-modal'));
+    modal.show();
+}
+
+//// Function to close the modal
+//function closeModal() {
+//    const modalElement = document.getElementById('con-close-modal');
+//    modalElement.setAttribute('aria-hidden', 'true');
+//    modalElement.style.display = 'none';
+//    modalElement.classList.remove('show');
+//}
+
+//// Event listeners for modal open/close
+//document.addEventListener('DOMContentLoaded', function () {
+//    const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"]');
+//    closeButtons.forEach(button => {
+//        button.addEventListener('click', closeModal);
+//    });
+//});
+
+
+//$('#con-close-modal').on('shown.bs.modal', function () {
+//    this.setAttribute('aria-hidden', 'false');
+//    // Consider focusing the first input if needed
+//    $('#field-1').focus();
+//});
+
+//$('#con-close-modal').on('hidden.bs.modal', function () {
+//    this.setAttribute('aria-hidden', 'true');
+//});
+
+$("#closeModal").on('click', function () {
+    $("#con-close-modal").hide();
+});

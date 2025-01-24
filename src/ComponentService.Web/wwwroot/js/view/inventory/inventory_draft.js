@@ -159,11 +159,9 @@ $('#btnConfirmTransfer').on('click', function (e) {
                 return el;
             })
     }
-    console.log(object_update);
 
     var reqData = { "detail": object_update.InventoryTransferDataList, "draftid": draftid };
     var jsonData = JSON.stringify(reqData);
-    console.log(jsonData);
 
     var request = $.ajax({
         type: 'POST',

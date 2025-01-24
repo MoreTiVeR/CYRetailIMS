@@ -27,6 +27,7 @@ using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetDraftItemT
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.ValidatePrintDraftItemTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.MoneyTransferService.Commands.DeleteMoneyTransfer.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
+using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeByItemIDList.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Domain.Entities;
@@ -86,6 +87,10 @@ public class InventoryController : BaseController
         return View();
     }
 
+    /// <summary>
+    /// Add SubItemTypeList 25-1-2025 In-Progress
+    /// </summary>
+    /// <returns></returns>
     public async Task<IActionResult> Transfer()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
@@ -397,6 +402,68 @@ public class InventoryController : BaseController
             return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemInventoryTransferResposeDTO>() });
 
         }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ViewSummaryItemTransfer([FromBody] CreateInvenrotyTransferViewModel inventoryTransferRequest)
+    {
+        try
+        {
+            #region Validate item detail is checked
+            if (inventoryTransferRequest.detail.Where(w => w.ischeck == true).Count() == 0)
+            {
+                return Json(new { result = false, message = $"กรุณาติ๊กเลือกเลือกสินค้าโอนก่อนทำรายการ" });
+            }
+            #endregion
+
+            List<DetailInvenrotyTransferViewModel> checkedItems = inventoryTransferRequest.detail.Where(w => w.ischeck == true).ToList();
+            BaseResponse<List<GetSubItemTypeByItemIDListResponseDTO>> resSubItem = await _subItemTypeAPI.GetSubItemTypeByItemIDListAsync(new GetSubItemTypeByItemIDListQuery
+            {
+                itemids = checkedItems.Select(s => s.itemid).ToList()
+            });
+            if (!resSubItem.result)
+            {
+                return Json(new { result = false, message = resSubItem.message });
+            }
+
+            ViewSummaryItemTransferModels itemsummary = PrepareTransferItemSummaryData(checkedItems, resSubItem.data);
+            if (itemsummary?.itemgroups == null)
+            {
+                return Json(new { result = false, message = "ข้อมูลประเภทย่อยไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
+            }
+            return Json(new { result = true, message = "เรียกดูข้อมูลสำเร็จ.", data = itemsummary.itemgroups });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemInventoryTransferResposeDTO>() });
+
+        }
+    }
+
+    private ViewSummaryItemTransferModels PrepareTransferItemSummaryData(List<DetailInvenrotyTransferViewModel> checkedItems, List<GetSubItemTypeByItemIDListResponseDTO> subitemType)
+    {
+        var res = (from a in checkedItems
+                   join b in subitemType on a.itemid equals b.itemid
+                   select new
+                   {
+                       subitemtypeid = b.subitemtypeid,
+                       subitemcode = b.subitemcode,
+                       totalcheckedqty = a.refillqty,
+                       totalrefillqty = a.orderqty
+                   } into data
+                   group data by data.subitemtypeid into grps
+                   select new ViewSummaryItemTransferDetailModels
+                   {
+                       subitemtypeid = grps.Key.HasValue ? grps.Key.Value : 0,
+                       subitemtypecode = grps.Key.HasValue ? grps.FirstOrDefault(w => w.subitemtypeid == grps.Key.Value).subitemcode : "ไม่มีประเภทย่อย",
+                       totalcheckedqty = grps.Sum(s => s.totalcheckedqty),
+                       totalrefillqty = grps.Sum(s => s.totalrefillqty)
+                   }).ToList();
+
+        return new ViewSummaryItemTransferModels
+        {
+            itemgroups = res
+        };
     }
 
     /// <summary>
