@@ -3,6 +3,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeByID.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Commands.CreateSubItemType.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeByID.v1;
+using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeByItemIDList.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -62,6 +63,22 @@ public class SubItemTypeController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetAllSubItemTypeAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/subitemtypebyitemids")]
+    [ProducesResponseType(typeof(List<GetSubItemTypeByItemIDListResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetSubItemTypeByItemIDListAsync(GetSubItemTypeByItemIDListQuery itemidlistQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<GetSubItemTypeByItemIDListResponseDTO>> res = await Mediator.Send(itemidlistQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetSubItemTypeByItemIDListAsync Success");
         return Ok(res.data);
     }
 }

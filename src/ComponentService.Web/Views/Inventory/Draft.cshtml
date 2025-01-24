@@ -28,32 +28,27 @@
                 </div>
             </div>
         </div>
-        <!-- /Filter -->
-        @* <div class="card mb-0" id="filter_inputs">
-            <div class="card-body pb-0">
-                <div class="row">
-                    <div class="col-lg-3 col-sm-6 col-12">
-                        <div class="form-group">
-                            <select id="ddlBranch" class="ddl-select2 select2 ddl-source-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
-                                <option value="">--เลือกสาขา--</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6 col-12">
-                        <select id="ddlBrand" class="ddl-select2 select2 ddl-source-brand" asp-items="@(new SelectList(ViewBag.ItemBrandList, "Value", "Text", null, null))">
-                            <option value="">--เลือกแบรนด์--</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-3 col-sm-6 col-12">
-                        <div class="form-group" style="text-align: left">
-                            <a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6 col-12">
-                    </div>
-                </div>
-            </div>
-        </div> *@
+		<!--Sum transfer-->
+		<div class="row">
+			<div class="col-lg-3 col-sm-6 col-lg-4 col-12">
+				<div class="form-group">
+					<div class="input-group">
+						<span class="input-group-text">จำนวน</span>
+						<input id="txtSumUserRefillQTY" type="text" class="form-control allownumericwithdecimal">
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-lg-4 col-12">
+				<div class="form-group">
+					<div class="input-group">
+						<span class="input-group-text">จำนวนที่ต้องเติม</span>
+						<input id="txtSumSystemTotalRefillQTY" type="text" onkeyup="if(this.value<0){this.value= this.value * -1}" min="1" class="form-control allownumericwithdecimal">
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-lg-4 col-12"></div>
+			<div class="col-lg-3 col-sm-6 col-lg-4 col-12"></div>
+		</div>
         <!-- /Filter -->
         <div class="table-responsive">
             <script>var draftid = '@ViewBag.DraftID'</script>
@@ -62,12 +57,13 @@
                     <tr>
                         <th>
                             <label class="checkboxs">
-                                <input type="checkbox" id="select-all">
+								<input type="checkbox" id="select-all-items">
                                 <span class="checkmarks"></span>
                             </label>
                         </th>
                         <th hidden>สาขา</th>
                         <th hidden>ไอดีสินค้า</th>
+						<th>จำนวนที่เติม</th>
                         <th>รหัสสินค้า</th>
                         <th>ชื่อสินค้า</th>
                         <th>แบรนด์</th>
@@ -75,7 +71,6 @@
                         <th>คงเหลือหน้าร้าน</th>
                         <th>จำนวนขั้นต่ำ</th>
                         <th>จำนวนที่ต้องเติม</th>
-                        <th>จำนวนที่เติม</th>
                         <th hidden>จำนวนที่เติม</th>
                     </tr>
                 </thead>
@@ -96,17 +91,12 @@
 <!-- /product list -->
 @section Scripts {
 
+	<!--Sum datatable plugin-->
+	<script src="https://cdn.datatables.net/plug-ins/1.10.19/api/sum().js"></script>
+
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-
-    @* <script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script> *@
-    @* <script type="text/javascript" charset="utf8" src="https://cdn.jsdelivr.net/npm/datatables.net-editor@2.3.1/js/dataTables.editor.min.js"></script> *@
-    @* <script type="text/javascript" charset="utf8" src="https://editor.datatables.net/extensions/Editor/js/editor.dataTables.js"></script> *@
-    @* <script type="text/javascript" charset="utf8" src="~/lib/jquery-datatable-editable/jquery.jeditable.js"></script> *@
-    @* <script type="text/javascript" charset="utf8" src="~/lib/jquery-tabledit-1.2.3/jquery.tabledit.js"></script> *@
-
-    @*<script type="text/javascript" charset="utf8" src="~/lib/datatable-editor-2.3.2/js/dataTables.editor.js"></script>*@
     <script type="text/javascript" charset="utf8" src="~/lib/datatable-editor-2.3.2/js/editor.dataTables.js"></script>
 
     <!--Page Script-->

@@ -7294,6 +7294,8 @@ span.select2-container.select2-container--default.select2-container--open {
     font-size: 16px;
   }
 }
+
+/*Natta disable 25-1-2025*/
 .modal .close,
 .modal .btn-close {
   color: #EA5455;
@@ -7303,14 +7305,15 @@ span.select2-container.select2-container--default.select2-container--open {
   height: 22px;
   border: 0;
   font-weight: 700;
-  background: transparent;
+/*  background: transparent;*/
   border-radius: 50px;
 }
-.modal .close:hover,
+/*Natta disable 25-1-2025*/
+/*.modal .close:hover,
 .modal .btn-close:hover {
   background: #EA5455;
   color: #fff;
-}
+}*/
 .modal .modal-footer {
   border: 0;
   justify-content: flex-start;

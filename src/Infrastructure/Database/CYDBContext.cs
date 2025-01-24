@@ -132,6 +132,12 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTStockImportHistory> TTStockImportHistories { get; set; }
 
+    public virtual DbSet<TTCountStock> TTCountStocks { get; set; }
+
+    public virtual DbSet<TTCountStockDetail> TTCountStockDetails { get; set; }
+
+    public virtual DbSet<TTCountStocksHistory> TTCountStocksHistories { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -565,6 +571,23 @@ public partial class CYDBContext : DbContext
         modelBuilder.Entity<TTItemTransactionLog>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+        });
+
+        modelBuilder.Entity<TTCountStock>(entity =>
+        {
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<TTCountStockDetail>(entity =>
+        {
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CountStock).WithMany(p => p.TTCountStockDetails).HasConstraintName("FK_TTCountStockDetail_TTCountStocks");
+        });
+
+        modelBuilder.Entity<TTCountStocksHistory>(entity =>
+        {
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         OnModelCreatingPartial(modelBuilder);

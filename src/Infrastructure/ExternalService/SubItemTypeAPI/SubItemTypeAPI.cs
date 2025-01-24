@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.SubItemTypeService.Commands.CreateSubItemType.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeByID.v1;
+using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeByItemIDList.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.SubItemTypeAPI;
@@ -33,5 +34,11 @@ public class SubItemTypeAPI : HttpClientService, ISubItemTypeAPI
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetSubItemTypeResponseDTO>, GetSubItemTypeListQuery>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/subitemtype/v1/subitemtypelist"), null);
+    }
+
+    public async Task<BaseResponse<List<GetSubItemTypeByItemIDListResponseDTO>>> GetSubItemTypeByItemIDListAsync(GetSubItemTypeByItemIDListQuery listQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<GetSubItemTypeByItemIDListResponseDTO>, GetSubItemTypeByItemIDListQuery>(HttpMethod.Post,
+                   new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/subitemtype/v1/subitemtypebyitemids"), listQuery);
     }
 }

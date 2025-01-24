@@ -1,0 +1,37 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using CYRetailIMS.Domain.Common;
+using Microsoft.EntityFrameworkCore;
+
+namespace CYRetailIMS.Domain.Entities;
+
+[Table("TTCountStockDetail")]
+public partial class TTCountStockDetail : BaseAuditableEntity
+{
+    [Key]
+    public int CountStockDetailID { get; set; }
+
+    public int SubItemTypeID { get; set; }
+
+    public int CountStockID { get; set; }
+
+    public int QtyInBranch { get; set; }
+
+    public int CountedAmountQty { get; set; }
+
+    public int PendingReStockQty { get; set; }
+
+    public int DamagedQty { get; set; }
+
+    public int SaleBeforeCountQty { get; set; }
+
+    public int TotalCountQty { get; set; }
+
+    public int ShortageSurplusQty { get; set; }
+
+    [ForeignKey("CountStockID")]
+    [InverseProperty("TTCountStockDetails")]
+    public virtual TTCountStock CountStock { get; set; } = null!;
+}

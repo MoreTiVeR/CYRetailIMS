@@ -12,6 +12,7 @@ using CYRetailIMS.Application.Services.AdjustItemTypeService.Queries.GetAdjustIt
 using CYRetailIMS.Application.Services.ApproveStatusService.Queries.GetApproveStatus.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchList.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyList.v1;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartmentByID.v1;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartments.v1;
@@ -140,6 +141,8 @@ public static class ConfigureService
 
             mc.AddProfile<GetSubItemTypeMappingProfile>();
             mc.AddProfile<CreateSubItemTypeMappingProfile>();
+
+            mc.AddProfile<CreateCountStockMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();
