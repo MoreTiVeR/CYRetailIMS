@@ -50,6 +50,8 @@ using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemType
 using System.Linq;
 using Newtonsoft.Json;
 using System.Drawing.Printing;
+using Newtonsoft.Json.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.Stock)]
@@ -538,7 +540,6 @@ public class ItemController : BaseController
             return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemTransferResponseDTO>() });
         }
     }
-
 
     public async Task<IActionResult> BarcodeTransferAsync()
     {

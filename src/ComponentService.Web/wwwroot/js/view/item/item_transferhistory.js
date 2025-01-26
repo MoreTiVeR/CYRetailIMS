@@ -4,33 +4,15 @@ var datatable;
 $('.select2').select2();
 //InitialData();
 
-//$("#tbItemTransferHistory").DataTable({
-//    "processing": true,
-//    "serverSide": true,
-//    "ajax": "/Item/GetItemTransferHistoryV2",
-//    "columns": [
-//        { "data": "id" },
-//        { "data": "name" }
-//    ],
-//    "language": {
-//        search: ' ',
-//        sLengthMenu: '_MENU_',
-//        searchPlaceholder: "ค้นหาข้อมูล...",
-//        info: "_START_ - _END_ of _TOTAL_ items",
-//        emptyTable: "ไม่พบข้อมูล.",
-//        processing: '<div class="spinner"></div><div class="processing-text">Processing your request...</div>'
-//    }
-//});
-
 datatable = $("#tbItemTransferHistory").DataTable({
     "processing": true,         // Show processing indicator
     "serverSide": true,        // Enable server-side processing
-    //"destroy": true,
-    //"bFilter": true,
+    "destroy": true,
+    "bFilter": true,
     //"sDom": '<"top"B>fr<"bottom"ilp><"clear">',
-    "sDom": '<"top"fB>rt<"bottom"ilp><"clear">',
-    //"pagingType": 'numbers',
-    //"ordering": true,
+    "sDom": '<"top"fB>rt<"bottom"lpi><"clear">',
+    "pagingType": 'numbers',
+    "ordering": true,
     "ajax": {
         "url": "/Item/GetItemTransferHistoryV2", // URL to your controller method
         "type": "GET",         // Use GET or POST based on your implementation
@@ -278,10 +260,6 @@ $("#btnSearch").on('click', function (event) {
             AlertError(response.message);
         }
     });
-});
-
-$("#btnExportExcel").on('click', function () {
-    AlertWarn('ยังไม่เปิดให้ใช้งานส่งออกไฟล์Excel');
 });
 
 function deleteItem(itemid) {
