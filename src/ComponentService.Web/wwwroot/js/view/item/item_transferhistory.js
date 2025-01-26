@@ -4,16 +4,45 @@ var datatable;
 $('.select2').select2();
 //InitialData();
 
+//$("#tbItemTransferHistory").DataTable({
+//    "processing": true,
+//    "serverSide": true,
+//    "ajax": "/Item/GetItemTransferHistoryV2",
+//    "columns": [
+//        { "data": "id" },
+//        { "data": "name" }
+//    ],
+//    "language": {
+//        search: ' ',
+//        sLengthMenu: '_MENU_',
+//        searchPlaceholder: "ค้นหาข้อมูล...",
+//        info: "_START_ - _END_ of _TOTAL_ items",
+//        emptyTable: "ไม่พบข้อมูล.",
+//        processing: '<div class="spinner"></div><div class="processing-text">Processing your request...</div>'
+//    }
+//});
+
 datatable = $("#tbItemTransferHistory").DataTable({
-    "destroy": true,
-    "bFilter": true,
-    "sDom": 'fBtlpi',
-    'pagingType': 'numbers',
-    "ordering": true,
+    "processing": true,         // Show processing indicator
+    "serverSide": true,        // Enable server-side processing
+    //"destroy": true,
+    //"bFilter": true,
+    //"sDom": '<"top"B>fr<"bottom"ilp><"clear">',
+    "sDom": '<"top"fB>rt<"bottom"ilp><"clear">',
+    //"pagingType": 'numbers',
+    //"ordering": true,
     "ajax": {
-        "url": "/Item/GetItemTransferHistory",
-        "type": "GET",
-        "datatype": "json"
+        "url": "/Item/GetItemTransferHistoryV2", // URL to your controller method
+        "type": "GET",         // Use GET or POST based on your implementation
+        "data": function (data) {
+            // Pass additional parameters if needed
+            return {
+                draw: data.draw, // Send the draw parameter
+                start: data.start, // Required for pagination
+                length: data.length, // Required for pagination
+                searchValue: data.search.value // If you want search capabilities
+            };
+        }
     },
     "columns": [
         {
@@ -79,11 +108,8 @@ datatable = $("#tbItemTransferHistory").DataTable({
         sLengthMenu: '_MENU_',
         searchPlaceholder: "ค้นหาข้อมูล...",
         info: "_START_ - _END_ of _TOTAL_ items",
-        "emptyTable": "ไม่พบข้อมูล."
-    },
-    initComplete: (settings, json) => {
-        $('.dataTables_filter').appendTo("#tbItemTransferHistory");
-        $('.dataTables_filter').appendTo('.search-input');
+        emptyTable: "ไม่พบข้อมูล.",
+        processing: '<div class="spinner"></div><div class="processing-text">Processing your request...</div>'
     },
     buttons: [
         {
@@ -100,8 +126,112 @@ datatable = $("#tbItemTransferHistory").DataTable({
             title: 'PDF',
             text: 'Export to PDF'
         }
-    ]
+    ],
+    initComplete: (settings, json) => {
+        $('.dataTables_filter').appendTo("#tbItemTransferHistory");
+        $('.dataTables_filter').appendTo('.search-input');
+    },
 });
+
+
+//datatable = $("#tbItemTransferHistory").DataTable({
+//    "destroy": true,
+//    "bFilter": true,
+//    "sDom": 'fBtlpi',
+//    'pagingType': 'numbers',
+//    "ordering": true,
+//    "ajax": {
+//        "url": "/Item/GetItemTransferHistory",
+//        "type": "GET",
+//        "datatype": "json"
+//    },
+//    "columns": [
+//        {
+//            "render": function () {
+//                console.log('render columns : checkbox');
+//                return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
+//            }
+//        },
+//        {
+//            "data": { createddate: "createddate" },
+//            "render": function (data) {
+//                if (data.createddate === null || data.createddate == null) {
+//                    return data.createddate;
+//                }
+//                return formatDateTime(new Date(data.createddate));
+//            }
+//        },
+//        { "data": "sourcename" },
+//        { "data": "destinationname" },
+//        { "data": "itemname" },
+//        { "data": "qty" },
+//        { "data": "description" },
+//        {
+//            "data": { transferid: "transferid", transferstatusid: "transferstatusid", transferstatusname_th: "transferstatusname_th" },
+//            "render": function (data) {
+//                var _transferstatusid = parseInt(data.transferstatusid);
+//                if (_transferstatusid == 1) {
+//                    return "<span class='badges bg-lightgreen'>" + data.transferstatusname_th + "</span>";
+//                }
+//                else if (_transferstatusid == 2 || _transferstatusid == 99) {
+//                    return "<span class='badges bg-lightred'>" + data.transferstatusname_th + "</span>";
+//                }
+//                else {
+//                    return "<a href='ReceiveItemTransfer?transferid=" + data.transferid + "' class='me-3' title='คลิก เพื่อตรวจรับสินค้า'><span class='badges bg-lightred'>" + data.transferstatusname_th + "</span></a>";
+//                }
+//                return "<span class='badges bg-lightyellow'>N/A</span>";
+
+//            }
+//        },
+//        { "data": "receiveqty" },
+//        { "data": "returnqty" },
+//        { "data": "createdby" },
+//        {
+//            "data": { updateddate: "updateddate" },
+//            "render": function (data) {
+//                if (data.updateddate === null || data.updateddate == null) {
+//                    return data.updateddate;
+//                }
+//                return formatDateTime(new Date(data.updateddate));
+//            }
+//        },
+//        { "data": "updatedby" }
+//    ],
+//    "order": [[0, "desc"]],
+//    "columnDefs": [
+//        {
+//            "targets": [0],
+//            "visible": false
+//        }
+//    ],
+//    "language": {
+//        search: ' ',
+//        sLengthMenu: '_MENU_',
+//        searchPlaceholder: "ค้นหาข้อมูล...",
+//        info: "_START_ - _END_ of _TOTAL_ items",
+//        "emptyTable": "ไม่พบข้อมูล."
+//    },
+//    initComplete: (settings, json) => {
+//        $('.dataTables_filter').appendTo("#tbItemTransferHistory");
+//        $('.dataTables_filter').appendTo('.search-input');
+//    },
+//    buttons: [
+//        {
+//            extend: 'excelHtml5',
+//            title: 'รายงานประวัติการโอนสินค้า',
+//            text: 'ดาวโหลดไฟล์ Excel',
+//            class: 'btn-primary',
+//            exportOptions: {
+//                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+//            }
+//        },
+//        {
+//            extend: 'pdfHtml5',
+//            title: 'PDF',
+//            text: 'Export to PDF'
+//        }
+//    ]
+//});
 
 $("#btnSearch").on('click', function (event) {
     ShowLoading();

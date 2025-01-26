@@ -49,6 +49,7 @@ using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Drawing.Printing;
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.Stock)]
@@ -179,6 +180,9 @@ public class ItemController : BaseController
         BaseResponse<List<GetItemTransferResponseDTO>> transferHistory;
         try
         {
+            var dsds = Request.Query.TryGetValue("draw", out var draw);
+            var dsq = Request.Query.TryGetValue("start", out var start);
+            var qqwe = Request.Query.TryGetValue("length", out var length);
             #region Filter & Paging
             //Request.Form.TryGetValue("draw", out var draw);
             //Request.Form.TryGetValue("start", out var start);
@@ -246,6 +250,60 @@ public class ItemController : BaseController
         catch
         {
             return Json(new { data = new List<GetItemTransferResponseDTO>() });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetItemTransferHistoryV2(int draw, int start, int length, string searchValue)
+    {
+        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = new BaseResponse<List<GetItemTransferResponseDTO>> { data = new List<GetItemTransferResponseDTO>() };
+        try
+        {
+            // Implement your logic to fetch data from the database.
+
+            if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
+            {
+                transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
+            }
+            else
+            {
+                transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
+                {
+                    destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid
+                });
+            }
+            if (!transferHistory.result)
+            {
+                return Json(new { data = new List<GetItemTransferResponseDTO>() });
+            }
+
+            var totalItems = transferHistory.data.Count; // Get total item count for pagination
+
+            // Filter based on searchValue if necessary
+            var query = transferHistory.data;
+
+            // Implement filtering logic based on searchValue
+            //if (!string.IsNullOrEmpty(searchValue))
+            //{
+            //    query = query.Where(item => item..Contains(searchValue));
+            //}
+
+            // Calculate paginated data
+            var items = query.Skip(start).Take(length).ToList();
+
+            // Prepare response for DataTables
+            return Json(new
+            {
+                draw = draw, // Echo the draw parameter
+                recordsTotal = totalItems, // Total records before filtering
+                recordsFiltered = query.Count(), // Total records after applying filtering
+                data = items // The actual data to be displayed
+            });
+        }
+        catch
+        {
+            // Handle error
+            return Json(new { data = new List<GetItemTransferResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
         }
     }
 
