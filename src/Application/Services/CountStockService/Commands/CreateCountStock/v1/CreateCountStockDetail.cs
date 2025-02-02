@@ -10,7 +10,12 @@ public record CreateCountStockDetail
     public int subitemtypeid { get; init; }
 
     /// <summary>
-    /// สตีอกหน้าร้าน สาขา
+    /// สตีอกจริงหน้าร้าน ณ วันนับ สตีอก
+    /// </summary>
+    public int qtyinbranchofcountstockday { get; init; }
+
+    /// <summary>
+    /// สตีอกหน้าร้าน สาขา (พนักงานรู้)
     /// </summary>
     public int qtyinbranch { get; init; }
 

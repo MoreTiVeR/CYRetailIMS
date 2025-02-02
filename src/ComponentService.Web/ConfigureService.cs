@@ -16,6 +16,7 @@ using CYRetailIMS.Application.ExternalService.AdjustItemAPI;
 using CYRetailIMS.Application.ExternalService.AdjustItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.ChartAPI;
+using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.ExternalService.CurrencyAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
@@ -51,6 +52,7 @@ using CYRetailIMS.Infrastructure.ExternalService.AdjustItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.AdjustItemTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.BranchAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ChartAPI;
+using CYRetailIMS.Infrastructure.ExternalService.CountStockAPI;
 using CYRetailIMS.Infrastructure.ExternalService.CurrencyAPI;
 using CYRetailIMS.Infrastructure.ExternalService.DepartmentAPI;
 using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
@@ -223,6 +225,7 @@ public static class ConfigureService
         services.AddScoped<IExcelAPI, ExcelAPI>();
         services.AddScoped<IMoneyTransferSlipAPI, MoneyTransferSlipAPI>();
         services.AddScoped<ISubItemTypeAPI, SubItemTypeAPI>();
+        services.AddScoped<ICountStockAPI, CountStockAPI>();
         #endregion
 
         services.AddControllersWithViews();

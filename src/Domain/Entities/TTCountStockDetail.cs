@@ -17,6 +17,8 @@ public partial class TTCountStockDetail : BaseAuditableEntity
 
     public int CountStockID { get; set; }
 
+    public int QtyInBranchOfCountStockDay { get; set; }
+
     public int QtyInBranch { get; set; }
 
     public int CountedAmountQty { get; set; }

@@ -59,6 +59,7 @@
     <Folder Include="Views\Report\_PartialPage\" />
     <Folder Include="Views\Setting\_SettingPartailPage\" />
     <Folder Include="Views\Stock\_PartialPage\" />
+    <Folder Include="Views\Stock\_PartialPage\" />
     <Folder Include="wwwroot\assets\js\bundle\" />
     <Folder Include="wwwroot\money_transfer_slip\" />
   </ItemGroup>

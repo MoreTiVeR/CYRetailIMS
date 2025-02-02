@@ -11,8 +11,7 @@
   <ItemGroup>
     <Folder Include="Caching\" />
     <Folder Include="Common\Mappings\UI\Sale\" />
-    <Folder Include="Services\CountStockService\Queries\InquiryCountStockByBranchID\v1\" />
-    <Folder Include="Services\CountStockService\Queries\InquiryCountStocks\v1\" />
+    <Folder Include="Services\CountStockService\Queries\InquiryCountStockByID\" />
     <Folder Include="Services\ItemService\Queries\GetItemByBarcode\v2\" />
     <Folder Include="Services\MoneyTransferService\EventHandlers\" />
     <Folder Include="Services\SubItemTypeService\EventHandlers\" />

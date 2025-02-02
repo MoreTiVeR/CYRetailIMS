@@ -8,6 +8,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.Style;
 
 namespace CYRetailIMS.Application.Common.Models;
+
 public class Pagination
 {
     public DatatablePostData data { get; set; }

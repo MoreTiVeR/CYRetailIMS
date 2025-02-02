@@ -76,6 +76,7 @@ public class CreateCountStockHandler : BaseService, IRequestHandler<CreateCountS
         List<TTCountStockDetail> stockDetails = countStockDetails.Select(s => new TTCountStockDetail
         {
             SubItemTypeID = s.subitemtypeid,
+            QtyInBranchOfCountStockDay = s.qtyinbranchofcountstockday,
             QtyInBranch = s.qtyinbranch,
             CountedAmountQty = s.countedamountqty,
             PendingReStockQty = s.pendingrestockqty,
