@@ -20,6 +20,12 @@ function EditItem(form) {
             formData.NotifyMaxQty = 0;
         }
 
+        if (formData.SubItemTypeID === null || formData.SubItemTypeID === undefined || formData.SubItemTypeID === '') {
+
+            // Set default NotifyMaxQty is 0
+            formData.SubItemTypeID = null;
+        }
+
         var jsonData = JSON.stringify(formData);
         $.ajax({
             type: 'POST',
