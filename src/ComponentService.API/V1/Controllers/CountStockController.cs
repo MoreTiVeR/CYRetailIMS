@@ -17,7 +17,7 @@ public class CountStockController : BaseApiController
     }
 
     [HttpPost]
-    [Route("v1/countstock")]
+    [Route("v1/create")]
     [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]

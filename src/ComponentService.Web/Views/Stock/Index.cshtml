@@ -2,15 +2,16 @@
 	ViewData["Title"] = "Index";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <link href="~/css/site.css" rel="stylesheet" />
 
 <div class="page-header">
 	<div class="page-title">
-		<h4>นับสตีอก</h4>
-		<h6>รายการนับสตีอกแยกตามสาขา</h6>
+		<h4>นับสต๊อก</h4>
+		<h6>รายการนับสต๊อกแยกตามสาขา</h6>
 	</div>
 	<div class="page-btn">
-		<a asp-controller="MoneyTransfer" asp-action="New" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มรายการใหม่</a>
+		<a asp-controller="Stock" asp-action="CountStock" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มรายการใหม่</a>
 	</div>
 </div>
 

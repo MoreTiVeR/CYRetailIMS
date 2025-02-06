@@ -91,7 +91,7 @@ datatable = $("#tbCountStock").DataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานประวัติการโอนสินค้า',
+            title: 'รายงานประวัติการนับสต๊อก',
             text: 'ดาวโหลดไฟล์ Excel',
             class: 'btn-primary',
             exportOptions: {
@@ -114,8 +114,7 @@ $("#btnSearch").on('click', function (event) {
     ShowLoading();
     event.preventDefault(); // Prevent the default form submission
     datatable.ajax.reload(); // This will use the updated parameters automatically
-    HideLoading();
-    
+    HideLoading();    
 });
 
 function deleteItem(itemid) {

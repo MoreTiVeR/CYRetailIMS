@@ -268,3 +268,82 @@ function deleteMoneyTransfer(moneytransferid) {
         }
     });
 }
+
+// Initialize DataTable
+//let table = $('#countStockTable').DataTable({
+//    paging: true,
+//    searching: true,
+//    ordering: true,
+//    info: true,
+//    autoWidth: false,
+//});
+let table = $('#countStockTable').DataTable({
+    "destroy": true,
+    "bFilter": true,
+    "sDom": 'Btlpi',
+    //"sDom": 'fBtlpi',
+    "pagingType": 'numbers',
+    "ordering": true,
+    "pageLength": 10,
+    "autoWidth": false,
+    "stateSave": true
+});
+
+$("#btnSaveCountStock").on('click', function (event) {
+    ShowLoading();
+    event.preventDefault(); // Prevent the default form submission
+
+    let updatedItems = [];
+
+    // Loop through each row to collect data
+    $('#countStockTable tbody tr').each(function () {
+        let row = $(this);
+
+        updatedItems.push({
+            ItemTypeCode: row.find('td:eq(0)').text(),
+            SubItemCode: row.find('td:eq(1)').text(),
+            ItemId: row.find('td:eq(2)').text(),
+            StoreStock: row.find('td:eq(3)').text(),
+            CountedQty: row.find('td:eq(4)').text(),
+            WaitingToRestock: row.find('td:eq(5)').text(),
+            Damaged: row.find('td:eq(6)').text(),
+            SoldBeforeCount: row.find('td:eq(7)').text(),
+            TotalCounted: row.find('td:eq(8)').text(),
+            Difference: row.find('td:eq(9)').text()
+        });
+    });
+
+    // Send data to the server via AJAX
+    $.ajax({
+        url: '/Stock/Save',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(updatedItems),
+        success: function (response) {
+            alert('Stock counts updated successfully!');
+            HideLoading();
+        },
+        error: function (xhr, status, error) {
+            alert('An error occurred while saving stock counts.');
+        }
+    });
+});
+
+// Handle dropdown selection change
+$('#ddlItemType').on('change', function () {
+    let selectedValue = $(this).val(); // Get the selected value from the dropdown
+    ShowMessageInfo(selectedValue);
+    // Apply search filter to the DataTable
+    table.column(0) // Assuming the first column (index 0) corresponds to the branch/type
+        .search(selectedValue)
+        .draw(); // Redraw the table with the filtered data
+});
+
+$("#btnCancel").on('click', function(e){
+    e.preventDefault();
+    window.location = "/Stock/Index";
+    //setTimeout(function () {
+    //    window.location.href = "/Inventory/Index";
+    //}, 1000);
+
+});
