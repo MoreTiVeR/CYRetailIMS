@@ -20,9 +20,10 @@ function EditItem(form) {
             formData.NotifyMaxQty = 0;
         }
 
+        // Check SubItemTypeID is null value
         if (formData.SubItemTypeID === null || formData.SubItemTypeID === undefined || formData.SubItemTypeID === '') {
 
-            // Set default NotifyMaxQty is 0
+            // Set default SubItemTypeID is null
             formData.SubItemTypeID = null;
         }
 

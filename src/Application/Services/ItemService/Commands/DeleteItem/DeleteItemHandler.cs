@@ -22,6 +22,14 @@ public class DeleteItemHandler : BaseService, IRequestHandler<DeleteItemCommand,
         _log = log;
     }
 
+    /// <summary>
+    /// Validate if have row in TTItemTransfer, TTDraftItemTransferDetail
+    /// then can't delete
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<BaseResponse<CommandResponse>> Handle(DeleteItemCommand request, CancellationToken cancellationToken)
     {
         _log.Info($"Invoke DeleteItemHandler request: {request.ToJson()}");
@@ -36,6 +44,25 @@ public class DeleteItemHandler : BaseService, IRequestHandler<DeleteItemCommand,
         {
             throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีสต๊อกคงเหลือในระบบ");
         }
+        #endregion
+
+        #region Check exist transfer item
+        var resItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindListAsync(w => w.ItemID == request.itemid 
+        && w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
+        if (resItemTransfer.Any())
+        {
+            throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการค้างโอนสินค้าในระบบ");
+        }
+
+        var resDraftItem = (from a in await _unitOfWork.Repository<TTDraftItemTransfer>().QueryAsync(w => w.IsActive == true && w.TransferStatus == (int)EnumModel.TransferStatus.Draft)
+                            join b in await _unitOfWork.Repository<TTDraftItemTransferDetail>().QueryAsync(w => w.IsActive == true && w.ItemID == request.itemid)
+                            on a.TransferHeaderID equals b.TransferHeaderID
+                            select a).AsEnumerable();
+        if (resDraftItem.Any())
+        {
+            throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการร่างโอนสินค้า ค้างในระบบ");
+        }
+
         #endregion
 
         #region Update

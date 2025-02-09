@@ -26,6 +26,7 @@ function EditItem(form) {
             formData.SubItemTypeID = null;
         }
 
+
         var jsonData = JSON.stringify(formData);
         $.ajax({
             type: 'POST',
@@ -34,7 +35,6 @@ function EditItem(form) {
             contentType: 'application/json',
             success: function (response) {
                 if (response.result) {
-                    //popup.dialog('close');
 
                     console.log(response);
                     //AlertSuccess('ปรับปรุงข้อมูลสำเร็จ');

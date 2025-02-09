@@ -47,6 +47,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemIn
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchForImportByBranchID.v1;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
+using Microsoft.CodeAnalysis.Operations;
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.Stock)]
@@ -177,9 +178,6 @@ public class ItemController : BaseController
         BaseResponse<List<GetItemTransferResponseDTO>> transferHistory;
         try
         {
-            var dsds = Request.Query.TryGetValue("draw", out var draw);
-            var dsq = Request.Query.TryGetValue("start", out var start);
-            var qqwe = Request.Query.TryGetValue("length", out var length);
             #region Filter & Paging
             //Request.Form.TryGetValue("draw", out var draw);
             //Request.Form.TryGetValue("start", out var start);
@@ -693,12 +691,18 @@ public class ItemController : BaseController
         return View();
     }
 
+    /// <summary>
+    /// Only for Warehouse headoffice stock
+    /// </summary>
+    /// <param name="itemid"></param>
+    /// <returns></returns>
     public async Task<IActionResult> Edit(int itemid)
     {
         //Get Item Detail
         BaseResponse<GetItemListResponseDTO> resItem = await _itemAPI.GetItemByIdAsync(itemid);
         EditItemViewModel viewModel = EditItemMapping(resItem.data);
         viewModel.BarCodeBase64 = GenerateItemBarcode(viewModel.BarCode);
+        //viewModel.BranchID = 1;
 
         //Get Master Data
         //BaseResponse<List<GetItemTypeListResponseDTO>> resItemTypeList = await _itemTypeAPI.GetItemTypeListAsync();
