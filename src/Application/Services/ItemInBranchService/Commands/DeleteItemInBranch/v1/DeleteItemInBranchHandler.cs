@@ -33,6 +33,25 @@ public class DeleteItemInBranchHandler : BaseService, IRequestHandler<DeleteItem
             throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีสต๊อกคงเหลือในระบบ");
         }
 
+        #region Check exist transfer item
+        var resItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindListAsync(w => w.ItemID == request.itemid
+        && w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
+        if (resItemTransfer.Any())
+        {
+            throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการค้างโอนสินค้าในระบบ");
+        }
+
+        var resDraftItem = (from a in await _unitOfWork.Repository<TTDraftItemTransfer>().QueryAsync(w => w.IsActive == true && w.TransferStatus == (int)EnumModel.TransferStatus.Draft)
+                            join b in await _unitOfWork.Repository<TTDraftItemTransferDetail>().QueryAsync(w => w.IsActive == true && w.ItemID == request.itemid)
+                            on a.TransferHeaderID equals b.TransferHeaderID
+                            select a).AsEnumerable();
+        if (resDraftItem.Any())
+        {
+            throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการร่างโอนสินค้า ค้างในระบบ");
+        }
+
+        #endregion
+
         resItemInBranch.ToList().ForEach(e =>
         {
             e.DeActiveStatus();

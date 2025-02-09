@@ -53,7 +53,6 @@ public class UpdateItemInBranchHandler : BaseService, IRequestHandler<UpdateItem
             e.NotifyMaxQty = request.notifymaxqty;
             e.SetUpdatedBy(request.updatedby);
             e.SetUpdatedDate(request.updateddate);
-            //e.IsActive = request.isactive;
             e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));
         });
 
