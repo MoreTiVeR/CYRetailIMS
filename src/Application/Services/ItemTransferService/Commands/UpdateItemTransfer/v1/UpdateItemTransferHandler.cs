@@ -24,7 +24,6 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         #endregion
 
         #region Check TTItemTransfer
-        //TTItemTransfer resTTItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindAsync(w => w.TransferID == request.transferid);
         TTItemTransfer resTTItemTransfer;
         IQueryable<TTItemTransfer> resItem = await _unitOfWork.Repository<TTItemTransfer>().FindWithInclude(w => w.TransferID == request.transferid,
              i => i.Include(s => s.TransferHeader));
@@ -40,16 +39,23 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         }
         #endregion
 
-        #region Validate Item in Destination Branch
-        //IEnumerable<TMItemInBranch> resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
-        //&& w.ItemID == request.itemid
-        //&& w.IsActive);
-        IEnumerable<TMItemInBranch> resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
-        && w.ItemID == request.itemid);
-        if (resItemInDestinationBranch.Any(w => w.IsActive == ((int)ItemInBranchStatus.InActive).ToBool()))
+        #region Validate Item in Destination Branch when receive item
+        IEnumerable<TMItemInBranch> resItemInDestinationBranch = new List<TMItemInBranch>();
+        if (request.transferstatusid == (int)TransferStatus.Received)
         {
-            throw new Exception("ขออภัย, มีรายการสินค้าที่ถูกยกเลิกในสาขาปลายทางแล้ว! กรุณาเปิดใช้งานสินค้าและทำรายการใหม่อีกครั้ง");
+            resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
+            && w.ItemID == request.itemid);
+            if (resItemInDestinationBranch.Any(w => w.IsActive == ((int)ItemInBranchStatus.InActive).ToBool()))
+            {
+                throw new Exception("ขออภัย, มีรายการสินค้าที่ถูกยกเลิกในสาขาปลายทางแล้ว! กรุณาเปิดใช้งานสินค้าและทำรายการใหม่อีกครั้ง");
+            }
         }
+        //IEnumerable<TMItemInBranch> resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
+        //&& w.ItemID == request.itemid);
+        //if (resItemInDestinationBranch.Any(w => w.IsActive == ((int)ItemInBranchStatus.InActive).ToBool()))
+        //{
+        //    throw new Exception("ขออภัย, มีรายการสินค้าที่ถูกยกเลิกในสาขาปลายทางแล้ว! กรุณาเปิดใช้งานสินค้าและทำรายการใหม่อีกครั้ง");
+        //}
         #endregion
 
         switch (request.transferstatusid)
@@ -151,7 +157,7 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         #region Update TTItemTransferHeader if all TransferStatus in TTItemTransfer is 1 (Received)
         IEnumerable<TTItemTransferHeader> transferHeader = await _unitOfWork.Repository<TTItemTransferHeader>().FindWithInclude(w => w.TransferHeaderID == resTTItemTransfer.TransferHeaderID,
             i => i.Include(s => s.TTItemTransfers));
-        if(transferHeader.Any() 
+        if (transferHeader.Any()
             && (transferHeader.SelectMany(s => s.TTItemTransfers).Count() == transferHeader.SelectMany(s => s.TTItemTransfers).Where(w => w.TransferStatus != (int)TransferStatus.Pending).Count()))
         {
             transferHeader.FirstOrDefault().TransferStatus = (int)TransferStatus.Received;
