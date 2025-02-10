@@ -320,11 +320,12 @@ $("#btnSaveCountStock").on('click', function (event) {
         contentType: 'application/json',
         data: JSON.stringify(updatedItems),
         success: function (response) {
-            alert('Stock counts updated successfully!');
+            ShowMessageSuccess('Stock counts updated successfully!');
             HideLoading();
         },
         error: function (xhr, status, error) {
-            alert('An error occurred while saving stock counts.');
+            ShowMessageError('An error occurred while saving stock counts.');
+            HideLoading();
         }
     });
 });
@@ -346,4 +347,45 @@ $("#btnCancel").on('click', function(e){
     //    window.location.href = "/Inventory/Index";
     //}, 1000);
 
+});
+
+// Restrict input to numbers only
+document.addEventListener('input', function (event) {
+    if (event.target.matches('.number-only')) {
+        const element = event.target;
+        const value = element.innerText;
+
+        // Get the current cursor position
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        const cursorPosition = range.startOffset;
+
+        // Replace any non-numeric characters
+        const newValue = value.replace(/[^0-9]/g, '');
+
+        // Update the content only if it has changed
+        if (value !== newValue) {
+            element.innerText = newValue;
+
+            // Reset the cursor position to where it was before
+            const newRange = document.createRange();
+            newRange.setStart(element.childNodes[0], Math.min(cursorPosition, newValue.length));
+            newRange.collapse(true);
+
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+        }
+    }
+});
+
+
+
+// Prevent invalid characters from being entered
+document.addEventListener('keypress', function (event) {
+    if (event.target.matches('.number-only')) {
+        const char = String.fromCharCode(event.which);
+        if (!/[0-9]/.test(char)) {
+            event.preventDefault();
+        }
+    }
 });

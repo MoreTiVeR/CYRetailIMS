@@ -54,6 +54,16 @@
 		display: inline-block; /* Ensure width is applied */
 		
 	}
+
+	.editable:empty::before {
+		content: 'ระบุจำนวน'; /* Placeholder text */
+		color: gray;
+		font-style: italic;
+	}
+
+	.editable:focus::before {
+		content: ''; /* Remove placeholder when cell is focused */
+	}
 </style>
 
 <div class="page-header">
@@ -153,13 +163,13 @@
 								<td>@item.ItemTypeCode</td>
 								<td>@item.SubItemCode</td>
 								<td>@item.ItemId</td>
-								<td contenteditable="true" class="editable">@item.StoreStock</td>
-								<td contenteditable="true" class="editable">@item.CountedQty</td>
-								<td contenteditable="true" class="editable">@item.WaitingToRestock</td>
-								<td contenteditable="true" class="editable">@item.Damaged</td>
-								<td contenteditable="true" class="editable">@item.SoldBeforeCount</td>
-								<td contenteditable="true" class="editable">@item.TotalCounted</td>
-								<td contenteditable="true" class="editable">@item.Difference</td>
+								<td contenteditable="true" class="editable number-only">@item.StoreStock</td>
+								<td contenteditable="true" class="editable number-only">@item.CountedQty</td>
+								<td contenteditable="true" class="editable number-only">@item.WaitingToRestock</td>
+								<td contenteditable="true" class="editable number-only">@item.Damaged</td>
+								<td contenteditable="true" class="editable number-only">@item.SoldBeforeCount</td>
+								<td contenteditable="true" class="editable number-only">@item.TotalCounted</td>
+								<td contenteditable="true" class="editable number-only">@item.Difference</td>
 							</tr>
 						}
 					</tbody>
