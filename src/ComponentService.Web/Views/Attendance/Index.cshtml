@@ -13,6 +13,11 @@
     <button type="button" onclick="getLocation()">Check In</button>
 </form>
 
+<div id="status"></div>
+<div id="map" style="height: 400px; width: 100%;"></div>
+<!-- Check-In Button -->
+<button id="checkInButton" style="margin-top: 20px; padding: 10px 20px; font-size: 16px;">Check In</button>
+
 <script>
     function getLocation() {
         if (navigator.geolocation) {
@@ -46,4 +51,86 @@
                 break;
         }
     }
+
+	// Google Maps API Key
+	const googleMapsApiKey = 'AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4';
+	
+	// Initialize the map
+	function initMap() {
+		// Default location (if user location is not available)
+		const defaultLocation = { lat: 0, lng: 0 };
+
+		const map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 2,
+			center: defaultLocation,
+		});
+
+		// Check-in button functionality
+		document.getElementById('checkInButton').addEventListener('click', () => {
+			fetchLocation(map);
+		});
+	}
+
+	// Fetch user's location
+	function fetchLocation(map) {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					const latitude = position.coords.latitude;
+					const longitude = position.coords.longitude;
+					const userLocation = { lat: latitude, lng: longitude };
+
+					// Update map center and add marker
+					map.setCenter(userLocation);
+					new google.maps.Marker({
+						position: userLocation,
+						map: map,
+					});
+
+					// Send location to server
+					fetch('/Attendance/SubmitLocation', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ latitude, longitude }),
+					})
+						.then((response) => response.text())
+						.then((data) => {
+							//document.getElementById('status').innerHTML = 'Check-in successful!';
+							const statusElement = document.getElementById('status');
+							statusElement.innerHTML = 'Check-in successful!';
+							statusElement.style.color = 'green'; // Set text color to green
+						})
+						.catch((error) => {
+							console.error('Error:', error);
+							//document.getElementById('status').innerHTML = 'Error during check-in.';
+							const statusElement = document.getElementById('status');
+							statusElement.innerHTML = 'Error during check-in.' + 'error: ' + error;
+							statusElement.style.color = 'red'; // Set text color to green
+						});
+				},
+				(error) => {
+					console.error('Error fetching location:', error);
+					document.getElementById('status').innerHTML =
+						'Error fetching location.';
+				}
+			);
+		} else {
+			document.getElementById('status').innerHTML =
+				'Geolocation is not supported by this browser.';
+		}
+	}
+
+	// Dynamically load the Google Maps script
+	function loadGoogleMapsScript() {
+		const script = document.createElement('script');
+		script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap`;
+		script.async = true;
+		script.defer = true;
+		document.head.appendChild(script);
+	}
+
+	// Load the Google Maps script
+	loadGoogleMapsScript();
 </script>

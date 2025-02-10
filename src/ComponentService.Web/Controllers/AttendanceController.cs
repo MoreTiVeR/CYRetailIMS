@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class AttendanceController : Controller
 {
-
     public IActionResult Index()
     {
         return View();
@@ -31,6 +30,26 @@ public class AttendanceController : Controller
 
         return RedirectToAction("Index");
     }
+
+
+    [HttpPost]
+    public async Task<IActionResult> SubmitLocation([FromBody] LocationModel model)
+    {
+        if (model == null || model.Latitude == 0 || model.Longitude == 0)
+        {
+            return BadRequest("Invalid location data.");
+        }
+
+        // Save the latitude and longitude to the database or process it as needed
+        // Example: SaveToDatabase(model.Latitude, model.Longitude);
+
+        return Ok("Check-in successful!");
+    }
 }
 
+public class LocationModel
+{
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+}
 
