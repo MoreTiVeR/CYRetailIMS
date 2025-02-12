@@ -1,4 +1,5 @@
-﻿@using CYRetailIMS.ComponentService.Web.Controllers
+﻿@using CYRetailIMS.Application.Common.Models.UI
+
 @model List<CountStockItemViewModel>
 
 @{
@@ -157,21 +158,24 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var item in Model)
-						{
-							<tr>
-								<td>@item.ItemTypeCode</td>
-								<td>@item.SubItemCode</td>
-								<td>@item.ItemId</td>
-								<td contenteditable="true" class="editable number-only">@item.StoreStock</td>
-								<td contenteditable="true" class="editable number-only">@item.CountedQty</td>
-								<td contenteditable="true" class="editable number-only">@item.WaitingToRestock</td>
-								<td contenteditable="true" class="editable number-only">@item.Damaged</td>
-								<td contenteditable="true" class="editable number-only">@item.SoldBeforeCount</td>
-								<td contenteditable="true" class="editable number-only">@item.TotalCounted</td>
-								<td contenteditable="true" class="editable number-only">@item.Difference</td>
-							</tr>
+						@if (Model != null){
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td>@item.ItemTypeCode</td>
+									<td>@item.SubItemCode</td>
+									<td>@item.ItemId</td>
+									<td contenteditable="true" class="editable number-only">@item.StoreStock</td>
+									<td contenteditable="true" class="editable number-only">@item.CountedQty</td>
+									<td contenteditable="true" class="editable number-only">@item.WaitingToRestock</td>
+									<td contenteditable="true" class="editable number-only">@item.Damaged</td>
+									<td contenteditable="true" class="editable number-only">@item.SoldBeforeCount</td>
+									<td contenteditable="true" class="editable number-only">@item.TotalCounted</td>
+									<td contenteditable="true" class="editable number-only">@item.Difference</td>
+								</tr>
+							}
 						}
+						
 					</tbody>
 				</table>
 			</div>

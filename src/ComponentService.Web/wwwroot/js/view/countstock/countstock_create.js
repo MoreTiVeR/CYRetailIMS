@@ -286,7 +286,19 @@ let table = $('#countStockTable').DataTable({
     "ordering": true,
     "pageLength": 10,
     "autoWidth": false,
-    "stateSave": true
+    "stateSave": true,
+    columns: [
+        { data: "itemtypecode" },
+        { data: "subitemcode" },
+        { data: "itemid" },
+        { data: "storestock" },
+        { data: "countedqty" },
+        { data: "waitingtorestock" },
+        { data: "damaged" },
+        { data: "soldbeforecount" },
+        { data: "totalcounted" },
+        { data: "difference" }
+    ]
 });
 
 $("#btnSaveCountStock").on('click', function (event) {
@@ -296,20 +308,43 @@ $("#btnSaveCountStock").on('click', function (event) {
     let updatedItems = [];
 
     // Loop through each row to collect data
-    $('#countStockTable tbody tr').each(function () {
-        let row = $(this);
+    //$('#countStockTable tbody tr').each(function () {
+    //    let row = $(this);
+
+    //    updatedItems.push({
+    //        ItemTypeCode: row.find('td:eq(0)').text(),
+    //        SubItemCode: row.find('td:eq(1)').text(),
+    //        ItemId: row.find('td:eq(2)').text(),
+    //        StoreStock: row.find('td:eq(3)').text(),
+    //        CountedQty: row.find('td:eq(4)').text(),
+    //        WaitingToRestock: row.find('td:eq(5)').text(),
+    //        Damaged: row.find('td:eq(6)').text(),
+    //        SoldBeforeCount: row.find('td:eq(7)').text(),
+    //        TotalCounted: row.find('td:eq(8)').text(),
+    //        Difference: row.find('td:eq(9)').text()
+    //    });
+    //});
+
+    table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+
+        //var quantityInput = this.node().querySelector('input.itemid-refillqty'); // Adjust the selector if necessary
+        // Get the row node (DOM element)
+        let rowNode = this.node();
+
+        // Use jQuery to find the first <td> and get its text
+        //let firstCellText = $(rowNode).find('td:eq(0)').text();
 
         updatedItems.push({
-            ItemTypeCode: row.find('td:eq(0)').text(),
-            SubItemCode: row.find('td:eq(1)').text(),
-            ItemId: row.find('td:eq(2)').text(),
-            StoreStock: row.find('td:eq(3)').text(),
-            CountedQty: row.find('td:eq(4)').text(),
-            WaitingToRestock: row.find('td:eq(5)').text(),
-            Damaged: row.find('td:eq(6)').text(),
-            SoldBeforeCount: row.find('td:eq(7)').text(),
-            TotalCounted: row.find('td:eq(8)').text(),
-            Difference: row.find('td:eq(9)').text()
+            ItemTypeCode: $(rowNode).find('td:eq(0)').text(),
+            SubItemCode: $(rowNode).find('td:eq(1)').text(),
+            ItemId: $(rowNode).find('td:eq(2)').text(),
+            StoreStock: $(rowNode).find('td:eq(3)').text(),
+            CountedQty: $(rowNode).find('td:eq(4)').text(),
+            WaitingToRestock: $(rowNode).find('td:eq(5)').text(),
+            Damaged: $(rowNode).find('td:eq(6)').text(),
+            SoldBeforeCount: $(rowNode).find('td:eq(7)').text(),
+            TotalCounted: $(rowNode).find('td:eq(8)').text(),
+            Difference: $(rowNode).find('td:eq(9)').text()
         });
     });
 
@@ -330,7 +365,7 @@ $("#btnSaveCountStock").on('click', function (event) {
     });
 });
 
-// Handle dropdown selection change
+// Handle dropdown itemtype selection change
 $('#ddlItemType').on('change', function () {
     let selectedValue = $(this).val(); // Get the selected value from the dropdown
     ShowMessageInfo(selectedValue);
@@ -338,6 +373,64 @@ $('#ddlItemType').on('change', function () {
     table.column(0) // Assuming the first column (index 0) corresponds to the branch/type
         .search(selectedValue)
         .draw(); // Redraw the table with the filtered data
+});
+
+// Handle dropdown branch selection change
+$('#ddlBranch').on('change', function () {
+    let selectedValue = $(this).val(); // Get the selected value from the dropdown
+    ShowMessageInfo(selectedValue);
+    // Apply search data by branchid
+    // Update the DataTable and redraw it
+    //table.ajax.url('/Stock/GetStockData?branchId=' + selectedValue).load();
+
+    // Destroy the existing DataTable if it's already initialized
+    //if ($.fn.DataTable.isDataTable('#countStockTable')) {
+    //    $('#countStockTable').DataTable().destroy();
+    //}
+    table.clear();
+
+    // Initialize and bind the DataTable with the new data
+    var reqdata = { "branchid": selectedValue };
+    var jsonData = JSON.stringify(reqdata);
+    console.log(jsonData);
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Stock/GetStockData',
+        data: jsonData,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+
+                // Clear the current DataTable data and add the new data
+                table.clear().rows.add(response.data).draw();
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+                table.clear().rows.add(response.data).draw();
+            }
+            HideLoading();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        },
+        done: function (response) {
+            AlertError(response.message);
+        }
+    });
+
+    // Add contenteditable and classes after DataTable initialization
+    // Make the second column editable
+    table.on('draw', function () {
+        $('#countStockTable tbody td:nth-child(4)').attr('contenteditable', 'true').addClass('editable number-only');
+        $('#countStockTable tbody td:nth-child(5)').attr('contenteditable', 'true').addClass('editable number-only');
+        $('#countStockTable tbody td:nth-child(6)').attr('contenteditable', 'true').addClass('editable number-only');
+        $('#countStockTable tbody td:nth-child(7)').attr('contenteditable', 'true').addClass('editable number-only');
+        $('#countStockTable tbody td:nth-child(8)').attr('contenteditable', 'true').addClass('editable number-only');
+    });
 });
 
 $("#btnCancel").on('click', function(e){
@@ -377,8 +470,6 @@ document.addEventListener('input', function (event) {
         }
     }
 });
-
-
 
 // Prevent invalid characters from being entered
 document.addEventListener('keypress', function (event) {

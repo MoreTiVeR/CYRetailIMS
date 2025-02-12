@@ -16,6 +16,9 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
+using Microsoft.EntityFrameworkCore;
+using CYRetailIMS.Infrastructure.Database;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -51,91 +54,14 @@ public class StockController : BaseController
     public async Task<IActionResult> CountStockAsync()
     {
         // Mock data for demonstration
-        var items = new List<CountStockItemViewModel>
+        var items = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
         {
-            new CountStockItemViewModel
-            {
-                ItemTypeCode = "Case",
-                SubItemCode = "CASEHONOR",
-                ItemId = 101,
-                StoreStock = 50,
-                CountedQty = 48,
-                WaitingToRestock = 10,
-                Damaged = 2,
-                SoldBeforeCount = 5,
-                TotalCounted = 55,
-                Difference = -2
-            },
-            new CountStockItemViewModel
-            {
-                ItemTypeCode = "Case",
-                SubItemCode = "CASEHUAWEI",
-                ItemId = 102,
-                StoreStock = 30,
-                CountedQty = 30,
-                WaitingToRestock = 5,
-                Damaged = 1,
-                SoldBeforeCount = 2,
-                TotalCounted = 37,
-                Difference = 0
-            },
-            new CountStockItemViewModel
-            {
-                ItemTypeCode = "Film",
-                SubItemCode = "GA001",
-                ItemId = 103,
-                StoreStock = 100,
-                CountedQty = 95,
-                WaitingToRestock = 20,
-                Damaged = 3,
-                SoldBeforeCount = 10,
-                TotalCounted = 125,
-                Difference = -5
-            },
-            new CountStockItemViewModel
-            {
-                ItemTypeCode = "Equipment",
-                SubItemCode = "GD015",
-                ItemId = 104,
-                StoreStock = 75,
-                CountedQty = 80,
-                WaitingToRestock = 15,
-                Damaged = 0,
-                SoldBeforeCount = 8,
-                TotalCounted = 103,
-                Difference = 5
-            },
-            new CountStockItemViewModel
-            {
-                ItemTypeCode = "Equipment",
-                SubItemCode = "GB021",
-                ItemId = 105,
-                StoreStock = 60,
-                CountedQty = 58,
-                WaitingToRestock = 12,
-                Damaged = 1,
-                SoldBeforeCount = 4,
-                TotalCounted = 74,
-                Difference = -2
-            },
-            new CountStockItemViewModel
-            {
-                ItemTypeCode = "Equipment",
-                SubItemCode = "GD016",
-                ItemId = 101,
-                StoreStock = 50,
-                CountedQty = 48,
-                WaitingToRestock = 10,
-                Damaged = 2,
-                SoldBeforeCount = 5,
-                TotalCounted = 55,
-                Difference = -2
-            }
-        };
+            branchid = base.UserProfile.roleid == (int)EnumModel.UserRole.Admin ? 0 : base.UserProfile.access_branch.FirstOrDefault().branchid
+        });
 
         ViewBag.ItemTypeList = await PrepareSelectItemType();
         ViewBag.BranchList = await PrepareSelectBranch();
-        return View(items);
+        return View(items.data);
     }
 
 
@@ -144,6 +70,8 @@ public class StockController : BaseController
     {
 
         BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+
+        var dsds = resBranch.data.Remove(new GetBranchResponseDTO { branchid = 3 });
         resBranch.data = base.UserProfile.roleid == (int)EnumModel.UserRole.Sale
             ? resBranch.data.Where(w => base.UserProfile.access_branch.Select(s => s.branchid).Contains(w.branchid)).ToList()
             : resBranch.data;
@@ -249,6 +177,33 @@ public class StockController : BaseController
         }
     }
 
+    //[HttpGet]
+    //public async Task<IActionResult> GetStockDataAsync(int branchId)
+    //{
+    //    var stockData = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
+    //    {
+    //        branchid = branchId
+    //    });
+
+    //    return Json(stockData.data);
+    //}
+
+    [HttpPost]
+    public async Task<IActionResult> GetStockData([FromBody] SearchItemViewModel searchItem)
+    {
+        // Fetch the data based on the branchId
+        var stockData = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
+        {
+            branchid = searchItem.branchid
+        });
+        if (!stockData.result)
+        {
+            return Json(new { result = false, message = stockData.message, data = new List<InquiryCountStockByBranchIDResponseDTO>() });
+        }
+
+        // Return the data as JSON
+        return Json(new { result = true, message = "สำเร็จ", data = stockData.data });
+    }
 
     [HttpPost]
     public IActionResult SaveData([FromBody] CountStockModel model)
@@ -278,46 +233,4 @@ public class StockController : BaseController
         return Ok(new { message = "Stock counts updated successfully!" });
     }
     #endregion
-}
-
-public class CountStockModel
-{
-    public List<CountStockDetail> products { get; set; }
-}
-
-public class CountStockDetail
-{
-    public string ProductCode { get; set; }
-    public int Stock { get; set; }
-    public int Count { get; set; }
-}
-
-// ViewModel for displaying data
-public class CountStockItemViewModel
-{
-    public string ItemTypeCode { get; set; }
-    public string SubItemCode { get; set; }
-    public int ItemId { get; set; }
-    public int StoreStock { get; set; }
-    public int CountedQty { get; set; }
-    public int WaitingToRestock { get; set; }
-    public int Damaged { get; set; }
-    public int SoldBeforeCount { get; set; }
-    public int TotalCounted { get; set; }
-    public int Difference { get; set; }
-}
-
-// Model for receiving updated data
-public class CountStockUpdateModel
-{
-    public string ItemTypeCode { get; set; }
-    public string SubItemCode { get; set; }
-    public int ItemId { get; set; }
-    public int StoreStock { get; set; }
-    public int CountedQty { get; set; }
-    public int WaitingToRestock { get; set; }
-    public int Damaged { get; set; }
-    public int SoldBeforeCount { get; set; }
-    public int TotalCounted { get; set; }
-    public int Difference { get; set; }
 }
