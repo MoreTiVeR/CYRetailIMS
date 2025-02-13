@@ -7,9 +7,13 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models.UI;
 public class CountStockUpdateModel
 {
+    public int BranchID { get; set; }
     public string ItemTypeCode { get; set; }
+
+    public int SubItemTypeID { get; set; }
     public string SubItemCode { get; set; }
     public int ItemId { get; set; }
+    public int QtyInBranchOfStockDay { get; set; }
     public int StoreStock { get; set; }
     public int CountedQty { get; set; }
     public int WaitingToRestock { get; set; }

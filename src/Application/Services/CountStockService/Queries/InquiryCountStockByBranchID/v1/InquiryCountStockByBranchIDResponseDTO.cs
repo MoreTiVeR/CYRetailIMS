@@ -22,33 +22,44 @@ public class InquiryCountStockByBranchIDResponseDTO
     /// </summary>
     public string itemtypecode { get; set; }
 
+
+    /// <summary>
+    /// รหัสประเภทย่อย
+    /// </summary>
+    public int subitemtypeid { get; set; }
+
     /// <summary>
     /// ประเภทย่อย
     /// </summary>
     public string subitemcode { get; set; }
 
     /// <summary>
-    /// สต๊อกหน้าร้าน
+    /// สต๊อกหน้าร้าน ณ วันที่นับสต๊อก (ระบบดึงให้)
+    /// </summary>
+    public int qtyinbranchofstockday { get; set; }
+
+    /// <summary>
+    /// สต๊อกหน้าร้าน (พนง ระบุเอง)
     /// </summary>
     public int storestock { get; set; }
 
     /// <summary>
-    /// ยอดนับได้
+    /// ยอดนับได้ (พนง ระบุเอง)
     /// </summary>
     public int countedqty { get; set; }
 
     /// <summary>
-    /// รอเติม
+    /// รอเติม (พนง ระบุเอง)
     /// </summary>
     public int waitingtorestock { get; set; }
 
     /// <summary>
-    /// ชำรุด
+    /// ชำรุด (พนง ระบุเอง)
     /// </summary>
     public int damaged { get; set; }
 
     /// <summary>
-    /// ขายก่อนนับ
+    /// ขายก่อนนับ (พนง ระบุเอง)
     /// </summary>
     public int soldbeforecount { get; set; }
 

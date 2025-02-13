@@ -1,14 +1,11 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI
-
 @model List<CountStockItemViewModel>
 
 @{
 	ViewData["Title"] = "CountStock";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@{
-	var saveDataUrl = Url.Action("SaveData", "Stock");
-}
+
 
 <style type="text/css">
 	/* General styling for table cells */
@@ -109,45 +106,17 @@
 			<div class="col-lg-3 col-sm-6 col-12">
 			</div>
 		</div>
-
-		@* <div class="row">
-			<div class="col-lg-3 col-sm-6 col-12">
-				<div class="form-group">
-					<label for="ddlBranch" class="label-width">เลือกสาขา</label>
-					<select id="ddlBranch" class="form-control ddl-select2 select2 ddl-source-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
-						<option value="">--ทั้งหมด--</option>
-					</select>
-				</div>
-			</div>
-			<div class="col-lg-3 col-sm-6 col-12">
-				
-			</div>
-			<div class="col-lg-3 col-sm-6 col-12">
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-lg-3 col-sm-6 col-12">
-				<div class="form-group">
-					<label for="ddlItemType" class="label-width">เลือกประเภท</label>
-					<select id="ddlItemType" class="form-control ddl-select2 select2 ddl-source-itemtype" asp-items="@(new SelectList(ViewBag.ItemTypeList, "Value", "Text", null, null))">
-						<option value="">--ทั้งหมด--</option>
-					</select>
-				</div>
-			</div>
-			<div class="col-lg-3 col-sm-6 col-12">
-				
-			</div>
-			<div class="col-lg-3 col-sm-6 col-12">
-			</div>
-		</div> *@
 		<form id="countStockForm">
 			<div class="table-responsive">
 				<table id="countStockTable" class="table">
 					<thead>
 						<tr>
-							<th>ประเภท</th>
+							<th >ประเภท</th>
+							<th >รหัสประเภทย่อย</th>
 							<th>ประเภทย่อย</th>
-							<th>รหัสสินค้า</th>
+							<th >รหัสสินค้า</th>
+							<th >รหัสสาขา</th>
+							<th >สต๊อกหน้าร้าน(ระบบ)</th>
 							<th>สต๊อกหน้าร้าน</th>
 							<th>ยอดนับได้</th>
 							<th>รอเติม</th>
@@ -158,23 +127,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						@if (Model != null){
-							@foreach (var item in Model)
-							{
-								<tr>
-									<td>@item.ItemTypeCode</td>
-									<td>@item.SubItemCode</td>
-									<td>@item.ItemId</td>
-									<td contenteditable="true" class="editable number-only">@item.StoreStock</td>
-									<td contenteditable="true" class="editable number-only">@item.CountedQty</td>
-									<td contenteditable="true" class="editable number-only">@item.WaitingToRestock</td>
-									<td contenteditable="true" class="editable number-only">@item.Damaged</td>
-									<td contenteditable="true" class="editable number-only">@item.SoldBeforeCount</td>
-									<td contenteditable="true" class="editable number-only">@item.TotalCounted</td>
-									<td contenteditable="true" class="editable number-only">@item.Difference</td>
-								</tr>
-							}
-						}
+						
 						
 					</tbody>
 				</table>

@@ -19,6 +19,7 @@ using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using Microsoft.EntityFrameworkCore;
 using CYRetailIMS.Infrastructure.Database;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -63,27 +64,6 @@ public class StockController : BaseController
         ViewBag.BranchList = await PrepareSelectBranch();
         return View(items.data);
     }
-
-
-    #region Private Method
-    private async Task<List<SelectListItem>> PrepareSelectBranch()
-    {
-
-        BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
-
-        var dsds = resBranch.data.Remove(new GetBranchResponseDTO { branchid = 3 });
-        resBranch.data = base.UserProfile.roleid == (int)EnumModel.UserRole.Sale
-            ? resBranch.data.Where(w => base.UserProfile.access_branch.Select(s => s.branchid).Contains(w.branchid)).ToList()
-            : resBranch.data;
-        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
-    }
-
-    private async Task<List<SelectListItem>> PrepareSelectItemType()
-    {
-        BaseResponse<List<GetItemTypeListResponseDTO>> resBranch = await _itemTypeAPI.GetItemTypeListAsync();
-        return resBranch.data.Select(s => new SelectListItem { Text = s.itemtypename, Value = s.itemtypename }).ToList();
-    }
-    #endregion
 
     #region Http Method
 
@@ -177,19 +157,8 @@ public class StockController : BaseController
         }
     }
 
-    //[HttpGet]
-    //public async Task<IActionResult> GetStockDataAsync(int branchId)
-    //{
-    //    var stockData = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
-    //    {
-    //        branchid = branchId
-    //    });
-
-    //    return Json(stockData.data);
-    //}
-
     [HttpPost]
-    public async Task<IActionResult> GetStockData([FromBody] SearchItemViewModel searchItem)
+    public async Task<IActionResult> GetStockDataByBranch([FromBody] SearchItemViewModel searchItem)
     {
         // Fetch the data based on the branchId
         var stockData = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
@@ -205,32 +174,106 @@ public class StockController : BaseController
         return Json(new { result = true, message = "สำเร็จ", data = stockData.data });
     }
 
-    [HttpPost]
-    public IActionResult SaveData([FromBody] CountStockModel model)
-    {
-        if (ModelState.IsValid)
-        {
-            // Save your model to the database
-            // Example: _context.YourEntities.Add(model);
-            // _context.SaveChanges();
+    //[HttpPost]
+    //public IActionResult SaveData([FromBody] CountStockModel model)
+    //{
+    //    if (ModelState.IsValid)
+    //    {
+    //        // Save your model to the database
+    //        // Example: _context.YourEntities.Add(model);
+    //        // _context.SaveChanges();
 
-            return Json(new { success = true });
+    //        return Json(new { success = true });
+    //    }
+    //    return Json(new { success = false, errors = ModelState });
+    //}
+
+    [HttpPost]
+    public async Task<IActionResult> Save([FromBody] List<CountStockUpdateModel> updatedItems)
+    {
+        try
+        {
+            CreateCountStockCommand countStockCommand = PrepareCreateCOuntStockData(updatedItems);
+            var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
+            if (!resCreate.result)
+            {
+                return new ObjectResult($"ขออภัย, พบข้อผิดพลาด! {resCreate.error.error.message}")
+                {
+                    StatusCode = 500
+                };
+            }
+            return Ok(new { message = "ทำรายการสำเร็จ" });
         }
-        return Json(new { success = false, errors = ModelState });
+        catch (Exception ex)
+        {
+            return new ObjectResult($"ขออภัย, พบข้อผิดพลาด! {ex.Message}")
+            {
+                StatusCode = 500
+            };
+        }
     }
 
-    // POST: Save updated stock counts
     [HttpPost]
-    public IActionResult Save([FromBody] List<CountStockUpdateModel> updatedItems)
+    public async Task<IActionResult> SaveV2([FromBody] List<CountStockUpdateModel> updatedItems)
     {
-        // Perform the save operation (e.g., update the database)
-        foreach (var item in updatedItems)
+        try
         {
-            // Update logic here
-            // Example: UpdateStock(item.ItemId, item.NewQty);
-        }
+            CreateCountStockCommand countStockCommand = PrepareCreateCOuntStockData(updatedItems);
+            var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
+            if (!resCreate.result)
+            {
+                return Json(new { result = false, message = "ข้อมูลนับสต๊อกไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
+            }
+            return Json(new { result = true, message = "ทำรายการสำเร็จ." });
 
-        return Ok(new { message = "Stock counts updated successfully!" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+    #endregion
+
+    #region Private Method
+    private async Task<List<SelectListItem>> PrepareSelectBranch()
+    {
+
+        BaseResponse<List<GetBranchResponseDTO>> resBranch = await _branchAPI.GetBranchListAsync();
+
+        var dsds = resBranch.data.Remove(new GetBranchResponseDTO { branchid = 3 });
+        resBranch.data = base.UserProfile.roleid == (int)EnumModel.UserRole.Sale
+            ? resBranch.data.Where(w => base.UserProfile.access_branch.Select(s => s.branchid).Contains(w.branchid)).ToList()
+            : resBranch.data;
+        return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectItemType()
+    {
+        BaseResponse<List<GetItemTypeListResponseDTO>> resBranch = await _itemTypeAPI.GetItemTypeListAsync();
+        return resBranch.data.Select(s => new SelectListItem { Text = s.itemtypename, Value = s.itemtypename }).ToList();
+    }
+
+    private CreateCountStockCommand PrepareCreateCOuntStockData(List<CountStockUpdateModel> countStockModel)
+    {
+        CreateCountStockCommand createCountStockCommand = new CreateCountStockCommand
+        {
+            branchid = countStockModel.FirstOrDefault().BranchID,
+            countstockdate = DateTime.Now,
+            createdby = base.UserProfile.username,
+            remark = null,
+            totalcount = countStockModel.Sum(s => s.TotalCounted),
+            detail = countStockModel.Select(s => new CreateCountStockDetail
+            {
+                subitemtypeid = s.SubItemTypeID,
+                qtyinbranchofcountstockday = s.QtyInBranchOfStockDay,
+                qtyinbranch = s.StoreStock,
+                countedamountqty = s.CountedQty,
+                damagedqty = s.Damaged,
+                salebeforecountqty = s.SoldBeforeCount,
+                pendingrestockqty = s.WaitingToRestock
+            }).ToList()
+        };
+        return createCountStockCommand;
     }
     #endregion
 }

@@ -26,13 +26,16 @@ public class InquiryCountStockByBranchIDHandler : BaseService, IRequestHandler<I
                              into jSubitemType
                              from s in jSubitemType.DefaultIfEmpty()
                              where a.BranchID == request.branchid
+                             && a.IsActive == true
                              select new InquiryCountStockByBranchIDResponseDTO
                              {
                                  branchid = a.BranchID,
                                  itemid = a.ItemID,
-                                 itemtypecode = a.Item.ItemCode,
+                                 itemtypecode = b.ItemTypeName,
+                                 subitemtypeid = s != null ? s.SubItemTypeID : 0,
                                  subitemcode = s != null ? s.SubItemCode : "N/A",
-                                 storestock = a.Qty,
+                                 qtyinbranchofstockday = a.Qty,
+                                 storestock = 0,
                                  countedqty = 0,
                                  waitingtorestock = 0,
                                  damaged = 0,
@@ -51,10 +54,27 @@ public class InquiryCountStockByBranchIDHandler : BaseService, IRequestHandler<I
             throw new Exception("ไม่พบข้อมูลสินค้าสาขาที่ต้องการนับสต๊อก");
         }
 
+        var resFinalData = resCountStockData.AsEnumerable().GroupBy(g => g.subitemcode)
+            .Select(s => new { s.Key, data = s })
+            .Select(s => new InquiryCountStockByBranchIDResponseDTO
+            {
+                branchid = s.data.FirstOrDefault().branchid,
+                itemtypecode = s.data.FirstOrDefault(w => w.subitemcode == s.Key).itemtypecode,
+                subitemtypeid = s.data.FirstOrDefault(w => w.subitemcode == s.Key).subitemtypeid,
+                subitemcode = s.Key,
+                qtyinbranchofstockday = s.data.Sum(q => q.qtyinbranchofstockday),
+                storestock = 0,
+                countedqty = 0,
+                waitingtorestock = 0,
+                damaged = 0,
+                soldbeforecount = 0,
+                totalcounted = 0,
+                difference = 0,
+            }).ToList();
         return new BaseResponse<List<InquiryCountStockByBranchIDResponseDTO>>
         {
             result = true,
-            data = resCountStockData.ToList(),
+            data = resFinalData,
             message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()
