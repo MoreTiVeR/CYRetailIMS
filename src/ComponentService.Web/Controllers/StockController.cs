@@ -167,57 +167,22 @@ public class StockController : BaseController
         });
         if (!stockData.result)
         {
-            return Json(new { result = false, message = stockData.message, data = new List<InquiryCountStockByBranchIDResponseDTO>() });
+            return Json(new { result = false, message = stockData.error.error.message, data = new List<InquiryCountStockByBranchIDResponseDTO>() });
         }
 
         // Return the data as JSON
         return Json(new { result = true, message = "สำเร็จ", data = stockData.data });
     }
 
-    //[HttpPost]
-    //public IActionResult SaveData([FromBody] CountStockModel model)
-    //{
-    //    if (ModelState.IsValid)
-    //    {
-    //        // Save your model to the database
-    //        // Example: _context.YourEntities.Add(model);
-    //        // _context.SaveChanges();
-
-    //        return Json(new { success = true });
-    //    }
-    //    return Json(new { success = false, errors = ModelState });
-    //}
-
     [HttpPost]
-    public async Task<IActionResult> Save([FromBody] List<CountStockUpdateModel> updatedItems)
+    public async Task<IActionResult> SaveCountStock([FromBody] List<CountStockUpdateModel> updatedItems)
     {
         try
         {
-            CreateCountStockCommand countStockCommand = PrepareCreateCOuntStockData(updatedItems);
-            var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
-            if (!resCreate.result)
+            if (!updatedItems.Any())
             {
-                return new ObjectResult($"ขออภัย, พบข้อผิดพลาด! {resCreate.error.error.message}")
-                {
-                    StatusCode = 500
-                };
+                return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก กรุณาเลือกขาสาเพื่อทำรายการ" });
             }
-            return Ok(new { message = "ทำรายการสำเร็จ" });
-        }
-        catch (Exception ex)
-        {
-            return new ObjectResult($"ขออภัย, พบข้อผิดพลาด! {ex.Message}")
-            {
-                StatusCode = 500
-            };
-        }
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> SaveV2([FromBody] List<CountStockUpdateModel> updatedItems)
-    {
-        try
-        {
             CreateCountStockCommand countStockCommand = PrepareCreateCOuntStockData(updatedItems);
             var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
             if (!resCreate.result)
@@ -260,11 +225,11 @@ public class StockController : BaseController
             branchid = countStockModel.FirstOrDefault().BranchID,
             countstockdate = DateTime.Now,
             createdby = base.UserProfile.username,
-            remark = null,
+            remark = countStockModel.FirstOrDefault()?.Remark,
             totalcount = countStockModel.Sum(s => s.TotalCounted),
             detail = countStockModel.Select(s => new CreateCountStockDetail
             {
-                subitemtypeid = s.SubItemTypeID,
+                subitemtypeid = s.SubItemTypeID > 0 ? s.SubItemTypeID : 0,
                 qtyinbranchofcountstockday = s.QtyInBranchOfStockDay,
                 qtyinbranch = s.StoreStock,
                 countedamountqty = s.CountedQty,

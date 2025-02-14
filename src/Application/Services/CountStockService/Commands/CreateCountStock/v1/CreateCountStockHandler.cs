@@ -23,7 +23,7 @@ public class CreateCountStockHandler : BaseService, IRequestHandler<CreateCountS
 
     public async Task<BaseResponse<CommandResponse>> Handle(CreateCountStockCommand request, CancellationToken cancellationToken)
     {
-        DateTime cDateTime = DateTime.Now;
+        DateTime cDateTime = request.countstockdate;
 
         #region 1.) Create CountStock Header & Detail
         TTCountStock countStockEnt = PreapreCountStock(request, cDateTime);

@@ -21,4 +21,6 @@ public class CountStockUpdateModel
     public int SoldBeforeCount { get; set; }
     public int TotalCounted { get; set; }
     public int Difference { get; set; }
+
+    public string? Remark { get; set; }
 }

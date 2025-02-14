@@ -8,21 +8,38 @@
 
 
 <style type="text/css">
+	.custom-textarea {
+		width: 100%;
+		height: 150px; /* Initial height */
+		padding: 10px;
+		font-size: 16px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		resize: none;
+		box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+		outline: none;
+	}
+
+		.custom-textarea:focus {
+			border-color: #007bff;
+			box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+		}
+
 	/* General styling for table cells */
 	/* td {
-				padding: 10px;
-				border: 1px solid #dee2e6;
-				background-color: #f8f9fa;
-				text-align: center;
-				border-radius: 5px;
-				box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-				cursor: text;
-				transition: background-color 0.3s ease, box-shadow 0.3s ease;
-			}
-				td:hover {
-					background-color: #fff;
-					box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-				} */
+					padding: 10px;
+					border: 1px solid #dee2e6;
+					background-color: #f8f9fa;
+					text-align: center;
+					border-radius: 5px;
+					box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+					cursor: text;
+					transition: background-color 0.3s ease, box-shadow 0.3s ease;
+				}
+					td:hover {
+						background-color: #fff;
+						box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+					} */
 
 	/* Editable cells (if using contenteditable) */
 	td[contenteditable="true"] {
@@ -50,7 +67,6 @@
 	.label-width {
 		width: 100px; /* Set the same width for all labels */
 		display: inline-block; /* Ensure width is applied */
-		
 	}
 
 	.editable:empty::before {
@@ -106,17 +122,23 @@
 			<div class="col-lg-3 col-sm-6 col-12">
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-lg-12 col-sm-12 col-12">
+				<textarea id="dynamicTextarea" maxlength="200" class="custom-textarea" placeholder="หมายเหตุ (ถ้ามี)"></textarea>
+			</div>
+			<hr />
+		</div>
 		<form id="countStockForm">
 			<div class="table-responsive">
 				<table id="countStockTable" class="table">
 					<thead>
 						<tr>
-							<th >ประเภท</th>
-							<th >รหัสประเภทย่อย</th>
+							<th>ประเภท</th>
+							<th>รหัสประเภทย่อย</th>
 							<th>ประเภทย่อย</th>
-							<th >รหัสสินค้า</th>
-							<th >รหัสสาขา</th>
-							<th >สต๊อกหน้าร้าน(ระบบ)</th>
+							<th>รหัสสินค้า</th>
+							<th>รหัสสาขา</th>
+							<th>สต๊อกหน้าร้าน(ระบบ)</th>
 							<th>สต๊อกหน้าร้าน</th>
 							<th>ยอดนับได้</th>
 							<th>รอเติม</th>
@@ -127,13 +149,10 @@
 						</tr>
 					</thead>
 					<tbody>
-						
-						
 					</tbody>
 				</table>
 			</div>
 			<div class="text-center">
-				@* <button type="button" id="btnSaveCountStock" class="btn btn-primary mt-3">Save Changes</button> *@
 				<button id="btnCancel" class="btn btn-submit mt-3">ยกเลิก</button>
 				<button id="btnSaveCountStock" name="btnCreate" class="btn btn-submit mt-3">
 					<i class="bx bx-plus"></i>
@@ -150,6 +169,8 @@
 	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
+	<!--charactersRemaining-->
+	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
 	<script src="~/js/view/countstock/countstock_create.js" asp-append-version="true"></script>
 
 }

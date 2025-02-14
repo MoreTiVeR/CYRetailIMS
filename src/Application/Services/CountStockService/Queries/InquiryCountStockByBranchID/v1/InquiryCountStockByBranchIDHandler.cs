@@ -33,7 +33,7 @@ public class InquiryCountStockByBranchIDHandler : BaseService, IRequestHandler<I
                                  itemid = a.ItemID,
                                  itemtypecode = b.ItemTypeName,
                                  subitemtypeid = s != null ? s.SubItemTypeID : 0,
-                                 subitemcode = s != null ? s.SubItemCode : "N/A",
+                                 subitemcode = s != null ? s.SubItemCode : "ไม่มีประเภทย่อย",
                                  qtyinbranchofstockday = a.Qty,
                                  storestock = 0,
                                  countedqty = 0,

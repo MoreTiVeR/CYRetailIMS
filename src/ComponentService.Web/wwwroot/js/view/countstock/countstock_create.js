@@ -1,6 +1,6 @@
 ﻿
 var datatable;
-
+InitialCharacterRemaining();
 $('.select2').select2();
 
 // Initialize DataTable
@@ -14,7 +14,8 @@ $('.select2').select2();
 let table = $('#countStockTable').DataTable({
     "destroy": true,
     "bFilter": true,
-    "sDom": 'Btlpi',
+    //"sDom": 'Btlpi',
+    "sDom": 'tlpi',
     //"sDom": 'fBtlpi',
     "pagingType": 'numbers',
     "ordering": true,
@@ -74,23 +75,18 @@ $("#btnSaveCountStock").on('click', function (event) {
 
     let updatedItems = [];
 
+    var txtRemark = $("#dynamicTextarea").val();
+    //console.log(txtRemark);
+
     // Loop through each row to collect data
     table.rows().every(function (rowIdx, tableLoop, rowLoop) {
 
         // Use jQuery to find the first <td> and get its text
-        //let firstCellText = $(rowNode).find('td:eq(0)').text();
         var rowData = this.data(); // Get row data
-        //updatedItems.push(rowData);
 
-        //// Get the row node (DOM element)
+        // Get the row node (DOM element)
         let rowNode = this.node();
-        //var StoreStock = $(rowNode).find('td:eq(1)').text();
-        //var CountedQty = $(rowNode).find('td:eq(2)').text(),
-        //var WaitingToRestock = $(rowNode).find('td:eq(3)').text(),
-        //var Damaged = $(rowNode).find('td:eq(4)').text(),
-        //var SoldBeforeCount = $(rowNode).find('td:eq(5)').text(),
-        //var TotalCounted = $(rowNode).find('td:eq(6)').text(),
-        //var Difference = $(rowNode).find('td:eq(7)').text()
+
         updatedItems.push({
             ItemTypeCode: rowData.itemtypecode,
             SubItemTypeID: rowData.subitemtypeid,
@@ -104,22 +100,25 @@ $("#btnSaveCountStock").on('click', function (event) {
             Damaged: $(rowNode).find('td:eq(4)').text(),
             SoldBeforeCount: $(rowNode).find('td:eq(5)').text(),
             TotalCounted: $(rowNode).find('td:eq(6)').text(),
-            Difference: $(rowNode).find('td:eq(7)').text()
+            Difference: $(rowNode).find('td:eq(7)').text(),
+            Remark: txtRemark
         });
         
     });
 
-    //console.log(JSON.stringify(updatedItems));
-
     // Send data to the server via AJAX
     $.ajax({
-        url: '/Stock/SaveV2',
+        url: '/Stock/SaveCountStock',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(updatedItems),
         success: function (response) {
             if (response.result) {
                 ShowMessageSuccess(response.message);
+
+                setTimeout(function () {
+                    window.location.href = "/Stock/Index";
+                }, 1000);
             }
             else {
                 ShowMessageError(response.message);
@@ -146,10 +145,6 @@ $('#ddlItemType').on('change', function () {
 // Handle dropdown branch selection change
 $('#ddlBranch').on('change', function () {
     let selectedValue = $(this).val(); // Get the selected value from the dropdown
-
-    // Apply search data by branchid
-    // Update the DataTable and redraw it
-    //table.ajax.url('/Stock/GetStockData?branchId=' + selectedValue).load();
 
     // Destroy the existing DataTable if it's already initialized
     //if ($.fn.DataTable.isDataTable('#countStockTable')) {
@@ -192,13 +187,26 @@ $('#ddlBranch').on('change', function () {
     // Add contenteditable and classes after DataTable initialization
     // Make the second column editable
     table.on('draw', function () {
-        $('#countStockTable tbody td:nth-child(2)').attr('contenteditable', 'true').addClass('editable number-only');
-        $('#countStockTable tbody td:nth-child(3)').attr('contenteditable', 'true').addClass('editable number-only');
-        $('#countStockTable tbody td:nth-child(4)').attr('contenteditable', 'true').addClass('editable number-only');
-        $('#countStockTable tbody td:nth-child(5)').attr('contenteditable', 'true').addClass('editable number-only');
-        $('#countStockTable tbody td:nth-child(6)').attr('contenteditable', 'true').addClass('editable number-only');
-        $('#countStockTable tbody td:nth-child(7)').attr('contenteditable', 'true').addClass('editable number-only');
-        $('#countStockTable tbody td:nth-child(8)').attr('contenteditable', 'true').addClass('editable number-only');
+        //สต๊อกหน้าร้าน
+        $('#countStockTable tbody td:nth-child(2)').attr('contenteditable', 'true').addClass('editable number-only storestock');
+
+        //ยอดนับได้
+        $('#countStockTable tbody td:nth-child(3)').attr('contenteditable', 'true').addClass('editable number-only countedqty');
+
+        //รอเติม
+        $('#countStockTable tbody td:nth-child(4)').attr('contenteditable', 'true').addClass('editable number-only waitingtorestock');
+
+        //ชำรุด
+        $('#countStockTable tbody td:nth-child(5)').attr('contenteditable', 'true').addClass('editable number-only damaged');
+
+        //ขายก่อนนับ
+        $('#countStockTable tbody td:nth-child(6)').attr('contenteditable', 'true').addClass('editable number-only soldbeforecount');
+
+        //รวมนับได้
+        $('#countStockTable tbody td:nth-child(7)').attr('contenteditable', 'false').addClass('editable number-only totalcounted');
+
+        //ขาดเกิน
+        $('#countStockTable tbody td:nth-child(8)').attr('contenteditable', 'false').addClass('editable number-only difference');
     });
 });
 
@@ -208,7 +216,6 @@ $("#btnCancel").on('click', function(e){
     //setTimeout(function () {
     //    window.location.href = "/Inventory/Index";
     //}, 1000);
-
 });
 
 // Restrict input to numbers only
@@ -249,3 +256,29 @@ document.addEventListener('keypress', function (event) {
         }
     }
 });
+
+// Event listener for inputs
+$('#countStockTable').on('input', '.countedqty, .waitingtorestock, .damaged, .soldbeforecount, .storestock', function () {
+    // Find the row of the input
+    let row = $(this).closest('tr');
+    // Recalculate the values for the row
+    recalculateRow(row);
+});
+
+// Function to recalculate totalcounted and difference
+function recalculateRow(row) {
+
+    let countedqty = parseInt($(row).find('.countedqty').text()) || 0;
+    let waitingtorestock = parseInt($(row).find('.waitingtorestock').text()) || 0;
+    let damaged = parseInt($(row).find('.damaged').text()) || 0;
+    let soldbeforecount = parseInt($(row).find('.soldbeforecount').text()) || 0;
+    let storestock = parseInt($(row).find('.storestock').text()) || 0;
+
+    // Calculate totalcounted
+    let totalcounted = countedqty + waitingtorestock + damaged + soldbeforecount;
+    $(row).find('.totalcounted').text(totalcounted);
+
+    // Calculate difference
+    let difference = totalcounted - storestock;
+    $(row).find('.difference').text(difference);
+}
