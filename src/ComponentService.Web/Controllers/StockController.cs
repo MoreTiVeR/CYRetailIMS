@@ -74,8 +74,8 @@ public class StockController : BaseController
         try
         {
             #region Prepare Search Start & End Date
-            DateTime? transferSrtartDate = null;
-            DateTime? transferEndDate = null;
+            DateTime? stockStartDate = null;
+            DateTime? stockEndDate = null;
             int? branchID = null;
             if (!string.IsNullOrEmpty(searchItem.startdate))
             {
@@ -84,7 +84,7 @@ public class StockController : BaseController
                 {
                     throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
                 }
-                transferSrtartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
+                stockStartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
             }
 
             if (!string.IsNullOrEmpty(searchItem.enddate))
@@ -94,12 +94,12 @@ public class StockController : BaseController
                 {
                     throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
                 }
-                transferEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
+                stockEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
             }
 
             //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
-            if ((transferSrtartDate.HasValue && transferEndDate.HasValue)
-                && DateTime.Compare(transferSrtartDate.Value, transferEndDate.Value) == 1)
+            if ((stockStartDate.HasValue && stockEndDate.HasValue)
+                && DateTime.Compare(stockStartDate.Value, stockEndDate.Value) == 1)
             {
                 throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
             }
@@ -109,11 +109,21 @@ public class StockController : BaseController
             branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
             if (base.UserProfile.roleid == (int)UserRole.Admin || base.UserProfile.roleid == (int)UserRole.Stock)
             {
-                countstockData = await _countStockAPI.GetCountStockListAsync(new InquiryCountStocksQuery { });
+                countstockData = await _countStockAPI.GetCountStockListAsync(new InquiryCountStocksQuery 
+                { 
+                    branchid = branchID,
+                    startdate = stockStartDate,
+                    enddate = stockEndDate
+                });
             }
             else
             {
-                countstockData = await _countStockAPI.GetCountStockListAsync(new InquiryCountStocksQuery { });
+                countstockData = await _countStockAPI.GetCountStockListAsync(new InquiryCountStocksQuery 
+                {
+                    branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+                    startdate = stockStartDate,
+                    enddate = stockEndDate
+                });
             }
 
             if (!countstockData.result)
@@ -122,15 +132,14 @@ public class StockController : BaseController
             }
 
             #region Search Filter
-            //if (!string.IsNullOrEmpty(searchItem.searchValue))
-            //{
-            //    string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
-            //    countstockData.data = countstockData.data.Where(w => w.itemname.Contains(searchValue)
-            //    || w.destinationname.Contains(searchValue)
-            //    || w.transferstatusname_th.Contains(searchValue)
-            //    || w.transfertypename.Contains(searchValue)
-            //    || w.createdby.Contains(searchValue)).ToList();
-            //}
+            if (!string.IsNullOrEmpty(searchItem.searchValue))
+            {
+                string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
+                countstockData.data = countstockData.data.Where(w => w.branchname.Contains(searchValue)
+                || (!string.IsNullOrEmpty(w.remark) ? w.remark.Contains(searchValue) : false)
+                || w.subitemtypename.Contains(searchValue)
+                || w.createdby.Contains(searchValue)).ToList();
+            }
             #endregion
 
             var totalItems = countstockData.data.Count; // Get total item count for pagination
@@ -195,6 +204,19 @@ public class StockController : BaseController
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult DeleteCountStock([FromBody] DeleteCountStockModel deleteCountStock)
+    {
+        try
+        {
+            return Json(new { result = true, message = "ลบข้อมูลสำเร็จ" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย เกิดข้อผิดพลาด: {ex.Message}" });
         }
     }
     #endregion

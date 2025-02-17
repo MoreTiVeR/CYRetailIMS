@@ -44,11 +44,6 @@ public class InquiryCountStockByBranchIDHandler : BaseService, IRequestHandler<I
                                  difference = 0,
                              }).AsQueryable();
 
-        //if (request.branchid > 0)
-        //{
-        //    resCountStockData = resCountStockData.Where(w => w.branchid == request.branchid);
-        //}
-
         if (resCountStockData == null || resCountStockData?.Count() == 0)
         {
             throw new Exception("ไม่พบข้อมูลสินค้าสาขาที่ต้องการนับสต๊อก");

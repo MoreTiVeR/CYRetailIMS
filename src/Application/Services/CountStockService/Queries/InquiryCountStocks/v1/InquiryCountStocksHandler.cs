@@ -20,8 +20,8 @@ public class InquiryCountStocksHandler : BaseService, IRequestHandler<InquiryCou
 
     public async Task<BaseResponse<List<InquiryCountStockResponseDTO>>> Handle(InquiryCountStocksQuery request, CancellationToken cancellationToken)
     {
-        var resCountStockEntities = (from a in await _unitOfWork.Repository<TTCountStock>().QueryAsync(w => w.IsActive)
-                                     join b in await _unitOfWork.Repository<TTCountStockDetail>().QueryAsync(w => w.IsActive) on a.CountStockID equals b.CountStockID
+        var resCountStockEntities = (from a in await _unitOfWork.Repository<TTCountStock>().QueryAsync()
+                                     join b in await _unitOfWork.Repository<TTCountStockDetail>().QueryAsync() on a.CountStockID equals b.CountStockID
                                      join c in await _unitOfWork.Repository<TMSubItemType>().QueryAsync(w => w.IsActive) on b.SubItemTypeID equals c.SubItemTypeID
                                      join d in await _unitOfWork.Repository<TMBranch>().QueryAsync(w => w.IsActive) on a.BranchID equals d.BranchID
                                      select new InquiryCountStockResponseDTO
@@ -43,22 +43,27 @@ public class InquiryCountStocksHandler : BaseService, IRequestHandler<InquiryCou
                                          remark = a.Remark,
                                          createdby = a.CreatedBy,
                                          createddate = a.CreatedDate
-                                     }).AsEnumerable();
-        //var _resCountStockEntities = resCountStockEntities.ToList();
+                                     }).AsQueryable();
+
+        if(request.branchid > 0)
+        {
+            resCountStockEntities = resCountStockEntities.Where(w => w.branchid == request.branchid);
+        }
+
+        if (request.startdate.HasValue)
+        {
+            resCountStockEntities = resCountStockEntities.Where(w => w.createddate >= request.startdate.Value);
+        }
+
+        if (request.enddate.HasValue)
+        {
+            resCountStockEntities = resCountStockEntities.Where(w => w.createddate <= request.enddate.Value);
+        }
+
         if (!resCountStockEntities.Any())
         {
             throw new Exception("ไม่พบข้อมูล");
         }
-
-        //Group
-        //var data = resCountStockEntities.GroupBy(g => new { g.branchid, g.subitemtypeid }).Select(s => new 
-        //{
-        //    branchid = s.Key.branchid,
-        //    subitemtypeid = s.Key.subitemtypeid,
-        //    data = s.Select(s => s).ToList()
-        //}).ToList();
-
-        //var _data = data;
 
         return new BaseResponse<List<InquiryCountStockResponseDTO>>
         {
