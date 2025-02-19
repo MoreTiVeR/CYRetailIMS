@@ -13,15 +13,22 @@ public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery,
     {
     }
 
+    /// <summary>
+    /// Gel all inactive
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<BaseResponse<List<GetItemListResponseDTO>>> Handle(GetItemListQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<GetItemListResponseDTO> resItems = (from a in await _unitOfWork.Repository<TMItem>().QueryAsync(w => w.IsActive)
+        IEnumerable<GetItemListResponseDTO> resItems = (from a in await _unitOfWork.Repository<TMItem>().QueryAsync()
                                                         join b in await _unitOfWork.Repository<TMItemType>().QueryAsync(w => w.IsActive) on a.ItemTypeID equals b.ItemTypeID
                                                         join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync(w => w.IsActive) on a.BrandID equals c.BrandID
                                                         join d in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on a.UnitOfMeasureID equals d.UnitOfMeasureID
                                                         join isub in await _unitOfWork.Repository<TMSubItemType>().QueryAsync(s => s.IsActive) on a.SubItemTypeID equals isub.SubItemTypeID into jsubitem
                                                         from subitem in jsubitem.DefaultIfEmpty()
-                                                        where a.IsActive
+                                                        //where a.IsActive
                                                         select new GetItemListResponseDTO
                                                         {
                                                             itemid = a.ItemID,

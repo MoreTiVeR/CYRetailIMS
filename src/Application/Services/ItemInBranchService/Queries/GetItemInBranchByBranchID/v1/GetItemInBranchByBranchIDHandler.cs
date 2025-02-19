@@ -22,7 +22,7 @@ public class GetItemInBranchByBranchIDHandler : BaseService, IRequestHandler<Get
 
     public async Task<BaseResponse<GetItemInBranchByBranchIDResponseDTO>> Handle(GetItemInBranchByBranchIDQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<TMItemInBranch> resItemBranch = await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => w.BranchID == request.branchid && w.IsActive,
+        IEnumerable<TMItemInBranch> resItemBranch = await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => w.BranchID == request.branchid,
             i => i.Include(x => x.Branch),
             i => i.Include(x => x.Item),
             i => i.Include(x => x.Item.Brand),

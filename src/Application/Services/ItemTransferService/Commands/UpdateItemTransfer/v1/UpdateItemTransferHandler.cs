@@ -41,9 +41,9 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
 
         #region Validate Item in Destination Branch when receive item
         IEnumerable<TMItemInBranch> resItemInDestinationBranch = new List<TMItemInBranch>();
-        if (request.transferstatusid ==  (int)TransferStatus.Received)
+        if (request.transferstatusid == (int)TransferStatus.Received)
         {
-            resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid 
+            resItemInDestinationBranch = await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.BranchID == request.destinationid
             && w.ItemID == request.itemid);
             if (resItemInDestinationBranch.Any(w => w.IsActive == ((int)ItemInBranchStatus.InActive).ToBool()))
             {
@@ -157,7 +157,7 @@ public class UpdateItemTransferHandler : BaseService, IRequestHandler<UpdateItem
         #region Update TTItemTransferHeader if all TransferStatus in TTItemTransfer is 1 (Received)
         IEnumerable<TTItemTransferHeader> transferHeader = await _unitOfWork.Repository<TTItemTransferHeader>().FindWithInclude(w => w.TransferHeaderID == resTTItemTransfer.TransferHeaderID,
             i => i.Include(s => s.TTItemTransfers));
-        if(transferHeader.Any() 
+        if (transferHeader.Any()
             && (transferHeader.SelectMany(s => s.TTItemTransfers).Count() == transferHeader.SelectMany(s => s.TTItemTransfers).Where(w => w.TransferStatus != (int)TransferStatus.Pending).Count()))
         {
             transferHeader.FirstOrDefault().TransferStatus = (int)TransferStatus.Received;

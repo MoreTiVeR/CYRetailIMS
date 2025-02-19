@@ -277,6 +277,17 @@ function InitialDataTable() {
                 }
             },
             {
+                "data": { isactive: "isactive" },
+                "render": function (data) {
+                    if (data.isactive) {
+                        return "<span class='badges bg-lightgreen'>ใช้งาน</span>";
+                    }
+                    else {
+                        return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
+                    }
+                }
+            },
+            {
                 "data": { itemid: "itemid", isiteminbranch: "isiteminbranch", searchbranchid: "searchbranchid" },
                 "render": function (data) {
                     var dict = {
