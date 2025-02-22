@@ -18,6 +18,15 @@ public static class ObjectExtensions
         catch { return false; }
     }
 
+    public static bool ToBoolFromIntString(this string obj)
+    {
+        try
+        {
+            return !string.IsNullOrEmpty(obj) && obj == "1" ? true : false;
+        }
+        catch { return false; }
+    }
+
     public static bool ToBool(this int value)
     {
         try

@@ -1544,7 +1544,7 @@ public class ItemController : BaseController
         {
             throw new Exception("จำนวนสินค้าขั้นสูงต้องมากกว่าจำนวนขั้นต่ำ");
         }
-
+        var _isactive = itemViewModel.IsActive.ToBoolFromIntString();
         return new UpdateItemCommand
         {
             itemid = itemViewModel.ItemID,
@@ -1560,12 +1560,13 @@ public class ItemController : BaseController
             discountpercent = itemViewModel.DiscountPercent,
             price = itemViewModel.Price,
             updatedby = base.UserProfile.username,
-            isactive = bool.TryParse(itemViewModel.IsActive, out bool isactive) && isactive
+            isactive = _isactive
         };
     }
 
     private UpdateItemInBranchCommand MappingUpdateItemInBranchCommand(EditItemViewModel itemViewModel)
     {
+
         if(itemViewModel.NotifyMinQty < 0)
         {
             throw new Exception("จำนวนขั้นต่ำไม่น้อยกว่า 0");
@@ -1575,7 +1576,7 @@ public class ItemController : BaseController
         {
             throw new Exception("จำนวนสินค้าขั้นสูงต้องมากกว่าจำนวนขั้นต่ำ");
         }
-
+        var _isactive = itemViewModel.IsActive.ToBoolFromIntString();
         return new UpdateItemInBranchCommand
         {
             branchid = itemViewModel.BranchID,
@@ -1585,7 +1586,8 @@ public class ItemController : BaseController
             notifyminqty = itemViewModel.NotifyMinQty,
             notifymaxqty = itemViewModel.NotifyMaxQty,
             updatedby = base.UserProfile.username,
-            updateddate = DateTime.Now
+            updateddate = DateTime.Now,
+            isactive = _isactive
         };
     }
 
