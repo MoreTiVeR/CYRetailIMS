@@ -29,6 +29,29 @@ public class UpdateItemInBranchHandler : BaseService, IRequestHandler<UpdateItem
             throw new Exception("ไม่พบข้อมูลสินค้าในสาขา");
         }
 
+        #region If isactive = 0 -> Check exist transfer item
+        if (!request.isactive)
+        {
+            var resItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindListAsync(w => w.ItemID == request.itemid 
+            && w.DestinationID == request.branchid 
+            && w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
+            if (resItemTransfer.Any())
+            {
+                throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการค้างโอนสินค้าในระบบ");
+            }
+
+            var resDraftItem = (from a in await _unitOfWork.Repository<TTDraftItemTransfer>().QueryAsync(w => w.IsActive == true && w.TransferStatus == (int)EnumModel.TransferStatus.Draft)
+                                join b in await _unitOfWork.Repository<TTDraftItemTransferDetail>().QueryAsync(w => w.IsActive == true && w.ItemID == request.itemid)
+                                on a.TransferHeaderID equals b.TransferHeaderID
+                                where a.DestinationBranchID == request.branchid
+                                select a).AsEnumerable();
+            if (resDraftItem.Any())
+            {
+                throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการร่างโอนสินค้า ค้างในระบบ");
+            }
+        }
+        #endregion
+
         resItemInBranch.ToList().ForEach(e =>
         {
             //Price change -> insert TTItemTransactionLogs
@@ -51,6 +74,7 @@ public class UpdateItemInBranchHandler : BaseService, IRequestHandler<UpdateItem
             e.Qty = request.qty;
             e.NotifyMinQty = request.notifyminqty;
             e.NotifyMaxQty = request.notifymaxqty;
+            e.IsActive = request.isactive;
             e.SetUpdatedBy(request.updatedby);
             e.SetUpdatedDate(request.updateddate);
             e.AddDomainEvent(new TMItemInBranchUpdateEvent(e));

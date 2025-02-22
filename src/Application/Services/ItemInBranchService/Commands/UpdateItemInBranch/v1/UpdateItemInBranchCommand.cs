@@ -21,7 +21,7 @@ public record UpdateItemInBranchCommand : IRequest<BaseResponse<CommandResponse>
     public int? notifymaxqty { get; set; }
     public decimal price { get; init; }
     //public decimal cost { get; init; }
-    //public bool isactive { get; init; }
+    public bool isactive { get; init; }
     public string updatedby { get; init; }
     public DateTime updateddate { get; init; }
 }

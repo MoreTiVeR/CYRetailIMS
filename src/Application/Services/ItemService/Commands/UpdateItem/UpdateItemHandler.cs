@@ -33,6 +33,27 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
             throw new Exception("ไม่พบข้อมูลสินค้าในระบบ");
         }
 
+        #region If isactive = 0 -> Check exist transfer item
+        if (!request.isactive)
+        {
+            var resItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindListAsync(w => w.ItemID == request.itemid
+            && w.TransferStatus == (int)EnumModel.TransferStatus.Pending);
+            if (resItemTransfer.Any())
+            {
+                throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการค้างโอนสินค้าในระบบ");
+            }
+
+            var resDraftItem = (from a in await _unitOfWork.Repository<TTDraftItemTransfer>().QueryAsync(w => w.IsActive == true && w.TransferStatus == (int)EnumModel.TransferStatus.Draft)
+                                join b in await _unitOfWork.Repository<TTDraftItemTransferDetail>().QueryAsync(w => w.IsActive == true && w.ItemID == request.itemid)
+                                on a.TransferHeaderID equals b.TransferHeaderID
+                                select a).AsEnumerable();
+            if (resDraftItem.Any())
+            {
+                throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีรายการร่างโอนสินค้า ค้างในระบบ");
+            }
+        }
+        #endregion
+
         //Price change -> insert TTItemTransactionLogs
         if (itemEnt.Price != request.price)
         {
@@ -63,6 +84,7 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
         itemEnt.NotifyMaxQty = request.notifymaxqty;
         itemEnt.DiscountPercent = request.discountpercent;
         itemEnt.ItemImageUrl = !string.IsNullOrEmpty(request.itemimageurl) ? request.itemimageurl : null;
+        itemEnt.IsActive = request.isactive;
         itemEnt.SetUpdatedBy(request.updatedby);
         itemEnt.SetUpdatedDate();
         #endregion
