@@ -5,6 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
-internal class UpdateCountStockCommand
+public class UpdateCountStockCommand
 {
 }

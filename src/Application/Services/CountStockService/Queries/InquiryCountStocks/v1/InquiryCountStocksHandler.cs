@@ -22,7 +22,10 @@ public class InquiryCountStocksHandler : BaseService, IRequestHandler<InquiryCou
     {
         var resCountStockEntities = (from a in await _unitOfWork.Repository<TTCountStock>().QueryAsync()
                                      join b in await _unitOfWork.Repository<TTCountStockDetail>().QueryAsync() on a.CountStockID equals b.CountStockID
-                                     join c in await _unitOfWork.Repository<TMSubItemType>().QueryAsync(w => w.IsActive) on b.SubItemTypeID equals c.SubItemTypeID
+                                     //join c in await _unitOfWork.Repository<TMSubItemType>().QueryAsync(w => w.IsActive) on b.SubItemTypeID equals c.SubItemTypeID
+                                     join subitem in await _unitOfWork.Repository<TMSubItemType>().QueryAsync() on b.SubItemTypeID equals subitem.SubItemTypeID 
+                                     into jSubitemType
+                                     from c in jSubitemType.DefaultIfEmpty()
                                      join d in await _unitOfWork.Repository<TMBranch>().QueryAsync(w => w.IsActive) on a.BranchID equals d.BranchID
                                      select new InquiryCountStockResponseDTO
                                      {
@@ -32,7 +35,7 @@ public class InquiryCountStocksHandler : BaseService, IRequestHandler<InquiryCou
                                          branchname = d.BranchName,
                                          countstockdetailid = b.CountStockDetailID,
                                          subitemtypeid = b.SubItemTypeID,
-                                         subitemtypename = c.SubTypeNameTH,
+                                         subitemtypename = c != null ? c.SubTypeNameTH : "ไม่มีประเภทย่อย",
                                          qtyinbranch = b.QtyInBranch,
                                          qtyinbranchofcountstockday = b.QtyInBranchOfCountStockDay,
                                          countedamountqty = b.CountedAmountQty,

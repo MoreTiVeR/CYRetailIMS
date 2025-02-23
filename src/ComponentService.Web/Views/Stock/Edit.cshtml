@@ -1,11 +1,12 @@
-﻿@using CYRetailIMS.Application.Common.Models.UI
-@model List<CountStockItemViewModel>
+﻿@using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1
+
+@model InquiryCountStockByIDResponseDTO
 
 @{
-	ViewData["Title"] = "CountStock";
+	ViewData["Title"] = "EditCountStock";
 	Layout = "~/Views/Shared/_Layout.cshtml";
+	var countstockid = Model.countstockid;
 }
-
 
 <style type="text/css">
 	.custom-textarea {
@@ -66,22 +67,21 @@
 
 <div class="page-header">
 	<div class="page-title">
-		<h4>นับสต๊อก</h4>
-		<h6>สร้างรายการนับสต๊อกใหม่</h6>
+		<h4>แก้ไข</h4>
+		<h6>แก้ไขรายการนับสต๊อก</h6>
 	</div>
 </div>
 
 <!-- /content -->
 <div class="card">
 	<div class="card-body">
+		<input type="hidden" id="countStockIdHidden" value="@Model.countstockid" />
 		<div class="row">
 			<div class="col-lg-6 col-sm-6 col-12">
 				<div class="row mb-3">
 					<label for="colFormLabelSm" class="col-sm-2 col-lg-3 col-form-label col-form-label-sm">สาขา</label>
 					<div class="col-sm-10 col-lg-9">
-						<select id="ddlBranch" class="form-control ddl-select2 select2 ddl-source-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
-							<option value="">--ทั้งหมด--</option>
-						</select>
+						@Html.DropDownListFor(model => model.branchid, new SelectList(ViewBag.BranchList, "Value", "Text", null, null), "- กรุณาเลือกสาขา -", new { @class = "select2 form-control" })
 					</div>
 				</div>
 			</div>
@@ -108,7 +108,20 @@
 		</div>
 		<div class="row">
 			<div class="col-lg-12 col-sm-12 col-12">
-				<textarea id="dynamicTextarea" maxlength="200" class="custom-textarea" placeholder="หมายเหตุ (ถ้ามี)"></textarea>
+				@* <textarea id="dynamicTextarea" maxlength="200" class="custom-textarea" placeholder="หมายเหตุ (ถ้ามี)"></textarea> *@
+				<div class="form-group">
+					<label>รายละเอียด</label>
+					@Html.TextAreaFor(m => m.remark, new
+						{
+							@class = "form-control full-width",
+							@style = "resize: none;",
+							@cols = 5,
+							@rows = 3,
+							@maxlength = 200,
+							value = "",
+							placeholder = Html.DisplayNameFor(n => n.remark)
+						})
+				</div>
 			</div>
 			<hr />
 		</div>
@@ -148,6 +161,7 @@
 </div>
 <!-- /content -->
 
+<!-- /content -->
 @section Scripts {
 
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
@@ -156,6 +170,6 @@
 
 	<!--charactersRemaining-->
 	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
-	<script src="~/js/view/countstock/countstock_create.js" asp-append-version="true"></script>
-
+	<script src="~/js/view/countstock/countstock_edit.js" asp-append-version="true"></script>
+	
 }

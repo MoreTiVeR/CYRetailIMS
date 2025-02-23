@@ -1,16 +1,8 @@
 ﻿
-var datatable;
 InitialCharacterRemaining();
 $('.select2').select2();
 
 // Initialize DataTable
-//let table = $('#countStockTable').DataTable({
-//    paging: true,
-//    searching: true,
-//    ordering: true,
-//    info: true,
-//    autoWidth: false,
-//});
 let table = $('#countStockTable').DataTable({
     "destroy": true,
     "bFilter": true,
@@ -69,6 +61,8 @@ let table = $('#countStockTable').DataTable({
     ]
 });
 
+InitialCountStockDataTable();
+
 $("#btnSaveCountStock").on('click', function (event) {
     ShowLoading();
     event.preventDefault(); // Prevent the default form submission
@@ -108,7 +102,7 @@ $("#btnSaveCountStock").on('click', function (event) {
 
     // Send data to the server via AJAX
     $.ajax({
-        url: '/Stock/SaveCountStock',
+        url: '/Stock/UpdateCountStock',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(updatedItems),
@@ -135,6 +129,7 @@ $("#btnSaveCountStock").on('click', function (event) {
 // Handle dropdown itemtype selection change
 $('#ddlItemType').on('change', function () {
     let selectedValue = $(this).val(); // Get the selected value from the dropdown
+    console.log('ddlItemType:' + selectedValue);
 
     // Apply search filter to the DataTable
     table.column(0) // Assuming the first column (index 0) corresponds to the branch/type
@@ -154,7 +149,7 @@ $('#ddlBranch').on('change', function () {
     // Initialize and bind the DataTable with the new data
     var reqdata = { "branchid": selectedValue };
     var jsonData = JSON.stringify(reqdata);
-    console.log(jsonData);
+
     var request = $.ajax({
         type: 'POST',
         url: '/Stock/GetStockDataByBranch',
@@ -281,4 +276,72 @@ function recalculateRow(row) {
     // Calculate difference
     let difference = totalcounted - storestock;
     $(row).find('.difference').text(difference);
+}
+
+function InitialCountStockDataTable() {
+
+    // Get the value of countstockid from Razor
+    //var countStockId = "@countstockid";
+    var countStockId = document.getElementById("countStockIdHidden").value;
+
+    console.log(countStockId);
+
+    var reqdata = { "countstockid": countStockId };
+    var jsonData = JSON.stringify(reqdata);
+
+    var request = $.ajax({
+        type: 'POST',
+        url: '/Stock/GetStockDataByCountStockID',
+        data: jsonData,
+        contentType: 'application/json',
+        success: function (response) {
+
+            if (response.result) {
+
+                // Clear the current DataTable data and add the new data
+                table.clear().rows.add(response.data).draw();
+
+                
+            }
+            else {
+                AlertErrorNoTitle(response.message);
+                table.clear().rows.add(response.data).draw();
+            }
+            HideLoading();
+        },
+        failure: function (response) {
+            AlertError(response.message);
+        },
+        error: function (response) {
+            AlertError(response.message);
+        },
+        done: function (response) {
+            AlertError(response.message);
+        }
+    });
+
+    // Add contenteditable and classes after DataTable initialization
+    // Make the second column editable
+    table.on('draw', function () {
+        //สต๊อกหน้าร้าน
+        $('#countStockTable tbody td:nth-child(2)').attr('contenteditable', 'true').addClass('editable number-only storestock');
+
+        //ยอดนับได้
+        $('#countStockTable tbody td:nth-child(3)').attr('contenteditable', 'true').addClass('editable number-only countedqty');
+
+        //รอเติม
+        $('#countStockTable tbody td:nth-child(4)').attr('contenteditable', 'true').addClass('editable number-only waitingtorestock');
+
+        //ชำรุด
+        $('#countStockTable tbody td:nth-child(5)').attr('contenteditable', 'true').addClass('editable number-only damaged');
+
+        //ขายก่อนนับ
+        $('#countStockTable tbody td:nth-child(6)').attr('contenteditable', 'true').addClass('editable number-only soldbeforecount');
+
+        //รวมนับได้
+        $('#countStockTable tbody td:nth-child(7)').attr('contenteditable', 'false').addClass('editable number-only totalcounted');
+
+        //ขาดเกิน
+        $('#countStockTable tbody td:nth-child(8)').attr('contenteditable', 'false').addClass('editable number-only difference');
+    });
 }

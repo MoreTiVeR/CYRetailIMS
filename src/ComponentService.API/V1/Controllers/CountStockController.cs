@@ -2,6 +2,7 @@
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using Microsoft.AspNetCore.Http;
@@ -62,6 +63,23 @@ public class CountStockController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetCountStockByBranchAsync Success");
+        return Ok(res.data);
+    }
+
+    //InquiryCountStockByIDQuery
+    [HttpPost]
+    [Route("v1/inquiry-countstock-byid")]
+    [ProducesResponseType(typeof(InquiryCountStockByIDResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetCountStockByIDAsync(InquiryCountStockByIDQuery inquiryCountStockByID)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<InquiryCountStockByIDResponseDTO> res = await Mediator.Send(inquiryCountStockByID);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetCountStockByIDAsync Success");
         return Ok(res.data);
     }
 }

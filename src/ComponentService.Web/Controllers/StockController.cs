@@ -20,6 +20,7 @@ using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountSto
 using Microsoft.EntityFrameworkCore;
 using CYRetailIMS.Infrastructure.Database;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -31,6 +32,7 @@ public class StockController : BaseController
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly ISubItemTypeAPI _subItemTypeAPI;
     private readonly IItemTypeAPI _itemTypeAPI;
+    private int _stockid { get; set; }
 
     public StockController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         ICountStockAPI countStockAPI,
@@ -63,6 +65,26 @@ public class StockController : BaseController
         ViewBag.ItemTypeList = await PrepareSelectItemType();
         ViewBag.BranchList = await PrepareSelectBranch();
         return View(items.data);
+    }
+
+
+    public async Task<IActionResult> Edit(int cstockid)
+    {
+        BaseResponse<InquiryCountStockByIDResponseDTO> resCountStockData = await _countStockAPI.InquiryCountStockByStockIDAsync(new InquiryCountStockByIDQuery
+        {
+            countstockid = cstockid
+        });
+        this._stockid = cstockid;
+        ViewBag.ItemTypeList = await PrepareSelectItemType();
+        //ViewBag.BranchList = await PrepareSelectBranch();
+        var BranchList = new List<SelectListItem>();
+        BranchList.Add(new SelectListItem
+        {
+            Text = resCountStockData.data.branchname,
+            Value = resCountStockData.data.branchid.ToString()
+        });
+        ViewBag.BranchList = BranchList;
+        return View(resCountStockData.data);
     }
 
     #region Http Method
@@ -184,6 +206,23 @@ public class StockController : BaseController
     }
 
     [HttpPost]
+    public async Task<IActionResult> GetStockDataByCountStockID([FromBody] SearchCountStockByIDViewModel searchItem)
+    {
+        // Fetch the data based on the branchId
+        BaseResponse<InquiryCountStockByIDResponseDTO> resCountStockData = await _countStockAPI.InquiryCountStockByStockIDAsync(new InquiryCountStockByIDQuery
+        {
+            countstockid = searchItem.countstockid
+        });
+        if (!resCountStockData.result)
+        {
+            return Json(new { result = false, message = resCountStockData.error.error.message, data = new List<InquiryCountStockByBranchIDResponseDTO>() });
+        }
+
+        // Return the data as JSON
+        return Json(new { result = true, message = "สำเร็จ", data = resCountStockData.data.detail });
+    }
+
+    [HttpPost]
     public async Task<IActionResult> SaveCountStock([FromBody] List<CountStockUpdateModel> updatedItems)
     {
         try
@@ -192,13 +231,37 @@ public class StockController : BaseController
             {
                 return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก กรุณาเลือกขาสาเพื่อทำรายการ" });
             }
-            CreateCountStockCommand countStockCommand = PrepareCreateCOuntStockData(updatedItems);
+            CreateCountStockCommand countStockCommand = PrepareCreateCountStockData(updatedItems);
             var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
             if (!resCreate.result)
             {
                 return Json(new { result = false, message = "ข้อมูลนับสต๊อกไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
             }
             return Json(new { result = true, message = "ทำรายการสำเร็จ." });
+
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateCountStock([FromBody] List<CountStockUpdateModel> updatedItems)
+    {
+        try
+        {
+            if (!updatedItems.Any())
+            {
+                return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก กรุณาเลือกขาสาเพื่อทำรายการ" });
+            }
+            CreateCountStockCommand countStockCommand = PrepareCreateCountStockData(updatedItems);
+            //var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
+            //if (!resCreate.result)
+            //{
+            //    return Json(new { result = false, message = "ข้อมูลนับสต๊อกไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
+            //}
+            return Json(new { result = true, message = "ปรับปรุงข้อมูลรสำเร็จ." });
 
         }
         catch (Exception ex)
@@ -240,7 +303,7 @@ public class StockController : BaseController
         return resBranch.data.Select(s => new SelectListItem { Text = s.itemtypename, Value = s.itemtypename }).ToList();
     }
 
-    private CreateCountStockCommand PrepareCreateCOuntStockData(List<CountStockUpdateModel> countStockModel)
+    private CreateCountStockCommand PrepareCreateCountStockData(List<CountStockUpdateModel> countStockModel)
     {
         CreateCountStockCommand createCountStockCommand = new CreateCountStockCommand
         {

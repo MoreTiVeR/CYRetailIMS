@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
 using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyList.v1;
 
@@ -34,5 +35,11 @@ public class CountStockAPI : HttpClientService, ICountStockAPI
     {
         return await _httpClientRequest.HttpRequestToObject<List<InquiryCountStockByBranchIDResponseDTO>, InquiryCountStockByBranchIDQuery>(HttpMethod.Post,
            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/inquiry-countstock-bybranch"), inquiryObj);
+    }
+
+    public async Task<BaseResponse<InquiryCountStockByIDResponseDTO>> InquiryCountStockByStockIDAsync(InquiryCountStockByIDQuery inquiryObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<InquiryCountStockByIDResponseDTO, InquiryCountStockByIDQuery>(HttpMethod.Post,
+           new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/inquiry-countstock-byid"), inquiryObj);
     }
 }
