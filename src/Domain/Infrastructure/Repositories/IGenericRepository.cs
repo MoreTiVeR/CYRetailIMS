@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace CYRetailIMS.Domain.Infrastructure.Repositories;
@@ -87,4 +88,5 @@ public interface IGenericRepository<T> where T : class
 	object[] ExecuteSqlRawWithReturn(string spName, object[] sqlParameter);
 	Task<object[]> ExecuteSqlRawWithReturnAsync(string spName, object[] sqlParameter);
 
+    Task BulkInsertOrUpdateAsync(List<T> entity, BulkConfig bulkConfig);
 }

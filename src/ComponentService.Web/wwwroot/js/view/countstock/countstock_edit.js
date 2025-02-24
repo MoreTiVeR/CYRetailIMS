@@ -13,7 +13,7 @@ let table = $('#countStockTable').DataTable({
     "ordering": true,
     "pageLength": 10,
     "autoWidth": false,
-    "stateSave": true,
+    //"stateSave": true,
     columns: [
         { data: "itemtypecode" },
         { data: "subitemtypeid" },
@@ -27,11 +27,12 @@ let table = $('#countStockTable').DataTable({
         { data: "damaged" },
         { data: "soldbeforecount" },
         { data: "totalcounted" },
-        { data: "difference" }
+        { data: "difference" },
+        { data: "countstockdetailid" }
     ],
     "columnDefs": [
         {
-            "targets": [0, 1, 3, 4, 5],
+            "targets": [0, 1, 3, 4, 5, 13],
             "visible": false
         }
     ],
@@ -69,8 +70,11 @@ $("#btnSaveCountStock").on('click', function (event) {
 
     let updatedItems = [];
 
-    var txtRemark = $("#dynamicTextarea").val();
-    //console.log(txtRemark);
+    //CountStock ID
+    var countStockId = document.getElementById("countStockIdHidden").value;
+
+    //var txtRemark = $("#dynamicTextarea").val();
+    var txtRemark = $('#remark').val();
 
     // Loop through each row to collect data
     table.rows().every(function (rowIdx, tableLoop, rowLoop) {
@@ -82,6 +86,8 @@ $("#btnSaveCountStock").on('click', function (event) {
         let rowNode = this.node();
 
         updatedItems.push({
+            CountStockID: countStockId,
+            CountStockDetailID: rowData.countstockdetailid,
             ItemTypeCode: rowData.itemtypecode,
             SubItemTypeID: rowData.subitemtypeid,
             SubItemCode: rowData.subitemcode,
@@ -129,7 +135,7 @@ $("#btnSaveCountStock").on('click', function (event) {
 // Handle dropdown itemtype selection change
 $('#ddlItemType').on('change', function () {
     let selectedValue = $(this).val(); // Get the selected value from the dropdown
-    console.log('ddlItemType:' + selectedValue);
+    //console.log('ddlItemType:' + selectedValue);
 
     // Apply search filter to the DataTable
     table.column(0) // Assuming the first column (index 0) corresponds to the branch/type
@@ -284,7 +290,7 @@ function InitialCountStockDataTable() {
     //var countStockId = "@countstockid";
     var countStockId = document.getElementById("countStockIdHidden").value;
 
-    console.log(countStockId);
+    //console.log(countStockId);
 
     var reqdata = { "countstockid": countStockId };
     var jsonData = JSON.stringify(reqdata);
@@ -300,8 +306,6 @@ function InitialCountStockDataTable() {
 
                 // Clear the current DataTable data and add the new data
                 table.clear().rows.add(response.data).draw();
-
-                
             }
             else {
                 AlertErrorNoTitle(response.message);

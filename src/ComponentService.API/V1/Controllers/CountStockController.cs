@@ -1,6 +1,8 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
@@ -23,14 +25,46 @@ public class CountStockController : BaseApiController
     [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateCountStockAsync(CreateCountStockCommand createItemCommand)
+    public async Task<IActionResult> CreateCountStockAsync(CreateCountStockCommand createCountStockCommand)
     {
         DateTime dtStart = DateTime.Now;
-        BaseResponse<CommandResponse> res = await Mediator.Send(createItemCommand);
+        BaseResponse<CommandResponse> res = await Mediator.Send(createCountStockCommand);
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]CreateCountStockAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/update")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateCountStockAsync(UpdateCountStockCommand updateCountStockCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(updateCountStockCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]UpdateCountStockAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/delete")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteCountStockAsync(DeleteCountStockCommand deleteCountStockCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(deleteCountStockCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]DeleteCountStockAsync Success");
         return Ok(res.data);
     }
 

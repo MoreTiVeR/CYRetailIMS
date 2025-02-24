@@ -108,7 +108,7 @@ $("#btnSaveCountStock").on('click', function (event) {
 
     // Send data to the server via AJAX
     $.ajax({
-        url: '/Stock/SaveCountStock',
+        url: '/Stock/CreateCountStock',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(updatedItems),

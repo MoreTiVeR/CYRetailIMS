@@ -7,6 +7,8 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
@@ -23,6 +25,18 @@ public class CountStockAPI : HttpClientService, ICountStockAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateCountStockCommand>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/create"), createCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> UpdateCountStocAsync(UpdateCountStockCommand updateCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, UpdateCountStockCommand>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/update"), updateCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> DeleteCountStockAsync(DeleteCountStockCommand deleteCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, DeleteCountStockCommand>(HttpMethod.Post,
+                    new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/delete"), deleteCommand);
     }
 
     public async Task<BaseResponse<List<InquiryCountStockResponseDTO>>> GetCountStockListAsync(InquiryCountStocksQuery inquiryObj)
@@ -42,4 +56,6 @@ public class CountStockAPI : HttpClientService, ICountStockAPI
         return await _httpClientRequest.HttpRequestToObject<InquiryCountStockByIDResponseDTO, InquiryCountStockByIDQuery>(HttpMethod.Post,
            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/inquiry-countstock-byid"), inquiryObj);
     }
+
+
 }

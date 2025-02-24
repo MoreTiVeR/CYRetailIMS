@@ -65,6 +65,17 @@ datatable = $("#tbCountStock").DataTable({
         { "data": "createdby" },
         { "data": "remark" },
         {
+            "data": { isactive: "isactive" },
+            "render": function (data) {
+                if (data.isactive) {
+                    return "<span class='badges bg-lightgreen'>ใช้งาน</span>";
+                }
+                else {
+                    return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
+                }
+            }
+        },
+        {
             "data": { countstockid: "countstockid", countstockdetailid: "countstockdetailid" },
             "render": function (data) {
                 //var _countstockdetailid = parseInt(data.countstockdetailid);

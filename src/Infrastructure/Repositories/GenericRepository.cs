@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
+using System.Xml;
 using CYRetailIMS.Domain.Infrastructure.Repositories;
 using CYRetailIMS.Infrastructure.Database;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -299,4 +301,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     }
 
     public IQueryable<T> Where(Expression<Func<T, bool>> predicate) => _context.Set<T>().Where(predicate);
+
+    public async Task BulkInsertOrUpdateAsync(List<T> entity, BulkConfig bulkConfig)
+    {
+        await _context.BulkInsertOrUpdateAsync(entity, bulkConfig);
+    }
 }

@@ -45,7 +45,8 @@ public class InquiryCountStocksHandler : BaseService, IRequestHandler<InquiryCou
                                          totalcount = b.TotalCountQty,
                                          remark = a.Remark,
                                          createdby = a.CreatedBy,
-                                         createddate = a.CreatedDate
+                                         createddate = a.CreatedDate,
+                                         isactive = b.IsActive
                                      }).AsQueryable();
 
         if(request.branchid > 0)

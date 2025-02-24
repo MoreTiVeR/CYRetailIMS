@@ -21,6 +21,8 @@ using Microsoft.EntityFrameworkCore;
 using CYRetailIMS.Infrastructure.Database;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -32,7 +34,6 @@ public class StockController : BaseController
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly ISubItemTypeAPI _subItemTypeAPI;
     private readonly IItemTypeAPI _itemTypeAPI;
-    private int _stockid { get; set; }
 
     public StockController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         ICountStockAPI countStockAPI,
@@ -74,7 +75,6 @@ public class StockController : BaseController
         {
             countstockid = cstockid
         });
-        this._stockid = cstockid;
         ViewBag.ItemTypeList = await PrepareSelectItemType();
         //ViewBag.BranchList = await PrepareSelectBranch();
         var BranchList = new List<SelectListItem>();
@@ -223,7 +223,7 @@ public class StockController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> SaveCountStock([FromBody] List<CountStockUpdateModel> updatedItems)
+    public async Task<IActionResult> CreateCountStock([FromBody] List<CountStockCreateModel> updatedItems)
     {
         try
         {
@@ -251,17 +251,21 @@ public class StockController : BaseController
     {
         try
         {
+            if(updatedItems.Any(w => w.CountStockDetailID == 0))
+            {
+                return Json(new { result = false, message = "รายการแก้ไขไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
+            }
             if (!updatedItems.Any())
             {
                 return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก กรุณาเลือกขาสาเพื่อทำรายการ" });
             }
-            CreateCountStockCommand countStockCommand = PrepareCreateCountStockData(updatedItems);
-            //var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
-            //if (!resCreate.result)
-            //{
-            //    return Json(new { result = false, message = "ข้อมูลนับสต๊อกไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
-            //}
-            return Json(new { result = true, message = "ปรับปรุงข้อมูลรสำเร็จ." });
+            UpdateCountStockCommand countStockCommand = PrepareUpdateCountStockData(updatedItems);
+            var resUpdate = await _countStockAPI.UpdateCountStocAsync(countStockCommand);
+            if (!resUpdate.result)
+            {
+                return Json(new { result = false, message = resUpdate.error.error.message });
+            }
+            return Json(new { result = true, message = "ปรับปรุงข้อมูลนับสต๊อกสำเร็จ." });
 
         }
         catch (Exception ex)
@@ -271,10 +275,19 @@ public class StockController : BaseController
     }
 
     [HttpPost]
-    public IActionResult DeleteCountStock([FromBody] DeleteCountStockModel deleteCountStock)
+    public async Task<IActionResult> DeleteCountStockAsync([FromBody] DeleteCountStockModel deleteCountStock)
     {
         try
         {
+            var resUpdate = await _countStockAPI.DeleteCountStockAsync(new DeleteCountStockCommand
+            {
+                countstockid = deleteCountStock.countstockid,
+                deletedby = base.UserProfile.username
+            });
+            if (!resUpdate.result)
+            {
+                return Json(new { result = false, message = resUpdate.error.error.message });
+            }
             return Json(new { result = true, message = "ลบข้อมูลสำเร็จ" });
         }
         catch (Exception ex)
@@ -303,7 +316,7 @@ public class StockController : BaseController
         return resBranch.data.Select(s => new SelectListItem { Text = s.itemtypename, Value = s.itemtypename }).ToList();
     }
 
-    private CreateCountStockCommand PrepareCreateCountStockData(List<CountStockUpdateModel> countStockModel)
+    private CreateCountStockCommand PrepareCreateCountStockData(List<CountStockCreateModel> countStockModel)
     {
         CreateCountStockCommand createCountStockCommand = new CreateCountStockCommand
         {
@@ -321,6 +334,32 @@ public class StockController : BaseController
                 damagedqty = s.Damaged,
                 salebeforecountqty = s.SoldBeforeCount,
                 pendingrestockqty = s.WaitingToRestock
+            }).ToList()
+        };
+        return createCountStockCommand;
+    }
+
+    private UpdateCountStockCommand PrepareUpdateCountStockData(List<CountStockUpdateModel> countStockModel)
+    {
+        var countStock = countStockModel.FirstOrDefault();
+        UpdateCountStockCommand createCountStockCommand = new UpdateCountStockCommand
+        {
+            countstockid = countStock.CountStockID,
+            branchid = countStock.BranchID,
+            countstockdate = DateTime.Now,
+            updatedby = base.UserProfile.username,
+            remark = countStock?.Remark,
+            totalcount = countStockModel.Sum(s => s.TotalCounted),
+            detail = countStockModel.Select(s => new UpdateCountStockDetail
+            {
+                countstockdetailid = s.CountStockDetailID,
+                subitemtypeid = s.SubItemTypeID > 0 ? s.SubItemTypeID : 0,
+                qtyinbranchofcountstockday = s.QtyInBranchOfStockDay,
+                qtyinbranch = s.StoreStock,
+                countedamountqty = s.CountedQty,
+                damagedqty = s.Damaged,
+                salebeforecountqty = s.SoldBeforeCount,
+                pendingrestockqty = s.WaitingToRestock,
             }).ToList()
         };
         return createCountStockCommand;
