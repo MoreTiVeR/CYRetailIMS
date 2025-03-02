@@ -10,6 +10,7 @@ using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
@@ -95,5 +96,11 @@ public class ReportAPI : HttpClientService, IReportAPI
     {
         return await _httpClientRequest.HttpRequestToObject<InventoryTransferReportByDraftIDResponseDTO,
                     InventoryTransferReportByDraftIDQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/inventorytransferreport"), inventoryTransferQuery);
+    }
+
+    public async Task<BaseResponse<List<CountStockReportResponseDTO>>> GetCountStockReportAsync(CountStockReportQuery countStockReportQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<CountStockReportResponseDTO>,
+                            CountStockReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/countstockreport"), countStockReportQuery);
     }
 }

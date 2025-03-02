@@ -1,4 +1,7 @@
 ﻿using System.Configuration;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Confiuration;
@@ -47,6 +50,7 @@ using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.Configuration;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
+using CYRetailIMS.Infrastructure.ExternalService;
 using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
 using CYRetailIMS.Infrastructure.ExternalService.AdjustItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.AdjustItemTypeAPI;
@@ -183,9 +187,26 @@ public static class ConfigureService
 
         #region Service
         services.AddHttpContextAccessor();
-        services.AddHttpClient<IHttpClientRequest, HttpClientRequest>();
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        //services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 
+        services.AddHttpClient<IHttpClientRequest, HttpClientRequest>("ApiClient");
+        //services.AddHttpClient<IHttpClientRequest, HttpClientRequest>("ApiClient").ConfigureHttpClient(client =>
+        //{
+        //    //s.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+        //    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+        //    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+        //}).ConfigurePrimaryHttpMessageHandler(() =>
+        //{
+        //    //var handler = new SocketsHttpHandler();
+        //    //handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli;
+        //    //return handler;
+
+        //    return new HttpClientHandler
+        //    {
+        //        AutomaticDecompression = DecompressionMethods.None
+        //        //AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+        //    };
+        //});
         services.AddSingleton<IDateTimeProvider, DateTimeService>();
 		#endregion
 

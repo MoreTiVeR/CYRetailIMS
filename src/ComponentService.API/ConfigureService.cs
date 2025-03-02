@@ -1,15 +1,12 @@
 ﻿using System.ComponentModel;
+using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using CYRetailIMS.Application.Common.Filter;
-using CYRetailIMS.Application.Common.Models;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
 
 namespace CYRetailIMS.ComponentService.API;
@@ -18,6 +15,28 @@ public static class ConfigureService
 {
     public static IServiceCollection AddComponentServices(this IServiceCollection services, IConfiguration configuration, string envName)
     {
+        #region Response Compression
+        services.Configure<GzipCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Fastest;
+        });
+
+        // Add Response Compression services
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true; // Enable compression for HTTPS
+            options.Providers.Add<GzipCompressionProvider>(); // Add GZip compression provider
+            options.Providers.Add<BrotliCompressionProvider>(); // Optionally add Brotli compression
+        });
+
+        // Configure GZip compression settings (optional)
+        services.Configure<GzipCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Fastest; // Set compression level
+        });
+        #endregion
+
+
         services.AddHttpContextAccessor();
         services.AddFluentValidationAutoValidation(config =>
         {
@@ -33,21 +52,6 @@ public static class ConfigureService
         #region Register the Swagger generator, defining 1 or more Swagger documents
         services.AddSwaggerGen(c =>
         {
-            //c.SwaggerDoc("v1", new OpenApiInfo
-            //{
-            //    Version = "v1",
-            //    Title = "CY Retail Inventory Management System API",
-            //    Description = $"A CY Retail Inventory Management System API <b>(.NET7)</b> <b>Ver.{Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion}</b> <b>({envName})</b>",
-            //    Contact = new OpenApiContact
-            //    {
-            //        Name = "AppBoxs Team",
-            //        Email = "email address"
-            //    },
-            //    License = new OpenApiLicense
-            //    {
-            //        Name = Assembly.GetExecutingAssembly().GetName().Name
-            //    }
-            //});
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
                 Name = "Authorization",
@@ -71,15 +75,6 @@ public static class ConfigureService
 
         #region Api Versioning Control
         services.AddApiVersioning(options => options.ReportApiVersions = true);
-        //services.AddApiVersioning(o => {
-        //    o.ReportApiVersions = true;
-        //    o.AssumeDefaultVersionWhenUnspecified = true;
-        //    o.DefaultApiVersion = new ApiVersion(1, 0);
-
-        //    //o.Conventions.Controller<HomeV1Controller>().HasApiVersion(new ApiVersion(1, 0));
-        //    //o.Conventions.Controller<HomeV2Controller>().HasApiVersion(new ApiVersion(2, 0));
-        //});
-
         services.AddVersionedApiExplorer(
                  options =>
                  {

@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
@@ -40,4 +41,7 @@ public interface IReportAPI
     Task<BaseResponse<List<InventoryReportResponseDTO>>> GetInventoryReportAsync(InventoryReportQuery inventoryReportQuery);
 
     Task<BaseResponse<InventoryTransferReportByDraftIDResponseDTO>> GetInventoryTransferByDraftReportAsync(InventoryTransferReportByDraftIDQuery inventoryTransferQuery);
+
+    Task<BaseResponse<List<CountStockReportResponseDTO>>> GetCountStockReportAsync(CountStockReportQuery countStockReportQuery);
+
 }

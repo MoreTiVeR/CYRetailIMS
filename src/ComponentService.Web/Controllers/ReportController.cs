@@ -5,7 +5,9 @@ using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
+using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
@@ -13,16 +15,20 @@ using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
+using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -32,11 +38,14 @@ public class ReportController : BaseController
 {
     private readonly IReportAPI _reportAPI;
     private readonly IBranchAPI _branchAPI;
+    private readonly ISubItemTypeAPI _subItemTypeAPI;
     public ReportController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
-        IReportAPI reportAPI, IBranchAPI branchAPI) : base(httpClientRequest, mapper, log)
+        IReportAPI reportAPI, IBranchAPI branchAPI,
+        ISubItemTypeAPI subItemTypeAPI) : base(httpClientRequest, mapper, log)
     {
         _reportAPI = reportAPI;
         _branchAPI = branchAPI;
+        _subItemTypeAPI = subItemTypeAPI;
     }
 
     public IActionResult Index()
@@ -553,5 +562,178 @@ public class ReportController : BaseController
         #endregion
 
         return Json(new { result = true, message = $"Success", data = searchObj });
+    }
+
+    public async Task<IActionResult> CountStockReportAsync()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
+
+        return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetCountStockReportV1()
+    {
+        try
+        {
+            int dayInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+            BaseResponse<List<CountStockReportResponseDTO>> resCountstockReport = await _reportAPI.GetCountStockReportAsync(new CountStockReportQuery
+            {
+                branchid = null,
+                startdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+                enddate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, dayInMonth),
+                subitemtypeid = null
+            });
+            if (!resCountstockReport.result)
+            {
+                throw new Exception(resCountstockReport.error.error.message);
+            }
+            return Json(new { data = resCountstockReport.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<CountStockReportResponseDTO>() });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SearchCountStockReport([FromBody] SearchCountStockReportViewModel searchObj)
+    {
+        try
+        {
+            DateTime? sDate = !string.IsNullOrEmpty(searchObj.startdate) ? searchObj.startdate.DatetimePickerToDate() : null;
+            DateTime? eDate = !string.IsNullOrEmpty(searchObj.enddate) ? searchObj.enddate.DatetimePickerToDate() : null;
+            //StartDate > EndDate
+            if ((sDate.HasValue && eDate.HasValue) 
+                && DateTime.Compare(sDate.Value, eDate.Value) == 1)
+            {
+                throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+            BaseResponse<List<CountStockReportResponseDTO>> resCountstockReport = await _reportAPI.GetCountStockReportAsync(new CountStockReportQuery
+            {
+                branchid = searchObj.branchid,
+                startdate = sDate,
+                enddate = eDate,
+                subitemtypeid = null
+            });
+            if (!resCountstockReport.result)
+            {
+                return Json(new { result = false, message = resCountstockReport.error.error.message, data = new List<CountStockReportResponseDTO>() });
+            }
+            return Json(new { result = true, message = "สำเร็จ", data = resCountstockReport.data });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<CountStockReportResponseDTO>() });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetCountStockReportV2([FromBody] SearchCountStockReportViewModel searchItem)
+    {
+        BaseResponse<List<CountStockReportResponseDTO>> countstockData = new BaseResponse<List<CountStockReportResponseDTO>> { data = new List<CountStockReportResponseDTO>() };
+        try
+        {
+            #region Prepare Search Start & End Date
+            DateTime? stockStartDate = null;
+            DateTime? stockEndDate = null;
+            int? branchID = null;
+            if (!string.IsNullOrEmpty(searchItem.startdate))
+            {
+                string[] sTransferDate = searchItem.startdate.Split("-");
+                if (sTransferDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                stockStartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
+            }
+
+            if (!string.IsNullOrEmpty(searchItem.enddate))
+            {
+                string[] sTransferEndDate = searchItem.enddate.Split("-");
+                if (sTransferEndDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                stockEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
+            }
+
+            //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
+            if ((stockStartDate.HasValue && stockEndDate.HasValue)
+                && DateTime.Compare(stockStartDate.Value, stockEndDate.Value) == 1)
+            {
+                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+            #endregion
+
+            //Set branchid & transfer status
+            branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
+            if (base.UserProfile.roleid == (int)UserRole.Admin || base.UserProfile.roleid == (int)UserRole.Stock)
+            {
+                countstockData = await _reportAPI.GetCountStockReportAsync(new CountStockReportQuery
+                {
+                    branchid = branchID,
+                    startdate = stockStartDate,
+                    enddate = stockEndDate,
+                    subitemtypeid = null
+                });
+            }
+            else
+            {
+                countstockData = await _reportAPI.GetCountStockReportAsync(new CountStockReportQuery
+                {
+                    branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+                    startdate = stockStartDate,
+                    enddate = stockEndDate,
+                    subitemtypeid = null
+                });
+            }
+
+            if (!countstockData.result)
+            {
+                return Json(new { data = new List<InquiryCountStockResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+            }
+
+            #region Search Filter
+            if (!string.IsNullOrEmpty(searchItem.searchValue))
+            {
+                string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
+                countstockData.data = countstockData.data.Where(w => w.branchname.Contains(searchValue)
+                || (!string.IsNullOrEmpty(w.remark) ? w.remark.Contains(searchValue) : false)
+                || w.subitemtypename.Contains(searchValue)
+                || w.createdby.Contains(searchValue)).ToList();
+            }
+            #endregion
+
+            var totalItems = countstockData.data.Count; // Get total item count for pagination
+
+            // Filter based on searchValue if necessary
+            var query = countstockData.data;
+
+            // Calculate paginated data
+            //var items = query.Skip(searchItem.start).Take(searchItem.length).ToList();
+            var items = query.Skip(0).Take(searchItem.length).ToList();
+
+            // Prepare response for DataTables
+            return Json(new
+            {
+                draw = searchItem.draw, // Echo the draw parameter
+                recordsTotal = totalItems, // Total records before filtering
+                recordsFiltered = query.Count(), // Total records after applying filtering
+                data = items // The actual data to be displayed
+            });
+        }
+        catch
+        {
+            // Handle error
+            return Json(new { data = new List<InquiryCountStockResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+        }
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectSubItemType()
+    {
+        BaseResponse<List<GetSubItemTypeResponseDTO>> resData = await _subItemTypeAPI.GetSubItemTypeListAsync();
+        return resData.data.Select(s => new SelectListItem { Text = s.subitemcode, Value = s.subitemtypeid.ToString() }).ToList();
     }
 }

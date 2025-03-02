@@ -1,5 +1,5 @@
 
-using System.Configuration;
+
 using System.Globalization;
 using CYRetailIMS.Application;
 using CYRetailIMS.Application.Common.Models;
@@ -91,6 +91,9 @@ public class Program
 
         //ExceptionSettings exceptionSettings = _configuration.GetSection("ExceptionSettings").Get<ExceptionSettings>();
         app.UseMiddleware<ExceptionHandlerMiddleware>();
+
+        // Enable Response Compression Middleware
+        app.UseResponseCompression();
 
         app.MapControllers();
 

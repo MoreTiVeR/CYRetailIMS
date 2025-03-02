@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
-namespace CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
-public class InquiryCountStocksQuery : IRequest<BaseResponse<List<InquiryCountStockResponseDTO>>>
+namespace CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
+public record CountStockReportQuery : IRequest<BaseResponse<List<CountStockReportResponseDTO>>>
 {
     public int? branchid { get; init; }
     public DateTime? startdate { get; init; }
     public DateTime? enddate { get; init; }
+    public int? subitemtypeid { get; init; }
 }

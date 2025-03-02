@@ -13,6 +13,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBra
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -226,6 +227,28 @@ public class ReportController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]InventoryTransferReportAsync Success");
+        return Ok(res.data);
+    }
+
+
+    /// <summary>
+    /// รายงานนับสตีอก
+    /// </summary>
+    /// <param name="countStockReportQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/countstockreport")]
+    [ProducesResponseType(typeof(List<CountStockReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CountStockReportAsync(CountStockReportQuery countStockReportQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<List<CountStockReportResponseDTO>> res = await Mediator.Send(countStockReportQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CountStockReportAsync Success");
         return Ok(res.data);
     }
 }
