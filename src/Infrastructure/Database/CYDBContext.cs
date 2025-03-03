@@ -88,6 +88,8 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTItemTransferHeader> TTItemTransferHeaders { get; set; }
 
+    public virtual DbSet<TTItemTransferHistory> TTItemTransferHistories { get; set; }
+
     public virtual DbSet<TTMoneyTransfer> TTMoneyTransfers { get; set; }
 
     public virtual DbSet<TTMoneyTransferSlip> TTMoneyTransferSlips { get; set; }
@@ -420,6 +422,17 @@ public partial class CYDBContext : DbContext
                 .HasConstraintName("FK_TTItemTransfer_TTItemTransferHeader");
 
             entity.HasOne(d => d.TransferType).WithMany(p => p.TTItemTransfers).HasConstraintName("FK_TTItemTransfer_TMTransferType");
+        });
+
+        modelBuilder.Entity<TTItemTransferHistory>(entity =>
+        {
+            entity.HasKey(e => e.TransferHistoryID).HasName("PK_TTItemTransferHistory");
+
+            entity.Property(e => e.NotifyMinQty).HasComment("จำนวนขั้นต่ำ");
+            entity.Property(e => e.QtyInBranch).HasComment("จำนวนในสาขาที่เหลือ ณ วันทำรายการ");
+            entity.Property(e => e.QtyInStock).HasComment("จำนวนในคลังใหญ่ ณ วันทำรายการ");
+            entity.Property(e => e.RefillQty).HasComment("จำนวนที่เติมโดยผู้ทำรายการ");
+            entity.Property(e => e.SuggestRefillQtyBySystem).HasComment("จำนวนที่ต้องเติมตามระบบแนะนำ");
         });
 
         modelBuilder.Entity<TTMoneyTransfer>(entity =>

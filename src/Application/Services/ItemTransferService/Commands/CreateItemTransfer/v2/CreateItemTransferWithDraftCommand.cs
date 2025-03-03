@@ -8,4 +8,5 @@ using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTr
 namespace CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v2;
 public record CreateItemTransferWithDraftCommand : CreateItemTransferCommand
 {
+    public List<CreateItemTransferHistoryRequest>? transferhistorylogs { get; set; }
 }

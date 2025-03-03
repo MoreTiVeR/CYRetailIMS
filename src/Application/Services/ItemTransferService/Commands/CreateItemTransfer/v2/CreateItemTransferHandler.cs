@@ -188,6 +188,20 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
 
         #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
+
+        #region NEW Create ItemTransferhistory Log
+        if (request.transferhistorylogs?.Count > 0)
+        {
+            List<TTItemTransferHistory> transferHistories = PrepareTransferHistoryLogs(request.transferhistorylogs, request.createddate, request.createdby);
+            transferHistories.ForEach(e =>
+            {
+                e.TransferHeaderID = itemTransferHeader.TransferHeaderID;
+            });
+            await _unitOfWork.Repository<TTItemTransferHistory>().AddRangeAsync(transferHistories);
+        }
+        #endregion
+
+        await _unitOfWork.SaveChangesAsync();
         await _unitOfWork.CommitTransactionAsync();
         #endregion
 
@@ -284,6 +298,28 @@ public class CreateItemTransferHandler : BaseService, IRequestHandler<CreateItem
                                           }).ToList()
         };
         return draftItemTransfer;
+    }
+
+    private List<TTItemTransferHistory> PrepareTransferHistoryLogs(List<CreateItemTransferHistoryRequest> transferHistoryRequests, 
+        DateTime createdDate, string createdBy)
+    {
+        List<TTItemTransferHistory> res = transferHistoryRequests.Select(s => new TTItemTransferHistory
+        {
+            BranchID = s.branchid,
+            ItemID = s.itemid,
+            ItemCode = s.itemcode,
+            ItemName = s.itemname,
+            BrandID = s.brandid,
+            QtyInStock = s.qtyinstock,
+            QtyInBranch = s.qtyinbranch,
+            NotifyMinQty = s.notifyminqty,
+            SuggestRefillQtyBySystem = s.orderqty,
+            RefillQty = s.refillqty,
+            CreatedDate = createdDate,
+            CreatedBy = createdBy,
+            IsActive = true
+        }).ToList();
+        return res;
     }
     #endregion
 }

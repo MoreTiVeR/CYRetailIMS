@@ -33,6 +33,7 @@ using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using CYRetailIMS.Infrastructure.ExternalService.ItemInBranchAPI;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OfficeOpenXml;
@@ -604,6 +605,19 @@ public class InventoryController : BaseController
             {
                 itemid = s.itemid,
                 qty = s.refillqty
+            }).ToList(),
+            transferhistorylogs = reqObj.detail.Where(w => w.ischeck == true).Select(s => new CreateItemTransferHistoryRequest
+            {
+                branchid = s.branchid,
+                itemid = s.itemid,
+                itemcode = s.itemcode,
+                itemname = s.itemname,
+                brandid = s.brandid,
+                qtyinstock = s.qtyinstock,
+                qtyinbranch = s.qtyinbranch,
+                notifyminqty = s.notifyminqty,
+                orderqty = s.orderqty,
+                refillqty = s.refillqty
             }).ToList()
         };
     }
