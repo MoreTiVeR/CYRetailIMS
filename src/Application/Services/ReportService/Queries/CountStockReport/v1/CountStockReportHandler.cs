@@ -10,6 +10,7 @@ using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 public class CountStockReportHandler : BaseService, IRequestHandler<CountStockReportQuery, BaseResponse<List<CountStockReportResponseDTO>>>
@@ -74,10 +75,28 @@ public class CountStockReportHandler : BaseService, IRequestHandler<CountStockRe
             throw new Exception("ไม่พบข้อมูล");
         }
 
+        List<CountStockReportResponseDTO> resCountStockList = resCountStockEntities.ToList();
+
+        #region Update updatedby data from emp name
+        List<string> userNameList = resCountStockList.ToList().Select(s => s.createdby).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, name = $"{s.TMEmployees.FirstOrDefault().FirstName} {s.TMEmployees.FirstOrDefault().LastName}" }).ToList();
+        resCountStockList = resCountStockList.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                var empData = empDataList.FirstOrDefault(w => w.UserName == s.createdby);
+                s.createdby = empData != null ? empData.name : s.createdby;
+            }
+
+            return s;
+        }).OrderBy(s => s.countstockdate).ThenBy(o => o.branchid).ToList();
+        #endregion
+
         return new BaseResponse<List<CountStockReportResponseDTO>>
         {
             result = true,
-            data = resCountStockEntities.OrderBy(s => s.countstockdate).ThenBy(o => o.branchid).ToList(),
+            data = resCountStockList,
             message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()

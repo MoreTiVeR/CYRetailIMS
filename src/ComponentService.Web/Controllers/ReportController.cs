@@ -521,7 +521,7 @@ public class ReportController : BaseController
             //int skip = start != null ? Convert.ToInt32(start) : 0;
             #endregion
 
-            DateTime sDate = searchObj.searchtype == 1 ? searchObj.reportinventorydate.DatetimePickerToDate() 
+            DateTime sDate = searchObj.searchtype == 1 ? searchObj.reportinventorydate.DatetimePickerToDate()
                 : searchObj.reportinventorydate.DatetimePickerToMonthYear();
             BaseResponse<List<InventoryReportResponseDTO>> resInventoryReport = await _reportAPI.GetInventoryReportAsync(new InventoryReportQuery
             {
@@ -564,6 +564,7 @@ public class ReportController : BaseController
         return Json(new { result = true, message = $"Success", data = searchObj });
     }
 
+    #region รายงานนับสต๊อก
     public async Task<IActionResult> CountStockReportAsync()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
@@ -605,7 +606,7 @@ public class ReportController : BaseController
             DateTime? sDate = !string.IsNullOrEmpty(searchObj.startdate) ? searchObj.startdate.DatetimePickerToDate() : null;
             DateTime? eDate = !string.IsNullOrEmpty(searchObj.enddate) ? searchObj.enddate.DatetimePickerToDate() : null;
             //StartDate > EndDate
-            if ((sDate.HasValue && eDate.HasValue) 
+            if ((sDate.HasValue && eDate.HasValue)
                 && DateTime.Compare(sDate.Value, eDate.Value) == 1)
             {
                 throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
@@ -628,108 +629,7 @@ public class ReportController : BaseController
             return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<CountStockReportResponseDTO>() });
         }
     }
-
-    [HttpPost]
-    public async Task<IActionResult> GetCountStockReportV2([FromBody] SearchCountStockReportViewModel searchItem)
-    {
-        BaseResponse<List<CountStockReportResponseDTO>> countstockData = new BaseResponse<List<CountStockReportResponseDTO>> { data = new List<CountStockReportResponseDTO>() };
-        try
-        {
-            #region Prepare Search Start & End Date
-            DateTime? stockStartDate = null;
-            DateTime? stockEndDate = null;
-            int? branchID = null;
-            if (!string.IsNullOrEmpty(searchItem.startdate))
-            {
-                string[] sTransferDate = searchItem.startdate.Split("-");
-                if (sTransferDate.Count() != 3)
-                {
-                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-                }
-                stockStartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
-            }
-
-            if (!string.IsNullOrEmpty(searchItem.enddate))
-            {
-                string[] sTransferEndDate = searchItem.enddate.Split("-");
-                if (sTransferEndDate.Count() != 3)
-                {
-                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-                }
-                stockEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
-            }
-
-            //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
-            if ((stockStartDate.HasValue && stockEndDate.HasValue)
-                && DateTime.Compare(stockStartDate.Value, stockEndDate.Value) == 1)
-            {
-                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            }
-            #endregion
-
-            //Set branchid & transfer status
-            branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
-            if (base.UserProfile.roleid == (int)UserRole.Admin || base.UserProfile.roleid == (int)UserRole.Stock)
-            {
-                countstockData = await _reportAPI.GetCountStockReportAsync(new CountStockReportQuery
-                {
-                    branchid = branchID,
-                    startdate = stockStartDate,
-                    enddate = stockEndDate,
-                    subitemtypeid = null
-                });
-            }
-            else
-            {
-                countstockData = await _reportAPI.GetCountStockReportAsync(new CountStockReportQuery
-                {
-                    branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
-                    startdate = stockStartDate,
-                    enddate = stockEndDate,
-                    subitemtypeid = null
-                });
-            }
-
-            if (!countstockData.result)
-            {
-                return Json(new { data = new List<InquiryCountStockResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
-            }
-
-            #region Search Filter
-            if (!string.IsNullOrEmpty(searchItem.searchValue))
-            {
-                string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
-                countstockData.data = countstockData.data.Where(w => w.branchname.Contains(searchValue)
-                || (!string.IsNullOrEmpty(w.remark) ? w.remark.Contains(searchValue) : false)
-                || w.subitemtypename.Contains(searchValue)
-                || w.createdby.Contains(searchValue)).ToList();
-            }
-            #endregion
-
-            var totalItems = countstockData.data.Count; // Get total item count for pagination
-
-            // Filter based on searchValue if necessary
-            var query = countstockData.data;
-
-            // Calculate paginated data
-            //var items = query.Skip(searchItem.start).Take(searchItem.length).ToList();
-            var items = query.Skip(0).Take(searchItem.length).ToList();
-
-            // Prepare response for DataTables
-            return Json(new
-            {
-                draw = searchItem.draw, // Echo the draw parameter
-                recordsTotal = totalItems, // Total records before filtering
-                recordsFiltered = query.Count(), // Total records after applying filtering
-                data = items // The actual data to be displayed
-            });
-        }
-        catch
-        {
-            // Handle error
-            return Json(new { data = new List<InquiryCountStockResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
-        }
-    }
+    #endregion
 
     private async Task<List<SelectListItem>> PrepareSelectSubItemType()
     {
