@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Commands.CreateItemTransfer.v2;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
 using CYRetailIMS.Domain.Events.TMItems;
@@ -199,6 +200,20 @@ public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<C
 
         #region Commit Tran
         await _unitOfWork.SaveChangesAsync();
+
+        #region NEW Create ItemTransferhistory Log
+        if (request.transferhistorylogs?.Count > 0)
+        {
+            List<TTItemTransferHistory> transferHistories = PrepareTransferHistoryLogs(request.transferhistorylogs, request.createddate, request.createdby);
+            transferHistories.ForEach(e =>
+            {
+                e.TransferHeaderID = itemTransferHeader.TransferHeaderID;
+            });
+            await _unitOfWork.Repository<TTItemTransferHistory>().AddRangeAsync(transferHistories);
+        }
+        #endregion
+
+        await _unitOfWork.SaveChangesAsync();
         await _unitOfWork.CommitTransactionAsync();
         #endregion
 
@@ -214,25 +229,6 @@ public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<C
 
 
     #region Private Method
-    //private ICollection<TTItemTransfer> PrepreTTItemTransfer(CreateItemTransferCommand itemTransferCommand)
-    //{
-    //    return (from a in itemTransferCommand.items
-    //            let t = itemTransferCommand
-    //            select new TTItemTransfer
-    //            {
-    //                TransferTypeID = t.transfertypeid,
-    //                SourceID = t.sourceid,
-    //                DestinationID = t.destinationid,
-    //                ItemID = a.itemid,
-    //                Qty = a.qty,
-    //                Description = t.description,
-    //                CreatedBy = t.createdby,
-    //                CreatedDate = itemTransferCommand.createddate,
-    //                IsActive = t.isactive,
-    //                TransferStatus = t.transferstatus
-    //            }).ToList();
-    //}
-
     private TTItemTransferHeader PrepareTTItemTransferHeader(string refNo, CreateItemTransferCommand itemTransferCommand)
     {
         TTItemTransferHeader ItemTransferHeader = new TTItemTransferHeader
@@ -287,6 +283,28 @@ public class CreateItemTransferFromDraftHandler : BaseService, IRequestHandler<C
             }
         });
         return true;
+    }
+
+    private List<TTItemTransferHistory> PrepareTransferHistoryLogs(List<CreateItemTransferHistoryRequest> transferHistoryRequests,
+        DateTime createdDate, string createdBy)
+    {
+        List<TTItemTransferHistory> res = transferHistoryRequests.Select(s => new TTItemTransferHistory
+        {
+            BranchID = s.branchid,
+            ItemID = s.itemid,
+            ItemCode = s.itemcode,
+            ItemName = s.itemname,
+            BrandID = s.brandid,
+            QtyInStock = s.qtyinstock,
+            QtyInBranch = s.qtyinbranch,
+            NotifyMinQty = s.notifyminqty,
+            SuggestRefillQtyBySystem = s.orderqty,
+            RefillQty = s.refillqty,
+            CreatedDate = createdDate,
+            CreatedBy = createdBy,
+            IsActive = true
+        }).ToList();
+        return res;
     }
     #endregion
 }

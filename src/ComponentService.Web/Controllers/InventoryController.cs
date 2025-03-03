@@ -558,6 +558,19 @@ public class InventoryController : BaseController
             {
                 itemid = s.itemid,
                 qty = s.refillqty
+            }).ToList(),
+            transferhistorylogs = reqObj.detail.Where(w => w.ischeck == true).Select(s => new CreateItemTransferHistoryRequest
+            {
+                branchid = s.branchid,
+                itemid = s.itemid,
+                itemcode = s.itemcode,
+                itemname = s.itemname,
+                brandid = s.brandid,
+                qtyinstock = s.qtyinstock,
+                qtyinbranch = s.qtyinbranch,
+                notifyminqty = s.notifyminqty,
+                orderqty = s.orderqty,
+                refillqty = s.refillqty
             }).ToList()
         };
     }
