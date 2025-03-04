@@ -18,6 +18,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockRepor
 using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
@@ -28,6 +29,7 @@ using CYRetailIMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Operations;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -636,4 +638,74 @@ public class ReportController : BaseController
         BaseResponse<List<GetSubItemTypeResponseDTO>> resData = await _subItemTypeAPI.GetSubItemTypeListAsync();
         return resData.data.Select(s => new SelectListItem { Text = s.subitemcode, Value = s.subitemtypeid.ToString() }).ToList();
     }
+
+    #region รายงานสินค้าโอนขาด
+    public async Task<IActionResult> ItemTransferShortageReport()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
+        return View();
+    }
+
+    /// <summary>
+    /// Get current month
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IActionResult> GetItemTransferShortageReport()
+    {
+        try
+        {
+            int dayInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+            BaseResponse<List<ItemTransferShortageReportResponseDTO>> resTransferReport = await _reportAPI.GetItemTransferShortageReportAsync(new ItemTransferShortageReportQuery
+            {
+                branchid = null,
+                transferstartdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+                transferenddate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, dayInMonth),
+                subitemtypeid = null
+            });
+            if (!resTransferReport.result)
+            {
+                throw new Exception(resTransferReport.error.error.message);
+            }
+            return Json(new { data = resTransferReport.data });
+        }
+        catch
+        {
+            return Json(new { data = new List<ItemTransferShortageReportResponseDTO>() });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SearchItemTransferShortageReport([FromBody] TransferShortageReportViewModel searchObj)
+    {
+        try
+        {
+            DateTime? sDate = !string.IsNullOrEmpty(searchObj.startdate) ? searchObj.startdate.DatetimePickerToDate() : null;
+            DateTime? eDate = !string.IsNullOrEmpty(searchObj.enddate) ? searchObj.enddate.DatetimePickerToDate() : null;
+  
+            if ((sDate.HasValue && eDate.HasValue)
+                && DateTime.Compare(sDate.Value, eDate.Value) == 1)
+            {
+                throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+            BaseResponse<List<ItemTransferShortageReportResponseDTO>> resCountstockReport = await _reportAPI.GetItemTransferShortageReportAsync(new ItemTransferShortageReportQuery
+            {
+                branchid = searchObj.branchid,
+                transferstartdate = sDate,
+                transferenddate = eDate,
+                subitemtypeid = searchObj.subitemtypeid
+            });
+            if (!resCountstockReport.result)
+            {
+                return Json(new { result = false, message = resCountstockReport.error.error.message, data = new List<ItemTransferShortageReportResponseDTO>() });
+            }
+            return Json(new { result = true, message = "สำเร็จ", data = resCountstockReport.data });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<ItemTransferShortageReportResponseDTO>() });
+        }
+    }
+    #endregion
 }

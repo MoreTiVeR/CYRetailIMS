@@ -30,7 +30,7 @@ public class InquiryCountStocksHandler : BaseService, IRequestHandler<InquiryCou
                                      select new InquiryCountStockResponseDTO
                                      {
                                          countstockid = a.CountStockID,
-                                         countstockdate = a.CreatedDate,
+                                         countstockdate = a.CountDate,
                                          branchid = a.BranchID,
                                          branchname = d.BranchName,
                                          countstockdetailid = b.CountStockDetailID,
@@ -56,12 +56,12 @@ public class InquiryCountStocksHandler : BaseService, IRequestHandler<InquiryCou
 
         if (request.startdate.HasValue)
         {
-            resCountStockEntities = resCountStockEntities.Where(w => w.createddate >= request.startdate.Value);
+            resCountStockEntities = resCountStockEntities.Where(w => w.countstockdate.Date >= request.startdate.Value.Date);
         }
 
         if (request.enddate.HasValue)
         {
-            resCountStockEntities = resCountStockEntities.Where(w => w.createddate <= request.enddate.Value);
+            resCountStockEntities = resCountStockEntities.Where(w => w.countstockdate.Date <= request.enddate.Value.Date);
         }
 
         if (!resCountStockEntities.Any())

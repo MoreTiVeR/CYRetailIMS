@@ -62,12 +62,12 @@ public class CountStockReportHandler : BaseService, IRequestHandler<CountStockRe
 
         if (request.startdate.HasValue)
         {
-            resCountStockEntities = resCountStockEntities.Where(w => w.createddate >= request.startdate.Value);
+            resCountStockEntities = resCountStockEntities.Where(w => w.createddate.Date >= request.startdate.Value.Date);
         }
 
         if (request.enddate.HasValue)
         {
-            resCountStockEntities = resCountStockEntities.Where(w => w.createddate <= request.enddate.Value);
+            resCountStockEntities = resCountStockEntities.Where(w => w.createddate.Date <= request.enddate.Value.Date);
         }
 
         if (!resCountStockEntities.Any())
