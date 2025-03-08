@@ -54,54 +54,25 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
             throw new Exception("ไม่พบข้อมูลรายงานขายสินค้า");
         }
 
-        #region Master data
-        var items = await _unitOfWork.Repository<TMItem>().FindWithInclude(w => resData.Select(s => s.itemid).Contains(w.ItemID),
-            i => i.Include(s => s.Brand));
-        var itemList = items.ToList();
+        #region Prepare all master data
+        IQueryable<TMItemInBranch> itemsInBranch = from a in await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => resData.Select(s => s.branchid).Contains(w.BranchID),
+                                                    i => i.Include(s => s.Item),
+                                                    i => i.Include(s => s.Item.Brand))
+                                                   join b in searchData on a.BranchID equals b.branchid
+                                                   where a.ItemID == b.itemid
+                                                   select a;
         var branchList = await _unitOfWork.Repository<TMBranch>().FindListAsync(w => resData.Select(s => s.branchid).Contains(w.BranchID));
         foreach (var data in resData)
         {
-            var item = itemList?.FirstOrDefault(w => w.ItemID == data.itemid);
+            var itembranch = itemsInBranch.FirstOrDefault(w => w.ItemID == data.itemid && w.BranchID == data.branchid);
             var branch = branchList.FirstOrDefault(w => w.BranchID == data.branchid);
-            data.itemcode = item.ItemCode;
-            data.itemname = item.Name;
-            data.brandid = item.BrandID;
-            data.brandname = item.Brand.BrandName;
-            data.unitprice = item.Price;
+            data.itemcode = itembranch.Item.ItemCode;
+            data.itemname = itembranch.Item.Name;
+            data.brandid = itembranch.Item.BrandID;
+            data.brandname = itembranch.Item.Brand.BrandName;
+            data.unitprice = itembranch.Price;
             data.branchname = branch.BranchName;
         }
-        #endregion
-
-        #region Before 7/8/2024
-        //IEnumerable<SaleReportResponseDTO> resData = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
-        //                                              join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
-        //                                              join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on detail.ItemID equals item.ItemID
-        //                                              join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
-        //                                              join brand in await _unitOfWork.Repository<TMItemBrand>().QueryAsync() on item.BrandID equals brand.BrandID
-        //                                              where tran.IsActive
-        //                                              //&& tran.BranchID == request.branchid
-        //                                              && (tran.TransactionDate.Date >= request.transaction_startdate.Date && tran.TransactionDate.Date <= request.transaction_enddate.Date)
-        //                                              select new SaleReportResponseDTO
-        //                                              {
-        //                                                  transactionid = tran.TransactionID,
-        //                                                  transactiondate = tran.TransactionDate,
-        //                                                  itemcode = item.ItemCode,
-        //                                                  itemname = item.Name,
-        //                                                  brandid = item.BrandID,
-        //                                                  brandname = brand.BrandName,
-        //                                                  qty = detail.Qty,
-        //                                                  unitprice = item.Price,
-        //                                                  amounttransfer = tran.AmountTransfer,
-        //                                                  amountdeposit = tran.AmountDeposit,
-        //                                                  depositfee = tran.Fee,
-        //                                                  amountcash = tran.AmountCash,
-        //                                                  totalamount = tran.TotalAmount,
-        //                                                  branchid = tran.BranchID,
-        //                                                  branchname = branch.BranchName,
-        //                                                  createdby = tran.CreatedBy,
-        //                                                  createddate = tran.CreatedDate,
-        //                                                  //createdbystaff = "N/A"
-        //                                              }).AsEnumerable();
         #endregion
 
         #region Update updatedby data from emp name

@@ -58,14 +58,14 @@ public class StockController : BaseController
     public async Task<IActionResult> CountStockAsync()
     {
         // Mock data for demonstration
-        var items = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
-        {
-            branchid = base.UserProfile.roleid == (int)EnumModel.UserRole.Admin ? 0 : base.UserProfile.access_branch.FirstOrDefault().branchid
-        });
+        //var items = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
+        //{
+        //    branchid = base.UserProfile.roleid == (int)EnumModel.UserRole.Admin ? 0 : base.UserProfile.access_branch.FirstOrDefault().branchid
+        //});
 
         ViewBag.ItemTypeList = await PrepareSelectItemType();
         ViewBag.BranchList = await PrepareSelectBranch();
-        return View(items.data);
+        return View();
     }
 
 

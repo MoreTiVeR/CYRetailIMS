@@ -55,15 +55,15 @@ public class ReportController : BaseController
         return View();
     }
 
-    public async Task<IActionResult> SaleReport()
+    public IActionResult SaleReport()
     {
-        BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
-        {
-            transaction_startdate = DateTime.Now,
-            transaction_enddate = DateTime.Now
-        });
+        //BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
+        //{
+        //    transaction_startdate = DateTime.Now,
+        //    transaction_enddate = DateTime.Now
+        //});
 
-        ViewBag.SaleReportList = resReport;
+        //ViewBag.SaleReportList = resReport;
         return View();
     }
 
