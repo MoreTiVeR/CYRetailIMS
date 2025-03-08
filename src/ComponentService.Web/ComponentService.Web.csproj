@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>2.0.7.0</Version>
-    <FileVersion>2.0.7.0</FileVersion>
-    <AssemblyVersion>2.0.7.0</AssemblyVersion>
+    <Version>2.0.8.0</Version>
+    <FileVersion>2.0.8.0</FileVersion>
+    <AssemblyVersion>2.0.8.0</AssemblyVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
@@ -45,6 +45,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="6.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.12" />
     <PackageReference Include="NetBarcode" Version="1.7.0" />
+    <PackageReference Include="ZXing.Net" Version="0.16.10" />
   </ItemGroup>
 
   <ItemGroup>

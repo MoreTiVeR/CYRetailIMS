@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Barcode Scanner</h2>
+
+<!-- Video element to show the camera feed -->
+<div id="scanner-container">
+    <video id="video" width="100%" height="auto" autoplay></video>
+</div>
+
+<!-- Display the scanned barcode -->
+<div id="scanned-barcode">
+    <h3>Scanned Barcode:</h3>
+    <p id="barcode-result"></p>
+</div>
+
+<!-- Include ZXing JavaScript library -->
+<script src="https://cdn.jsdelivr.net/npm/@@zxing/library@0.18.6/umd/index.min.js"></script>
+
+<script>
+    // Initialize ZXing Barcode Reader
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+
+    // Start the camera and scan barcodes
+    codeReader.listVideoInputDevices()
+        .then(videoInputDevices => {
+            // Select the rear camera (environment-facing)
+            const selectedDeviceId = videoInputDevices.length > 1
+                ? videoInputDevices[1].deviceId // Rear camera
+                : videoInputDevices[0].deviceId; // Default to the first camera
+
+            // Start decoding from the selected device
+            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, error) => {
+                if (result) {
+                    // Display the scanned barcode
+                    document.getElementById('barcode-result').innerText = result.text;
+
+                    // Optionally, send the barcode to the server
+                    sendBarcodeToServer(result.text);
+                }
+                if (error && !(error instanceof ZXing.NotFoundException)) {
+                    console.error(error);
+                }
+            });
+        })
+        .catch(err => {
+            console.error("Error accessing camera:", err);
+            alert("Unable to access the camera. Please check permissions.");
+        });
+
+    // Function to send the barcode to the server
+    function sendBarcodeToServer(barcode) {
+        fetch('/Barcode/ProcessBarcode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ barcode: barcode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Barcode processed: " + data.scannedBarcode);
+            } else {
+                alert("Failed to process barcode.");
+            }
+        })
+        .catch(error => console.error("Error sending barcode to server:", error));
+    }
+</script>
+

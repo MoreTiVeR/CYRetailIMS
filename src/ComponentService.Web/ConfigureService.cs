@@ -268,3 +268,4 @@ public static class ConfigureService
         return webApplicationBuilder;
     }
 }
+

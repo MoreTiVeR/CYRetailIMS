@@ -116,6 +116,69 @@ datatable = $("#tbItemTransferHistory").DataTable({
             }
         },
         {
+            extend: 'excelHtml5',
+            text: 'Export All',
+            action: function (e, dt, button, config) {
+
+                //JsonData
+                var transferstartdate = $("#txtTransferDate").val();
+                var transferenddate = $("#txtTransferEndDate").val();
+
+                var selectedBranch = $('.ddl-branch').val();
+                var branchid = isNaN(parseInt(selectedBranch, 10)) ? 999 : parseInt(selectedBranch, 10); // Parse and if NaN, set to -1
+
+                var selectedTransferStatus = $('.ddl-transferstatus').val();
+                var transferstatusid = isNaN(parseInt(selectedTransferStatus, 10)) ? 999 : parseInt(selectedTransferStatus, 10); // Parse and if NaN, set to -1
+
+
+                //data.branchid = branchid;
+                //data.transferstatusid = transferstatusid;
+                //data.draw = data.draw;
+                //data.start = data.start;
+                //data.length = data.length;
+                //data.searchValue = data.search.value;
+                var paylod = { "transferstartdate": transferstartdate, "transferenddate": transferenddate, "branchid": branchid, "transferstatusid": transferstatusid };
+                // Return the serialized JSON string
+                var jsondata = JSON.stringify(paylod); // Ensure data is being serialized to JSON
+
+                // Fetch all data from the server
+                $.ajax({
+                    "url": "/Item/GetAllHistory", // URL to your controller method
+                    "type": "POST",         // Use GET or POST based on your implementation
+                    "contentType": "application/json", // Add this line
+                    "data": jsondata,
+                    success: function (data) {
+
+                        console.log("GetAllHistory sUCCESSFUL!");
+                        console.log(data);
+                        // Use the DataTables API to export the full dataset
+                        var exportData = data.data; // Assuming your server returns data in the "data" field
+
+                        // Convert data to a format suitable for export
+                        var excelData = [];
+                        exportData.forEach(function (row) {
+                            excelData.push([
+                                row.column1,
+                                row.column2,
+                                row.column3
+                            ]);
+                        });
+
+                        // Create a DataTable instance for exporting
+                        var exportTable = new $.fn.dataTable.Api('#tbItemTransferHistory');
+                        exportTable.buttons.exportData({
+                            rows: ':visible',
+                            columns: ':visible',
+                            data: excelData // Pass all data for export
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data for export:', error);
+                    }
+                });
+            }
+        },
+        {
             extend: 'pdfHtml5',
             title: 'PDF',
             text: 'Export to PDF'
