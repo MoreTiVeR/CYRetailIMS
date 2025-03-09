@@ -34,8 +34,7 @@ datatable = $("#tbItemTransferHistory").DataTable({
             data.start = data.start;
             data.length = data.length;
             data.searchValue = data.search.value;
-            // Return the serialized JSON string
-            return JSON.stringify(data); // Ensure data is being serialized to JSON
+            return JSON.stringify(data);
         }
     },
     "columns": [
@@ -109,7 +108,7 @@ datatable = $("#tbItemTransferHistory").DataTable({
         {
             extend: 'excelHtml5',
             title: 'รายงานประวัติการโอนสินค้า',
-            text: 'ดาวโหลดไฟล์ Excel',
+            text: 'ดาวโหลด Excel หน้าปัจจุบัน',
             class: 'btn-primary',
             exportOptions: {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -117,63 +116,53 @@ datatable = $("#tbItemTransferHistory").DataTable({
         },
         {
             extend: 'excelHtml5',
-            text: 'Export All',
+            title: 'รายงานประวัติการโอนสินค้าทั้งหมด',
+            text: 'ดาวโหลด Excel รายการทั้งหมด',
+            class: 'btn-primary',
+            exportOptions: {
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                modifier: {
+                    page: 'all'
+                },
+                format: {
+                    body: function (data, row, column, node) {
+                        // If the column contains HTML, strip it
+                        if (typeof data === 'string' && data.indexOf('<') > -1) {
+                            var temp = document.createElement("div");
+                            temp.innerHTML = data;
+                            return temp.textContent || temp.innerText || "";
+                        }
+                        return data;
+                    }
+                }
+            },
             action: function (e, dt, button, config) {
 
-                //JsonData
-                var transferstartdate = $("#txtTransferDate").val();
-                var transferenddate = $("#txtTransferEndDate").val();
+                var self = this; // Store the DataTable instance
 
-                var selectedBranch = $('.ddl-branch').val();
-                var branchid = isNaN(parseInt(selectedBranch, 10)) ? 999 : parseInt(selectedBranch, 10); // Parse and if NaN, set to -1
-
-                var selectedTransferStatus = $('.ddl-transferstatus').val();
-                var transferstatusid = isNaN(parseInt(selectedTransferStatus, 10)) ? 999 : parseInt(selectedTransferStatus, 10); // Parse and if NaN, set to -1
-
-
-                //data.branchid = branchid;
-                //data.transferstatusid = transferstatusid;
-                //data.draw = data.draw;
-                //data.start = data.start;
-                //data.length = data.length;
-                //data.searchValue = data.search.value;
-                var paylod = { "transferstartdate": transferstartdate, "transferenddate": transferenddate, "branchid": branchid, "transferstatusid": transferstatusid };
-                // Return the serialized JSON string
-                var jsondata = JSON.stringify(paylod); // Ensure data is being serialized to JSON
-
-                // Fetch all data from the server
+                // Custom action to fetch all data
                 $.ajax({
-                    "url": "/Item/GetAllHistory", // URL to your controller method
-                    "type": "POST",         // Use GET or POST based on your implementation
-                    "contentType": "application/json", // Add this line
-                    "data": jsondata,
-                    success: function (data) {
+                    url: "/Item/GetItemTransferHistoryV2", // Create a new endpoint for all data
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        transferstartdate: $("#txtTransferDate").val(),
+                        transferenddate: $("#txtTransferEndDate").val(),
+                        branchid: $('.ddl-branch').val() || 999,
+                        transferstatusid: $('.ddl-transferstatus').val() || 999,
+                        length: 70000
+                    }),
+                    success: function (response) {
 
-                        console.log("GetAllHistory sUCCESSFUL!");
-                        console.log(data);
-                        // Use the DataTables API to export the full dataset
-                        var exportData = data.data; // Assuming your server returns data in the "data" field
+                        //Clear and add new data to the table
+                        dt.clear().rows.add(response.data).draw();
 
-                        // Convert data to a format suitable for export
-                        var excelData = [];
-                        exportData.forEach(function (row) {
-                            excelData.push([
-                                row.column1,
-                                row.column2,
-                                row.column3
-                            ]);
-                        });
+                        //Trigger the Excel export using the DataTables API
+                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
 
-                        // Create a DataTable instance for exporting
-                        var exportTable = new $.fn.dataTable.Api('#tbItemTransferHistory');
-                        exportTable.buttons.exportData({
-                            rows: ':visible',
-                            columns: ':visible',
-                            data: excelData // Pass all data for export
-                        });
                     },
                     error: function (xhr, status, error) {
-                        console.error('Error fetching data for export:', error);
+                        console.error("Error fetching data for export:", error);
                     }
                 });
             }
@@ -385,123 +374,4 @@ function deleteItemInBranch(itemid, searchbranchid) {
             });
         }
     });
-}
-
-function InitialData() {
-    datatable = $('#tbItemTransferHistory').DataTable({
-        "sDom": 'fBtlpi',
-        "destroy": true,
-        "processing": true, // for show progress bar  
-        "serverSide": true, // for process server side  
-        "filter": true, // this is for disable filter (search box)  
-        "orderMulti": false, // for disable multiple column at once  
-        "pageLength": 5,
-        "ajax": {
-            "url": "/Item/GetItemTransferHistoryV3",
-            "type": "POST"
-        },
-        "columns": [
-            {
-                "render": function () {
-                    console.log('render columns : checkbox');
-                    return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
-                }
-            },
-            //{
-            //    "data": { itemimageurl: "itemimageurl", name: "name" },
-            //    "render": function (data) {
-            //        console.log('columns : render => ' + data);
-            //        return "<a asp-action='Detail' asp-controller='Item' asp-all-route-data='aItemID'>" + data.name + "</a>";
-            //    }
-            //},
-            {
-                "data": { createddate: "createddate" },
-                "render": function (data) {
-                    if (data.createddate === null || data.createddate == null) {
-                        return data.createddate;
-                    }
-                    return formatDateTime(new Date(data.createddate));
-                }
-            },
-            { "data": "sourcename" },
-            { "data": "destinationname" },
-            { "data": "itemname" },
-            { "data": "qty" },
-            { "data": "description" },
-            {
-                "data": { transferid: "transferid", transferstatusid: "transferstatusid", transferstatusname_th: "transferstatusname_th" },
-                "render": function (data) {
-                    var _transferstatusid = parseInt(data.transferstatusid);
-                    if (_transferstatusid == 1) {
-                        return "<span class='badges bg-lightgreen'>" + data.transferstatusname_th + "</span>";
-                    }
-                    else if (_transferstatusid == 2 || _transferstatusid == 99) {
-                        return "<span class='badges bg-lightred'>" + data.transferstatusname_th + "</span>";
-                    }
-                    else {
-                        return "<a href='ReceiveItemTransfer?transferid=" + data.transferid + "' class='me-3' title='คลิก เพื่อตรวจรับสินค้า'><span class='badges bg-lightred'>" + data.transferstatusname_th + "</span></a>";
-                    }
-                    return "<span class='badges bg-lightyellow'>N/A</span>";
-
-                }
-            },
-            { "data": "receiveqty" },
-            { "data": "returnqty" },
-            { "data": "createdby" },
-            {
-                "data": { updateddate: "updateddate" },
-                "render": function (data) {
-                    if (data.updateddate === null || data.updateddate == null) {
-                        return data.updateddate;
-                    }
-                    return formatDateTime(new Date(data.updateddate));
-                }
-            },
-            { "data": "updatedby" }
-        ],
-        //"language": {
-        //    "emptyTable": "ไม่พบข้อมูล."
-        //},
-        "order": [[0, "desc"]],
-        "columnDefs": [
-            {
-                "targets": [0],
-                "visible": false
-            }
-        ],
-        "language": {
-            search: ' ',
-            sLengthMenu: '_MENU_',
-            searchPlaceholder: "ค้นหาข้อมูล...",
-            info: "_START_ - _END_ of _TOTAL_ items",
-            "emptyTable": "ไม่พบข้อมูล."
-        },
-        initComplete: (settings, json) => {
-            $('.dataTables_filter').appendTo("#tbItemTransferHistory");
-            $('.dataTables_filter').appendTo('.search-input');
-        },
-        /*dom: 'Bfrtip',*/
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                title: 'รายงานประวัติการโอนสินค้า',
-                text: 'ดาวโหลดไฟล์ Excel',
-                class: 'btn-primary',
-                //Columns to export
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                }
-            },
-            {
-                extend: 'pdfHtml5',
-                title: 'PDF',
-                text: 'Export to PDF'
-                //Columns to export
-                //exportOptions: {
-                //     columns: [0, 1, 2, 3, 4, 5, 6]
-                //  }
-            }
-        ]
-    });
-
 }
