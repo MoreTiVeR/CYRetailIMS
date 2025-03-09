@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
@@ -11,6 +12,7 @@ using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountSto
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
@@ -55,7 +57,7 @@ public class ReportController : BaseController
         return View();
     }
 
-    public IActionResult SaleReport()
+    public async Task<IActionResult> SaleReportAsync()
     {
         //BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
         //{
@@ -64,6 +66,7 @@ public class ReportController : BaseController
         //});
 
         //ViewBag.SaleReportList = resReport;
+        ViewBag.BranchList = await PrepareSelectBranch();
         return View();
     }
 
@@ -112,17 +115,97 @@ public class ReportController : BaseController
                 return Json(new { result = false, message = resReport.error.error.message, data = new List<SaleReportResponseDTO>() });
             }
 
-            //resReport.data = resReport.data.Where(w => w.createddate.Date >= sDate.Date && w.createddate.Date <= eDate.Date).ToList();
-            //if (resReport.data.Count == 0)
-            //{
-            //	return Json(new { result = false, message = "ไม่พบข้อมูล", data = new List<SaleReportResponseDTO>() });
-            //}
-
             return Json(new { result = true, message = "สำเร็จ", data = resReport.data });
         }
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleReportResponseDTO>() });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SearchSaleReportV2([FromBody] SearchSaleReportViewModel searchItem)
+    {
+        BaseResponse<List<SaleReportResponseDTO>> resSaleReport = new BaseResponse<List<SaleReportResponseDTO>>();
+        try
+        {
+            #region Prepare Search Start & End Date
+            DateTime sDate = DateTime.Now;
+            DateTime eDate = DateTime.Now;
+            int? branchID = null;
+
+            if (!string.IsNullOrEmpty(searchItem.startdate))
+            {
+                string[] sTransferDate = searchItem.startdate.Split("-");
+                if (sTransferDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                sDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
+            }
+
+            if (!string.IsNullOrEmpty(searchItem.enddate))
+            {
+                string[] sTransferEndDate = searchItem.enddate.Split("-");
+                if (sTransferEndDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                eDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
+            }
+
+            //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
+            if (DateTime.Compare(sDate, eDate) == 1)
+            {
+                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+            #endregion
+
+            branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
+            BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
+            {
+                transaction_startdate = sDate,
+                transaction_enddate = eDate,
+                branchid = branchID
+            });
+
+            if (!resReport.result)
+            {
+                return Json(new { data = new List<SaleReportResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+            }
+
+            #region Search Filter
+            if (!string.IsNullOrEmpty(searchItem.searchValue))
+            {
+                string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
+                resReport.data = resReport.data.Where(w => w.itemname.Contains(searchValue)
+                || w.itemcode.Contains(searchValue)
+                || w.branchname.Contains(searchValue)
+                || w.brandname.Contains(searchValue)
+                || w.createdby.Contains(searchValue)).ToList();
+            }
+            #endregion
+
+            var totalItems = resReport.data.Count; // Get total item count for pagination
+
+            // Filter based on searchValue if necessary
+            var query = resReport.data;
+
+            // Calculate paginated data
+            var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
+
+            // Prepare response for DataTables
+            return Json(new
+            {
+                draw = searchItem.draw, // Echo the draw parameter
+                recordsTotal = totalItems, // Total records before filtering
+                recordsFiltered = query.Count(), // Total records after applying filtering
+                data = items // The actual data to be displayed
+            });
+        }
+        catch
+        {
+            return Json(new { data = new List<SaleReportResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
         }
     }
 

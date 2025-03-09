@@ -4,6 +4,7 @@
     ViewData["Title"] = "SaleReport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<link href="~/css/site.css" rel="stylesheet" />
 
 <div class="page-header">
 	<div class="page-title">
@@ -62,11 +63,17 @@
 						</div>
 					</div>
 					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<select id="ddlBranch" class="ddl-select2 select2 ddl-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+								<option value="">--เลือกสาขาปลายทาง--</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
 						<div class="form-group" style="text-align: left">
 							<a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
 						</div>
 					</div>
-					<div class="col-lg-3 col-sm-6 col-12"></div>
 				</div>
 			</div>
 		</div>

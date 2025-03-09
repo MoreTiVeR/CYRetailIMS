@@ -1,16 +1,35 @@
 ﻿
 var datatable;
+$('.select2').select2();
 
 datatable = $("#tbSaleReport").DataTable({
+    "processing": true,         // Show processing indicator
+    "serverSide": true,        // Enable server-side processing
     "destroy": true,
     "bFilter": true,
-    "sDom": 'fBtlpi',
-    'pagingType': 'numbers',
+    stateSave: true,
+    //"sDom": '<"top"B>fr<"bottom"ilp><"clear">',
+    "sDom": '<"top"fB>rt<"bottom"lpi><"clear">',
+    "pagingType": 'numbers',
     "ordering": true,
     "ajax": {
-        "url": "/Report/GetSaleReport",
-        "type": "GET",
-        "datatype": "json"
+        "url": "/Report/SearchSaleReportV2",
+        "type": "POST",
+        "contentType": "application/json", // Add this line
+        "data": function (data) {
+            data.startdate = $("#txtStartDate").val();
+            data.enddate = $("#txtEndDate").val();
+
+            var selectedBranch = $('.ddl-branch').val();
+            var branchid = isNaN(parseInt(selectedBranch, 10)) ? 999 : parseInt(selectedBranch, 10); // Parse and if NaN, set to -1
+
+            data.branchid = branchid;
+            data.draw = data.draw;
+            data.start = data.start;
+            data.length = data.length;
+            data.searchValue = data.search.value;
+            return JSON.stringify(data);
+        }
     },
     "columns": [
         {
@@ -19,13 +38,6 @@ datatable = $("#tbSaleReport").DataTable({
                 return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
             }
         },
-        //{
-        //    "data": { itemimageurl: "itemimageurl", name: "name" },
-        //    "render": function (data) {
-        //        console.log('columns : render => ' + data);
-        //        return "<a asp-action='Detail' asp-controller='Item' asp-all-route-data='aItemID'>" + data.name + "</a>";
-        //    }
-        //},
         {
             "data": { createddate: "transactiondate" },
             "render": function (data) {
@@ -33,8 +45,6 @@ datatable = $("#tbSaleReport").DataTable({
                     return data.transactiondate;
                 }
                 return formatDateTime(new Date(data.transactiondate));
-                //var _createddate = new Date(data.createddate).toLocaleDateString("en-US");
-                //return _createddate;
             }
         },
         { "data": "branchname" },
@@ -46,9 +56,6 @@ datatable = $("#tbSaleReport").DataTable({
         { "data": "amount" },
         { "data": "createdbystaff" }
     ],
-    //"language": {
-    //    "emptyTable": "ไม่พบข้อมูล."
-    //},
     "order": [[0, "desc"]],
     "columnDefs": [
         {
@@ -61,7 +68,8 @@ datatable = $("#tbSaleReport").DataTable({
         sLengthMenu: '_MENU_',
         searchPlaceholder: "ค้นหาข้อมูล...",
         info: "_START_ - _END_ of _TOTAL_ items",
-        "emptyTable": "ไม่พบข้อมูล."
+        emptyTable: "ไม่พบข้อมูล.",
+        processing: '<div class="spinner"></div><div class="processing-text">Processing your request...</div>'
     },
     initComplete: (settings, json) => {
         $('.dataTables_filter').appendTo("#tbSaleReport");
@@ -71,8 +79,8 @@ datatable = $("#tbSaleReport").DataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานขาย',
-            text: 'ดาวโหลดไฟล์ Excel',
+            title: 'รายงานขายสินค้า',
+            text: 'ดาวโหลดรายงานหน้าปัจจุบัน',
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
@@ -80,13 +88,87 @@ datatable = $("#tbSaleReport").DataTable({
             }
         },
         {
+            extend: 'excelHtml5',
+            title: 'รายงานขายสินค้าทั้งหมด',
+            text: 'ดาวโหลดรายงานทั้งหมด',
+            class: 'btn-primary',
+            exportOptions: {
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                modifier: {
+                    page: 'all'
+                },
+                format: {
+                    body: function (data, row, column, node) {
+                        // If the column contains HTML, strip it
+                        if (typeof data === 'string' && data.indexOf('<') > -1) {
+                            var temp = document.createElement("div");
+                            temp.innerHTML = data;
+                            return temp.textContent || temp.innerText || "";
+                        }
+                        return data;
+                    }
+                }
+            },
+            action: function (e, dt, button, config) {
+
+                ShowLoading();
+                e.preventDefault();
+                var self = this; // Store the DataTable instance
+
+                console.log('draw: ' + dt.page.info().draw);
+                console.log('start: ' + dt.page.info().start);
+                console.log('length: ' + dt.page.info().length);
+
+                var searchValue = dt.search();
+                console.log('search.value: ' + searchValue);
+
+                // Custom action to fetch all data
+                $.ajax({
+                    url: "/Report/SearchSaleReportV2", // Create a new endpoint for all data
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        startdate: $("#txtStartDate").val(),
+                        enddate: $("#txtEndDate").val(),
+                        branchid: $('.ddl-branch').val() || 999,
+                        draw: dt.page.info().draw,
+                        start: dt.page.info().start,
+                        length: dt.page.info().length,
+                        searchValue: dt.search(),
+                        isexportalldata: true
+                    }),
+                    success: function (response) {
+
+                        //Clear and add new data to the table
+                        dt.clear().rows.add(response.data).draw();
+
+                        //Trigger the Excel export using the DataTables API
+                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
+
+                        HideLoading();
+                        // Restore the original data (optional, if needed)
+                        // $.ajax({
+                        //     url: "/Item/GetItemTransferHistoryV2",
+                        //     type: "POST",
+                        //     contentType: "application/json",
+                        //     data: function (d) {
+                        //         // Your original data parameters
+                        //     },
+                        //     success: function (originalData) {
+                        //         table.clear().rows.add(originalData).draw();
+                        //     }
+                        // });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching data for export:", error);
+                    }
+                });
+            }
+        },
+        {
             extend: 'pdfHtml5',
             title: 'PDF',
             text: 'Export to PDF'
-            //Columns to export
-            //exportOptions: {
-            //     columns: [0, 1, 2, 3, 4, 5, 6]
-            //  }
         }
     ]
 });
@@ -94,40 +176,44 @@ datatable = $("#tbSaleReport").DataTable({
 $("#btnSearch").on('click', function (event) {
     ShowLoading();
     event.preventDefault(); // Prevent the default form submission
+    datatable.ajax.reload(); // This will use the updated parameters automatically
+    HideLoading();
+    //ShowLoading();
+    //event.preventDefault(); // Prevent the default form submission
 
-    var startdate = $("#txtStartDate").val();
-    var enddate = $("#txtEndDate").val();
+    //var startdate = $("#txtStartDate").val();
+    //var enddate = $("#txtEndDate").val();
 
-    var reqdata = { "startdate": startdate, "enddate": enddate };
-    var jsonreqdata = JSON.stringify(reqdata);
-    console.log(jsonreqdata);
-    var request = $.ajax({
-        type: 'POST',
-        url: '/Report/SearchSaleReport',
-        data: jsonreqdata,
-        contentType: 'application/json',
-        success: function (response) {
+    //var reqdata = { "startdate": startdate, "enddate": enddate };
+    //var jsonreqdata = JSON.stringify(reqdata);
+    //console.log(jsonreqdata);
+    //var request = $.ajax({
+    //    type: 'POST',
+    //    url: '/Report/SearchSaleReport',
+    //    data: jsonreqdata,
+    //    contentType: 'application/json',
+    //    success: function (response) {
 
-            if (response.result) {
-                ShowMessageSuccess(response.message);
+    //        if (response.result) {
+    //            ShowMessageSuccess(response.message);
 
-                //Update the DataTable with the filtered data from the server
-                /*console.log(response.data);*/
-                /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
-            }
-            else {
-                AlertErrorNoTitle(response.message);
-            }
+    //            //Update the DataTable with the filtered data from the server
+    //            /*console.log(response.data);*/
+    //            /*$("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();*/
+    //        }
+    //        else {
+    //            AlertErrorNoTitle(response.message);
+    //        }
 
-            console.log(response.data);
-            $("#tbSaleReport").DataTable().clear().rows.add(response.data).draw();
-            HideLoading();
-        },
-        failure: function (response) {
-            AlertError(response.message);
-        },
-        error: function (response) {
-            AlertError(response.message);
-        }
-    });
+    //        console.log(response.data);
+    //        $("#tbSaleReport").DataTable().clear().rows.add(response.data).draw();
+    //        HideLoading();
+    //    },
+    //    failure: function (response) {
+    //        AlertError(response.message);
+    //    },
+    //    error: function (response) {
+    //        AlertError(response.message);
+    //    }
+    //});
 });
