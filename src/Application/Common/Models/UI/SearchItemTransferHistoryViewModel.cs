@@ -24,4 +24,5 @@ public class SearchItemTransferHistoryViewModelV2
     public int length { get; set; } // Added for pagination
     public int draw { get; set; } // Added for DataTable draw parameter
     public string searchValue { get; set; }
+    public bool isexportalldata { get; set; }
 }

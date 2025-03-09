@@ -108,7 +108,7 @@ datatable = $("#tbItemTransferHistory").DataTable({
         {
             extend: 'excelHtml5',
             title: 'รายงานประวัติการโอนสินค้า',
-            text: 'ดาวโหลด Excel หน้าปัจจุบัน',
+            text: 'ดาวโหลดรายงานหน้าปัจจุบัน',
             class: 'btn-primary',
             exportOptions: {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -117,7 +117,7 @@ datatable = $("#tbItemTransferHistory").DataTable({
         {
             extend: 'excelHtml5',
             title: 'รายงานประวัติการโอนสินค้าทั้งหมด',
-            text: 'ดาวโหลด Excel รายการทั้งหมด',
+            text: 'ดาวโหลดรายงานทั้งหมด',
             class: 'btn-primary',
             exportOptions: {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -138,7 +138,16 @@ datatable = $("#tbItemTransferHistory").DataTable({
             },
             action: function (e, dt, button, config) {
 
+                ShowLoading();
+                e.preventDefault();
                 var self = this; // Store the DataTable instance
+
+                console.log('draw: ' + dt.page.info().draw);
+                console.log('start: ' + dt.page.info().start);
+                console.log('length: ' + dt.page.info().length);
+
+                var searchValue = dt.search();
+                console.log('search.value: ' + searchValue);
 
                 // Custom action to fetch all data
                 $.ajax({
@@ -150,7 +159,11 @@ datatable = $("#tbItemTransferHistory").DataTable({
                         transferenddate: $("#txtTransferEndDate").val(),
                         branchid: $('.ddl-branch').val() || 999,
                         transferstatusid: $('.ddl-transferstatus').val() || 999,
-                        length: 70000
+                        draw: dt.page.info().draw,
+                        start: dt.page.info().start,
+                        length: dt.page.info().length,
+                        searchValue: dt.search(),
+                        isexportalldata: true
                     }),
                     success: function (response) {
 
@@ -160,6 +173,19 @@ datatable = $("#tbItemTransferHistory").DataTable({
                         //Trigger the Excel export using the DataTables API
                         $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
 
+                        HideLoading();
+                        // Restore the original data (optional, if needed)
+                        // $.ajax({
+                        //     url: "/Item/GetItemTransferHistoryV2",
+                        //     type: "POST",
+                        //     contentType: "application/json",
+                        //     data: function (d) {
+                        //         // Your original data parameters
+                        //     },
+                        //     success: function (originalData) {
+                        //         table.clear().rows.add(originalData).draw();
+                        //     }
+                        // });
                     },
                     error: function (xhr, status, error) {
                         console.error("Error fetching data for export:", error);
