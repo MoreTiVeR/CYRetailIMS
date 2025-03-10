@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,43 +13,69 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
-public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, BaseResponse<List<SaleReportResponseDTO>>>
+public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, BaseResponse<SaleReportResponseDTO>>
 {
     public SaleReportHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
     {
     }
 
-    public async Task<BaseResponse<List<SaleReportResponseDTO>>> Handle(SaleReportQuery request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<SaleReportResponseDTO>> Handle(SaleReportQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<SaleReportResponseDTO> searchData = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync(tran => tran.IsActive && (tran.TransactionDate.Date >= request.transaction_startdate.Date && tran.TransactionDate.Date <= request.transaction_enddate.Date))
-                                                        join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
-                                                        select new SaleReportResponseDTO
-                                                        {
-                                                            transactionid = tran.TransactionID,
-                                                            transactiondate = tran.TransactionDate,
-                                                            itemid = detail.ItemID,
-                                                            //itemcode = item.ItemCode,
-                                                            //itemname = item.Name,
-                                                            //brandid = item.BrandID,
-                                                            //brandname = brand.BrandName,
-                                                            qty = detail.Qty,
-                                                            //unitprice = item.Price,
-                                                            amounttransfer = tran.AmountTransfer,
-                                                            amountdeposit = tran.AmountDeposit,
-                                                            depositfee = tran.Fee,
-                                                            amountcash = tran.AmountCash,
-                                                            totalamount = tran.TotalAmount,
-                                                            branchid = tran.BranchID,
-                                                            //branchname = branch.BranchName,
-                                                            createdby = tran.CreatedBy,
-                                                            createddate = tran.CreatedDate,
-                                                        }).AsQueryable();
+        int totalRowCount = 0;
+        IQueryable<SaleReportResponseDetailDTO> searchData = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync(tran => tran.IsActive && (tran.TransactionDate.Date >= request.transaction_startdate.Date && tran.TransactionDate.Date <= request.transaction_enddate.Date))
+                                                              join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
+                                                              //join itembranch in await _unitOfWork.Repository<TMItemInBranch>().QueryAsync() on detail.ItemID equals itembranch.ItemID into jitembranch
+                                                              //from tmitembranch in jitembranch.DefaultIfEmpty()
+                                                              //join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on tmitembranch.ItemID equals item.ItemID into jitem
+                                                              //from tmitem in jitem.DefaultIfEmpty()
+                                                              //join itembrand in await _unitOfWork.Repository<TMItemBrand>().QueryAsync() on tmitem.BrandID equals itembrand.BrandID
+                                                              //join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
+                                                              select new SaleReportResponseDetailDTO
+                                                              {
+                                                                  transactionid = tran.TransactionID,
+                                                                  transactiondate = tran.TransactionDate,
+                                                                  itemid = detail.ItemID,
+                                                                  //itemcode = tmitem.ItemCode,
+                                                                  //itemname = tmitem.Name,
+                                                                  //brandid = tmitem.BrandID,
+                                                                  //brandname = itembrand.BrandName,
+                                                                  qty = detail.Qty,
+                                                                  //unitprice = tmitembranch.Price,
+                                                                  amounttransfer = tran.AmountTransfer,
+                                                                  amountdeposit = tran.AmountDeposit,
+                                                                  depositfee = tran.Fee,
+                                                                  amountcash = tran.AmountCash,
+                                                                  totalamount = tran.TotalAmount,
+                                                                  branchid = tran.BranchID,
+                                                                  //branchname = branch.BranchName,
+                                                                  createdby = tran.CreatedBy,
+                                                                  createddate = tran.CreatedDate,
+                                                              }).AsQueryable();
         if (request.branchid.HasValue)
         {
             searchData = searchData.Where(w => w.branchid == request.branchid.Value);
         }
 
-        List<SaleReportResponseDTO> resData = searchData.ToList();
+        //if (!string.IsNullOrEmpty(request.searchvalue))
+        //{
+        //    searchData = searchData.Where(w => w.itemname.Contains(request.searchvalue)
+        //        || w.itemcode.Contains(request.searchvalue)
+        //        || w.branchname.Contains(request.searchvalue)
+        //        || w.brandname.Contains(request.searchvalue)
+        //        || w.createdby.Contains(request.searchvalue));
+        //}
+
+        totalRowCount = searchData.Count();
+        List<SaleReportResponseDetailDTO> resData = new List<SaleReportResponseDetailDTO>();
+        if (request.isexportalldata)
+        {
+            resData = searchData.ToList();
+        }
+        else
+        {
+            resData = searchData.ToList().Skip(request.startrow).Take(request.pagesize).ToList();
+        }
+        //List<SaleReportResponseDetailDTO> resData = searchData.ToList().Skip(request.startrow).Take(request.pagesize).ToList();
         if (!resData.Any())
         {
             throw new Exception("ไม่พบข้อมูลรายงานขายสินค้า");
@@ -90,10 +117,14 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
         }).ToList();
         #endregion
 
-        return new BaseResponse<List<SaleReportResponseDTO>>
+        return new BaseResponse<SaleReportResponseDTO>
         {
             result = true,
-            data = resData.ToList(),
+            data = new SaleReportResponseDTO
+            {
+                totalrow = totalRowCount,
+                transactiondata = resData
+            },
             message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()

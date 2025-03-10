@@ -59,74 +59,14 @@ public class ReportController : BaseController
 
     public async Task<IActionResult> SaleReportAsync()
     {
-        //BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
-        //{
-        //    transaction_startdate = DateTime.Now,
-        //    transaction_enddate = DateTime.Now
-        //});
-
-        //ViewBag.SaleReportList = resReport;
         ViewBag.BranchList = await PrepareSelectBranch();
         return View();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetSaleReport()
-    {
-        try
-        {
-            BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
-            {
-                transaction_startdate = DateTime.Now,
-                transaction_enddate = DateTime.Now
-            });
-            if (!resReport.result)
-            {
-                throw new Exception(resReport.error.error.message);
-            }
-            return Json(new { data = resReport.data });
-        }
-        catch
-        {
-            return Json(new { data = new List<SaleReportResponseDTO>() });
-        }
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> SearchSaleReport([FromBody] SearchSaleReportViewModel searchObj)
-    {
-        try
-        {
-            DateTime sDate = searchObj.startdate.DatetimePickerToDate();
-            DateTime eDate = searchObj.enddate.DatetimePickerToDate();
-            //StartDate > EndDate
-            if (DateTime.Compare(sDate, eDate) == 1)
-            {
-                throw new Exception("รูปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            }
-
-            BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
-            {
-                transaction_startdate = sDate,
-                transaction_enddate = eDate
-            });
-            if (!resReport.result)
-            {
-                return Json(new { result = false, message = resReport.error.error.message, data = new List<SaleReportResponseDTO>() });
-            }
-
-            return Json(new { result = true, message = "สำเร็จ", data = resReport.data });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleReportResponseDTO>() });
-        }
     }
 
     [HttpPost]
     public async Task<IActionResult> SearchSaleReportV2([FromBody] SearchSaleReportViewModel searchItem)
     {
-        BaseResponse<List<SaleReportResponseDTO>> resSaleReport = new BaseResponse<List<SaleReportResponseDTO>>();
+        BaseResponse<List<SaleReportResponseDetailDTO>> resSaleReport = new BaseResponse<List<SaleReportResponseDetailDTO>>();
         try
         {
             #region Prepare Search Start & End Date
@@ -162,23 +102,28 @@ public class ReportController : BaseController
             #endregion
 
             branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
-            BaseResponse<List<SaleReportResponseDTO>> resReport = await _reportAPI.GetSaleReportAsync(new SaleReportQuery
+            BaseResponse<SaleReportResponseDTO> resReport = await _reportAPI.GetSaleReportByCriteriaAsync(new SaleReportQuery
             {
                 transaction_startdate = sDate,
                 transaction_enddate = eDate,
-                branchid = branchID
+                branchid = branchID,
+                startrow = searchItem.start,
+                pagesize = searchItem.length,
+                //searchvalue = searchItem.searchValue.Replace("\t", "").Replace("\n", ""),
+                isexportalldata = searchItem.isexportalldata,
             });
 
             if (!resReport.result)
             {
-                return Json(new { data = new List<SaleReportResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+                return Json(new { data = new List<SaleReportResponseDetailDTO>(), recordsTotal = 0, recordsFiltered = 0 });
             }
 
             #region Search Filter
             if (!string.IsNullOrEmpty(searchItem.searchValue))
             {
                 string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
-                resReport.data = resReport.data.Where(w => w.itemname.Contains(searchValue)
+                
+                resReport.data.transactiondata = resReport.data.transactiondata.Where(w => w.itemname.Contains(searchValue)
                 || w.itemcode.Contains(searchValue)
                 || w.branchname.Contains(searchValue)
                 || w.brandname.Contains(searchValue)
@@ -186,21 +131,22 @@ public class ReportController : BaseController
             }
             #endregion
 
-            var totalItems = resReport.data.Count; // Get total item count for pagination
+            //var totalRows = resReport.data.totalrow;
+            var totalItems = resReport.data.totalrow; // Get total item count for pagination
 
             // Filter based on searchValue if necessary
-            var query = resReport.data;
+            var query = resReport.data.transactiondata;
 
             // Calculate paginated data
-            var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
-
+            //var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
+            
             // Prepare response for DataTables
             return Json(new
             {
                 draw = searchItem.draw, // Echo the draw parameter
                 recordsTotal = totalItems, // Total records before filtering
-                recordsFiltered = query.Count(), // Total records after applying filtering
-                data = items // The actual data to be displayed
+                recordsFiltered = totalItems, // Total records after applying filtering
+                data = resReport.data.transactiondata // The actual data to be displayed
             });
         }
         catch

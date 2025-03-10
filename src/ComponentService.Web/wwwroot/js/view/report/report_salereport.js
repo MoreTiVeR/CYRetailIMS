@@ -2,6 +2,16 @@
 var datatable;
 $('.select2').select2();
 
+// Custom search logic
+//$('#customSearch').on('keyup', function () {
+//    // Get the search value
+//    var searchValue = $(this).val();
+//    alert('customSearch: ' + searchValue);
+
+//    // Use DataTables API to filter the table
+//    datatable.search(searchValue).draw();
+//});
+
 datatable = $("#tbSaleReport").DataTable({
     "processing": true,         // Show processing indicator
     "serverSide": true,        // Enable server-side processing

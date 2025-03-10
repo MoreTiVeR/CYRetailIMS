@@ -33,9 +33,9 @@ public class ReportAPI : HttpClientService, IReportAPI
             CreateAuditReportCommand>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/createaudittransaction"), createAuditReportCommand);
     }
 
-    public async Task<BaseResponse<List<SaleReportResponseDTO>>> GetSaleReportAsync(SaleReportQuery saleReportQuery)
+    public async Task<BaseResponse<SaleReportResponseDTO>> GetSaleReportByCriteriaAsync(SaleReportQuery saleReportQuery)
     {
-		return await _httpClientRequest.HttpRequestToObject<List<SaleReportResponseDTO>, 
+		return await _httpClientRequest.HttpRequestToObject<SaleReportResponseDTO, 
             SaleReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salereport"), saleReportQuery);
 	}
 

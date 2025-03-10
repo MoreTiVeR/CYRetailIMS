@@ -43,13 +43,13 @@ public class ReportController : BaseApiController
 
     [HttpPost]
     [Route("v1/salereport")]
-    [ProducesResponseType(typeof(List<SaleReportResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SaleReportResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SaleReportAsync(SaleReportQuery saleReportQuery)
     {
         DateTime dtStart = DateTime.Now;
-        BaseResponse<List<SaleReportResponseDTO>> res = await Mediator.Send(saleReportQuery);
+        BaseResponse<SaleReportResponseDTO> res = await Mediator.Send(saleReportQuery);
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));

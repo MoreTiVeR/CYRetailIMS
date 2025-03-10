@@ -23,7 +23,7 @@ public interface IReportAPI
 {
 	Task<BaseResponse<CommandResponse>> CreateAuditTransactionReportAsync(CreateAuditReportCommand createAuditReportCommand);
 
-    Task<BaseResponse<List<SaleReportResponseDTO>>> GetSaleReportAsync(SaleReportQuery saleReportQuery);
+    Task<BaseResponse<SaleReportResponseDTO>> GetSaleReportByCriteriaAsync(SaleReportQuery saleReportQuery);
 
 	Task<BaseResponse<List<SaleSummaryReportResponseDTO>>> GetSaleSummaryReportAsync(SaleSummaryReportQuery saleSummaryReportQuery);
 
