@@ -82,23 +82,43 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
         }
 
         #region Prepare all master data
-        IQueryable<TMItemInBranch> itemsInBranch = from a in await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => resData.Select(s => s.branchid).Contains(w.BranchID),
-                                                    i => i.Include(s => s.Item),
-                                                    i => i.Include(s => s.Item.Brand))
-                                                   join b in searchData on a.BranchID equals b.branchid
-                                                   where a.ItemID == b.itemid
-                                                   select a;
-        var branchList = await _unitOfWork.Repository<TMBranch>().FindListAsync(w => resData.Select(s => s.branchid).Contains(w.BranchID));
+        List<int> branchIdList = resData.Select(s => s.branchid).Distinct().ToList();
+        List<int> itemIdList = resData.Select(s => s.itemid).Distinct().ToList();
+        //var resxxx = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => branchIdList.Contains(w.BranchID) && itemIdList.Contains(w.ItemID));
+        //var _resxxx = resxxx.ToList();
+        List<SaleReportResponseDetailDTO> itemsInBranch = (from a in await _unitOfWork.Repository<TMItemInBranch>().QueryAsync()
+                                                           join i in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals i.ItemID
+                                                           join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync() on i.BrandID equals c.BrandID
+                                                           where branchIdList.Contains(a.BranchID) && itemIdList.Contains(a.ItemID)
+                                                           select new SaleReportResponseDetailDTO
+                                                           {
+                                                               itemid = a.ItemID,
+                                                               branchid = a.BranchID,
+                                                               itemcode = i.ItemCode,
+                                                               itemname = i.Name,
+                                                               brandid = a.BranchID,
+                                                               branchname = c.BrandName,
+                                                               unitprice = a.Price
+                                                           }).ToList();
+        //IEnumerable<TMBranch> branchList = await _unitOfWork.Repository<TMBranch>().FindListAsync(w => resData.Select(s => s.branchid).Contains(w.BranchID));
+
+        List<SaleReportResponseDetailDTO> branchList = (from a in await _unitOfWork.Repository<TMBranch>().QueryAsync()
+                                                        where branchIdList.Contains(a.BranchID)
+                                                        select new SaleReportResponseDetailDTO
+                                                        {
+                                                            branchid = a.BranchID,
+                                                            branchname = a.BranchName,
+                                                        }).ToList();
         foreach (var data in resData)
         {
-            var itembranch = itemsInBranch.FirstOrDefault(w => w.ItemID == data.itemid && w.BranchID == data.branchid);
-            var branch = branchList.FirstOrDefault(w => w.BranchID == data.branchid);
-            data.itemcode = itembranch.Item.ItemCode;
-            data.itemname = itembranch.Item.Name;
-            data.brandid = itembranch.Item.BrandID;
-            data.brandname = itembranch.Item.Brand.BrandName;
-            data.unitprice = itembranch.Price;
-            data.branchname = branch.BranchName;
+            SaleReportResponseDetailDTO itembranch = itemsInBranch.FirstOrDefault(w => w.itemid == data.itemid && w.branchid == data.branchid);
+            SaleReportResponseDetailDTO branch = branchList.FirstOrDefault(w => w.branchid == data.branchid);
+            data.itemcode = itembranch.itemcode;
+            data.itemname = itembranch.itemname;
+            data.brandid = itembranch.brandid;
+            data.brandname = itembranch.brandname;
+            data.unitprice = itembranch.unitprice;
+            data.branchname = branch.branchname;
         }
         #endregion
 
