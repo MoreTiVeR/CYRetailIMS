@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
+using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferList.v1;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Infrastructure.Database;
 using MediatR;
@@ -14,14 +15,15 @@ using Microsoft.EntityFrameworkCore;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 
 namespace CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByDestinationBranchID.v1;
-public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequestHandler<GetItemTransferByDestinationBranchIDQuery, BaseResponse<List<GetItemTransferResponseDTO>>>
+public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequestHandler<GetItemTransferByDestinationBranchIDQuery, BaseResponse<GetItemTransferListResponseDTO>>
 {
     public GetItemTransferByDestinationBranchIDHandler(IMapper mapper, IUnitOfWork unitOfWork) : base(mapper, unitOfWork)
     {
     }
 
-    public async Task<BaseResponse<List<GetItemTransferResponseDTO>>> Handle(GetItemTransferByDestinationBranchIDQuery request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<GetItemTransferListResponseDTO>> Handle(GetItemTransferByDestinationBranchIDQuery request, CancellationToken cancellationToken)
     {
+        int totalRow = 0;
         var resData = (from a in await _unitOfWork.Repository<TTItemTransfer>().QueryAsync()
                        join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals item.ItemID
                        join b in await _unitOfWork.Repository<TMItemTransferStatus>().QueryAsync() on a.TransferStatus equals b.TransferStatusID
@@ -76,8 +78,19 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
             throw new Exception("ไม่พบรายการโอนสินค้า");
         }
 
+        //Addign total row
+        totalRow = resData.Count();
+
         //Assign data
-        List<GetItemTransferResponseDTO> resItemTransfer = resData.ToList();
+        List<GetItemTransferResponseDTO> resItemTransfer = new List<GetItemTransferResponseDTO>();
+        if (request.isexportalldata)
+        {
+            resItemTransfer = resData.ToList();
+        }
+        else
+        {
+            resItemTransfer = resData.ToList().Skip(request.startrow).Take(request.pagesize).ToList();
+        }
 
         //Get TMApproveStatus list
         List<TMBranch> resBranchList = _unitOfWork.Repository<TMBranch>().Where(w =>
@@ -109,10 +122,14 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
             }
         });
 
-        return new BaseResponse<List<GetItemTransferResponseDTO>>
+        return new BaseResponse<GetItemTransferListResponseDTO>
         {
             result = true,
-            data = resItemTransfer.OrderByDescending(w => w.createddate).ToList(),
+            data = new GetItemTransferListResponseDTO
+            {
+                totalrow = totalRow,
+                transactiondata = resItemTransfer.OrderByDescending(w => w.createddate).ToList()
+            },
             message = "Success",
             soruce = "db",
             status = StatusCodes.Status200OK.ToString()

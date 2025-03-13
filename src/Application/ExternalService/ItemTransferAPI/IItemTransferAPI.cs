@@ -43,11 +43,11 @@ public interface IItemTransferAPI
 
     Task<BaseResponse<GetItemTransferResponseDTO>> GetItemTransferByIDAsync(int itemTrasferID);
 
-    Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery);
+    Task<BaseResponse<GetItemTransferListResponseDTO>> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery);
 
     Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferByCriteriaAsync(GetItemTransferByCriteriaQuery getItemTransferByCriteriaQuery);
 
-    Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferByDestinationBranchIDAsync(GetItemTransferByDestinationBranchIDQuery getItemTransferByDestinationBranchIDQuery);
+    Task<BaseResponse<GetItemTransferListResponseDTO>> GetItemTransferByDestinationBranchIDAsync(GetItemTransferByDestinationBranchIDQuery getItemTransferByDestinationBranchIDQuery);
 
     Task<BaseResponse<List<GetItemTransferStatusResponseDTO>>> GetItemTransferStatusAsync();
 

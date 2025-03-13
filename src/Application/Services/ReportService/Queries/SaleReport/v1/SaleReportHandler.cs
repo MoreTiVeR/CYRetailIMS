@@ -75,7 +75,6 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
         {
             resData = searchData.ToList().Skip(request.startrow).Take(request.pagesize).ToList();
         }
-        //List<SaleReportResponseDetailDTO> resData = searchData.ToList().Skip(request.startrow).Take(request.pagesize).ToList();
         if (!resData.Any())
         {
             throw new Exception("ไม่พบข้อมูลรายงานขายสินค้า");
@@ -84,8 +83,6 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
         #region Prepare all master data
         List<int> branchIdList = resData.Select(s => s.branchid).Distinct().ToList();
         List<int> itemIdList = resData.Select(s => s.itemid).Distinct().ToList();
-        //var resxxx = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => branchIdList.Contains(w.BranchID) && itemIdList.Contains(w.ItemID));
-        //var _resxxx = resxxx.ToList();
         List<SaleReportResponseDetailDTO> itemsInBranch = (from a in await _unitOfWork.Repository<TMItemInBranch>().QueryAsync()
                                                            join i in await _unitOfWork.Repository<TMItem>().QueryAsync() on a.ItemID equals i.ItemID
                                                            join c in await _unitOfWork.Repository<TMItemBrand>().QueryAsync() on i.BrandID equals c.BrandID
@@ -100,7 +97,6 @@ public class SaleReportHandler : BaseService, IRequestHandler<SaleReportQuery, B
                                                                branchname = c.BrandName,
                                                                unitprice = a.Price
                                                            }).ToList();
-        //IEnumerable<TMBranch> branchList = await _unitOfWork.Repository<TMBranch>().FindListAsync(w => resData.Select(s => s.branchid).Contains(w.BranchID));
 
         List<SaleReportResponseDetailDTO> branchList = (from a in await _unitOfWork.Repository<TMBranch>().QueryAsync()
                                                         where branchIdList.Contains(a.BranchID)

@@ -147,13 +147,13 @@ public class ItemTransferController : BaseApiController
 
     [HttpPost]
     [Route("v1/itemtransferforadmin")]
-    [ProducesResponseType(typeof(List<GetItemTransferResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetItemTransferListResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery)
     {
         DateTime dtStart = DateTime.Now;
-        BaseResponse<List<GetItemTransferResponseDTO>> res = await Mediator.Send(getItemTransferListQuery);
+        BaseResponse<GetItemTransferListResponseDTO> res = await Mediator.Send(getItemTransferListQuery);
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
@@ -179,13 +179,13 @@ public class ItemTransferController : BaseApiController
 
     [HttpPost]
     [Route("v1/itemtransferbybranchid")]
-    [ProducesResponseType(typeof(List<GetItemTransferResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetItemTransferListResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetItemTransferByDestinationBranchIDAsync(GetItemTransferByDestinationBranchIDQuery getItemTransferByDestinationBranchIDQuery)
     {
         DateTime dtStart = DateTime.Now;
-        BaseResponse<List<GetItemTransferResponseDTO>> res = await Mediator.Send(getItemTransferByDestinationBranchIDQuery);
+        BaseResponse<GetItemTransferListResponseDTO> res = await Mediator.Send(getItemTransferByDestinationBranchIDQuery);
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));

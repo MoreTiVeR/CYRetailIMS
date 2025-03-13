@@ -48,6 +48,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBran
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using Microsoft.CodeAnalysis.Operations;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.Stock)]
@@ -166,92 +167,13 @@ public class ItemController : BaseController
         return View();
     }
 
-    /// <summary>
-    /// Default Item Transfer History
-    /// Allow only Admin, Stock
-    /// </summary>
-    /// <returns></returns>
-    //[Route("item/itemtransferhistory")]
-    [HttpGet]
-    public async Task<IActionResult> GetItemTransferHistory()
-    {
-        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory;
-        try
-        {
-            #region Filter & Paging
-            //Request.Form.TryGetValue("draw", out var draw);
-            //Request.Form.TryGetValue("start", out var start);
-            //Request.Form.TryGetValue("length", out var length);
-            ////var draw = Request.Form.GetValues("draw").FirstOrDefault();
-            ////var start = Request.Form.GetValues("start").FirstOrDefault();
-            ////var length = Request.Form.GetValues("length").FirstOrDefault();
-
-            //Request.Form.TryGetValue("order[0][column]", out var sColumn);
-            ////Request.Form.TryGetValue("length", out var length);
-            ////var sortColumn = Request.Form.GetValues("columns[" + Request.Form.GetValues("order[0][column]").FirstOrDefault() + "][name]").FirstOrDefault();
-            ////var sortColumnDir = Request.Form.GetValues("order[0][dir]").FirstOrDefault();
-            ////var searchValue = Request.Form.GetValues("search[value]").FirstOrDefault();
-
-            //int pageSize = length.FirstOrDefault() != null ? Convert.ToInt32(length) : 0;
-            //int skip = start.FirstOrDefault() != null ? Convert.ToInt32(start) : 0;
-            //int recordsTotal = 0;
-
-            //var form = Request.Form.ToList();
-            //string filterType = string.Empty;
-            //string filterValue = string.Empty;
-            //var frmSearch = form.Where(w => w.Key == "search[value]").FirstOrDefault(); //.Value[0];
-            //string filter = frmSearch.Value[0].ToLower().Trim();
-            //if (!string.IsNullOrEmpty(filter) && filter.Split("|").Count() > 1 && !string.IsNullOrEmpty(filter.Split("|")[1]))
-            //{
-            //    filterType = filter.Split("|")[0].Trim().ToLower();
-            //    filterValue = filter.Split("|")[1].Trim();
-            //}
-
-            //if (filter.Contains("|") == false)
-            //{
-            //    filterType = "searchbox";
-            //    filterValue = filter;
-            //}
-
-            //string draw = form.Where(w => w.Key == "draw").FirstOrDefault().Value[0];
-            //var start = form.Where(w => w.Key == "start").FirstOrDefault().Value[0];
-            //var length = form.Where(w => w.Key == "length").FirstOrDefault().Value[0];
-
-            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
-            //int skip = start != null ? Convert.ToInt32(start) : 0;
-            #endregion
-
-            if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
-            {
-                transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
-            }
-            else
-            {
-                transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
-                {
-                    destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid
-                });
-            }
-            if (!transferHistory.result)
-            {
-                return Json(new { data = new List<GetItemTransferResponseDTO>() });
-            }
-
-            //test
-            //transferHistory.data = transferHistory.data.Skip(skip).Take(pageSize).ToList();
-
-            return Json(new { data = transferHistory.data });
-        }
-        catch
-        {
-            return Json(new { data = new List<GetItemTransferResponseDTO>() });
-        }
-    }
-
     [HttpPost]
     public async Task<IActionResult> GetItemTransferHistoryV2([FromBody] SearchItemTransferHistoryViewModelV2 searchItem)
     {
-        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = new BaseResponse<List<GetItemTransferResponseDTO>> { data = new List<GetItemTransferResponseDTO>() };
+        BaseResponse<GetItemTransferListResponseDTO> transferHistory = new BaseResponse<GetItemTransferListResponseDTO> 
+        { 
+            data = new GetItemTransferListResponseDTO()
+        };
         try
         {
             #region Prepare Search Start & End Date
@@ -297,7 +219,10 @@ public class ItemController : BaseController
                     branchid = branchID,
                     transferstartdate = transferSrtartDate,
                     transferenddate = transferEndDate,
-                    transferstatusid = transferStatus
+                    transferstatusid = transferStatus,
+                    startrow = searchItem.start,
+                    pagesize = searchItem.length,
+                    isexportalldata = searchItem.isexportalldata
                 });
             }
             else
@@ -307,21 +232,13 @@ public class ItemController : BaseController
                     destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
                     transferstartdate = transferSrtartDate,
                     transferenddate = transferEndDate,
-                    transferstatusid = transferStatus
+                    transferstatusid = transferStatus,
+                    startrow = searchItem.start,
+                    pagesize = searchItem.length,
+                    isexportalldata = searchItem.isexportalldata
                 });
             }
-            // Implement your logic to fetch data from the database.
-            //if (base.UserProfile.roleid == (int)EnumModel.UserRole.Admin || base.UserProfile.roleid == (int)EnumModel.UserRole.Stock)
-            //{
-            //    transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery());
-            //}
-            //else
-            //{
-            //    transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
-            //    {
-            //        destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid
-            //    });
-            //}
+
             if (!transferHistory.result)
             {
                 return Json(new { data = new List<GetItemTransferResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
@@ -331,7 +248,7 @@ public class ItemController : BaseController
             if (!string.IsNullOrEmpty(searchItem.searchValue))
             {
                 string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
-                transferHistory.data = transferHistory.data.Where(w => w.itemname.Contains(searchValue)
+                transferHistory.data.transactiondata = transferHistory.data.transactiondata.Where(w => w.itemname.Contains(searchValue)
                 || w.destinationname.Contains(searchValue)
                 || w.transferstatusname_th.Contains(searchValue)
                 || w.transfertypename.Contains(searchValue)
@@ -339,21 +256,22 @@ public class ItemController : BaseController
             }
             #endregion
 
-            var totalItems = transferHistory.data.Count; // Get total item count for pagination
+            //var totalRows = resReport.data.totalrow;
+            var totalItems = transferHistory.data.totalrow; // Get total item count for pagination
 
             // Filter based on searchValue if necessary
-            var query = transferHistory.data;
+            var query = transferHistory.data.transactiondata;
 
             // Calculate paginated data
-            var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
+            //var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
 
             // Prepare response for DataTables
             return Json(new
             {
                 draw = searchItem.draw, // Echo the draw parameter
                 recordsTotal = totalItems, // Total records before filtering
-                recordsFiltered = query.Count(), // Total records after applying filtering
-                data = items // The actual data to be displayed
+                recordsFiltered = totalItems, // Total records after applying filtering
+                data = transferHistory.data.transactiondata // The actual data to be displayed
             });
         }
         catch
@@ -364,81 +282,9 @@ public class ItemController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> SearchItemTransferHistory([FromBody] SearchItemTransferHistoryViewModel searchItem)
-    {
-        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
-        try
-        {
-            #region Prepare Search Start & End Date
-            DateTime? transferSrtartDate = null;
-            DateTime? transferEndDate = null;
-            if (!string.IsNullOrEmpty(searchItem.transferstartdate))
-            {
-                string[] sTransferDate = searchItem.transferstartdate.Split("-");
-                if (sTransferDate.Count() != 3)
-                {
-                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-                }
-                transferSrtartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
-            }
-
-            if (!string.IsNullOrEmpty(searchItem.transferenddate))
-            {
-                string[] sTransferEndDate = searchItem.transferenddate.Split("-");
-                if (sTransferEndDate.Count() != 3)
-                {
-                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-                }
-                transferEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
-            }
-            if((transferSrtartDate.HasValue && transferEndDate.HasValue) 
-                && DateTime.Compare(transferSrtartDate.Value, transferEndDate.Value) == 1)
-            {
-                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            }
-            #endregion
-
-            if (base.UserProfile.roleid == (int)UserRole.Admin || base.UserProfile.roleid == (int)UserRole.Stock)
-            {
-                transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery
-                {
-                    branchid = searchItem.branchid,
-                    transferstartdate = transferSrtartDate,
-                    transferenddate = transferEndDate,
-                    transferstatusid = searchItem.transferstatusid
-                });
-            }
-            else
-            {
-                transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
-                {
-                    destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
-                    transferstartdate = transferSrtartDate,
-                    transferenddate = transferEndDate,
-                    transferstatusid = searchItem.transferstatusid
-                });
-            }
-            if (!transferHistory.result)
-            {
-                return Json(new { result = false, message = $"ไม่พบข้อมูลการโอนสินค้า", data = new List<GetItemTransferResponseDTO>() });
-            }
-
-            if (transferHistory.data.Count == 0)
-            {
-                return Json(new { result = false, message = $"ไม่พบข้อมูลการโอนสินค้า", data = new List<GetItemTransferResponseDTO>() });
-            }
-            return Json(new { result = true, data = transferHistory.data, message = "สำเร็จ" });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<GetItemTransferResponseDTO>() });
-        }
-    }
-
-    [HttpPost]
     public async Task<IActionResult> SearchItemTransferHistoryV2([FromBody] SearchItemTransferHistoryViewModelV2 searchItem)
     {
-        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = null;
+        BaseResponse<GetItemTransferListResponseDTO> transferHistory = null;
         try
         {
             // Initialize pagination parameters
@@ -473,16 +319,16 @@ public class ItemController : BaseController
                 });
             }
 
-            if (!transferHistory.result || transferHistory.data.Count == 0)
+            if (!transferHistory.result || transferHistory.data.transactiondata.Count == 0)
             {
                 return Json(new { draw = searchItem.draw, recordsTotal = 0, recordsFiltered = 0, data = new List<GetItemTransferResponseDTO>() });
             }
 
             // Fetch total items for both filtered and unfiltered records
-            var totalItems = transferHistory.data.Count;
+            var totalItems = transferHistory.data.transactiondata.Count;
 
             // Implement pagination
-            var items = transferHistory.data.Skip(start).Take(length).ToList();
+            var items = transferHistory.data.transactiondata.Skip(start).Take(length).ToList();
 
             // Prepare response for DataTables
             return Json(new
@@ -1959,164 +1805,4 @@ public class ItemController : BaseController
     }
 
 
-    [HttpPost]
-    public async Task<IActionResult> GetAllHistoryAsync([FromBody] SearchItemTransferHistoryViewModelV2 searchItem)
-    {
-
-        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = new BaseResponse<List<GetItemTransferResponseDTO>>();
-        DateTime? transferSrtartDate = null;
-        DateTime? transferEndDate = null;
-        int? branchID = null;
-        int? transferStatus = null;
-        if (!string.IsNullOrEmpty(searchItem.transferstartdate))
-        {
-            string[] sTransferDate = searchItem.transferstartdate.Split("-");
-            if (sTransferDate.Count() != 3)
-            {
-                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            }
-            transferSrtartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
-        }
-
-        if (!string.IsNullOrEmpty(searchItem.transferenddate))
-        {
-            string[] sTransferEndDate = searchItem.transferenddate.Split("-");
-            if (sTransferEndDate.Count() != 3)
-            {
-                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            }
-            transferEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
-        }
-
-        //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
-        if ((transferSrtartDate.HasValue && transferEndDate.HasValue)
-            && DateTime.Compare(transferSrtartDate.Value, transferEndDate.Value) == 1)
-        {
-            throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-        }
-
-        //Set branchid & transfer status
-        branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
-        transferStatus = searchItem.transferstatusid == 999 ? null : searchItem.transferstatusid;
-        if (base.UserProfile.roleid == (int)UserRole.Admin || base.UserProfile.roleid == (int)UserRole.Stock)
-        {
-            transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery
-            {
-                branchid = branchID,
-                transferstartdate = transferSrtartDate,
-                transferenddate = transferEndDate,
-                transferstatusid = transferStatus
-            });
-        }
-        else
-        {
-            transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
-            {
-                destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
-                transferstartdate = transferSrtartDate,
-                transferenddate = transferEndDate,
-                transferstatusid = transferStatus
-            });
-        }
-
-        return Json(new
-        {
-            data = transferHistory.data,
-            recordsTotal = transferHistory.data.Count(),
-            recordsFiltered = transferHistory.data.Count()
-        });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAllItemTransferHistory()
-    {
-        SearchItemTransferHistoryViewModelV2 searchItem = new SearchItemTransferHistoryViewModelV2();
-
-        //var length = Request.Form["length"]; // Get the length parameter
-        //var start = Request.Form["start"];  // Get the start parameter
-
-        //var data = GetYourData(); // Replace with your data-fetching logic
-        BaseResponse<List<GetItemTransferResponseDTO>> transferHistory = new BaseResponse<List<GetItemTransferResponseDTO>>();
-        DateTime? transferSrtartDate = null;
-        DateTime? transferEndDate = null;
-        int? branchID = null;
-        int? transferStatus = null;
-        if (!string.IsNullOrEmpty(searchItem.transferstartdate))
-        {
-            string[] sTransferDate = searchItem.transferstartdate.Split("-");
-            if (sTransferDate.Count() != 3)
-            {
-                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            }
-            transferSrtartDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
-        }
-
-        if (!string.IsNullOrEmpty(searchItem.transferenddate))
-        {
-            string[] sTransferEndDate = searchItem.transferenddate.Split("-");
-            if (sTransferEndDate.Count() != 3)
-            {
-                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-            }
-            transferEndDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
-        }
-
-        //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
-        if ((transferSrtartDate.HasValue && transferEndDate.HasValue)
-            && DateTime.Compare(transferSrtartDate.Value, transferEndDate.Value) == 1)
-        {
-            throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
-        }
-
-        //Set branchid & transfer status
-        branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
-        transferStatus = searchItem.transferstatusid == 999 ? null : searchItem.transferstatusid;
-        if (base.UserProfile.roleid == (int)UserRole.Admin || base.UserProfile.roleid == (int)UserRole.Stock)
-        {
-            transferHistory = await _itemTransferAPI.GetItemTransferForAdminAsync(new GetItemTransferListQuery
-            {
-                branchid = branchID,
-                transferstartdate = transferSrtartDate,
-                transferenddate = transferEndDate,
-                transferstatusid = transferStatus
-            });
-        }
-        else
-        {
-            transferHistory = await _itemTransferAPI.GetItemTransferByDestinationBranchIDAsync(new GetItemTransferByDestinationBranchIDQuery
-            {
-                destinationbranchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
-                transferstartdate = transferSrtartDate,
-                transferenddate = transferEndDate,
-                transferstatusid = transferStatus
-            });
-        }
-
-        return Json(new
-        {
-            data = transferHistory.data,
-            recordsTotal = transferHistory.data.Count(),
-            recordsFiltered = transferHistory.data.Count()
-        });
-
-        //if (length == "-1")
-        //{
-        //    // Return all rows for export
-        //    return Json(new
-        //    {
-        //        data = data // Return all rows
-        //    }, JsonRequestBehavior.AllowGet);
-        //}
-        //else
-        //{
-        //    // Apply pagination for normal DataTables requests
-        //    var paginatedData = data.Skip(Convert.ToInt32(start)).Take(Convert.ToInt32(length));
-        //    return Json(new
-        //    {
-        //        data = paginatedData,
-        //        recordsTotal = data.Count(),
-        //        recordsFiltered = data.Count()
-        //    }, JsonRequestBehavior.AllowGet);
-        //}
-    }
 }

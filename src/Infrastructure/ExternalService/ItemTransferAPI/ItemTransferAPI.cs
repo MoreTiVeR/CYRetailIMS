@@ -60,9 +60,9 @@ public class ItemTransferAPI : HttpClientService, IItemTransferAPI
              object>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransfer/{itemTrasferID}"), null);
     }
 
-    public async Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery)
+    public async Task<BaseResponse<GetItemTransferListResponseDTO>> GetItemTransferForAdminAsync(GetItemTransferListQuery getItemTransferListQuery)
     {
-        return await _httpClientRequest.HttpRequestToObject<List<GetItemTransferResponseDTO>, 
+        return await _httpClientRequest.HttpRequestToObject<GetItemTransferListResponseDTO, 
             GetItemTransferListQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransferforadmin"), getItemTransferListQuery);
     }
 
@@ -72,9 +72,9 @@ public class ItemTransferAPI : HttpClientService, IItemTransferAPI
                       GetItemTransferByCriteriaQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransferbycriteria"), getItemTransferByCriteriaQuery);
     }
 
-    public async Task<BaseResponse<List<GetItemTransferResponseDTO>>> GetItemTransferByDestinationBranchIDAsync(GetItemTransferByDestinationBranchIDQuery getItemTransferByDestinationBranchIDQuery)
+    public async Task<BaseResponse<GetItemTransferListResponseDTO>> GetItemTransferByDestinationBranchIDAsync(GetItemTransferByDestinationBranchIDQuery getItemTransferByDestinationBranchIDQuery)
     {
-        return await _httpClientRequest.HttpRequestToObject<List<GetItemTransferResponseDTO>,
+        return await _httpClientRequest.HttpRequestToObject<GetItemTransferListResponseDTO,
                      GetItemTransferByDestinationBranchIDQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/itemtransfer/v1/itemtransferbybranchid"), getItemTransferByDestinationBranchIDQuery);
     }
 
