@@ -90,7 +90,8 @@ public static class EnumModel
 		Sale = 2,
 		Stock = 3,
 		AccountingOfficer = 4,
-		SaleArea = 5
+		SaleArea = 5,
+        Audit = 6
     }
 
     public enum AdjustItemType

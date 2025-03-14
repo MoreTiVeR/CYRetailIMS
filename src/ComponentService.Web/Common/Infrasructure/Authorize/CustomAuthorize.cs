@@ -22,7 +22,8 @@ public class CustomAuthorize : TypeFilterAttribute
 		public const string Stock = "Stock";
 		public const string AccountingOfficer = "Accounting Officer";
 		public const string AreaSale = "Area Sale";
-	}
+        public const string Audit = "Audit";
+    }
 
 	public CustomAuthorize(params string[] claim) : base(typeof(AuthorizeFilter))
 	{

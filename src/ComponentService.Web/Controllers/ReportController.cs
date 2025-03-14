@@ -37,7 +37,6 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
 public class ReportController : BaseController
 {
     private readonly IReportAPI _reportAPI;
@@ -57,11 +56,97 @@ public class ReportController : BaseController
         return View();
     }
 
+    #region Main Action
+
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
     public async Task<IActionResult> SaleReportAsync()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
         return View();
     }
+
+    /// <summary>
+    /// สรุปยอดรวมประจำวัน ของแต่ละสาขา 1 สาขามี 1 รายการ /1วัน
+    /// </summary>
+    /// <returns></returns>
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
+    public async Task<IActionResult> SaleSummaryReport()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        return View();
+    }
+
+    /// <summary>
+    /// สรุปยอดรวมประจำวัน ของทุกสาขา 1รายการ/1วัน 
+    /// รายงานตั้งแต่วันที่ 1 ของเดือน ถึง end of month
+    /// </summary>
+    /// <returns></returns>
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
+    public IActionResult AuditReport()
+    {
+        return View();
+    }
+
+
+    /// <summary>
+    /// รายงานแสดงสินค้าขั้นต่ำ
+    /// </summary>
+    /// <returns></returns>
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
+    public async Task<IActionResult> ItemQtyReport()
+    {
+        BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
+        ViewBag.BranchList = resBranchList;
+        return View();
+    }
+
+    /// <summary>
+    /// รายงานปรับราคาสินค้าหน้าร้าน
+    /// </summary>
+    /// <returns></returns>
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
+    public async Task<IActionResult> ItemTransactionReport()
+    {
+        BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
+        ViewBag.BranchList = resBranchList;
+        return View();
+    }
+
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
+    public async Task<IActionResult> InventoryReport()
+    {
+        BaseResponse<List<InventoryReportResponseDTO>> resData = await _reportAPI.GetInventoryReportAsync(new InventoryReportQuery
+        {
+            reportdate = DateTime.Now
+        });
+        return View();
+    }
+
+    /// <summary>
+    /// รายงานนับสต๊อก
+    /// </summary>
+    /// <returns></returns>
+    [CustomAuthorize(RoleName.Admin, RoleName.Audit)]
+    public async Task<IActionResult> CountStockReportAsync()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
+
+        return View();
+    }
+
+    /// <summary>
+    /// รายงานสินค้าโอนขาด
+    /// </summary>
+    /// <returns></returns>
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.AreaSale)]
+    public async Task<IActionResult> ItemTransferShortageReport()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
+        return View();
+    }
+    #endregion
 
     [HttpPost]
     public async Task<IActionResult> SearchSaleReportV2([FromBody] SearchSaleReportViewModel searchItem)
@@ -155,16 +240,6 @@ public class ReportController : BaseController
         }
     }
 
-    /// <summary>
-    /// สรุปยอดรวมประจำวัน ของแต่ละสาขา 1 สาขามี 1 รายการ /1วัน
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IActionResult> SaleSummaryReport()
-    {
-        ViewBag.BranchList = await PrepareSelectBranch();
-        return View();
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetSaleSummaryReport()
     {
@@ -217,45 +292,6 @@ public class ReportController : BaseController
         {
             return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleSummaryReportResponseDTO>() });
         }
-    }
-
-    /// <summary>
-    /// สรุปยอดรวมประจำวัน ของทุกสาขา 1รายการ/1วัน 
-    /// รายงานตั้งแต่วันที่ 1 ของเดือน ถึง end of month
-    /// </summary>
-    /// <returns></returns>
-    public IActionResult AuditReport()
-    {
-        //BaseResponse<List<AuditReportResponseDTO>> resAuditReport = await _reportAPI.GetAuditReportAsync(new AuditReportQuery
-        //{
-        //    transaction_startdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
-        //    transaction_enddate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
-        //});
-
-        //ViewBag.AuditReportList = resAuditReport;
-        return View();
-    }
-
-    /// <summary>
-    /// รายงานแสดงสินค้าขั้นต่ำ
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IActionResult> ItemQtyReport()
-    {
-        BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
-        ViewBag.BranchList = resBranchList;
-        return View();
-    }
-
-    /// <summary>
-    /// รายงานปรับราคาสินค้าหน้าร้าน
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IActionResult> ItemTransactionReport()
-    {
-        BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
-        ViewBag.BranchList = resBranchList;
-        return View();
     }
 
     /// <summary>
@@ -385,7 +421,6 @@ public class ReportController : BaseController
         }
     }
 
-
     [HttpGet]
     public async Task<IActionResult> GetAuditReport()
     {
@@ -439,14 +474,6 @@ public class ReportController : BaseController
         }
     }
 
-    [Obsolete("*** Move to AuditSaleSummaryReportByBranch(int branchid)")]
-    public async Task<IActionResult> AuditSaleSummaryReportByTransaction(int transactionid)
-    {
-        BaseResponse<SaleSummaryReportResponseDTO> resSaleSummaryReport = await _reportAPI.GetSaleSummaryReportByTransIDAsync(transactionid);
-        AuditSaleSummaryReportViewModel auditReportViewData = _mapper.Map<AuditSaleSummaryReportViewModel>(resSaleSummaryReport.data);
-        return View(auditReportViewData);
-    }
-
     public async Task<IActionResult> AuditSaleSummaryReportByBranch(int branchid, string txndate)
     {
         string sTxnDate = $"{txndate.Substring(0, 2)}/{txndate.Substring(2, 2)}/{txndate.Substring(4, 4)}";
@@ -495,15 +522,6 @@ public class ReportController : BaseController
         return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
     }
 
-    public async Task<IActionResult> InventoryReport()
-    {
-        BaseResponse<List<InventoryReportResponseDTO>> resData = await _reportAPI.GetInventoryReportAsync(new InventoryReportQuery
-        {
-            reportdate = DateTime.Now
-        });
-        return View();
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetInventoryReport()
     {
@@ -536,7 +554,6 @@ public class ReportController : BaseController
         }
     }
 
-    //[Route("report/searchinventoryreport")]
     [HttpPost]
     public async Task<IActionResult> SearchInventoryReportByCriteria([FromBody] SearchInventoryReportModel searchObj)
     {
@@ -596,14 +613,6 @@ public class ReportController : BaseController
     }
 
     #region รายงานนับสต๊อก
-    public async Task<IActionResult> CountStockReportAsync()
-    {
-        ViewBag.BranchList = await PrepareSelectBranch();
-        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
-
-        return View();
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetCountStockReportV1()
     {
@@ -669,12 +678,6 @@ public class ReportController : BaseController
     }
 
     #region รายงานสินค้าโอนขาด
-    public async Task<IActionResult> ItemTransferShortageReport()
-    {
-        ViewBag.BranchList = await PrepareSelectBranch();
-        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
-        return View();
-    }
 
     /// <summary>
     /// Get current month

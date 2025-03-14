@@ -158,7 +158,9 @@ public class AccountController : BaseController
 					return Url.Action("SaleReport", "Report");
 				case (int)EnumModel.UserRole.SaleArea:
 					return Url.Action("SaleSummaryReport", "Report");
-				default:
+                case (int)EnumModel.UserRole.Audit:
+                    return Url.Action("CountStockReport", "Report");
+                default:
 					return Url.Action("Index", "Home");
             }
         }
