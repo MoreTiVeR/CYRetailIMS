@@ -10,6 +10,9 @@
     <FileVersion>2.0.9.0</FileVersion>
     <AssemblyVersion>2.0.9.0</AssemblyVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <UserSecretsId>ef3ef566-0220-4c5b-bc85-b5a840b5bcda</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,6 +46,7 @@
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="6.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.12" />
     <PackageReference Include="NetBarcode" Version="1.7.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
