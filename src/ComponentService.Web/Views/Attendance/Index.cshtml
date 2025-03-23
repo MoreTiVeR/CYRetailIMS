@@ -1,16 +1,16 @@
-﻿
-@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+﻿@{
+	ViewData["Title"] = "Index";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	string apiKey = @ViewBag.GoogleMapsApiKey;
 }
 
 <h2>Employee Check-In</h2>
 
 <form id="checkInForm" method="post" action="/Attendance/CheckIn">
-    <input type="hidden" id="latitude" name="Latitude" />
-    <input type="hidden" id="longitude" name="Longitude" />
-    <input type="text" name="EmployeeId" placeholder="Employee ID" required />
-    <button type="button" onclick="getLocation()">Check In</button>
+	<input type="hidden" id="latitude" name="Latitude" />
+	<input type="hidden" id="longitude" name="Longitude" />
+	<input type="text" name="EmployeeId" placeholder="Employee ID" required />
+	<button type="button" onclick="getLocation()">Check In</button>
 </form>
 
 <div id="status"></div>
@@ -18,43 +18,93 @@
 <!-- Check-In Button -->
 <button id="checkInButton" style="margin-top: 20px; padding: 10px 20px; font-size: 16px;">Check In</button>
 
+
+@section Scripts {
+
+	<script src="https://maps.googleapis.com/maps/api/js?key=@apiKey&callback=initMap&loading=async" async defer></script>
+
+	@* <script>
+				// Calling without a location
+		fetch('/getMapData')
+			.then(response => response.json())
+			.then(data => {
+				console.log(data); // Will return data for "New York"
+
+				// Assuming the response contains results in the following format:
+				// { results: [{ geometry: { location: { lat: 40.7128, lng: -74.0060 } } }] }
+				if (data.results && data.results.length > 0) {
+					const userLocation = {
+						lat: data.results[0].geometry.location.lat,
+						lng: data.results[0].geometry.location.lng
+					};
+
+					addMarker(userLocation); // Add the marker to the map
+				} else {
+					console.error('No results found for the specified location.');
+				}
+			})
+			.catch(error => console.error('Error:', error));
+
+
+			// Function to add a marker to the map
+		function addMarker(location) {
+
+			const map = new google.maps.Map(document.getElementById('map'), {
+				zoom: 2,
+				center: defaultLocation,
+			});
+
+			alert('Set marker');
+			map.setCenter(location); // Update map center
+			map.setZoom(15); // Set zoom level
+
+			new google.maps.Marker({
+				position: location,
+				map: map,
+				title: 'User Location' // Optional: Add a title for the marker
+			});
+		}
+	</script> *@
+}
+
 <script>
-    function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition, showError);
-        } else {
-            alert("Geolocation is not supported by this browser.");
-        }
-    }
 
-    function showPosition(position) {
-        alert("Latitude: " + position.coords.latitude +
-            "\nLongitude: " + position.coords.longitude);
-        document.getElementById("latitude").value = position.coords.latitude;
-        document.getElementById("longitude").value = position.coords.longitude;
-        document.getElementById("checkInForm").submit();  // Submit the form once location is retrieved
-    }
+	function getLocation() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(showPosition, showError);
+		} else {
+			alert("Geolocation is not supported by this browser.");
+		}
+	}
 
-    function showError(error) {
-        switch (error.code) {
-            case error.PERMISSION_DENIED:
-                alert("User denied the request for Geolocation.");
-                break;
-            case error.POSITION_UNAVAILABLE:
-                alert("Location information is unavailable.");
-                break;
-            case error.TIMEOUT:
-                alert("The request to get user location timed out.");
-                break;
-            case error.UNKNOWN_ERROR:
-                alert("An unknown error occurred.");
-                break;
-        }
-    }
+	function showPosition(position) {
+		alert("Latitude: " + position.coords.latitude +
+			"\nLongitude: " + position.coords.longitude);
+		document.getElementById("latitude").value = position.coords.latitude;
+		document.getElementById("longitude").value = position.coords.longitude;
+		document.getElementById("checkInForm").submit();  // Submit the form once location is retrieved
+	}
+
+	function showError(error) {
+		switch (error.code) {
+			case error.PERMISSION_DENIED:
+				alert("User denied the request for Geolocation.");
+				break;
+			case error.POSITION_UNAVAILABLE:
+				alert("Location information is unavailable.");
+				break;
+			case error.TIMEOUT:
+				alert("The request to get user location timed out.");
+				break;
+			case error.UNKNOWN_ERROR:
+				alert("An unknown error occurred.");
+				break;
+		}
+	}
 
 	// Google Maps API Key
 	const googleMapsApiKey = 'AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4';
-	
+
 	// Initialize the map
 	function initMap() {
 		// Default location (if user location is not available)
@@ -82,9 +132,13 @@
 
 					// Update map center and add marker
 					map.setCenter(userLocation);
+
+					//Set zoom to closed
+					map.setZoom(15);
+
 					new google.maps.Marker({
 						position: userLocation,
-						map: map,
+						map: map
 					});
 
 					// Send location to server
@@ -123,14 +177,14 @@
 	}
 
 	// Dynamically load the Google Maps script
-	function loadGoogleMapsScript() {
-		const script = document.createElement('script');
-		script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap`;
-		script.async = true;
-		script.defer = true;
-		document.head.appendChild(script);
-	}
+	// function loadGoogleMapsScript() {
+	// 	const script = document.createElement('script');
+	// 	script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap`;
+	// 	script.async = true;
+	// 	script.defer = true;
+	// 	document.head.appendChild(script);
+	// }
 
 	// Load the Google Maps script
-	loadGoogleMapsScript();
+	//loadGoogleMapsScript();
 </script>

@@ -2,11 +2,50 @@
 using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
+
+/// <summary>
+/// Google cloud https://console.cloud.google.com/
+/// </summary>
 public class AttendanceController : Controller
 {
+    private readonly HttpClient _httpClient;
+    public AttendanceController(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
     public IActionResult Index()
     {
+        ViewBag.GoogleMapsApiKey = "AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4";
         return View();
+    }
+
+    [HttpGet("getMapData")]
+    public async Task<IActionResult> GetMapData(string location = "Bangkok")
+    {
+        // Retrieve the API key from configuration
+        string apiKey = "AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4";
+
+        // Construct the URL for the Google Maps API request
+        string requestUrl = $"https://maps.googleapis.com/maps/api/geocode/json?address={location}&key={apiKey}";
+
+        try
+        {
+            // Make the request to the Google Maps API
+            var response = await _httpClient.GetAsync(requestUrl);
+            response.EnsureSuccessStatusCode();
+
+            // Read the response content
+            var content = await response.Content.ReadAsStringAsync();
+
+            // Return the content as JSON
+            return Ok(content);
+        }
+        catch (HttpRequestException e)
+        {
+            // Handle error (e.g., log it, return a specific error message)
+            return StatusCode(500, $"Internal server error: {e.Message}");
+        }
     }
 
     [HttpPost]
