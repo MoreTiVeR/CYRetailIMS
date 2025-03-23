@@ -48,18 +48,18 @@
 
 			// Function to add a marker to the map
 		function addMarker(location) {
-
+			const defaultLocation = { lat: 0, lng: 0 };
 			const map = new google.maps.Map(document.getElementById('map'), {
 				zoom: 2,
 				center: defaultLocation,
 			});
 
 			alert('Set marker');
-			map.setCenter(location); // Update map center
+			map.setCenter(defaultLocation); // Update map center
 			map.setZoom(15); // Set zoom level
 
 			new google.maps.Marker({
-				position: location,
+				position: defaultLocation,
 				map: map,
 				title: 'User Location' // Optional: Add a title for the marker
 			});
@@ -103,7 +103,7 @@
 	}
 
 	// Google Maps API Key
-	const googleMapsApiKey = 'AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4';
+	//const googleMapsApiKey = 'AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4';
 
 	// Initialize the map
 	function initMap() {

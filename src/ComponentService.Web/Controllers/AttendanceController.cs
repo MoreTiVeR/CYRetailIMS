@@ -8,6 +8,8 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 /// </summary>
 public class AttendanceController : Controller
 {
+    private string googleApiNormalKey => "AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4";
+    private string googleApiRestrictionKey => "AIzaSyDHF4asSLScjVzl7XAwF4EsL5yAYzfSm0g";
     private readonly HttpClient _httpClient;
     public AttendanceController(HttpClient httpClient)
     {
@@ -16,18 +18,15 @@ public class AttendanceController : Controller
 
     public IActionResult Index()
     {
-        ViewBag.GoogleMapsApiKey = "AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4";
+        ViewBag.GoogleMapsApiKey = googleApiRestrictionKey;
         return View();
     }
 
     [HttpGet("getMapData")]
     public async Task<IActionResult> GetMapData(string location = "Bangkok")
     {
-        // Retrieve the API key from configuration
-        string apiKey = "AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4";
-
         // Construct the URL for the Google Maps API request
-        string requestUrl = $"https://maps.googleapis.com/maps/api/geocode/json?address={location}&key={apiKey}";
+        string requestUrl = $"https://maps.googleapis.com/maps/api/geocode/json?address={location}&key={googleApiNormalKey}";
 
         try
         {
