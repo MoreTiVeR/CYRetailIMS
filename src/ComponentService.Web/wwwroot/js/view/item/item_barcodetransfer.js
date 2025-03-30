@@ -293,7 +293,7 @@ $("#txtBarCode").keyup(function (event) {
     if (event.keyCode == 13) {
 
         if (!ValidateTransferBranchSelection()) {
-            ShowMessageError("[BarCode keyup] กรุณาเลือกประเภทการโอน, สาขาต้นทาง-ปลายทาง ก่อนทำรายการ.");
+            ShowMessageError("กรุณาเลือกประเภทการโอน, สาขาต้นทาง-ปลายทาง ก่อนทำรายการ.");
             return;
         }
         var sBarCode = $("#txtBarCode").val();
@@ -369,7 +369,7 @@ function AddTransferItem(form) {
     console.log('Call => SubmitAddTransferItem');
 
     if (!ValidateTransferBranchSelection()) {
-        ShowMessageError("[AddTransferItem] กรุณาเลือกประเภทการโอน, สาขาต้นทาง-ปลายทาง ก่อนทำรายการ.");
+        ShowMessageError("กรุณาเลือกประเภทการโอน, สาขาต้นทาง-ปลายทาง ก่อนทำรายการ.");
         return;
     }
 
