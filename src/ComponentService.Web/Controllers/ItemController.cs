@@ -1589,6 +1589,7 @@ public class ItemController : BaseController
         transferItemData.nitemid = existItem != null ? existItem.itemid : 0;
         transferItemData.sitemname = existItem != null ? existItem.name : null;
         transferItemData.price = existItem != null ? existItem.price : 0;
+        transferItemData.nqtywarehouse = existItem != null ? existItem.qty : 0;
     }
 
     private async Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemSessionDataAsync()

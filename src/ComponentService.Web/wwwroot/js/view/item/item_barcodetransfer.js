@@ -291,7 +291,11 @@ $("#itembranchtransfer").on("change", function () {
 
 $("#txtBarCode").keyup(function (event) {
     if (event.keyCode == 13) {
-        /*ShowMessageInfo($("#txtBarCode").val());*/
+
+        if (!ValidateTransferBranchSelection()) {
+            ShowMessageError("[BarCode keyup] กรุณาเลือกประเภทการโอน, สาขาต้นทาง-ปลายทาง ก่อนทำรายการ.");
+            return;
+        }
         var sBarCode = $("#txtBarCode").val();
         var nQty = $("#txtBarCodeQty").val();
         var data = { "sbarcode": sBarCode, "nqty": nQty };
@@ -330,8 +334,7 @@ function InitialTableItemTransfer() {
             { "data": "nseq" },
             { "data": "sitemname" },
             { "data": "nqty" },
-            { "data": "price" },
-            { "data": "totalprice" },
+            { "data": "nqtywarehouse" },
             {
                 "data": "nseq",
                 "render": function (data) {
@@ -364,7 +367,12 @@ function InitialAutoFocusBarcodeModal() {
 
 function AddTransferItem(form) {
     console.log('Call => SubmitAddTransferItem');
-    console.log(form);
+
+    if (!ValidateTransferBranchSelection()) {
+        ShowMessageError("[AddTransferItem] กรุณาเลือกประเภทการโอน, สาขาต้นทาง-ปลายทาง ก่อนทำรายการ.");
+        return;
+    }
+
     $.validator.unobtrusive.parse(form);
     var data = $(form).serializeJSON();
     data = JSON.stringify(data);
@@ -655,4 +663,27 @@ function InitialAddEventListenerKeydown(){
         },
         true,
     );
+}
+
+function ValidateTransferBranchSelection() {
+
+    //Validate tranfer type, from-branch, to-branch
+    var transferTypeValue = $('.ddl-transfertype').val();
+    var transferFromBranch = $('.ddl-source-branch').val();
+    var transferToBranch = $('.ddl-destination-branch').val();
+
+    // Validate the selected value
+    if (transferTypeValue === undefined || transferTypeValue === null || transferTypeValue <= 0) {
+        return false;
+    }
+
+    if (transferFromBranch === undefined || transferFromBranch === null || transferFromBranch <= 0) {
+        return false;
+    }
+
+    if (transferToBranch === undefined || transferToBranch === null || transferToBranch <= 0) {
+        return false;
+    }
+
+    return true; // Return true if all validations pass
 }

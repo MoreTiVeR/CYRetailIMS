@@ -28,6 +28,9 @@ public class TransferItemDetailViewModel
     [Required(ErrorMessage = "Required field")]
     public int nqty { get; set; }
 
+    [DisplayName("สต๊อกคลังใหญ่")]
+    public int nqtywarehouse { get; set; }
+
     //[Required(ErrorMessage = "*กรุณาระบุราคาสินค้า")]
     [DisplayName("ราคาสินค้า")]
     public decimal price { get; set; }
