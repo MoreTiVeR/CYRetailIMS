@@ -45,6 +45,7 @@ using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemType
 using CYRetailIMS.Application.Services.SupplierContactTypeService.Queries.GetSupplierContactTypeList.v1;
 using CYRetailIMS.Application.Services.SupplierService.Commands.CreateSupplier.v1;
 using CYRetailIMS.Application.Services.SupplierTypeService.Queries.GetSupplierTypeList.v1;
+using CYRetailIMS.Application.Services.TransactionTypeService.Queries.GetTrasnactionByCriteria.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeByID.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureByID.v1;
@@ -143,6 +144,8 @@ public static class ConfigureService
             mc.AddProfile<CreateSubItemTypeMappingProfile>();
 
             mc.AddProfile<CreateCountStockMappingProfile>();
+
+            mc.AddProfile<GetTrasnactionByCriteriaMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

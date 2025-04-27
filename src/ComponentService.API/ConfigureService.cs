@@ -36,7 +36,6 @@ public static class ConfigureService
         });
         #endregion
 
-
         services.AddHttpContextAccessor();
         services.AddFluentValidationAutoValidation(config =>
         {

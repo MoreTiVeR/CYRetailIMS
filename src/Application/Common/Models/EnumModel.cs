@@ -13,6 +13,30 @@ public static class EnumModel
         WAREHOUSE = 99
     }
 
+
+    public enum SellTransactionType
+    {
+        /// <summary>
+        /// Retail ขายปลีก
+        /// </summary>
+        RT = 1,
+
+        /// <summary>
+        /// Wholesale ขายส่ง
+        /// </summary>
+        ws = 2,
+
+        /// <summary>
+        /// ขายส่งด้วยเครื่องสแกนบาร์โค้ด Retail via BarCode Scannder
+        /// </summary>
+        RT01 = 3,
+
+        /// <summary>
+        /// Retail via Mobile Scannder ขายส่งด้วยสแกนผ่านกล้องมือถือ
+        /// </summary>
+        RT02 = 4
+    }
+
     public enum SupplierTypes
     {
         /// <summary>

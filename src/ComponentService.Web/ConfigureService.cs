@@ -42,6 +42,7 @@ using CYRetailIMS.Application.ExternalService.SupplierAPI;
 using CYRetailIMS.Application.ExternalService.SupplierContactTypeAPI;
 using CYRetailIMS.Application.ExternalService.SupplierTypeAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
+using CYRetailIMS.Application.ExternalService.TransactionTypeAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
 using CYRetailIMS.Application.ExternalService.WarehouseAPI;
@@ -50,7 +51,6 @@ using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.Configuration;
 using CYRetailIMS.Infrastructure.Common.HttpClientRequest;
 using CYRetailIMS.Infrastructure.Common.Service;
-using CYRetailIMS.Infrastructure.ExternalService;
 using CYRetailIMS.Infrastructure.ExternalService.AccountAPI;
 using CYRetailIMS.Infrastructure.ExternalService.AdjustItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.AdjustItemTypeAPI;
@@ -79,6 +79,7 @@ using CYRetailIMS.Infrastructure.ExternalService.SupplierAPI;
 using CYRetailIMS.Infrastructure.ExternalService.SupplierContactTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.SupplierTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.TransactionAPI;
+using CYRetailIMS.Infrastructure.ExternalService.TransactionTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
 using CYRetailIMS.Infrastructure.ExternalService.WarehouseAPI;
@@ -247,6 +248,7 @@ public static class ConfigureService
         services.AddScoped<IMoneyTransferSlipAPI, MoneyTransferSlipAPI>();
         services.AddScoped<ISubItemTypeAPI, SubItemTypeAPI>();
         services.AddScoped<ICountStockAPI, CountStockAPI>();
+        services.AddScoped<ITransactionTypeAPI, TransactionTypeAPI>();
         #endregion
 
         services.AddControllersWithViews();

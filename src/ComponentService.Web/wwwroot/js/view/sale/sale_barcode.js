@@ -1,0 +1,487 @@
+﻿
+var datepicker;
+
+$('.select2').select2();
+InitialDatePicker();
+InitialNumberInput();
+
+let dataTable = $('#tbItems').DataTable({
+    //"destroy": true,
+    //"bFilter": true,
+    //"sDom": 'fBtlpi',
+    //'pagingType': 'numbers',
+    //"ordering": true,
+    "destroy": true,
+    "bFilter": true,
+    //"sDom": 'Btlpi',
+    "sDom": 'tp',
+    //"sDom": 'fBtlpi',
+    "pagingType": 'numbers',
+    "ordering": true,
+    "autoWidth": false,
+    "ajax": {
+        "url": "/Sale/GetTempItemData",
+        "type": "GET",
+        "datatype": "json"
+    },
+    "columns": [
+        { "data": "seq" },
+        { "data": "itemid" },
+        { "data": "itemname" },
+        { "data": "qty" },
+        { "data": "itemprice" },
+        {
+            "data": "seq",
+            "render": function (data) {
+                console.log('seq=' + data);
+                return "<a class='me-3' style='margin-left:5px' onclick=Delete(" + data + ")><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+            }
+        }
+    ],
+    "language": {
+        search: ' ',
+        sLengthMenu: '_MENU_',
+        searchPlaceholder: "ค้นหาข้อมูล...",
+        info: "_START_ - _END_ of _TOTAL_ items",
+        emptyTable: "ไม่พบข้อมูล.",
+    },
+    "order": [[0, "desc"]],
+    "columnDefs": [
+        {
+            "targets": [1],
+            "visible": false
+        }
+    ]
+});
+
+
+$(document).on('change', '.select2', function (e) {
+    // Get the selected value
+    var selectedValue = $(this).val();
+    // Get the data-row attribute to identify the row
+    var row = $(this).data('row');
+    console.log($(this).data('name'));
+    // Log the selected value for the current row (you can replace this with your desired logic)
+    console.log("Row " + row + ": " + selectedValue);
+    //ShowMessageInfo('Selected value :' + selectedValue);
+});
+
+$("#btnSave").on('click', function () {
+    //var isValid = $("#frmCurrency").valid();
+    //$("#frmSelling").validate();
+    if (!$("#frmSelling").valid()) {
+        ShowMessageError('กรุณาตรวจสอบข้อมูลก่อนบันทึกข้อมูล!');
+    }
+    else {
+        var data = $($("#frmSelling")).serializeJSON();
+        $.post("ItemDataValidation", { data }).then(
+            function (results) {
+
+                if (results.result) {
+                    console.log(results.msg);
+                    Swal.fire({
+                        //title: 'ยืนยันการบันทึกข้อมูล?',
+                        //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+                        //type: 'warning',
+                        title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+                        icon: 'warning',
+                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+                        showCancelButton: true,
+                        //showDenyButton: true,
+                        confirmButtonColor: '#04B431',
+                        confirmButtonText: 'บันทึก',
+                        cancelButtonColor: '#D33',
+                        cancelButtonText: "ยกเลิก",
+                        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                        //denyButtonColor: '#D33',
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            denyButton: 'btn btn-warning ml-1',
+                            cancelButton: 'btn btn-danger ml-1'
+                        },
+                        buttonsStyling: false,
+                        focusConfirm: true
+                    }).then(function (result) {
+                        if (result.value) {
+                            $("#frmSelling").submit();
+                        }
+                        else if (result.dismiss === Swal.DismissReason.cancel) {
+                            //Code
+                            ShowMessageInfo('ยกเลิก');
+                        }
+                    });
+                }
+                else {
+                    ShowMessageError(results.msg);
+                    return;
+                }
+
+            }, function (results) {
+                //Failed
+                console.log('Failed');
+                ShowMessageError(results.message);
+
+            }, function () {
+                ShowMessageError('Unknow error => Create Sale data.');
+                console.log('this will run if the deferred generates a progress update.');
+            }
+        );
+    }
+});
+
+$("#btnAdd").on('click', function () {
+    var trows = parseInt($("#totalrow").val()) + parseInt(1);
+    $("#totalrow").val(trows);
+});
+
+function ValidationEnglishKeyPress() {
+    $("input[ID='txtItemCode']").on("keypress", function (event) {
+
+        // Disallow anything not matching the regex pattern (A to Z uppercase, a to z lowercase and white space)
+        // For more on JavaScript Regular Expressions, look here: https://developer.mozilla.org/en-US/docs/JavaScript/Guide/Regular_Expressions
+        var englishAlphabetAndWhiteSpace = /[A-Za-z0-9]/g;
+
+        // Retrieving the key from the char code passed in event.which
+        // For more info on even.which, look here: http://stackoverflow.com/q/3050984/114029
+        var key = String.fromCharCode(event.which);
+
+        //alert(event.keyCode);
+
+        // For the keyCodes, look here: http://stackoverflow.com/a/3781360/114029
+        // keyCode == 8  is backspace
+        // keyCode == 37 is left arrow
+        // keyCode == 39 is right arrow
+        // englishAlphabetAndWhiteSpace.test(key) does the matching, that is, test the key just typed against the regex pattern
+        if (event.keyCode == 8 || event.keyCode == 37 || event.keyCode == 39 || englishAlphabetAndWhiteSpace.test(key)) {
+            return true;
+        }
+
+        // If we got this far, just return false because a disallowed key was typed.
+        return false;
+    });
+    $("input[ID='txtItemCode']").on("paste", function (e) {
+        e.preventDefault();
+    });
+}
+
+function CalculatePriceByPrice(price, name) {
+    var res = name.split('[');
+    var resIdx = res[1].split(']');
+
+    var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val() | 0;
+    var total = parseFloat(price) * qty;
+
+    $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+
+    //Sum total amount
+    var totalRow = parseInt($("#totalrow").val());
+    var totalAmt = 0;
+    for (var i = 0; i < totalRow; i++) {
+        var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
+        totalAmt += parseFloat(txtAmt);
+    }
+    $("#txtSummaryTHB").val(currencyFormat(totalAmt));
+
+}
+
+function CalculatePriceByKey(itemkey, name) {
+    var res = name.split('[');
+    var resIdx = res[1].split(']');
+    //alert('index -> ' + resIdx[0]);
+    //var curCode = $("input[name='" + name + "']").val();
+    //Set new Rate
+    var seen = {}; // Object to store encountered values
+    var isDuplicate = false;
+    $('.item-sale-repeater').find('select').each(function (e) {
+        if (this.type == 'select-one') {
+            if (this.value != '') {
+                seen[this.value];
+                if (seen[this.value]) {
+                    // Duplicate found
+                    isDuplicate = true;
+                    return;
+                }
+                else {
+                    seen[this.value] = true;
+                }
+            }
+        }
+    });
+    if (isDuplicate) {
+        //ShowMessageError('ขออภัย, ไม่สามารถระบุสินค้าชนิดเดียวกันได้!');
+        $("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('').trigger('change.select2');
+        //$("select[name='outer-item-group[" + resIdx[0] + "][ddlSearchItem]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val('');
+        $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val('');
+        return;
+    }
+
+    var itemid = parseInt(itemkey) | 0;
+    var branchid = parseInt($("#ddlBranch").val()) | 0;
+
+    var searchdata = {
+        itemid: parseInt(itemkey) | 0,
+        branchid: parseInt($("#ddlBranch").val()) | 0,
+    };
+    var ajaxRequest = $.ajax({
+        url: 'GetItemPriceByCriteria',
+        async: true,
+        type: 'POST',
+        dataType: 'JSON',
+        data: searchdata,
+        success: function (response) {
+
+            if (!response.result) {
+                $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val('');
+                ShowMessageError(response.msg);
+                return;
+            }
+
+            //Set item price
+            $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val(response.data.price);
+
+            //Set item current qty
+            $("input[name='outer-item-group[" + resIdx[0] + "][txtCurrentQty]']").val(response.data.qty);
+            
+
+            //Get & Re-check qty if is null
+            var qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val() | 0;
+            if (isNaN(qty)) {
+                qty = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemQty]']").val();
+            }
+
+            //var curRate = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
+            var total = parseFloat(response.data.price) * qty;
+            $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+
+            //Sum total amount
+            var totalAmt = 0;
+
+            var totalRow = parseInt($("#totalrow").val());
+
+            for (var i = 0; i < totalRow; i++) {
+                var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val();
+                totalAmt += parseFloat(txtAmt);
+            }
+
+            $("#txtSummaryTHB").val(currencyFormat(totalAmt));
+        },
+        failure: function (response) {
+            ShowMessageError(response.msg);
+        },
+        error: function (response) {
+            ShowMessageError(response.msg);
+        }
+    });
+}
+
+function CalculatePriceByQty(qty, name) {
+    var res = name.split('[');
+    var resIdx = res[1].split(']');
+
+    var itemPrice = $("input[name='outer-item-group[" + resIdx[0] + "][txtItemPrice]']").val();
+    var total = parseFloat(itemPrice) * qty;
+
+    $("input[name='outer-item-group[" + resIdx[0] + "][txtAmount]']").val(total.toFixed(2));
+
+    //Sum total amount
+    var totalRow = parseInt($("#totalrow").val());
+    var totalAmt = 0;
+    for (var i = 0; i < totalRow; i++) {
+        var txtAmt = $("input[name='outer-item-group[" + i + "][txtAmount]']").val() | 0;
+        totalAmt += parseFloat(txtAmt);
+    }
+    $("#txtSummaryTHB").val(currencyFormat(totalAmt));
+}
+
+function OnSuccess(data) {
+    /*$("#txtSummaryTHB").val(0);*/
+
+    console.log('exec OnSuccess');
+    if (data.result) {
+        ShowMessageSuccess(data.msg);
+        AlertSuccess(data.msg);
+        $("#txtSummaryTHB").val(0);
+        ResetForm();
+    }
+    else {
+        ShowMessageError(data.msg);
+    }
+}
+function ResetForm() {
+
+    console.log('Exec ResetForm');
+    $('.outer-item-group').empty();
+    $('#frmSelling')[0].reset(); // [0] gets the DOM element from the jQuery object
+}
+
+//Select2 + Ajax search
+//$('.ddl-searchitem').select2({
+//    minimumInputLength: 2,
+//    tags: [],
+//    ajax: {
+//        url: '/Sale/SearchItemBranchs',
+//        dataType: 'json',
+//        type: "GET",
+//        quietMillis: 50,
+//        data: function (params) {
+//            var query = {
+//                search: params.term,
+//                type: 'user_search'
+//            }
+//            // Query parameters will be ?search=[term]&type=user_search
+//            return query;
+//        },
+//        processResults: (data, params) => {
+//            const results = data.items.map(item => {
+//                return {
+//                    id: item.id,
+//                    text: item.text,
+//                };
+//            });
+//            return {
+//                results: results,
+//            }
+//        }
+//    }
+//});
+
+
+$("#txtBarCode").keyup(function (event) {
+
+    if (event.keyCode == 13) {
+        if (!ValidateSellingBranchSelection()) {
+            ShowMessageError("กรุณาเลือกสาขาก่อนทำรายการ ก่อนทำรายการ.");
+            return;
+        }
+        var sBarCode = $("#txtBarCode").val();
+        var nQty = $("#txtBarCodeQty").val();
+        var data = { "sbarcode": sBarCode, "nqty": nQty };
+        $.ajax({
+            type: 'POST',
+            url: '/Sale/AddTempItemSellingBarcode',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function (data) {
+                if (data.result) {
+                    ShowMessageSuccess(data.message);
+                    dataTable.ajax.reload();
+                }
+                else {
+                    AlertErrorNoTitle(data.message);
+                }
+                $("#txtBarCode").val('');
+            }
+        });
+    }
+
+});
+
+function AddSellingBarcodeItem(form) {
+    console.log('Call => SubmitAddTransferItem');
+
+    if (!ValidateTransferBranchSelection()) {
+        ShowMessageError("กรุณาเลือกสาขา ก่อนทำรายการ.");
+        return;
+    }
+
+    $.validator.unobtrusive.parse(form);
+    var data = $(form).serializeJSON();
+    data = JSON.stringify(data);
+    console.log(data);
+
+    var frmAddOrderItem = $("#frmAddSellingBarcodeItem");
+    frmAddOrderItem.validate();
+    var isValid = frmAddOrderItem.valid();
+    if (!isValid) {
+        ShowMessageError('กรุณาระบุข้อมูลให้ถูกต้องก่อนทำรายการ');
+        return;
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/Sale/AddTempItemSellingBarcode',
+        data: data,
+        contentType: 'application/json',
+        success: function (data) {
+            if (data.result) {
+                //popup.dialog('close');
+                ShowMessageSuccess(data.message);
+                dataTable.ajax.reload();
+                //$('#frmAddOrderItem')[0].reset();
+
+                //$('#mdlAddItem').modal('toggle');
+                //$('#mdlAddItem').modal('hide');
+                //$("#btnCloseMdl").click();
+
+                //$("#sbarcode").val('');
+            }
+            else {
+                AlertError(data.message);
+            }
+        }
+    });
+    return false;
+}
+
+function Delete(id) {
+    console.log('Call => Delete => ' + id);
+    Swal.fire({
+        title: "ยืนยันการลบข้อมูล?",
+        //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
+        html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!</span>",
+        icon: 'warning',
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        confirmButtonClass: "btn btn-primary",
+        cancelButtonText: "ยกเลิก",
+        cancelButtonClass: "btn btn-danger ml-1",
+        buttonsStyling: false,
+    }).then(function (t) {
+        if (t.value) {
+
+            //Delete
+            $.ajax({
+                type: 'POST',
+                url: '/Sale/DeleteTempItemSellingBarcode',
+                dataType: 'JSON',
+                data: { "seq": id },
+                success: function (response) {
+                    if (response.result) {
+
+                        ShowMessageSuccess('ลบข้อมูลสำเร็จ');
+                        $("#global-loader").css('display', 'none');
+
+                        dataTable.ajax.reload();
+
+                        //Set sum amount
+                        //$("#amount").val(response.amount);
+
+                        //$("#txtSummaryTHB").val(currencyFormat(response.amount));
+                    }
+                    else {
+                        //ShowMessageError(data.message);
+                        ShowMessageError(response.message);
+                        $("#global-loader").css('display', 'none');
+                    }
+                }
+            });
+        }
+    });
+
+}
+
+function ValidateSellingBranchSelection() {
+
+    //Validate tranfer type, from-branch, to-branch
+    var sellingBranch = $('.ddl-ddlBranch').val();
+
+    // Validate the selected value
+    if (sellingBranch === undefined || sellingBranch === null || sellingBranch <= 0) {
+        return false;
+    }
+    return true; // Return true if all validations pass
+}

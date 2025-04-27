@@ -12,22 +12,27 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
+using CYRetailIMS.Application.ExternalService.TransactionTypeAPI;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
-using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByCriteria.v1;
-using CYRetailIMS.Application.Services.ItemService.Commands.DeleteItem;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
+using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionTypeService.Queries.GetTrasnactionList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
+using CYRetailIMS.Infrastructure.Common.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NUglify.Helpers;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -36,12 +41,16 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
 public class SaleController : BaseController
 {
+    private string _sessionTempSellingItemBarcodeName => "TEMP_SELLING_ITEM_BARCODE_DATA";
+    private string _sessionTempSaleItemData => "SALE_ITEM_DATA";
+
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IItemAPI _itemAPI;
     private readonly ITransactionAPI _transactionAPI;
     private readonly IItemBrandAPI _itemBrandAPI;
     private readonly IItemTypeAPI _itemTypeAPI;
     private readonly IItemUnitOfMeasureAPI _itemUnitOfMeasureAPI;
+    private readonly ITransactionTypeAPI _transactionTypeAPI;
 
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemInBranchAPI itemInBranchAPI,
@@ -49,7 +58,8 @@ public class SaleController : BaseController
         ITransactionAPI transactionAPI,
         IItemBrandAPI itemBrandAPI,
         IItemTypeAPI itemTypeAPI,
-        IItemUnitOfMeasureAPI itemUnitOfMeasureAPI) : base(httpClientRequest, mapper, log)
+        IItemUnitOfMeasureAPI itemUnitOfMeasureAPI,
+        ITransactionTypeAPI transactionTypeAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
         _itemAPI = itemAPI;
@@ -57,6 +67,7 @@ public class SaleController : BaseController
         _itemBrandAPI = itemBrandAPI;
         _itemTypeAPI = itemTypeAPI;
         _itemUnitOfMeasureAPI = itemUnitOfMeasureAPI;
+        _transactionTypeAPI = transactionTypeAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -75,6 +86,20 @@ public class SaleController : BaseController
     {
         BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(UserProfile.access_branch.FirstOrDefault().branchid);
         ViewBag.ItemInBranch = resItemInBranch;
+        return View();
+    }
+
+    public async Task<IActionResult> Barcode()
+    {
+        #region Get- Set Item
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        #endregion
+
+        BaseResponse<List<GetTrasnactionByCriteriaResponseDTO>> resTransactionType = await _transactionTypeAPI.GetTransactionTypeByCriteriaAsync(new GetTrasnactionByCriteriaQuery
+        {
+            isactive = true
+        });
+        ViewBag.TransactionType = resTransactionType;
         return View();
     }
 
@@ -411,7 +436,7 @@ public class SaleController : BaseController
         decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
         return new CreateTransactionCommand
         {
-            transactiontypeid = 1, //Retail
+            transactiontypeid = (int)SellTransactionType.RT,
             amountcash = reqObj.mcash,
             amountdeposit = reqObj.mdeposit,
             amounttransfer = reqObj.mtransfer,
@@ -473,6 +498,155 @@ public class SaleController : BaseController
         return true;
     }
     #endregion
+
+
+    [HttpPost]
+    public async Task<IActionResult> AddTempItemSellingBarcode([FromBody] SellingBarcodeItemViewModel sellingBarcodeItem)
+    {
+        sellingBarcodeItem.barcode = "I6/6S";
+        if (!ModelState.IsValid)
+        {
+            return Json(new { result = false, message = "กรุณาตรวจสอบจำนวนสินค้า/บาร์โค้ดให้ถูกต้อง" });
+        }
+
+        try
+        {
+            if (sellingBarcodeItem.qty <= 0)
+            {
+                return Json(new { result = false, message = "กรุณาระบุจำนวนสินค้าไม่น้อยกว่า 0" });
+            }
+
+            //Get Current List
+            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
+
+            #region Update when Already added
+            if (tempSellingBarcodeItemList != null)
+            {
+                //Check is exist from temp
+                SellingBarcodeItemViewModel existData = tempSellingBarcodeItemList.FirstOrDefault(w => w.barcode == sellingBarcodeItem.barcode);
+                if (existData != null)
+                {
+                    //Update QTY
+                    tempSellingBarcodeItemList.Where(w => w.barcode == sellingBarcodeItem.barcode).ForEach(e =>
+                    {
+                        e.qty = e.qty + sellingBarcodeItem.qty;
+                    });
+                }
+                else
+                {
+                    //Add new if doesn't exist in temp list
+                    int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().qty : 0;
+                    lastId++;
+                    sellingBarcodeItem.seq = lastId;
+                    MappingSellingBarcodeItem(ref sellingBarcodeItem);
+                    tempSellingBarcodeItemList.Add(sellingBarcodeItem);
+                }
+            }
+            else
+            {
+                tempSellingBarcodeItemList = new List<SellingBarcodeItemViewModel>();
+                //Add new get last seq
+                int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().seq : 0;
+                lastId++;
+                sellingBarcodeItem.seq = lastId;
+                MappingSellingBarcodeItem(ref sellingBarcodeItem);
+                tempSellingBarcodeItemList.Add(sellingBarcodeItem);
+            }
+            #endregion
+
+            #region Validate Qty in Stock TMItem by barcode before response
+            BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeV2Async(new GetItemByBarcodeQuery { itembarcode = sellingBarcodeItem.barcode });
+            if (!resItem.result)
+            {
+                return Json(new { result = false, message = $"{resItem.error.error.message} บาร์โค้ด {sellingBarcodeItem.barcode}" });
+            }
+
+            if (resItem.data.qty < tempSellingBarcodeItemList.FirstOrDefault(w => w.itemid == resItem.data.itemid)?.qty)
+            {
+                return Json(new { result = false, message = $"ไม่สามารภทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
+            }
+            #endregion
+
+            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeName, tempSellingBarcodeItemList);
+            return Json(new { result = true, message = "เพิ่มสินค้าสำเร็จ", amount = tempSellingBarcodeItemList.Sum(w => w.totalprice) });
+
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult GetTempItemDataAsync()
+    {
+        try
+        {
+            List<SellingBarcodeItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
+
+            #region if list is null => create new list with 0 member
+            if (tempList == null)
+            {
+                tempList = new List<SellingBarcodeItemViewModel>();
+                HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeName, tempList);
+            }
+            #endregion
+            return Json(new { data = tempList.OrderBy(o => o.seq).ToList() });
+        }
+        catch
+        {
+            return Json(new { data = new List<TransferItemDetailViewModel>() });
+        }
+
+    }
+
+    private async Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemSessionDataAsync()
+    {
+        BaseResponse<List<GetItemListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>(_sessionTempSaleItemData);
+        if (res != null)
+        {
+            return res;
+        }
+        res = await _itemAPI.GetItemListAsync();
+        HttpContext.Session.SetDataToSession(_sessionTempSaleItemData, res);
+        return res;
+    }
+
+
+    private void MappingSellingBarcodeItem(ref SellingBarcodeItemViewModel sellingBarcodeItemView)
+    {
+        BaseResponse<List<GetItemListResponseDTO>> resItems = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>(_sessionTempSaleItemData);
+        string itemBarcode = sellingBarcodeItemView.barcode;
+
+        GetItemListResponseDTO existItem = resItems.data.Where(w => !string.IsNullOrEmpty(w.barcode)).FirstOrDefault(w => w.barcode.Trim().ToUpper() == itemBarcode.Trim().ToUpper());
+        sellingBarcodeItemView.itemid = existItem != null ? existItem.itemid : 0;
+        sellingBarcodeItemView.itemname = existItem != null ? existItem.name : null;
+        sellingBarcodeItemView.itemprice = existItem != null ? existItem.price : 0;
+        sellingBarcodeItemView.qty = sellingBarcodeItemView.qty > 0 ? sellingBarcodeItemView.qty : 1;
+    }
+
+    [HttpPost]
+    public JsonResult DeleteTempItemSellingBarcode(int seq)
+    {
+        try
+        {
+            List<SellingBarcodeItemViewModel> tempTransferItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
+            SellingBarcodeItemViewModel todo = tempTransferItemList?.FirstOrDefault(m => m.seq == seq);
+            if (todo == null)
+            {
+                throw new Exception("ไม่สามารถลบข้อมูลได้");
+            }
+
+            tempTransferItemList.Remove(todo);
+            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeName, tempTransferItemList);
+            return Json(new { result = true, message = "ลบข้อมูลสำเร็จ.", amount = tempTransferItemList.Sum(w => w.totalprice) });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
 }
 
 public class Select2Model

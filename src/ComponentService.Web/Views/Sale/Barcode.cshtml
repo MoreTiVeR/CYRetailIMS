@@ -1,27 +1,31 @@
-﻿@using CYRetailIMS.Application.Common.Models.UI;
-@using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
-@using Microsoft.AspNetCore.Http
-@using Newtonsoft.Json;
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json
+@model SellingItemViewModel
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 @{
-	ViewData["Title"] = "Create";
+	ViewData["Title"] = "Barcode";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @{
 	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
 	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
 }
-@model SellingItemViewModel
 
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
 
+<style>
+
+</style>
 <div class="page-header">
 	<div class="page-title">
-		<h4>ขายสินค้า</h4>
+		<h4>สแกนขายสินค้า</h4>
 		<h6>บันทึกรายการขาย</h6>
 	</div>
 </div>
+
 <div class="card">
 	<div class="card-body">
 		<div class="row">
@@ -33,7 +37,7 @@
 					  data-ajax-failure=""
 					  data-ajax-begin="">
 					<div class="row">
-						<div class="col-lg-3 col-sm-6 col-12">
+						<div class="col-lg-5 col-sm-6 col-12">
 							<div class="form-group">
 								<label>สาขา</label>
 								<div class="row">
@@ -56,7 +60,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-lg-3 col-sm-6 col-12">
+						<div class="col-lg-4 col-sm-6 col-12">
 							<div class="form-group">
 								<label>วันที่ขาย</label>
 								<div class="input-groupicon">
@@ -80,82 +84,65 @@
 							</div>
 						</div>
 					</div>
-					<div class="row" id="divSellingItem">
-						<input id="totalrow" name="totalrow" value="1" hidden />
-						<div data-repeater-list="outer-item-group" class="outer-item-group">
-							<div data-repeater-item class="outer-item-group item-sale-repeater">
-								<div class="row justify-content-between">
-									<div class="col-md-2 col-sm-12 form-group">
-										<div class="position-relative has-icon-left search-box">
-											<select id="ddlSearchItem" name="ddlSearchItem" onchange="return CalculatePriceByKey(this.value, this.name)" class="ddl-select2 select2 ddl-searchitem">
-												@if (ViewBag.ItemInBranch.result)
-												{
-													GetItemInBranchByBranchIDResponseDTO itemBranch = ViewBag.ItemInBranch.data;
-													<option value="">-- เลือกสินค้าขาย --</option>
-													foreach (var item in itemBranch.itemlist)
-													{
-														<option value="@item.itemid">[@item.itemcode]@item.itemname</option>
-													}
-												}
-												else
-												{
-													<option value="">-- ไม่พบข้อมูล --</option>
-												}
-											</select>
-										</div>
-									</div>
-									<div class="col-md-2 col-sm-12 form-group">
-										<div class="position-relative has-icon-left">
-											<input type="number" id="txtItemPrice" name="txtItemPrice" onchange="return CalculatePriceByPrice(this.value, this.name)" class="form-control" placeholder="ราคาขายสินค้า" readonly>
-											<div class="form-control-position">
-												<i class="bx bxs-keyboard"></i>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-2 col-sm-12 form-group">
-										<div class="position-relative has-icon-left">
-											<input type="number" id="txtCurrentQty" name="txtCurrentQty" class="form-control" placeholder="จำนวนคงเหลือ" readonly>
-											<div class="form-control-position">
-												<i class="bx bxs-keyboard"></i>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-2 col-sm-12 form-group">
-										<div class="position-relative has-icon-left">
-											<input type="number" id="txtItemQty" name="txtItemQty" onchange="return CalculatePriceByQty(this.value, this.name)" class="form-control" placeholder="ระบุจำนวนขาย">
-											<div class="form-control-position">
-												<i class="bx bx-money"></i>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-2 col-sm-12 form-group">
-										<fieldset>
-											<div class="input-group">
-												<input type="number" id="txtAmount" name="txtAmount" class="form-control" placeholder="รวมเงิน" aria-label="จำนวนเงิน (บาท)" readonly>
-												<div class="input-group-append">
-													<span class="input-group-text">THB</span>
-												</div>
-											</div>
-										</fieldset>
-									</div>
-									<div class="col-md-2 col-sm-12 form-group">
-										<button id="btnDeleteRow" class="btn btn-danger text-nowrap" data-repeater-delete type="button">
-											<i class="fe fe-x"></i>
-											ลบรายการ
-										</button>
+
+					<!--Scann input-->
+					<div class="row">
+						<div class="col-lg-12 col-sm-6 col-12">
+							<form id="frmAddSellingBarcodeItem" onsubmit="return AddSellingBarcodeItem(this)">
+								<div class="form-group">
+									<label>บาร์โค้ด</label>
+									<div class="input-group">
+										<input id="txtBarCode" name="txtBarCode" type="text" class="form-control" placeholder="กรุณาสแกนขายสินค้าด้วยเครื่องอ่านบาร์โค้ด" autofocus />
+										<span class="input-group-text" style="display: flex; align-items: center;">
+											<img src="~/assets/img/icons/qrcode-scan.svg" alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 20px; width: auto; margin: 0;" />
+										</span>
 									</div>
 								</div>
-							</div>
+							</form>
 						</div>
 					</div>
-					<div class="row form-group">
-						<div class="col-lg-12 col-sm-12 col-12">
-							<button id="btnAdd" class="btn btn-primary" data-repeater-create type="button">
-								<i class="fe fe-plus"></i>
-								เพิ่มรายการใหม่
-							</button>
+
+					<!--Desiplay items-->
+					<div class="table-responsive no-pagination">
+						<table id="tbItems" class="table table-striped table-bordered">
+							<thead>
+								<tr>
+									<th style="width:10%">#</th>
+									<th hidden>รหัสสินค้า</th>
+									<th style="width:30%">ชื่อสินค้า</th>
+									<th style="width:20%">จำนวนสินค้า</th>
+									<th style="width:20%">ราคา</th>
+									<th style="width:20%">ดำเนินการ</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+
+					@* <div class="row">
+					<div class="col-lg-6 ms-auto">
+						<div class="total-order w-100 max-widthauto m-auto mb-4">
+							<ul>
+								<li>
+									<h4>Order Tax</h4>
+									<h5>$ 0.00</h5>
+								</li>
+								<li>
+									<h4>Discount</h4>
+									<h5>$ 0.00</h5>
+								</li>
+								<li>
+									<h4>Shipping</h4>
+									<h5>$ 0.00</h5>
+								</li>
+								<li>
+									<h4>Grand Total</h4>
+									<h5>$ 0.00</h5>
+								</li>
+							</ul>
 						</div>
 					</div>
+				</div> *@
+
 					<div class="row">
 						<div class="col-lg-3 col-sm-6 col-12">
 							<div class="form-group">
@@ -198,6 +185,7 @@
 							</div>
 						</div>
 					</div>
+
 					<!--ROW-->
 					<div class="row">
 						<div class="col-lg-12">
@@ -228,18 +216,22 @@
 				</button>
 			</div>
 		</div>
+
 	</div>
 </div>
 
-<!-- /product list -->
 @section Scripts {
 
-	<script src="~/assets/plugins/repeater/jquery.repeater.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
 	<script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
 
-	<!--Page Script-->
-	<script src="~/js/view/sale/sale_create.js" asp-append-version="true"></script>
+	<script src="~/js/view/sale/sale_barcode.js"></script>
+
 }
