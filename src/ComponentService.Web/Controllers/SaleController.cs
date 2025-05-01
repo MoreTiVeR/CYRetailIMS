@@ -32,6 +32,7 @@ using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Index.HPRtree;
 using NUglify.Helpers;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
@@ -76,6 +77,7 @@ public class SaleController : BaseController
 
         BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
+        resTransaction.data = resTransaction.data.OrderByDescending(s => s.transactiondate).ToList();
         ViewBag.BranchList = base.UserProfile.access_branch;
         ViewBag.ItemBranch = resItemBranch;
         ViewBag.TransactionList = resTransaction;
@@ -323,7 +325,7 @@ public class SaleController : BaseController
             }
 
             #region Prepare & Create Transaction
-            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionCommand(sellingItemObj, createTransactionDetailCommands);
+            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionCommand(sellingItemObj, createTransactionDetailCommands, SellTransactionType.RT);
             BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
             if (!resCreateTrn.result)
             {
@@ -331,6 +333,41 @@ public class SaleController : BaseController
             }
             #endregion
 
+            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveSellingItemByBarcode([FromForm]SellingItemViewModel sellingItemObj)
+    {
+        try
+        {
+            #region PrePare TransactionRequest
+            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
+            List<CreateTransactionDetailCommand> createTransactionDetailCommands = tempSellingBarcodeItemList.Select(s => new CreateTransactionDetailCommand
+            {
+                itemid = s.itemid,
+                price = s.itemprice,
+                qty = s.qty,
+                amount = decimal.Multiply(s.itemprice, s.qty),
+                isactive = true
+            }).ToList();
+            #endregion
+
+            #region Prepare & Create Transaction
+            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionCommand(sellingItemObj, createTransactionDetailCommands, SellTransactionType.RT01);
+            BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            }
+            #endregion
+
+            HttpContext.Session.Remove(_sessionTempSellingItemBarcodeName);
             return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
         }
         catch (Exception ex)
@@ -431,12 +468,14 @@ public class SaleController : BaseController
     }
 
     #region Private Method
-    private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj, List<CreateTransactionDetailCommand> createTransactionDetailCommands)
+    private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj, 
+        List<CreateTransactionDetailCommand> createTransactionDetailCommands,
+        SellTransactionType sellTransactionType)
     {
         decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
         return new CreateTransactionCommand
         {
-            transactiontypeid = (int)SellTransactionType.RT,
+            transactiontypeid = (int)sellTransactionType,
             amountcash = reqObj.mcash,
             amountdeposit = reqObj.mdeposit,
             amounttransfer = reqObj.mtransfer,
@@ -503,7 +542,6 @@ public class SaleController : BaseController
     [HttpPost]
     public async Task<IActionResult> AddTempItemSellingBarcode([FromBody] SellingBarcodeItemViewModel sellingBarcodeItem)
     {
-        sellingBarcodeItem.barcode = "I6/6S";
         if (!ModelState.IsValid)
         {
             return Json(new { result = false, message = "กรุณาตรวจสอบจำนวนสินค้า/บาร์โค้ดให้ถูกต้อง" });
@@ -592,7 +630,7 @@ public class SaleController : BaseController
                 HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeName, tempList);
             }
             #endregion
-            return Json(new { data = tempList.OrderBy(o => o.seq).ToList() });
+            return Json(new { data = tempList.OrderBy(o => o.seq).ToList(), amount = tempList.Sum(s => s.totalprice) });
         }
         catch
         {
@@ -620,6 +658,10 @@ public class SaleController : BaseController
         string itemBarcode = sellingBarcodeItemView.barcode;
 
         GetItemListResponseDTO existItem = resItems.data.Where(w => !string.IsNullOrEmpty(w.barcode)).FirstOrDefault(w => w.barcode.Trim().ToUpper() == itemBarcode.Trim().ToUpper());
+        if(existItem == null)
+        {
+            throw new Exception("ไม่พบข้อมูลบาร์โค้ดสินค้า!");
+        }
         sellingBarcodeItemView.itemid = existItem != null ? existItem.itemid : 0;
         sellingBarcodeItemView.itemname = existItem != null ? existItem.name : null;
         sellingBarcodeItemView.itemprice = existItem != null ? existItem.price : 0;

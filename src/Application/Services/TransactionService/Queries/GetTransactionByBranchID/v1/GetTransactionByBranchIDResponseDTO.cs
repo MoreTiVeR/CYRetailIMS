@@ -19,7 +19,7 @@ public class GetTransactionByBranchIDResponseDTO
 	#endregion
 
 	#region Transaction Type
-	public int transactiontypid { get; set; }
+	public int transactiontypeid { get; set; }
 	public string transactiontypename { get; set; }
 	public string transactiontypedesc { get; set; }
 	#endregion

@@ -30,7 +30,7 @@ public class GetTransactionByCriteriaHandler : BaseService, IRequestHandler<GetT
                                                                     {
                                                                         transactionid = tran.TransactionID,
                                                                         transactiondate = tran.TransactionDate,
-                                                                        transactiontypid = tran.TransactionID,
+                                                                        transactiontypeid = tran.TransactionTypeID,
                                                                         transactiontypename = tran.TransactionType.TransactionTypeName,
                                                                         transactiontypedesc = tran.TransactionType.Description,
                                                                         branchid = tran.BranchID,

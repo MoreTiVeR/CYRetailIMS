@@ -22,7 +22,20 @@ let dataTable = $('#tbItems').DataTable({
     "ajax": {
         "url": "/Sale/GetTempItemData",
         "type": "GET",
-        "datatype": "json"
+        "datatype": "json",
+        "dataSrc": function (response) {
+            let totalAmount = 0;
+
+            // Iterate through each item to calculate the total price
+            response.data.forEach(function (item) {
+                totalAmount += item.itemprice * item.qty; // Calculate total
+            });
+
+            //Set sum amount
+            $("#txtSummaryTHB").val(currencyFormat(totalAmount));
+
+            return response.data; // Return the data for DataTable to use
+        },
     },
     "columns": [
         { "data": "seq" },
@@ -33,7 +46,6 @@ let dataTable = $('#tbItems').DataTable({
         {
             "data": "seq",
             "render": function (data) {
-                console.log('seq=' + data);
                 return "<a class='me-3' style='margin-left:5px' onclick=Delete(" + data + ")><img src='../assets/img/icons/delete.svg' alt='img'></a>";
             }
         }
@@ -51,7 +63,19 @@ let dataTable = $('#tbItems').DataTable({
             "targets": [1],
             "visible": false
         }
-    ]
+    ],
+    "initComplete": function (settings, json) {
+        // You can perform additional actions here if needed
+        // Iterate through each item to calculate the total price
+        //var totalAmount = 0;
+        //json.data.forEach(function (item) {
+        //    totalAmount += item.itemprice * item.qty; // Calculate total
+        //});
+
+        ////Set sum amount
+        //console.log(totalAmount);
+        //$("#txtSummaryTHB").val(currencyFormat(totalAmount));
+    }
 });
 
 
@@ -67,71 +91,7 @@ $(document).on('change', '.select2', function (e) {
 });
 
 $("#btnSave").on('click', function () {
-    //var isValid = $("#frmCurrency").valid();
-    //$("#frmSelling").validate();
-    if (!$("#frmSelling").valid()) {
-        ShowMessageError('กรุณาตรวจสอบข้อมูลก่อนบันทึกข้อมูล!');
-    }
-    else {
-        var data = $($("#frmSelling")).serializeJSON();
-        $.post("ItemDataValidation", { data }).then(
-            function (results) {
-
-                if (results.result) {
-                    console.log(results.msg);
-                    Swal.fire({
-                        //title: 'ยืนยันการบันทึกข้อมูล?',
-                        //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-                        //type: 'warning',
-                        title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
-                        icon: 'warning',
-                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
-                        showCancelButton: true,
-                        //showDenyButton: true,
-                        confirmButtonColor: '#04B431',
-                        confirmButtonText: 'บันทึก',
-                        cancelButtonColor: '#D33',
-                        cancelButtonText: "ยกเลิก",
-                        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-                        //denyButtonColor: '#D33',
-                        customClass: {
-                            confirmButton: 'btn btn-success',
-                            denyButton: 'btn btn-warning ml-1',
-                            cancelButton: 'btn btn-danger ml-1'
-                        },
-                        buttonsStyling: false,
-                        focusConfirm: true
-                    }).then(function (result) {
-                        if (result.value) {
-                            $("#frmSelling").submit();
-                        }
-                        else if (result.dismiss === Swal.DismissReason.cancel) {
-                            //Code
-                            ShowMessageInfo('ยกเลิก');
-                        }
-                    });
-                }
-                else {
-                    ShowMessageError(results.msg);
-                    return;
-                }
-
-            }, function (results) {
-                //Failed
-                console.log('Failed');
-                ShowMessageError(results.message);
-
-            }, function () {
-                ShowMessageError('Unknow error => Create Sale data.');
-                console.log('this will run if the deferred generates a progress update.');
-            }
-        );
-    }
-});
-
-$("#btnAdd").on('click', function () {
-    var trows = parseInt($("#totalrow").val()) + parseInt(1);
-    $("#totalrow").val(trows);
+    $("#frmSelling").trigger('submit');
 });
 
 function ValidationEnglishKeyPress() {
@@ -296,9 +256,6 @@ function CalculatePriceByQty(qty, name) {
 }
 
 function OnSuccess(data) {
-    /*$("#txtSummaryTHB").val(0);*/
-
-    console.log('exec OnSuccess');
     if (data.result) {
         ShowMessageSuccess(data.msg);
         AlertSuccess(data.msg);
@@ -309,11 +266,10 @@ function OnSuccess(data) {
         ShowMessageError(data.msg);
     }
 }
-function ResetForm() {
 
-    console.log('Exec ResetForm');
-    $('.outer-item-group').empty();
+function ResetForm() {
     $('#frmSelling')[0].reset(); // [0] gets the DOM element from the jQuery object
+    dataTable.clear().draw(); // Clear the table and redraw
 }
 
 //Select2 + Ajax search
@@ -349,27 +305,29 @@ function ResetForm() {
 
 
 $("#txtBarCode").keyup(function (event) {
-
+    
     if (event.keyCode == 13) {
         if (!ValidateSellingBranchSelection()) {
             ShowMessageError("กรุณาเลือกสาขาก่อนทำรายการ ก่อนทำรายการ.");
             return;
         }
         var sBarCode = $("#txtBarCode").val();
-        var nQty = $("#txtBarCodeQty").val();
-        var data = { "sbarcode": sBarCode, "nqty": nQty };
+        var data = { "barcode": sBarCode };
         $.ajax({
             type: 'POST',
             url: '/Sale/AddTempItemSellingBarcode',
             data: JSON.stringify(data),
             contentType: 'application/json',
-            success: function (data) {
-                if (data.result) {
-                    ShowMessageSuccess(data.message);
+            success: function (response) {
+                if (response.result) {
+                    ShowMessageSuccess(response.message);
                     dataTable.ajax.reload();
+
+                    //Set sum amount
+                    $("#txtSummaryTHB").val(currencyFormat(response.amount));
                 }
                 else {
-                    AlertErrorNoTitle(data.message);
+                    AlertErrorNoTitle(response.message);
                 }
                 $("#txtBarCode").val('');
             }
@@ -379,17 +337,19 @@ $("#txtBarCode").keyup(function (event) {
 });
 
 function AddSellingBarcodeItem(form) {
-    console.log('Call => SubmitAddTransferItem');
 
     if (!ValidateTransferBranchSelection()) {
         ShowMessageError("กรุณาเลือกสาขา ก่อนทำรายการ.");
         return;
     }
 
-    $.validator.unobtrusive.parse(form);
-    var data = $(form).serializeJSON();
-    data = JSON.stringify(data);
-    console.log(data);
+    //$.validator.unobtrusive.parse(form);
+    //var data = $(form).serializeJSON();
+    //data = JSON.stringify(data);
+    //console.log(data);
+
+    var sBarCode = $("#txtBarCode").val();
+    var data = { "barcode": sBarCode };
 
     var frmAddOrderItem = $("#frmAddSellingBarcodeItem");
     frmAddOrderItem.validate();
@@ -408,6 +368,7 @@ function AddSellingBarcodeItem(form) {
                 //popup.dialog('close');
                 ShowMessageSuccess(data.message);
                 dataTable.ajax.reload();
+                
                 //$('#frmAddOrderItem')[0].reset();
 
                 //$('#mdlAddItem').modal('toggle');
@@ -453,19 +414,21 @@ function Delete(id) {
                     if (response.result) {
 
                         ShowMessageSuccess('ลบข้อมูลสำเร็จ');
-                        $("#global-loader").css('display', 'none');
+                        HideLoading();
 
                         dataTable.ajax.reload();
 
-                        //Set sum amount
-                        //$("#amount").val(response.amount);
 
-                        //$("#txtSummaryTHB").val(currencyFormat(response.amount));
+                        //Set sum amount
+                        $("#txtSummaryTHB").val(currencyFormat(response.amount));
+
+                        //Set focus to txtBarCode
+                        $('#txtBarCode').trigger('focus');
                     }
                     else {
                         //ShowMessageError(data.message);
                         ShowMessageError(response.message);
-                        $("#global-loader").css('display', 'none');
+                        HideLoading();
                     }
                 }
             });
