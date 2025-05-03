@@ -1,6 +1,7 @@
 ﻿
 
 $("#btnSave").on("click", function () {
+    alert('Create Branch');
     var frmAddBrand = $("#frmAddBranch");
     frmAddBrand.validate();
     var isValid = frmAddBrand.valid();

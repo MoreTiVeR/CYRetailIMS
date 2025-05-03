@@ -88,17 +88,15 @@
 					<!--Scann input-->
 					<div class="row">
 						<div class="col-lg-12 col-sm-6 col-12">
-							<form id="frmAddSellingBarcodeItem" onsubmit="return AddSellingBarcodeItem(this)">
-								<div class="form-group">
-									<label>บาร์โค้ด</label>
-									<div class="input-group">
-										<input id="txtBarCode" name="txtBarCode" type="text" class="form-control" placeholder="กรุณาสแกนขายสินค้าด้วยเครื่องอ่านบาร์โค้ด" autofocus />
-										<span class="input-group-text" style="display: flex; align-items: center;">
-											<img src="~/assets/img/icons/qrcode-scan.svg" alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 20px; width: auto; margin: 0;" />
-										</span>
-									</div>
+							<div class="form-group">
+								<label>บาร์โค้ด</label>
+								<div class="input-group">
+									<input id="txtBarCode" name="txtBarCode" type="text" class="form-control" placeholder="กรุณาสแกนขายสินค้าด้วยเครื่องอ่านบาร์โค้ด" autofocus />
+									<span class="input-group-text" style="display: flex; align-items: center;">
+										<img src="~/assets/img/icons/qrcode-scan.svg" alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 20px; width: auto; margin: 0;" />
+									</span>
 								</div>
-							</form>
+							</div>
 						</div>
 					</div>
 
@@ -118,67 +116,9 @@
 						</table>
 					</div>
 
-					<div class="row">
-						<div class="col-lg-3 col-sm-6 col-12">
-							<div class="form-group">
-								<label>ยอดเงินโอน</label>
-								<div class="input-group">
-									<input type="text" asp-for="mtransfer" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
-									<span class="input-group-text">บาท</span>
-								</div>
-								<span asp-validation-for="mtransfer" class="text-danger"></span>
-							</div>
-						</div>
-						<div class="col-lg-3 col-sm-6 col-12">
-							<div class="form-group">
-								<label>ยอดเงินฝาก</label>
-								<div class="input-group">
-									<input type="text" asp-for="mdeposit" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
-									<span class="input-group-text">บาท</span>
-								</div>
-								<span asp-validation-for="mdeposit" class="text-danger"></span>
-							</div>
-						</div>
-						<div class="col-lg-3 col-sm-6 col-12">
-							<div class="form-group">
-								<label>ค่าธรรมเนียม</label>
-								<div class="input-group">
-									<input type="text" asp-for="mfee" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
-									<span class="input-group-text">บาท</span>
-								</div>
-								<span asp-validation-for="mfee" class="text-danger"></span>
-							</div>
-						</div>
-						<div class="col-lg-3 col-sm-6 col-12">
-							<div class="form-group">
-								<label>เงินพนักงานพาร์ทไทม์</label>
-								<div class="input-group">
-									<input type="text" asp-for="mcash" class="form-control allownumericwithdecimal" aria-label="Amount (to the nearest dollar)">
-									<span class="input-group-text">บาท</span>
-								</div>
-								<span asp-validation-for="mcash" class="text-danger"></span>
-							</div>
-						</div>
-					</div>
+					@await Html.PartialAsync("_PartialPage/_SellingBarcodePartialPage")
 
-					<!--ROW-->
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="form-group">
-								<label>หมายเหตุ</label>
-								@Html.TextAreaFor(m => m.Remark, new
-									{
-										@class = "form-control full-width",
-										@style = "resize: none;",
-										@cols = 5,
-										@rows = 3,
-										@maxlength = 200,
-										value = "",
-										placeholder = Html.DisplayNameFor(n => n.Remark)
-									})
-							</div>
-						</div>
-					</div>
+					
 				</form>
 			</div>
 		</div>

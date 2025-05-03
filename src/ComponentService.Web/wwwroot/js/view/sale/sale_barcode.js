@@ -78,7 +78,6 @@ let dataTable = $('#tbItems').DataTable({
     }
 });
 
-
 $(document).on('change', '.select2', function (e) {
     // Get the selected value
     var selectedValue = $(this).val();
@@ -90,10 +89,75 @@ $(document).on('change', '.select2', function (e) {
     //ShowMessageInfo('Selected value :' + selectedValue);
 });
 
-$("#btnSave").on('click', function () {
-    $("#frmSelling").trigger('submit');
-});
+$("#btnSave").on("click", function (e) {
+    e.preventDefault();
 
+    alert('Create Branch');
+    var frmSelling = $("#frmSelling");
+    frmSelling.validate();
+    var isValid = frmSelling.valid();
+    if (isValid) {
+        $.validator.unobtrusive.parse(frmSelling);
+        var data = $(frmSelling).serializeJSON();
+        data.qty = 1;
+        data = JSON.stringify(data);
+
+        Swal.fire({
+            //title: 'ยืนยันการบันทึกข้อมูล?',
+            //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
+            //type: 'warning',
+            title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+            icon: 'warning',
+            html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+            showCancelButton: true,
+            //showDenyButton: true,
+            confirmButtonColor: '#04B431',
+            confirmButtonText: 'บันทึก',
+            cancelButtonColor: '#D33',
+            cancelButtonText: "ยกเลิก",
+            //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+            //denyButtonColor: '#D33',
+            customClass: {
+                confirmButton: 'btn btn-success',
+                denyButton: 'btn btn-warning ml-1',
+                cancelButton: 'btn btn-danger ml-1'
+            },
+            buttonsStyling: false,
+            focusConfirm: true
+        }).then(function (result) {
+            if (result.value) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Sale/SaveSellingItemByBarcode',
+                    data: data,
+                    contentType: 'application/json',
+                    success: function (data) {
+                        if (data.result) {
+                            //popup.dialog('close');
+                            ShowMessageSuccess(data.msg);
+                            dataTable.ajax.reload();
+
+                            ShowMessageSuccess(data.msg);
+                            AlertSuccess(data.msg);
+                            $("#txtSummaryTHB").val(0);
+                            ResetForm();
+                        }
+                        else {
+                            AlertError(data.msg);
+                        }
+                    }
+                });
+            }
+            else if (result.dismiss === Swal.DismissReason.cancel) {
+                //Code
+                ShowMessageInfo('ยกเลิก');
+            }
+        });
+    }
+    
+    
+});
 function ValidationEnglishKeyPress() {
     $("input[ID='txtItemCode']").on("keypress", function (event) {
 
@@ -272,38 +336,6 @@ function ResetForm() {
     dataTable.clear().draw(); // Clear the table and redraw
 }
 
-//Select2 + Ajax search
-//$('.ddl-searchitem').select2({
-//    minimumInputLength: 2,
-//    tags: [],
-//    ajax: {
-//        url: '/Sale/SearchItemBranchs',
-//        dataType: 'json',
-//        type: "GET",
-//        quietMillis: 50,
-//        data: function (params) {
-//            var query = {
-//                search: params.term,
-//                type: 'user_search'
-//            }
-//            // Query parameters will be ?search=[term]&type=user_search
-//            return query;
-//        },
-//        processResults: (data, params) => {
-//            const results = data.items.map(item => {
-//                return {
-//                    id: item.id,
-//                    text: item.text,
-//                };
-//            });
-//            return {
-//                results: results,
-//            }
-//        }
-//    }
-//});
-
-
 $("#txtBarCode").keyup(function (event) {
     
     if (event.keyCode == 13) {
@@ -342,11 +374,6 @@ function AddSellingBarcodeItem(form) {
         ShowMessageError("กรุณาเลือกสาขา ก่อนทำรายการ.");
         return;
     }
-
-    //$.validator.unobtrusive.parse(form);
-    //var data = $(form).serializeJSON();
-    //data = JSON.stringify(data);
-    //console.log(data);
 
     var sBarCode = $("#txtBarCode").val();
     var data = { "barcode": sBarCode };

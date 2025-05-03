@@ -292,7 +292,6 @@ $("#itembranchtransfer").on("change", function () {
 $("#txtBarCode").keyup(function (event) {
     console.log('key code: ' + event.keyCode);
     if (event.keyCode == 13) {
-        alert('key code 13' + event.keyCode);
         if (!ValidateTransferBranchSelection()) {
             ShowMessageError("กรุณาเลือกประเภทการโอน, สาขาต้นทาง-ปลายทาง ก่อนทำรายการ.");
             return;
@@ -368,7 +367,7 @@ function InitialAutoFocusBarcodeModal() {
 
 
 function AddTransferItem(form) {
-    alert('ddd');
+
     console.log('Call => SubmitAddTransferItem');
 
     if (!ValidateTransferBranchSelection()) {
@@ -415,7 +414,7 @@ function AddTransferItem(form) {
 }
 
 function Delete(id) {
-    //alert(id);
+
     console.log('Call => Delete => ' + id);
     Swal.fire({
         title: "ยืนยันการลบข้อมูล?",

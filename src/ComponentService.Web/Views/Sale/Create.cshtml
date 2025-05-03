@@ -2,6 +2,7 @@
 @using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 @using Microsoft.AspNetCore.Http
 @using Newtonsoft.Json;
+@model SellingItemViewModel
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
 	ViewData["Title"] = "Create";
@@ -11,7 +12,7 @@
 	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
 	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
 }
-@model SellingItemViewModel
+
 
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">

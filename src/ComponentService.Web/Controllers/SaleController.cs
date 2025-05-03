@@ -342,7 +342,7 @@ public class SaleController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> SaveSellingItemByBarcode([FromForm]SellingItemViewModel sellingItemObj)
+    public async Task<IActionResult> SaveSellingItemByBarcode([FromBody] SellingItemViewModel sellingItemObj)
     {
         try
         {
