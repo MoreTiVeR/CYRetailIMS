@@ -1,6 +1,7 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI
 @using Microsoft.AspNetCore.Http;
 @using Newtonsoft.Json
+@using static CYRetailIMS.Application.Common.Models.EnumModel
 @model SellingItemViewModel
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
@@ -116,9 +117,10 @@
 						</table>
 					</div>
 
-					@await Html.PartialAsync("_PartialPage/_SellingBarcodePartialPage")
+					@if (userProfile.roleid == (int)UserRole.Admin || userProfile.roleid == (int)UserRole.Stock){
+						@await Html.PartialAsync("_PartialPage/_SellingBarcodePartialPage")
+					}
 
-					
 				</form>
 			</div>
 		</div>
