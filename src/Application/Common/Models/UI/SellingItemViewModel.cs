@@ -53,4 +53,7 @@ public class SellingItemViewModel
 
     [DisplayName("หมายเหตุ")]
     public string? Remark { get; init; }
+
+    [DisplayName("ชำระเงินเป็นเงินโอน/เงินสด")]
+    public bool? iscash { get; set; }
 }

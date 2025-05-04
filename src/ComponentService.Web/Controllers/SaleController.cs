@@ -26,12 +26,14 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
 using CYRetailIMS.Application.Services.TransactionTypeService.Queries.GetTrasnactionList.v1;
+using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NetTopologySuite.Index.HPRtree;
 using NUglify.Helpers;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
@@ -102,6 +104,7 @@ public class SaleController : BaseController
             isactive = true
         });
         ViewBag.TransactionType = resTransactionType;
+        ViewBag.SellingTransactionTypeList = PrepareSelectSellingType();
         return View();
     }
 
@@ -359,7 +362,7 @@ public class SaleController : BaseController
             #endregion
 
             #region Prepare & Create Transaction
-            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionCommand(sellingItemObj, createTransactionDetailCommands, SellTransactionType.RT01);
+            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionByBarcodeCommand(sellingItemObj, createTransactionDetailCommands, SellTransactionType.RT01);
             BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
             if (!resCreateTrn.result)
             {
@@ -480,6 +483,34 @@ public class SaleController : BaseController
             amountdeposit = reqObj.mdeposit,
             amounttransfer = reqObj.mtransfer,
             fee = reqObj.mfee,
+            branchid = reqObj.branch.ToInt32(),
+            totalamount = toalAmt,
+            isactive = true,
+            isexcludevat = false,
+            transactiondate = reqObj.saledate.ToDate(),
+            createddate = DateTime.Now,
+            createdby = base.UserProfile.username,
+            transactiondetail = createTransactionDetailCommands,
+            remark = reqObj.Remark
+        };
+    }
+
+    private CreateTransactionCommand PrepareCreateTransactionByBarcodeCommand(SellingItemViewModel reqObj,
+        List<CreateTransactionDetailCommand> createTransactionDetailCommands,
+        SellTransactionType sellTransactionType)
+    {
+        decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
+        bool isPayWithCash = reqObj.iscash.HasValue && reqObj.iscash == true ? true : false;
+        decimal mDeposit = isPayWithCash ? toalAmt - 1 : 0;
+        decimal nDepositFee = isPayWithCash ? 1 : 0;
+        decimal mTransfer = isPayWithCash ? 0 : toalAmt;
+        return new CreateTransactionCommand
+        {
+            transactiontypeid = (int)sellTransactionType,
+            amountcash = reqObj.mcash,
+            amountdeposit = mDeposit,
+            amounttransfer = mTransfer,
+            fee = nDepositFee,
             branchid = reqObj.branch.ToInt32(),
             totalamount = toalAmt,
             isactive = true,
@@ -688,6 +719,18 @@ public class SaleController : BaseController
         {
             return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
         }
+    }
+
+    private List<SelectListItem> PrepareSelectSellingType()
+    {
+        //BaseResponse<List<GetTrasnactionByCriteriaResponseDTO>> resItemTransaferTypeList = await _transactionTypeAPI.GetTransactionTypeByCriteriaAsync(new GetTrasnactionByCriteriaQuery
+        //{
+        //    isactive
+        //});
+        List<SelectListItem> SellingTypeList = new List<SelectListItem>();
+        SellingTypeList.Add(new SelectListItem { Text = "เงินสด", Value = "1" });
+        SellingTypeList.Add(new SelectListItem { Text = "เงินโอน", Value = "2" });
+        return SellingTypeList;
     }
 }
 

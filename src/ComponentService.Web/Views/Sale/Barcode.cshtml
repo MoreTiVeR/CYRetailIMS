@@ -12,6 +12,9 @@
 @{
 	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
 	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
+
+	// Serialize the role id to make sure it's a valid JavaScript string
+	ViewBag.CurrentRoleID = JsonConvert.SerializeObject(userProfile.roleid);
 }
 
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
@@ -31,6 +34,7 @@
 	<div class="card-body">
 		<div class="row">
 			<div class="form-group">
+				<input type="hidden" id="uRoleID" value="@ViewBag.CurrentRoleID" readonly />
 				<form id="frmSelling" class="form" asp-action="SaveSellingItemByBarcode" asp-controller="Sale" method="post"
 					  data-ajax="true"
 					  data-ajax-update=""

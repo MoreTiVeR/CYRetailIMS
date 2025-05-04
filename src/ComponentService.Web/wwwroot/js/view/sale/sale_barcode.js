@@ -1,7 +1,8 @@
 ﻿
 var datepicker;
 
-$('.select2').select2();
+$('.ddl-ddlBranch').select2();
+$('.ddl-transactiontype').select2();
 InitialDatePicker();
 InitialNumberInput();
 
@@ -92,72 +93,34 @@ $(document).on('change', '.select2', function (e) {
 $("#btnSave").on("click", function (e) {
     e.preventDefault();
 
-    alert('Create Branch');
     var frmSelling = $("#frmSelling");
     frmSelling.validate();
     var isValid = frmSelling.valid();
     if (isValid) {
         $.validator.unobtrusive.parse(frmSelling);
         var data = $(frmSelling).serializeJSON();
-        data.qty = 1;
-        data = JSON.stringify(data);
+        //data.qty = 1;
+        //data.iscash = true;
+        //data = JSON.stringify(data);
 
-        Swal.fire({
-            //title: 'ยืนยันการบันทึกข้อมูล?',
-            //text: 'กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!',
-            //type: 'warning',
-            title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
-            icon: 'warning',
-            html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
-            showCancelButton: true,
-            //showDenyButton: true,
-            confirmButtonColor: '#04B431',
-            confirmButtonText: 'บันทึก',
-            cancelButtonColor: '#D33',
-            cancelButtonText: "ยกเลิก",
-            //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-            //denyButtonColor: '#D33',
-            customClass: {
-                confirmButton: 'btn btn-success',
-                denyButton: 'btn btn-warning ml-1',
-                cancelButton: 'btn btn-danger ml-1'
-            },
-            buttonsStyling: false,
-            focusConfirm: true
-        }).then(function (result) {
-            if (result.value) {
+        // Access the role ID from the userProfile object in JavaScript
+        var userRoleId = document.getElementById("uRoleID").value;
 
-                $.ajax({
-                    type: 'POST',
-                    url: '/Sale/SaveSellingItemByBarcode',
-                    data: data,
-                    contentType: 'application/json',
-                    success: function (data) {
-                        if (data.result) {
-                            //popup.dialog('close');
-                            ShowMessageSuccess(data.msg);
-                            dataTable.ajax.reload();
-
-                            ShowMessageSuccess(data.msg);
-                            AlertSuccess(data.msg);
-                            $("#txtSummaryTHB").val(0);
-                            ResetForm();
-                        }
-                        else {
-                            AlertError(data.msg);
-                        }
-                    }
-                });
-            }
-            else if (result.dismiss === Swal.DismissReason.cancel) {
-                //Code
-                ShowMessageInfo('ยกเลิก');
-            }
-        });
+        // Now you can use userRoleId in your JavaScript code
+        if (userRoleId == 2) {
+            //Role Sale
+            CreateSellingTransactionDataBySale(data);
+        }
+        else {
+            //Admin or Other
+            CreateSellingTrasnactionDataByAdmin(data);
+        }
+        
     }
     
     
 });
+
 function ValidationEnglishKeyPress() {
     $("input[ID='txtItemCode']").on("keypress", function (event) {
 
@@ -474,4 +437,104 @@ function ValidateSellingBranchSelection() {
         return false;
     }
     return true; // Return true if all validations pass
+}
+
+function CreateSellingTrasnactionDataByAdmin(data) {
+    Swal.fire({
+        title: '<strong>ยืนยันการบันทึกข้อมูล?</strong>',
+        icon: 'warning',
+        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+        showCancelButton: true,
+        //showDenyButton: true,
+        confirmButtonColor: '#04B431',
+        confirmButtonText: 'บันทึก',
+        cancelButtonColor: '#D33',
+        cancelButtonText: "ยกเลิก",
+        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+        //denyButtonColor: '#D33',
+        customClass: {
+            confirmButton: 'btn btn-success',
+            denyButton: 'btn btn-warning ml-1',
+            cancelButton: 'btn btn-danger ml-1'
+        },
+        buttonsStyling: false,
+        focusConfirm: true,
+        didOpen: function () {
+            //Initial
+        }
+    }).then(function (result) {
+
+        if (result.isConfirmed) {
+
+            //Prepare Request Data
+            data.qty = 1;
+            data = JSON.stringify(data);
+            CreateData(data);
+        }
+        else if (result.dismiss === Swal.DismissReason.cancel) {
+            //Code
+            ShowMessageInfo('ยกเลิก');
+        }
+    });
+}
+
+function CreateSellingTransactionDataBySale(data) {
+    Swal.fire({
+        title: '<u><strong>เลือกประเภทการจ่ายเงิน</strong></u>',
+        showCancelButton: true,
+        confirmButtonColor: '#04B431',
+        confirmButtonText: '<i class="fa fa-money-bill" aria-hidden="true"></i> เงินสด',
+        cancelButtonColor: '#D33',
+        cancelButtonText: '<i class="fa fa-university" aria-hidden="true"></i> เงินโอน',
+        customClass: {
+            confirmButton: 'btn-lg btn-icon btn-primary',
+            denyButton: 'btn btn-warning ml-1',
+            cancelButton: 'btn-lg btn-icon btn-success'
+        },
+        buttonsStyling: false,
+        focusConfirm: true,
+        didOpen: function () {
+            //Initial other
+        }
+    }).then(function (result) {
+
+        if (result.isConfirmed) {
+            //เงินสด
+            data.qty = 1;
+            data.iscash = true;
+            data = JSON.stringify(data);
+            CreateData(data);
+        }
+        else if (result.dismiss === Swal.DismissReason.cancel) {
+            //เงินโอน
+            data.qty = 1;
+            data.iscash = false;
+            data = JSON.stringify(data);
+            CreateData(data);
+        }
+    });
+}
+
+function CreateData(objData) {
+    $.ajax({
+        type: 'POST',
+        url: '/Sale/SaveSellingItemByBarcode',
+        data: objData,
+        contentType: 'application/json',
+        success: function (data) {
+            if (data.result) {
+
+                ShowMessageSuccess(data.msg);
+                dataTable.ajax.reload();
+
+                ShowMessageSuccess(data.msg);
+                AlertSuccess(data.msg);
+                $("#txtSummaryTHB").val(0);
+                ResetForm();
+            }
+            else {
+                AlertError(data.msg);
+            }
+        }
+    });
 }
