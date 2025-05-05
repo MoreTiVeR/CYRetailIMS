@@ -1,0 +1,81 @@
+﻿@{
+	ViewData["Title"] = "QRCode";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>สแกนขายสินค้า</h4>
+		<h6>บันทึกรายการขาย</h6>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="input-group">
+				<input type="text" name="txtBarCode" id="txtBarCode" class="form-control" placeholder="บาร์โค้ด">
+				<div class="input-group-append">
+					<button class="btn btn-primary" id="btnsearch" type="button">
+						<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+							 width="20" height="20"
+							 viewBox="0 0 50 50"
+							 style=" fill:#000000;">
+							<path d="M 21 3 C 11.621094 3 4 10.621094 4 20 C 4 29.378906 11.621094 37 21 37 C 24.710938 37 28.140625 35.804688 30.9375 33.78125 L 44.09375 46.90625 L 46.90625 44.09375 L 33.90625 31.0625 C 36.460938 28.085938 38 24.222656 38 20 C 38 10.621094 30.378906 3 21 3 Z M 21 5 C 29.296875 5 36 11.703125 36 20 C 36 28.296875 29.296875 35 21 35 C 12.703125 35 6 28.296875 6 20 C 6 11.703125 12.703125 5 21 5 Z"></path>
+						</svg>
+					</button>
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal"
+							data-bs-target="#exampleModalScrollable5">
+						Launch demo modal
+					</button>
+				</div>
+			</div>
+		</div>
+		<hr />
+		<div class="row">
+			<div class="col-lg-12 col-sm-12 col-12 text-center">
+				<div class="form-group">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal"
+							data-bs-target="#exampleModalScrollable5">
+						Launch demo modal
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="exampleModalScrollable5" tabindex="-1"
+	 aria-labelledby="exampleModalScrollable5" data-bs-keyboard="false"
+	 aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-12">
+							<div id="qr-reader" style="width:auto"></div>
+							<div id="qr-reader-results"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			@* <div class="modal-footer">
+				<button type="button" class="btn btn-cancel"
+						data-bs-dismiss="modal">
+					Close
+				</button>
+				<button type="button" class="btn btn-primary">
+					Save
+					Changes
+				</button>
+			</div> *@
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+
+	<script src="~/lib/html5-qrcode/html5-qrcode.min.js" asp-append-version="true"></script>
+	<script src="~/js/view/barcode/barcode_qrcode.js"></script>
+}

@@ -1,0 +1,24 @@
+﻿@{
+	ViewData["Title"] = "Index";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>สแกนขายสินค้า</h4>
+		<h6>บันทึกรายการขาย</h6>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<button id="scanButton">Scan Barcode</button>
+		<video id="preview" style="display:none;"></video>
+	</div>
+</div>
+
+@section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/@@zxing/library@0.18.6/umd/index.min.js"></script>
+
+	<script src="~/js/view/barcode/barcode_index.js"></script>
+}

@@ -1,0 +1,175 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json
+@using static CYRetailIMS.Application.Common.Models.EnumModel
+@model SellingItemViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+	ViewData["Title"] = "Mobile";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
+	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
+
+	// Serialize the role id to make sure it's a valid JavaScript string
+	ViewBag.CurrentRoleID = JsonConvert.SerializeObject(userProfile.roleid);
+}
+
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
+
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>สแกนขายสินค้า</h4>
+		<h6>บันทึกรายการขายผ่านกล้องมือถือ</h6>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="form-group">
+				<input type="hidden" id="uRoleID" value="@ViewBag.CurrentRoleID" readonly />
+				<form id="frmSelling" class="form" asp-action="SaveSellingItemByBarcode" asp-controller="Sale" method="post"
+					  data-ajax="true"
+					  data-ajax-update=""
+					  data-ajax-success="OnSuccess"
+					  data-ajax-failure=""
+					  data-ajax-begin="">
+					<div class="row">
+						<div class="col-lg-5 col-sm-6 col-12">
+							<div class="form-group">
+								<label>สาขา</label>
+								<div class="row">
+									<div class="col-lg-12 col-sm-10 col-12">
+										<select id="ddlBranch" class="form-control select2 ddl-ddlBranch" asp-for="branch">
+											@if (userProfile.access_branch is not null)
+											{
+												foreach (var branch in userProfile.access_branch)
+												{
+													<option value="@branch.branchid">@branch.branchname</option>
+												}
+											}
+											else
+											{
+												<option value="">-- ไม่พบสาขา --</option>
+											}
+										</select>
+									</div>
+									<span asp-validation-for="branch" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4 col-sm-6 col-12">
+							<div class="form-group">
+								<label>วันที่ขาย</label>
+								<div class="input-groupicon">
+									<input id="txtSaleDate" type="text" placeholder="กรุณาเลือกวันที่ขายสินค้า" class="pickadate-saledate" asp-for="saledate">
+									<a class="addonset">
+										<img src="~/assets/img/icons/calendars.svg" alt="img">
+									</a>
+									<span asp-validation-for="saledate" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12 ">
+							<div class="form-group">
+								<label>รวมเงินทั้งหมด :</label>
+								<div class="input-group">
+									<input type="number" id="txtSummaryTHB" name="txtSummaryTHB" asp-for="amount" class="form-control" placeholder="รวมเงิน" readonly aria-label="จำนวนเงิน (บาท)" value="0.00">
+									<div class="input-group-append">
+										<span class="input-group-text">THB</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!--Scann input-->
+					<div class="row">
+						<div class="col-lg-4 col-sm-4 col-12"></div>
+						<div class="col-lg-4 col-sm-4 col-12" style="text-align: center">
+							<button class="btn" id="btnMobileScan" type="button">
+								<img src="~/assets/img/cyui/mobile-scanner-app.png" data-bs-toggle="modal"
+									 data-bs-target="#mdlMobileScanner"
+									 alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 100px; width: auto; margin: 0;" />
+							</button>
+						</div>
+						<div class="col-lg-4 col-sm-4 col-12"></div>
+					</div>
+
+					<!--Desiplay items-->
+					<div class="table-responsive no-pagination">
+						<table id="tbItems" class="table table-striped table-bordered">
+							<thead>
+								<tr>
+									<th style="width:10%">#</th>
+									<th hidden>รหัสสินค้า</th>
+									<th style="width:30%">ชื่อสินค้า</th>
+									<th style="width:20%">จำนวนสินค้า</th>
+									<th style="width:20%">ราคา</th>
+									<th style="width:20%">ดำเนินการ</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+
+					@if (userProfile.roleid == (int)UserRole.Admin || userProfile.roleid == (int)UserRole.Stock)
+					{
+						@await Html.PartialAsync("_PartialPage/_SellingBarcodePartialPage")
+					}
+
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12 text-center">
+				<a asp-action="Index" asp-controller="Sale" class="btn btn-cancel me-2">ยกเลิก</a>
+				<button id="btnSave" name="btnSave" class="btn btn-submit me-2">
+					<i class="bx bx-plus"></i>
+					บันทึกข้อมูล
+				</button>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<div class="modal fade" id="mdlMobileScanner" tabindex="-1"
+	 aria-labelledby="mdlMobileScanner" data-bs-keyboard="false"
+	 aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-12">
+							<div id="qr-reader" style="width:auto"></div>
+							<div id="qr-reader-results"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+
+	<script src="~/lib/html5-qrcode/html5-qrcode.min.js" asp-append-version="true"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+	<script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+	<script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+	<script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+	<script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
+	<script src="~/js/view/sale/sale_mobile.js"></script>
+
+}
