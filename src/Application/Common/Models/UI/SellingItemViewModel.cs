@@ -56,4 +56,7 @@ public class SellingItemViewModel
 
     [DisplayName("ชำระเงินเป็นเงินโอน/เงินสด")]
     public bool? iscash { get; set; }
+
+    [DisplayName("ประเภทรายการ")]
+    public int? transactiontype { get; set; }
 }

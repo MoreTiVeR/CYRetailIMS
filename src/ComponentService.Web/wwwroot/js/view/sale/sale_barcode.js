@@ -527,7 +527,6 @@ function CreateData(objData) {
                 ShowMessageSuccess(data.msg);
                 dataTable.ajax.reload();
 
-                ShowMessageSuccess(data.msg);
                 AlertSuccess(data.msg);
                 $("#txtSummaryTHB").val(0);
                 ResetForm();

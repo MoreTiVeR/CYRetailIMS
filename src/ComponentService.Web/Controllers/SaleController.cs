@@ -30,6 +30,7 @@ using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTy
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
+using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -94,6 +95,21 @@ public class SaleController : BaseController
     }
 
     public async Task<IActionResult> Barcode()
+    {
+        #region Get- Set Item
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        #endregion
+
+        BaseResponse<List<GetTrasnactionByCriteriaResponseDTO>> resTransactionType = await _transactionTypeAPI.GetTransactionTypeByCriteriaAsync(new GetTrasnactionByCriteriaQuery
+        {
+            isactive = true
+        });
+        ViewBag.TransactionType = resTransactionType;
+        ViewBag.SellingTransactionTypeList = PrepareSelectSellingType();
+        return View();
+    }
+
+    public async Task<IActionResult> Mobile()
     {
         #region Get- Set Item
         BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
@@ -362,7 +378,7 @@ public class SaleController : BaseController
             #endregion
 
             #region Prepare & Create Transaction
-            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionByBarcodeCommand(sellingItemObj, createTransactionDetailCommands, SellTransactionType.RT01);
+            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionByBarcodeCommand(sellingItemObj, createTransactionDetailCommands);
             BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
             if (!resCreateTrn.result)
             {
@@ -496,17 +512,17 @@ public class SaleController : BaseController
     }
 
     private CreateTransactionCommand PrepareCreateTransactionByBarcodeCommand(SellingItemViewModel reqObj,
-        List<CreateTransactionDetailCommand> createTransactionDetailCommands,
-        SellTransactionType sellTransactionType)
+        List<CreateTransactionDetailCommand> createTransactionDetailCommands)
     {
         decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
         bool isPayWithCash = reqObj.iscash.HasValue && reqObj.iscash == true ? true : false;
         decimal mDeposit = isPayWithCash ? toalAmt - 1 : 0;
         decimal nDepositFee = isPayWithCash ? 1 : 0;
         decimal mTransfer = isPayWithCash ? 0 : toalAmt;
+        int transactionType = reqObj.transactiontype != null ? reqObj.transactiontype.Value : (int)EnumModel.SellTransactionType.RT01;
         return new CreateTransactionCommand
         {
-            transactiontypeid = (int)sellTransactionType,
+            transactiontypeid = transactionType,
             amountcash = reqObj.mcash,
             amountdeposit = mDeposit,
             amounttransfer = mTransfer,
