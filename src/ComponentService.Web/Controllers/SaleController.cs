@@ -80,6 +80,10 @@ public class SaleController : BaseController
 
         BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
+        if (!resTransaction.result)
+        {
+            resTransaction.data = new List<GetTransactionByBranchIDResponseDTO>();
+        }
         resTransaction.data = resTransaction.data.OrderByDescending(s => s.transactiondate).ToList();
         ViewBag.BranchList = base.UserProfile.access_branch;
         ViewBag.ItemBranch = resItemBranch;
