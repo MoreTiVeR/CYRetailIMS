@@ -398,131 +398,133 @@ function CreateData(objData) {
     });
 }
 
-InitialBarcodeScanner(function () {
+//Camera Func
+
+//InitialBarcodeScanner(function () {
     
-    let config = {
-        fps: 10,
-        qrbox: 250,
-        rememberLastUsedCamera: false,
-        facingMode: "environment",
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-    };
+//    let config = {
+//        fps: 10,
+//        qrbox: 250,
+//        rememberLastUsedCamera: false,
+//        facingMode: "environment",
+//        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+//    };
 
-    var resultContainer = document.getElementById('qr-reader-results');
-    var lastResult, countResults = 0;
-    let shouldPauseVideo = true;
-    let showPausedBanner = false;
-    function onScanSuccess(decodedText, decodedResult) {
-        if (decodedText !== lastResult) {
-            ++countResults;
-            lastResult = decodedText;
-            // Handle on success condition with the decoded message.
-            console.log(`Scan result ${decodedText}`, decodedResult);
-            //ShowMessageSuccess(`Scan result ${decodedText}`, decodedResult);
+//    var resultContainer = document.getElementById('qr-reader-results');
+//    var lastResult, countResults = 0;
+//    let shouldPauseVideo = true;
+//    let showPausedBanner = false;
+//    function onScanSuccess(decodedText, decodedResult) {
+//        if (decodedText !== lastResult) {
+//            ++countResults;
+//            lastResult = decodedText;
+//            // Handle on success condition with the decoded message.
+//            console.log(`Scan result ${decodedText}`, decodedResult);
+//            //ShowMessageSuccess(`Scan result ${decodedText}`, decodedResult);
 
-            // If you want to stop scanning after first successful scan:
-            //html5QrcodeScanner.clear()
-            //    .then(_ => console.log("Stopped scanning."), ShowMessageError(`Stopped scanning.`))
-            //    .catch(err => console.error("Failed to clear scanner.", err), ShowMessageError(`Failed to clear scanner`));
+//            // If you want to stop scanning after first successful scan:
+//            //html5QrcodeScanner.clear()
+//            //    .then(_ => console.log("Stopped scanning."), ShowMessageError(`Stopped scanning.`))
+//            //    .catch(err => console.error("Failed to clear scanner.", err), ShowMessageError(`Failed to clear scanner`));
 
-            // Call the function to automatically input text and trigger Enter
-            //AddItemDataList(decodedText);
-            html5QrcodeScanner.pause(shouldPauseVideo, showPausedBanner);
-            Swal.fire({
-                title: `<strong>ต้องการเพิ่มรายการสินค้า ${decodedText}</strong>`,
-                icon: 'warning',
-                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
-                showCancelButton: true,
-                //showDenyButton: true,
-                confirmButtonColor: '#04B431',
-                confirmButtonText: 'บันทึก',
-                cancelButtonColor: '#D33',
-                cancelButtonText: "ยกเลิก",
-                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-                //denyButtonColor: '#D33',
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    denyButton: 'btn btn-warning ml-1',
-                    cancelButton: 'btn btn-danger ml-1'
-                },
-                buttonsStyling: false,
-                focusConfirm: true,
-                didOpen: function () {
-                    //Initial
-                }
-            }).then(function (result) {
+//            // Call the function to automatically input text and trigger Enter
+//            //AddItemDataList(decodedText);
+//            html5QrcodeScanner.pause(shouldPauseVideo, showPausedBanner);
+//            Swal.fire({
+//                title: `<strong>ต้องการเพิ่มรายการสินค้า ${decodedText}</strong>`,
+//                icon: 'warning',
+//                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+//                showCancelButton: true,
+//                //showDenyButton: true,
+//                confirmButtonColor: '#04B431',
+//                confirmButtonText: 'บันทึก',
+//                cancelButtonColor: '#D33',
+//                cancelButtonText: "ยกเลิก",
+//                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+//                //denyButtonColor: '#D33',
+//                customClass: {
+//                    confirmButton: 'btn btn-success',
+//                    denyButton: 'btn btn-warning ml-1',
+//                    cancelButton: 'btn btn-danger ml-1'
+//                },
+//                buttonsStyling: false,
+//                focusConfirm: true,
+//                didOpen: function () {
+//                    //Initial
+//                }
+//            }).then(function (result) {
 
-                if (result.isConfirmed) {
+//                if (result.isConfirmed) {
 
-                    //Add item
-                    AddItemDataList(decodedText);
-                    html5QrcodeScanner.resume();
-                }
-                else if (result.dismiss === Swal.DismissReason.cancel) {
-                    //Do nothing
-                    html5QrcodeScanner.resume();
-                }
-            });
-        }
-        else {
-            //Same qrcode -> ขายหลายชื้น
-            //ShowMessageError(`decodedText same lastResult ${decodedText}`, decodedResult);
-            html5QrcodeScanner.pause(shouldPauseVideo, showPausedBanner);
-            Swal.fire({
-                title: `<strong>ต้องการเพิ่มรายการสินค้า ${decodedText}</strong>`,
-                icon: 'warning',
-                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
-                showCancelButton: true,
-                //showDenyButton: true,
-                confirmButtonColor: '#04B431',
-                confirmButtonText: 'บันทึก',
-                cancelButtonColor: '#D33',
-                cancelButtonText: "ยกเลิก",
-                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
-                //denyButtonColor: '#D33',
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    denyButton: 'btn btn-warning ml-1',
-                    cancelButton: 'btn btn-danger ml-1'
-                },
-                buttonsStyling: false,
-                focusConfirm: true,
-                didOpen: function () {
-                    //Initial
-                }
-            }).then(function (result) {
+//                    //Add item
+//                    AddItemDataList(decodedText);
+//                    html5QrcodeScanner.resume();
+//                }
+//                else if (result.dismiss === Swal.DismissReason.cancel) {
+//                    //Do nothing
+//                    html5QrcodeScanner.resume();
+//                }
+//            });
+//        }
+//        else {
+//            //Same qrcode -> ขายหลายชื้น
+//            //ShowMessageError(`decodedText same lastResult ${decodedText}`, decodedResult);
+//            html5QrcodeScanner.pause(shouldPauseVideo, showPausedBanner);
+//            Swal.fire({
+//                title: `<strong>ต้องการเพิ่มรายการสินค้า ${decodedText}</strong>`,
+//                icon: 'warning',
+//                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนทำการบันทึก!</span></u>',
+//                showCancelButton: true,
+//                //showDenyButton: true,
+//                confirmButtonColor: '#04B431',
+//                confirmButtonText: 'บันทึก',
+//                cancelButtonColor: '#D33',
+//                cancelButtonText: "ยกเลิก",
+//                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+//                //denyButtonColor: '#D33',
+//                customClass: {
+//                    confirmButton: 'btn btn-success',
+//                    denyButton: 'btn btn-warning ml-1',
+//                    cancelButton: 'btn btn-danger ml-1'
+//                },
+//                buttonsStyling: false,
+//                focusConfirm: true,
+//                didOpen: function () {
+//                    //Initial
+//                }
+//            }).then(function (result) {
 
-                if (result.isConfirmed) {
+//                if (result.isConfirmed) {
 
-                    //Add item
-                    AddItemDataList(decodedText);
-                    html5QrcodeScanner.resume();
-                }
-                else if (result.dismiss === Swal.DismissReason.cancel) {
-                    //Do nothing
-                    html5QrcodeScanner.resume();
-                }
-            });
+//                    //Add item
+//                    AddItemDataList(decodedText);
+//                    html5QrcodeScanner.resume();
+//                }
+//                else if (result.dismiss === Swal.DismissReason.cancel) {
+//                    //Do nothing
+//                    html5QrcodeScanner.resume();
+//                }
+//            });
 
-        }
-    }
+//        }
+//    }
 
-    function onScanError(errorMessage) {
-        // handle on error condition, with error message
-        // typically gets called for decode failures or camera issues
-        console.warn(`QR code scan error = ${errorMessage}`);
-        ShowMessageError(`QR code scan error = ${errorMessage}`);
+//    function onScanError(errorMessage) {
+//        // handle on error condition, with error message
+//        // typically gets called for decode failures or camera issues
+//        console.warn(`QR code scan error = ${errorMessage}`);
+//        ShowMessageError(`QR code scan error = ${errorMessage}`);
 
-        // you can optionally show errors to the user:
-        document.getElementById('qr-reader-results').innerHTML =
-            `<div style="color:red">
-         <strong>Scan error:</strong> ${errorMessage}
-       </div>`;
-    }
+//        // you can optionally show errors to the user:
+//        document.getElementById('qr-reader-results').innerHTML =
+//            `<div style="color:red">
+//         <strong>Scan error:</strong> ${errorMessage}
+//       </div>`;
+//    }
 
-    var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", config, false);
-    html5QrcodeScanner.render(onScanSuccess);
-});
+//    var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", config, false);
+//    html5QrcodeScanner.render(onScanSuccess);
+//});
 
 function InitialBarcodeScanner(fn) {
     // see if DOM is already available
@@ -556,5 +558,316 @@ function AddItemDataList(barcode) {
             }
         }
     });
+}
+
+
+class QrScannerWrapper {
+    constructor(elementId, config) {
+        this.qrCodeScanner = new Html5Qrcode(elementId);
+        this.config = config || {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.7777778,
+            disableFlip: false
+        };
+
+        this.cameraId = null;
+        this.isScanning = false;
+        this.isPaused = false;
+        this.resultCallback = null;
+        this.errorCallback = null;
+    }
+
+    async init(cameraLabelContains = "back") {
+        const cameras = await Html5Qrcode.getCameras();
+        if (!cameras || cameras.length === 0) {
+            throw new Error("ขออภัย, ไม่พบกล้อง.");
+        }
+        const backCam = cameras.find(c => c.label.toLowerCase().includes(cameraLabelContains)) || cameras[0];
+        this.cameraId = backCam.id;
+        document.getElementById("result").innerText = "Initial successful.";
+    }
+
+    async start(onScanSuccess, onScanFailure) {
+        document.getElementById("result").innerText = "Initialization...";
+        if (!this.cameraId) {
+            await this.init(); // get camera if not already
+        }
+
+        this.resultCallback = onScanSuccess;
+        this.errorCallback = onScanFailure;
+
+        await this.qrCodeScanner.start(
+            { deviceId: { exact: this.cameraId } },
+            this.config,
+            decodedText => {
+                if (!this.isPaused && typeof this.resultCallback === "function") {
+                    this.resultCallback(decodedText);
+                }
+            },
+            errorMessage => {
+                if (typeof this.errorCallback === "function") {
+                    this.errorCallback(errorMessage);
+                }
+            }
+        );
+
+        this.isScanning = true;
+        this.isPaused = false;
+        document.getElementById("result").innerText = "";
+    }
+
+    async stop() {
+        if (this.isScanning) {
+            await this.qrCodeScanner.stop();
+            await this.qrCodeScanner.clear();
+            this.isScanning = false;
+            this.isPaused = false;
+        }
+    }
+
+    pause() {
+        if (this.isScanning) {
+            this.isPaused = true;
+        }
+    }
+
+    resume() {
+        if (this.isScanning) {
+            this.isPaused = false;
+        }
+    }
+
+    isCameraRunning() {
+        return this.isScanning;
+    }
+}
+
+let html5QrCode;
+let isCameraStarted = false;
+let lastCameraId = null;
+const scannerModal = document.getElementById('mdlMobileScannerV2');
+const btnScanAgain = document.getElementById('btnScanAgain');
+const scanner = new QrScannerWrapper("reader");
+
+
+scannerModal.addEventListener('shown.bs.modal', async () => {
+    try {
+        document.getElementById("result").innerText = "";
+        
+        var lastResult, countResults = 0;
+        await scanner.start(
+            qrCodeMessage => {
+                console.log("Scanned:", qrCodeMessage);
+                
+                //document.getElementById("btnScanAgain").classList.remove("d-none");
+                
+                if (qrCodeMessage !== lastResult) {
+                    ++countResults;
+                    lastResult = qrCodeMessage;
+
+                    // Handle on success condition with the decoded message.
+                    console.log(`Scan result ${qrCodeMessage}`);
+
+                    //document.getElementById("result").innerText = `Scanned: ${qrCodeMessage}`;
+                    AddItemDataList(qrCodeMessage);
+                }
+                else {
+
+                    //Duplicate item
+                    scanner.pause(); // Pause immediately after a scan
+
+                    Swal.fire({
+                        title: `<strong>ต้องการเพิ่มจำนวนสินค้า ${lastResult} รายการเดิมหรือไม่?</strong>`,
+                        icon: 'warning',
+                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนยืนยัน!</span></u>',
+                        showCancelButton: true,
+                        //showDenyButton: true,
+                        confirmButtonColor: '#04B431',
+                        confirmButtonText: 'ยืนยัน',
+                        cancelButtonColor: '#D33',
+                        cancelButtonText: "ยกเลิก",
+                        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                        //denyButtonColor: '#D33',
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            denyButton: 'btn btn-warning ml-1',
+                            cancelButton: 'btn btn-danger ml-1'
+                        },
+                        buttonsStyling: false,
+                        focusConfirm: true,
+                        didOpen: function () {
+                            //Initial
+                        }
+                    }).then(function (result) {
+
+                        if (result.isConfirmed) {
+
+                            //Add item
+                            AddItemDataList(qrCodeMessage);
+                            //stopScanner(); // Stop scanning after one scan
+                            //btnScanAgain.classList.remove("d-none"); // Show rescan button
+                            scanner.resume();
+                        }
+                        else if (result.dismiss === Swal.DismissReason.cancel) {
+                            //Do nothing
+                            //html5QrcodeScanner.resume();
+                            scanner.resume();
+                        }
+                    });
+                }
+
+            },
+            error => {
+                // Optional: handle scan failures
+            }
+        );
+    } catch (err) {
+        console.log(`Camera error: ${err.message}`);
+        document.getElementById("result").innerText = `Camera error: ${err.message}`;
+    }
+});
+
+scannerModal.addEventListener('hidden.bs.modal', async () => {
+    //stopScanner();
+    //document.getElementById("result").innerText = ""; // Clear result
+    //btnScanAgain.classList.add("d-none");
+    await scanner.stop();
+    document.getElementById("result").innerText = ""; // Clear result
+    btnScanAgain.classList.add("d-none");
+});
+
+//btnScanAgain.addEventListener('click', function () {
+//    btnScanAgain.classList.add("d-none");
+//    document.getElementById("result").innerText = "Scanning...";
+//    startScanner(lastCameraId); // Resume with same camera
+//});
+
+function startScanner(cameraId = null) {
+    let config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.7777778,
+        disableFlip: false
+    };
+
+    if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+    }
+    
+    const startWithCamera = (camera) => {
+        lastCameraId = camera.id;
+        
+        html5QrCode.start(
+            { deviceId: { exact: camera.id } },
+            config,
+            qrCodeMessage => {
+               
+                //document.getElementById("result").innerText = `Scanned: ${qrCodeMessage}`;
+                //AddItemDataList(qrCodeMessage);
+                //stopScanner(); // Stop scanning after one scan
+                //btnScanAgain.classList.remove("d-none"); // Show rescan button
+
+                if (qrCodeMessage !== lastResult) {
+                    ++countResults;
+                    lastResult = qrCodeMessage;
+
+                    // Handle on success condition with the decoded message.
+                    console.log(`Scan result ${qrCodeMessage}`);
+
+                    document.getElementById("result").innerText = `Scanned: ${qrCodeMessage}`;
+                    AddItemDataList(qrCodeMessage);
+                }
+                else {
+                    stopScanner();
+                    Swal.fire({
+                        title: `<strong>ต้องการเพิ่มจำนวนสินค้า ${lastResult} รายการเดิมหรือไม่?</strong>`,
+                        icon: 'warning',
+                        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนยืนยัน!</span></u>',
+                        showCancelButton: true,
+                        //showDenyButton: true,
+                        confirmButtonColor: '#04B431',
+                        confirmButtonText: 'ยืนยัน',
+                        cancelButtonColor: '#D33',
+                        cancelButtonText: "ยกเลิก",
+                        //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                        //denyButtonColor: '#D33',
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            denyButton: 'btn btn-warning ml-1',
+                            cancelButton: 'btn btn-danger ml-1'
+                        },
+                        buttonsStyling: false,
+                        focusConfirm: true,
+                        didOpen: function () {
+                            //Initial
+                        }
+                    }).then(function (result) {
+
+                        if (result.isConfirmed) {
+
+                            //Add item
+                            AddItemDataList(qrCodeMessage);
+                            //stopScanner(); // Stop scanning after one scan
+                            //btnScanAgain.classList.remove("d-none"); // Show rescan button
+                            startWithCamera({ id: cameraId });
+                        }
+                        else if (result.dismiss === Swal.DismissReason.cancel) {
+                            //Do nothing
+                            //html5QrcodeScanner.resume();
+                        }
+                    });
+                }
+                
+            },
+            errorMessage => {
+                // Ignore scan errors
+            }
+        ).then(() => {
+            isCameraStarted = true;
+        }).catch(err => {
+            console.error("Failed to start camera:", err);
+            ShowMessageError(`Failed to start camera: ${err}`);
+        });
+    };
+
+    if (cameraId) {
+        // If we already know which camera to use
+        startWithCamera({ id: cameraId });
+    } else {
+        // First-time: fetch camera list
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras && cameras.length) {
+                let backCamera = cameras.find(c => c.label.toLowerCase().includes('back')) || cameras[0];
+                startWithCamera(backCamera);
+            }
+        }).catch(err => {
+            console.error("Camera access error:", err);
+            ShowMessageError(`Camera access error: ${err}`);
+        });
+    }
+}
+function stopScanner() {
+    if (html5QrCode && isCameraStarted) {
+        html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            isCameraStarted = false;
+        }).catch(err => {
+            console.error("Failed to stop camera:", err);
+            ShowMessageError(`Failed to stop camera: ${err}`);
+        });
+    }
+}
+
+function pauseScanner() {
+    if (html5QrCode && isCameraStarted) {
+        html5QrCode.pas().then(() => {
+            html5QrCode.clear();
+            isCameraStarted = false;
+        }).catch(err => {
+            console.error("Failed to stop camera:", err);
+            ShowMessageError(`Failed to stop camera: ${err}`);
+        });
+    }
 }
 

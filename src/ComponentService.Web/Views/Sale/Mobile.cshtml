@@ -89,12 +89,25 @@
 					</div>
 
 					<!--Scann input-->
-					<div class="row">
+					@* <div class="row">
 						<div class="col-lg-4 col-sm-4 col-12"></div>
 						<div class="col-lg-4 col-sm-4 col-12" style="text-align: center">
 							<button class="btn" id="btnMobileScan" type="button">
 								<img src="~/assets/img/cyui/mobile-scanner-app.png" data-bs-toggle="modal"
 									 data-bs-target="#mdlMobileScanner"
+									 alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 100px; width: auto; margin: 0;" />
+							</button>
+						</div>
+						<div class="col-lg-4 col-sm-4 col-12"></div>
+					</div> *@
+
+					<!--Scann input-->
+					<div class="row">
+						<div class="col-lg-4 col-sm-4 col-12"></div>
+						<div class="col-lg-4 col-sm-4 col-12" style="text-align: center">
+							<button class="btn" id="btnMobileScanV2" type="button">
+								<img src="~/assets/img/cyui/mobile-scanner-app.png" data-bs-toggle="modal"
+									 data-bs-target="#mdlMobileScannerV2"
 									 alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 100px; width: auto; margin: 0;" />
 							</button>
 						</div>
@@ -138,7 +151,7 @@
 	</div>
 </div>
 
-<div class="modal fade" id="mdlMobileScanner" tabindex="-1"
+@* <div class="modal fade" id="mdlMobileScanner" tabindex="-1"
 	 aria-labelledby="mdlMobileScanner" data-bs-keyboard="false"
 	 aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -149,6 +162,26 @@
 						<div class="col-md-12">
 							<div id="qr-reader" style="width:auto"></div>
 							<div id="qr-reader-results"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> *@
+
+<div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
+	 aria-labelledby="mdlMobileScannerV2" data-bs-keyboard="false"
+	 aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-12">
+							<div id="reader" style="width: auto;"></div>
+							<button id="btnScanAgain" class="btn btn-primary mt-3 d-none" type="button">Scan Again</button>
+							<p id="result"></p>
 						</div>
 					</div>
 				</div>
@@ -172,4 +205,5 @@
 
 	<script src="~/js/view/sale/sale_mobile.js"></script>
 
+	
 }
