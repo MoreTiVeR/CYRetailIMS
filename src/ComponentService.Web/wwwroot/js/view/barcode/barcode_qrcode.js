@@ -59,18 +59,3 @@ function InitialBarcodeScanner(fn) {
     }
 }
 
-
-//function InitialHtmlQRCode() {
-//    const html5QrCode = new Html5QrcodeScanner("qr-reader");
-//    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-//        /* handle success */
-//        console.log(`Scan result: ${decodedText}`, decodedResult);
-//        document.getElementById('kode').value = decodedText;
-//        // ...
-//        html5QrcodeScanner.clear();
-//    };
-//    const config = { fps: 10, qrbox: 250 };
-//    // Select front camera or fail with `OverconstrainedError`.
-//    html5QrCode.start({ facingMode: { exact: "environment"} }, config, qrCodeSuccessCallback);
-//    //html5QrCode.start({ facingMode: { exact: "user" } }, config, qrCodeSuccessCallback);
-//}

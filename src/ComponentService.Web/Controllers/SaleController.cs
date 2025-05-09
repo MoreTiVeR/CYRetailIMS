@@ -13,6 +13,7 @@ using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.TransactionTypeAPI;
+using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
@@ -45,7 +46,8 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 [CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
 public class SaleController : BaseController
 {
-    private string _sessionTempSellingItemBarcodeName => "TEMP_SELLING_ITEM_BARCODE_DATA";
+    private string _sessionTempSellingItemBarcodeScannerName => "TEMP_SELLING_ITEM_BARCODE_DATA";
+    private string _sessionTempSellingItemBarcodeMobileName => "TEMP_SELLING_ITEM_BARCODE_MOBILE_DATA";
     private string _sessionTempSaleItemData => "SALE_ITEM_DATA";
 
     private readonly IItemInBranchAPI _itemInBranchAPI;
@@ -141,17 +143,17 @@ public class SaleController : BaseController
         try
         {
             BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemInBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(UserProfile.access_branch.FirstOrDefault().branchid);
-            List<Select2Model> searchItemList = resItemInBranch.data.itemlist.Where(w => w.itemcode.ToLower().StartsWith(search.ToLower())
-            || w.itemname.ToLower().StartsWith(search.ToLower())).Select(s => new Select2Model
+            List<SelectListItem> searchItemList = resItemInBranch.data.itemlist.Where(w => w.itemcode.ToLower().StartsWith(search.ToLower())
+            || w.itemname.ToLower().StartsWith(search.ToLower())).Select(s => new SelectListItem
             {
-                id = s.itemid.ToString(),
-                text = s.itemname
+                Value = s.itemid.ToString(),
+                Text = s.itemname
             }).ToList();
             return Json(new { items = searchItemList });
         }
         catch (Exception ex)
         {
-            return Json(new { items = new List<Select2Model>(), message = $"พบข้อผิดพลาด {ex.Message}" });
+            return Json(new { items = new List<SelectListItem>(), message = $"พบข้อผิดพลาด {ex.Message}" });
         }
     }
 
@@ -365,41 +367,6 @@ public class SaleController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> SaveSellingItemByBarcode([FromBody] SellingItemViewModel sellingItemObj)
-    {
-        try
-        {
-            #region PrePare TransactionRequest
-            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
-            List<CreateTransactionDetailCommand> createTransactionDetailCommands = tempSellingBarcodeItemList.Select(s => new CreateTransactionDetailCommand
-            {
-                itemid = s.itemid,
-                price = s.itemprice,
-                qty = s.qty,
-                amount = decimal.Multiply(s.itemprice, s.qty),
-                isactive = true
-            }).ToList();
-            #endregion
-
-            #region Prepare & Create Transaction
-            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionByBarcodeCommand(sellingItemObj, createTransactionDetailCommands);
-            BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
-            if (!resCreateTrn.result)
-            {
-                return Json(new { result = false, msg = resCreateTrn.error.error.message });
-            }
-            #endregion
-
-            HttpContext.Session.Remove(_sessionTempSellingItemBarcodeName);
-            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
-        }
-    }
-
-    [HttpPost]
     public async Task<IActionResult> GetItemPriceByID(string itemId)
     {
         try
@@ -589,7 +556,30 @@ public class SaleController : BaseController
     }
     #endregion
 
+    #region Selling via Scanner
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult GetTempItemDataAsync()
+    {
+        try
+        {
+            List<SellingBarcodeItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
 
+            #region if list is null => create new list with 0 member
+            if (tempList == null)
+            {
+                tempList = new List<SellingBarcodeItemViewModel>();
+                HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeScannerName, tempList);
+            }
+            #endregion
+            return Json(new { data = tempList.OrderBy(o => o.seq).ToList(), amount = tempList.Sum(s => s.totalprice) });
+        }
+        catch
+        {
+            return Json(new { data = new List<TransferItemDetailViewModel>() });
+        }
+    }
+    
     [HttpPost]
     public async Task<IActionResult> AddTempItemSellingBarcode([FromBody] SellingBarcodeItemViewModel sellingBarcodeItem)
     {
@@ -606,7 +596,7 @@ public class SaleController : BaseController
             }
 
             //Get Current List
-            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
+            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
 
             #region Update when Already added
             if (tempSellingBarcodeItemList != null)
@@ -656,7 +646,7 @@ public class SaleController : BaseController
             }
             #endregion
 
-            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeName, tempSellingBarcodeItemList);
+            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeScannerName, tempSellingBarcodeItemList);
             return Json(new { result = true, message = "เพิ่มสินค้าสำเร็จ", amount = tempSellingBarcodeItemList.Sum(w => w.totalprice) });
 
         }
@@ -666,19 +656,79 @@ public class SaleController : BaseController
         }
     }
 
-    [AllowAnonymous]
-    [HttpGet]
-    public IActionResult GetTempItemDataAsync()
+    [HttpPost]
+    public JsonResult DeleteTempItemSellingBarcode(int seq)
     {
         try
         {
-            List<SellingBarcodeItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
+            List<SellingBarcodeItemViewModel> tempTransferItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
+            SellingBarcodeItemViewModel todo = tempTransferItemList?.FirstOrDefault(m => m.seq == seq);
+            if (todo == null)
+            {
+                throw new Exception("ไม่สามารถลบข้อมูลได้");
+            }
+
+            tempTransferItemList.Remove(todo);
+            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeScannerName, tempTransferItemList);
+            return Json(new { result = true, message = "ลบข้อมูลสำเร็จ.", amount = tempTransferItemList.Sum(w => w.totalprice) });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveSellingItemByBarcode([FromBody] SellingItemViewModel sellingItemObj)
+    {
+        try
+        {
+            #region PrePare TransactionRequest
+            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
+            List<CreateTransactionDetailCommand> createTransactionDetailCommands = tempSellingBarcodeItemList.Select(s => new CreateTransactionDetailCommand
+            {
+                itemid = s.itemid,
+                price = s.itemprice,
+                qty = s.qty,
+                amount = decimal.Multiply(s.itemprice, s.qty),
+                isactive = true
+            }).ToList();
+            #endregion
+
+            #region Prepare & Create Transaction
+            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionByBarcodeCommand(sellingItemObj, createTransactionDetailCommands);
+            BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            }
+            #endregion
+
+            HttpContext.Session.Remove(_sessionTempSellingItemBarcodeScannerName);
+            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+
+    #endregion
+
+    #region Selling via Mobile Camera
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult GetTempItemDataMobile()
+    {
+        try
+        {
+            List<SellingBarcodeItemViewModel> tempList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeMobileName);
 
             #region if list is null => create new list with 0 member
             if (tempList == null)
             {
                 tempList = new List<SellingBarcodeItemViewModel>();
-                HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeName, tempList);
+                HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeMobileName, tempList);
             }
             #endregion
             return Json(new { data = tempList.OrderBy(o => o.seq).ToList(), amount = tempList.Sum(s => s.totalprice) });
@@ -687,9 +737,170 @@ public class SaleController : BaseController
         {
             return Json(new { data = new List<TransferItemDetailViewModel>() });
         }
-
     }
 
+    [HttpPost]
+    public IActionResult IsExistItemDataByMobileBarcode([FromBody] SellingCheckExistItemByBarcodeModel reqSellingCheckExistItem)
+    {
+        if (!ModelState.IsValid)
+        {
+            return Json(new { result = false, message = "กรุณาตรวจสอบจำนวนสินค้า/บาร์โค้ดให้ถูกต้อง" });
+        }
+        try
+        {
+            //Get Current List
+            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeMobileName);
+            if(tempSellingBarcodeItemList != null)
+            {
+                SellingBarcodeItemViewModel resExist = tempSellingBarcodeItemList.FirstOrDefault(s => s.barcode == reqSellingCheckExistItem.barcode);
+                if (resExist != null)
+                {
+                    return Json(new { result = true, message = $"ต้องการเพิ่มจำนวนสินค้า {resExist.itemname} รายการเดิมหรือไม่?" });
+                }
+            }
+            return Json(new { result = false, message = $"ตรวจสอบข้อมูลสำเร็จ ไม่พบราบการสินค้าซ้ำ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddTempItemSellingMobileBarcode([FromBody] SellingBarcodeItemViewModel sellingBarcodeItem)
+    {
+        if (!ModelState.IsValid)
+        {
+            return Json(new { result = false, message = "กรุณาตรวจสอบจำนวนสินค้า/บาร์โค้ดให้ถูกต้อง" });
+        }
+
+        try
+        {
+            if (sellingBarcodeItem.qty <= 0)
+            {
+                return Json(new { result = false, message = "กรุณาระบุจำนวนสินค้าไม่น้อยกว่า 0" });
+            }
+
+            //Get Current List
+            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeMobileName);
+
+            #region Update when Already added
+            if (tempSellingBarcodeItemList != null)
+            {
+                //Check is exist from temp
+                SellingBarcodeItemViewModel existData = tempSellingBarcodeItemList.FirstOrDefault(w => w.barcode == sellingBarcodeItem.barcode);
+                if (existData != null)
+                {
+                    //Update QTY
+                    tempSellingBarcodeItemList.Where(w => w.barcode == sellingBarcodeItem.barcode).ForEach(e =>
+                    {
+                        e.qty = e.qty + sellingBarcodeItem.qty;
+                    });
+                }
+                else
+                {
+                    //Add new if doesn't exist in temp list
+                    int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().qty : 0;
+                    lastId++;
+                    sellingBarcodeItem.seq = lastId;
+                    MappingSellingBarcodeItem(ref sellingBarcodeItem);
+                    tempSellingBarcodeItemList.Add(sellingBarcodeItem);
+                }
+            }
+            else
+            {
+                tempSellingBarcodeItemList = new List<SellingBarcodeItemViewModel>();
+                //Add new get last seq
+                int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().seq : 0;
+                lastId++;
+                sellingBarcodeItem.seq = lastId;
+                MappingSellingBarcodeItem(ref sellingBarcodeItem);
+                tempSellingBarcodeItemList.Add(sellingBarcodeItem);
+            }
+            #endregion
+
+            #region Validate Qty in Stock TMItem by barcode before response
+            BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeV2Async(new GetItemByBarcodeQuery { itembarcode = sellingBarcodeItem.barcode });
+            if (!resItem.result)
+            {
+                return Json(new { result = false, message = $"{resItem.error.error.message} บาร์โค้ด {sellingBarcodeItem.barcode}" });
+            }
+
+            if (resItem.data.qty < tempSellingBarcodeItemList.FirstOrDefault(w => w.itemid == resItem.data.itemid)?.qty)
+            {
+                return Json(new { result = false, message = $"ไม่สามารภทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
+            }
+            #endregion
+
+            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeMobileName, tempSellingBarcodeItemList);
+            return Json(new { result = true, message = "เพิ่มสินค้าสำเร็จ", amount = tempSellingBarcodeItemList.Sum(w => w.totalprice) });
+
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public JsonResult DeleteTempItemSellingMobileBarcode(int seq)
+    {
+        try
+        {
+            List<SellingBarcodeItemViewModel> tempTransferItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeMobileName);
+            SellingBarcodeItemViewModel todo = tempTransferItemList?.FirstOrDefault(m => m.seq == seq);
+            if (todo == null)
+            {
+                throw new Exception("ไม่สามารถลบข้อมูลได้");
+            }
+
+            tempTransferItemList.Remove(todo);
+            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeMobileName, tempTransferItemList);
+            return Json(new { result = true, message = "ลบข้อมูลสำเร็จ.", amount = tempTransferItemList.Sum(w => w.totalprice) });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveSellingItemByMobileBarcode([FromBody] SellingItemViewModel sellingItemObj)
+    {
+        try
+        {
+            #region PrePare TransactionRequest
+            List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeMobileName);
+            List<CreateTransactionDetailCommand> createTransactionDetailCommands = tempSellingBarcodeItemList.Select(s => new CreateTransactionDetailCommand
+            {
+                itemid = s.itemid,
+                price = s.itemprice,
+                qty = s.qty,
+                amount = decimal.Multiply(s.itemprice, s.qty),
+                isactive = true
+            }).ToList();
+            #endregion
+
+            #region Prepare & Create Transaction
+            CreateTransactionCommand createTransactionCommand = PrepareCreateTransactionByBarcodeCommand(sellingItemObj, createTransactionDetailCommands);
+            BaseResponse<CommandResponse> resCreateTrn = await _transactionAPI.CreateTransactionAsync(createTransactionCommand);
+            if (!resCreateTrn.result)
+            {
+                return Json(new { result = false, msg = resCreateTrn.error.error.message });
+            }
+            #endregion
+
+            HttpContext.Session.Remove(_sessionTempSellingItemBarcodeMobileName);
+            return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, msg = $"ขออภัย รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
+        }
+    }
+    #endregion
+
+    #region Func for Scanner ,Mobile
     private async Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemSessionDataAsync()
     {
         BaseResponse<List<GetItemListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>(_sessionTempSaleItemData);
@@ -702,14 +913,13 @@ public class SaleController : BaseController
         return res;
     }
 
-
     private void MappingSellingBarcodeItem(ref SellingBarcodeItemViewModel sellingBarcodeItemView)
     {
         BaseResponse<List<GetItemListResponseDTO>> resItems = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>(_sessionTempSaleItemData);
         string itemBarcode = sellingBarcodeItemView.barcode;
 
         GetItemListResponseDTO existItem = resItems.data.Where(w => !string.IsNullOrEmpty(w.barcode)).FirstOrDefault(w => w.barcode.Trim().ToUpper() == itemBarcode.Trim().ToUpper());
-        if(existItem == null)
+        if (existItem == null)
         {
             throw new Exception("ไม่พบข้อมูลบาร์โค้ดสินค้า!");
         }
@@ -717,28 +927,6 @@ public class SaleController : BaseController
         sellingBarcodeItemView.itemname = existItem != null ? existItem.name : null;
         sellingBarcodeItemView.itemprice = existItem != null ? existItem.price : 0;
         sellingBarcodeItemView.qty = sellingBarcodeItemView.qty > 0 ? sellingBarcodeItemView.qty : 1;
-    }
-
-    [HttpPost]
-    public JsonResult DeleteTempItemSellingBarcode(int seq)
-    {
-        try
-        {
-            List<SellingBarcodeItemViewModel> tempTransferItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeName);
-            SellingBarcodeItemViewModel todo = tempTransferItemList?.FirstOrDefault(m => m.seq == seq);
-            if (todo == null)
-            {
-                throw new Exception("ไม่สามารถลบข้อมูลได้");
-            }
-
-            tempTransferItemList.Remove(todo);
-            HttpContext.Session.SetDataToSession(_sessionTempSellingItemBarcodeName, tempTransferItemList);
-            return Json(new { result = true, message = "ลบข้อมูลสำเร็จ.", amount = tempTransferItemList.Sum(w => w.totalprice) });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { result = false, message = $"พบข้อผิดพลาด {ex.Message}" });
-        }
     }
 
     private List<SelectListItem> PrepareSelectSellingType()
@@ -752,10 +940,6 @@ public class SaleController : BaseController
         SellingTypeList.Add(new SelectListItem { Text = "เงินโอน", Value = "2" });
         return SellingTypeList;
     }
-}
+    #endregion
 
-public class Select2Model
-{
-    public string id { get; set; }
-    public string text { get; set; }
 }

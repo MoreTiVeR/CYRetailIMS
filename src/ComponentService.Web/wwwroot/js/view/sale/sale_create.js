@@ -433,8 +433,8 @@ function ResetForm() {
 //        processResults: (data, params) => {
 //            const results = data.items.map(item => {
 //                return {
-//                    id: item.id,
-//                    text: item.text,
+//                    id: item.Value,
+//                    text: item.Text,
 //                };
 //            });
 //            return {
