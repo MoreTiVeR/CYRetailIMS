@@ -48,6 +48,8 @@ public record CreateTransactionCommand : IRequest<BaseResponse<CommandResponse>>
     [MaxLength(200, ErrorMessage = "Maximum length 200")]
     public string? remark { get; set; }
 
+    public int? paymenttypeid { get; set; }
+
     [Required(ErrorMessage = "Required field")]
     [JsonProperty(Required = Required.Always)]
     public List<CreateTransactionDetailCommand> transactiondetail { get; init; }

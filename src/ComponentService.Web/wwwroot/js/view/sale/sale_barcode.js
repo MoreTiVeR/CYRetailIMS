@@ -501,6 +501,7 @@ function CreateSellingTransactionDataBySale(data) {
         if (result.isConfirmed) {
             //เงินสด
             data.qty = 1;
+            data.transactiontype = 3;
             data.iscash = true;
             data = JSON.stringify(data);
             CreateData(data);
@@ -508,6 +509,7 @@ function CreateSellingTransactionDataBySale(data) {
         else if (result.dismiss === Swal.DismissReason.cancel) {
             //เงินโอน
             data.qty = 1;
+            data.transactiontype = 3;
             data.iscash = false;
             data = JSON.stringify(data);
             CreateData(data);

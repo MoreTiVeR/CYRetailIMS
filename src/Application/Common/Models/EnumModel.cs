@@ -135,5 +135,33 @@ public static class EnumModel
         ByDate = 1,
         ByMonthOfYear = 2
     }
+
+    public enum PaymentType
+    {
+        /// <summary>
+        /// เงินสด
+        /// </summary>
+        CA = 1,
+
+        /// <summary>
+        /// ผ่อน
+        /// </summary>
+        CL = 2,
+
+        /// <summary>
+        /// เครดิตการ์ด
+        /// </summary>
+        CC = 3,
+
+        /// <summary>
+        /// เช็คธนาคาร
+        /// </summary>
+        CHQ = 4,
+
+        /// <summary>
+        /// เงินโอน
+        /// </summary>
+        TR = 5
+    }
 }
 

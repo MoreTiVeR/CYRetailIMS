@@ -506,7 +506,8 @@ public class SaleController : BaseController
             createddate = DateTime.Now,
             createdby = base.UserProfile.username,
             transactiondetail = createTransactionDetailCommands,
-            remark = reqObj.Remark
+            remark = reqObj.Remark,
+            paymenttypeid = isPayWithCash ? (int)EnumModel.PaymentType.CA : (int)EnumModel.PaymentType.TR
         };
     }
 

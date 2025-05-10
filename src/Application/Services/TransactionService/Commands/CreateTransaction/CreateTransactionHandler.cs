@@ -110,7 +110,8 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
             Fee = createTransactionCommand.fee,
             TotalAmount = createTransactionCommand.totalamount,
             IsExcludeVAT = createTransactionCommand.isexcludevat,
-            Remark = createTransactionCommand.remark
+            Remark = createTransactionCommand.remark,
+            PaymenTypeID = createTransactionCommand.paymenttypeid
         };
     }
 

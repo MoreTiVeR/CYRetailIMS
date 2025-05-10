@@ -48,7 +48,10 @@ public partial class TTTransaction : BaseAuditableEntity
     [Unicode(false)]
     public string? Remark { get; set; }
 
-	[InverseProperty("Transaction")]
+    public int? PaymenTypeID { get; set; }
+
+
+    [InverseProperty("Transaction")]
 	public virtual ICollection<TTTransactonDetail> TTTransactonDetails { get; set; } = new List<TTTransactonDetail>();
 
 	[ForeignKey("TransactionTypeID")]
