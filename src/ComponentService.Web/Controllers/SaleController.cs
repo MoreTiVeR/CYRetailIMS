@@ -23,9 +23,11 @@ using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
 using CYRetailIMS.Application.Services.TransactionTypeService.Queries.GetTrasnactionList.v1;
 using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
@@ -80,16 +82,16 @@ public class SaleController : BaseController
     {
         BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
-        BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+        //BaseResponse<List<GetTransactionByBranchIDResponseDTO>> resTransaction = await _transactionAPI.GetTransactionByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
 
-        if (!resTransaction.result)
-        {
-            resTransaction.data = new List<GetTransactionByBranchIDResponseDTO>();
-        }
-        resTransaction.data = resTransaction.data.OrderByDescending(s => s.transactiondate).ToList();
+        //if (!resTransaction.result)
+        //{
+        //    resTransaction.data = new List<GetTransactionByBranchIDResponseDTO>();
+        //}
+        //resTransaction.data = resTransaction.data.OrderByDescending(s => s.transactiondate).ToList();
         ViewBag.BranchList = base.UserProfile.access_branch;
         ViewBag.ItemBranch = resItemBranch;
-        ViewBag.TransactionList = resTransaction;
+        //ViewBag.TransactionList = resTransaction;
         return View();
     }
 
@@ -941,6 +943,105 @@ public class SaleController : BaseController
         SellingTypeList.Add(new SelectListItem { Text = "เงินโอน", Value = "2" });
         return SellingTypeList;
     }
+    #endregion
+
+    #region Sale Index
+
+    /// <summary>
+    /// First page of employee and set all query data from firstday to end of month
+    /// </summary>
+    /// <param name="searchItem"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> SearchSaleTransaction([FromBody] SearchTransactionViewModel searchItem)
+    {
+        try
+        {
+            #region Prepare Search Start & End Date
+            DateTime sDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            DateTime eDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+            if (!string.IsNullOrEmpty(searchItem.startdate))
+            {
+                string[] sTransferDate = searchItem.startdate.Split("-");
+                if (sTransferDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                sDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
+            }
+
+            if (!string.IsNullOrEmpty(searchItem.enddate))
+            {
+                string[] sTransferEndDate = searchItem.enddate.Split("-");
+                if (sTransferEndDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                eDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
+            }
+
+            //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
+            if (DateTime.Compare(sDate, eDate) == 1)
+            {
+                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+            #endregion
+
+            BaseResponse<GetTransactionByBranchIDV2ReseponseDTO> resSaleTransactions = await _transactionAPI.GetTransactionByBranchIDV2Async(new GetTransactionByBranchIDV2Query
+            {
+                transaction_startdate = sDate,
+                transaction_enddate = eDate,
+                branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+                startrow = searchItem.start,
+                pagesize = searchItem.length,
+                //searchvalue = searchItem.searchValue.Replace("\t", "").Replace("\n", ""),
+                isexportalldata = searchItem.isexportalldata,
+            });
+
+            if (!resSaleTransactions.result)
+            {
+                return Json(new { data = new List<GetTransactionByBranchIDResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+            }
+
+            #region Search Filter
+            if (!string.IsNullOrEmpty(searchItem.searchValue))
+            {
+                string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
+                resSaleTransactions.data.transactiondata = resSaleTransactions.data.transactiondata.Where(w => w.branchname.Contains(searchValue)
+                || w.transactiontypedesc.Contains(searchValue)
+                || w.totalamount.CompareTo(searchValue.ToDecimal()) == 0
+                || w.amounttransfer.CompareTo(searchValue.ToDecimal()) == 0
+                || w.amountdeposit.CompareTo(searchValue.ToDecimal()) == 0
+                || w.depositfee.CompareTo(searchValue.ToDecimal()) == 0
+                || w.createdby.Contains(searchValue)).ToList();
+            }
+            #endregion
+
+            //var totalRows = resReport.data.totalrow;
+            var totalItems = resSaleTransactions.data.totalrow; // Get total item count for pagination
+
+            // Filter based on searchValue if necessary
+            var query = resSaleTransactions.data.transactiondata;
+
+            // Calculate paginated data
+            //var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
+
+            // Prepare response for DataTables
+            return Json(new
+            {
+                draw = searchItem.draw, // Echo the draw parameter
+                recordsTotal = totalItems, // Total records before filtering
+                recordsFiltered = totalItems, // Total records after applying filtering
+                data = resSaleTransactions.data.transactiondata // The actual data to be displayed
+            });
+        }
+        catch
+        {
+            return Json(new { data = new List<GetTransactionByBranchIDResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+        }
+    }
+
     #endregion
 
 }

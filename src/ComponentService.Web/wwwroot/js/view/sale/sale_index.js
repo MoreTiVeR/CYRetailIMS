@@ -1,6 +1,113 @@
-﻿
+﻿var datatable;
+$('.select2').select2();
 
-function deleteItem(itemid) {
+datatable = $("#tbSaleTransaction").DataTable({
+    "processing": true,         // Show processing indicator
+    "serverSide": true,        // Enable server-side processing
+    "destroy": true,
+    "bFilter": true,
+    "stateSave": true,
+    "sDom": '<"top"f>rt<"bottom"lpi><"clear">',
+    "pagingType": 'numbers',
+    "ordering": true,
+    "ajax": {
+        "url": "/Sale/SearchSaleTransaction",
+        "type": "POST",
+        "contentType": "application/json", // Add this line
+        "data": function (data) {
+            data.startdate = $("#txtStartDate").val();
+            data.enddate = $("#txtEndDate").val();
+            data.draw = data.draw;
+            data.start = data.start;
+            data.length = data.length;
+            data.searchValue = data.search.value;
+            return JSON.stringify(data);
+        }
+    },
+    "columns": [
+        {
+            "render": function () {
+                console.log('render columns : checkbox');
+                return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
+            }
+        },
+        {
+            "data": { transactiondate: "transactiondate" },
+            "render": function (data) {
+                if (data.transactiondate === null || data.transactiondate == null) {
+                    return data.transactiondate;
+                }
+                return formatDateTime(new Date(data.transactiondate));
+            }
+        },
+        {
+            "data": { branchname: "branchname" },
+            "render": function (data) {
+                return "<span class='badges bg-lightgreen'>" + data.branchname + "</span>"
+            }
+        },
+        {
+            "data": { transactiontypeid: "transactiontypeid" },
+            "render": function (data) {
+                if (data.transactiontypeid === 1 || data.transactiontypeid == 1) {
+                    return "<span class='badges bg-orange'>" + data.transactiontypedesc +"</span>";
+                }
+                else if (data.transactiontypeid === 3 || data.transactiontypeid == 3) {
+                    return "<span class='badges bg-lightpurple'>" + data.transactiontypedesc + "</span>";
+                }
+                else if (data.transactiontypeid === 4 || data.transactiontypeid == 4) {
+                    return "<span class='badges bg-lightbule'>" + data.transactiontypedesc + "</span>";
+                }
+                else {
+                    return "<span class='badges bg-lightyellow'>N/A</span>";
+                }
+            }
+        },
+        { "data": "totalamount" },
+        { "data": "amounttransfer" },
+        { "data": "amountdeposit" },
+        { "data": "amountcash" },
+        { "data": "remark" },
+        { "data": "createdbystaff" },
+        {
+            "data": { transactionid: "transactionid" },
+            "render": function (data) {
+                return "<div class='text-center'><a class='action-set' href='javascript:void(0);' data-bs-toggle='dropdown' aria-expanded='true'><i class='fa fa-ellipsis-v' aria-hidden='true'></i></a>"
+                    + "<ul class='dropdown-menu'><li><a asp-action='Edit' asp-controller='Transactions' title='แก้ไขข้อมูลขาย' asp-all-route-data='aTransactionID' class='dropdown-item' href='/Transactions/Edit?tranid=" + data.transactionid +"'><img src='../assets/img/icons/edit.svg' class='me-2' alt='img'>แก้ไขข้อมูล</a></li>"
+                    + "<li><a href='#' id='rowid" + data.transactionid + "' class='dropdown-item' onclick='deleteTransaction(" + data.transactionid + ")'><img src='../assets/img/icons/delete1.svg' class='me-2' alt='img'>ลบข้อมูล</a></li></div>";
+            }
+        }
+    ],
+    "order": [[0, "desc"]],
+    "columnDefs": [
+        {
+            "targets": [0],
+            "visible": false
+        }
+    ],
+    "language": {
+        search: ' ',
+        sLengthMenu: '_MENU_',
+        searchPlaceholder: "ค้นหาข้อมูล...",
+        info: "_START_ - _END_ of _TOTAL_ items",
+        emptyTable: "ไม่พบข้อมูล.",
+        processing: '<div class="spinner"></div><div class="processing-text">Processing your request...</div>'
+    },
+    initComplete: (settings, json) => {
+        $('.dataTables_filter').appendTo("#tbSaleTransaction");
+        $('.dataTables_filter').appendTo('.search-input');
+    }
+});
+
+
+$("#btnSearch").on('click', function (event) {
+    ShowLoading();
+    event.preventDefault(); // Prevent the default form submission
+    datatable.ajax.reload(); // This will use the updated parameters automatically
+    HideLoading();
+});
+
+function deleteTransaction(tranid) {
 
     Swal.fire({
         title: "ยืนยันการลบข้อมูล?",
@@ -22,8 +129,8 @@ function deleteItem(itemid) {
             //Delete
             $.ajax({
                 type: 'POST',
-                url: '/Sale/DeleteItem',
-                data: JSON.stringify({ ItemID: itemid }),
+                url: '/Transactions/DeleteTransaction',
+                data: JSON.stringify({ transactionid: tranid }),
                 contentType: 'application/json',
                 success: function (data) {
                     if (data.result) {
@@ -40,10 +147,11 @@ function deleteItem(itemid) {
                         /* $('#tbItems').DataTable().ajax.reload();*/
                         //$('#tbItems').DataTable().ajax.reload();
 
-                        console.log("#rowid" + itemid);
-                        $("#rowid" + itemid).closest("tr").remove();
+                        console.log("#rowid" + tranid);
+                        $("#rowid" + tranid).closest("tr").remove();
                         $('#tbItems').DataTable().ajax.reload();
-                        //$("#rowid" + itemid).closest("tr").remove().draw(false);
+
+                        //$("#rowid" + tranid).closest("tr").remove().draw(false);
                         //console.log(row);
                         //$('#tbItems').DataTable().row(row).remove().draw(false);
 
