@@ -20,6 +20,24 @@
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
 
+<style>
+	@@media (max-width: 768px) {
+		#mdlMobileScannerV2 .modal-dialog {
+			margin: 0;
+		}
+
+		#mdlMobileScannerV2 .modal-content {
+			border-radius: 0;
+		}
+	}
+
+	#reader video {
+	max-width: 100%;
+	height: auto;
+	object-fit: cover;
+}
+
+</style>
 
 <div class="page-header">
 	<div class="page-title">
@@ -50,12 +68,12 @@
 											{
 												foreach (var branch in userProfile.access_branch)
 												{
-													<option value="@branch.branchid">@branch.branchname</option>
+																	<option value="@branch.branchid">@branch.branchname</option>
 												}
 											}
 											else
 											{
-												<option value="">-- ไม่พบสาขา --</option>
+														<option value="">-- ไม่พบสาขา --</option>
 											}
 										</select>
 									</div>
@@ -170,7 +188,8 @@
 	</div>
 </div> *@
 
-<div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
+<!--Modal For Mobile Scanner-->
+@* <div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
 	 aria-labelledby="mdlMobileScannerV2" data-bs-keyboard="false"
 	 aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -188,22 +207,45 @@
 			</div>
 		</div>
 	</div>
+</div> *@
+<div div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
+	 aria-labelledby="mdlMobileScannerV2" data-bs-keyboard="false"
+	 aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-12">
+							<div id="reader"></div>
+							<div id="scanner-loading" class="text-center mt-2">
+								<div class="spinner-border text-primary" role="status"></div>
+								<p>กำลังโหลดกล้อง...</p>
+							</div>
+							<p id="result"></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 @section Scripts {
 
-	<script src="~/lib/html5-qrcode/html5-qrcode.min.js" asp-append-version="true"></script>
-	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+	@* <script src="~/lib/html5-qrcode/html5-qrcode.min.js" asp-append-version="true"></script> *@
+				<script type="text/javascript" charset="utf8" src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+			<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+			<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+			<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
-	<script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
-	<script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
-	<script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
-	<script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
-	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+			<script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+			<script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+			<script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+			<script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+			<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
 
-	<script src="~/js/view/sale/sale_mobile.js"></script>
+			<script src="~/js/view/sale/sale_mobile.js"></script>
 
-	
+
 }
