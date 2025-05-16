@@ -548,21 +548,19 @@ let lastResult = null; // Moved to global scope for accessibility
 let countResults = 0;  // Moved to global scope for accessibility
 
 scannerModal.addEventListener('shown.bs.modal', async () => {
-    setTimeout(async () => {
-        try {
-            document.getElementById("result").innerText = "";
-            await scanner.start(
-                (qrCodeMessage) => handleScanResultV2(qrCodeMessage),
-                (error) => handleScanError(error)
-            );
+    try {
+        document.getElementById("result").innerText = "";
+        await scanner.start(
+            (qrCodeMessage) => handleScanResultV2(qrCodeMessage),
+            (error) => handleScanError(error)
+        );
 
-            // Only hide loader after camera actually starts
-            document.getElementById("scanner-loading").style.display = "none";
-        } catch (err) {
-            console.log(`ไม่สามารถเข้าถึงกล้อง: ${err.message}`);
-            document.getElementById("result").innerText = `ไม่สามารถเข้าถึงกล้อง: ${err.message}`;
-        }
-    }, 300); // Delay 300ms to allow modal rendering to complete
+        // Only hide loader after camera actually starts
+        document.getElementById("scanner-loading").style.display = "none";
+    } catch (err) {
+        console.log(`ไม่สามารถเข้าถึงกล้อง: ${err.message}`);
+        document.getElementById("result").innerText = `ไม่สามารถเข้าถึงกล้อง: ${err.message}`;
+    }
 });
 
 scannerModal.addEventListener('hidden.bs.modal', async () => {
