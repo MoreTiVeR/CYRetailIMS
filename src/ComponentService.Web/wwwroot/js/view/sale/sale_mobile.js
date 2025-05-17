@@ -493,20 +493,38 @@ class QrScannerWrapper {
         this.resultCallback = onScanSuccess;
         this.errorCallback = onScanFailure;
 
-        await this.qrCodeScanner.start(
-            { deviceId: { exact: this.cameraId } },
-            this.config,
-            decodedText => {
-                if (!this.isPaused && typeof this.resultCallback === "function") {
-                    this.resultCallback(decodedText);
+        try {
+            await this.qrCodeScanner.start(
+                { deviceId: { exact: this.cameraId } },
+                this.config,
+                decodedText => {
+                    if (!this.isPaused && typeof this.resultCallback === "function") {
+                        this.resultCallback(decodedText);
+                    }
+                },
+                errorMessage => {
+                    if (typeof this.errorCallback === "function") {
+                        this.errorCallback(errorMessage);
+                    }
                 }
-            },
-            errorMessage => {
-                if (typeof this.errorCallback === "function") {
-                    this.errorCallback(errorMessage);
+            );
+        } catch (e) {
+            console.warn("Failed to start with camera ID, trying fallback...", err);
+            await this.qrCodeScanner.start(
+                { facingMode: "environment" },
+                this.config,
+                decodedText => {
+                    if (!this.isPaused && typeof this.resultCallback === "function") {
+                        this.resultCallback(decodedText);
+                    }
+                },
+                errorMessage => {
+                    if (typeof this.errorCallback === "function") {
+                        this.errorCallback(errorMessage);
+                    }
                 }
-            }
-        );
+            );
+        }
 
         this.isScanning = true;
         this.isPaused = false;
@@ -548,19 +566,21 @@ let lastResult = null; // Moved to global scope for accessibility
 let countResults = 0;  // Moved to global scope for accessibility
 
 scannerModal.addEventListener('shown.bs.modal', async () => {
-    try {
-        document.getElementById("result").innerText = "";
-        await scanner.start(
-            (qrCodeMessage) => handleScanResultV2(qrCodeMessage),
-            (error) => handleScanError(error)
-        );
+    setTimeout(async () => {
+        try {
+            document.getElementById("result").innerText = "";
+            await scanner.start(
+                (qrCodeMessage) => handleScanResultV2(qrCodeMessage),
+                (error) => handleScanError(error)
+            );
 
-        // Only hide loader after camera actually starts
-        document.getElementById("scanner-loading").style.display = "none";
-    } catch (err) {
-        console.log(`ไม่สามารถเข้าถึงกล้อง: ${err.message}`);
-        document.getElementById("result").innerText = `ไม่สามารถเข้าถึงกล้อง: ${err.message}`;
-    }
+            // Only hide loader after camera actually starts
+            document.getElementById("scanner-loading").style.display = "none";
+        } catch (err) {
+            console.log(`ไม่สามารถเข้าถึงกล้อง: ${err.message}`);
+            document.getElementById("result").innerText = `ไม่สามารถเข้าถึงกล้อง: ${err.message}`;
+        }
+    }, 1500); // Delay 300ms to allow modal rendering to complete
 });
 
 scannerModal.addEventListener('hidden.bs.modal', async () => {
@@ -944,20 +964,39 @@ function pauseScanner() {
     }
 }
 
-async function requestCameraPermissionSilently() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        stream.getTracks().forEach(track => track.stop());
-        console.log("อนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณสำเร็จ.");
-        ShowMessageSuccess("อนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณสำเร็จ.");
+//async function requestCameraPermissionSilently() {
+//    try {
+//        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+//        stream.getTracks().forEach(track => track.stop());
+//        console.log("อนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณสำเร็จ.");
+//        ShowMessageSuccess("อนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณสำเร็จ.");
 
-    } catch (err) {
-        console.warn("ปฎิเสธการเข้าถึงกล้องหรือเว็บไซตืเข้าถึงกล้องไม่สำเร็จ!.");
-        ShowMessageWarning("ปฎิเสธการเข้าถึงกล้องหรือเว็บไซตืเข้าถึงกล้องไม่สำเร็จ!.");
-    }
-}
+//    } catch (err) {
+//        console.warn("ปฎิเสธการเข้าถึงกล้องหรือเว็บไซตืเข้าถึงกล้องไม่สำเร็จ!.");
+//        ShowMessageWarning("ปฎิเสธการเข้าถึงกล้องหรือเว็บไซตืเข้าถึงกล้องไม่สำเร็จ!.");
+//    }
+//}
+
+//document.getElementById("btnMobileScanV2").addEventListener("click", async () => {
+//    await requestCameraPermissionSilently();
+//});
 
 document.getElementById("btnMobileScanV2").addEventListener("click", async () => {
-    await requestCameraPermissionSilently();
+    try {
+        await prepareCameraAccess();
+        $('#mdlMobileScannerV2').modal('show');
+    } catch (err) {
+        ShowMessageWarning(err.message);
+    }
 });
 
+async function prepareCameraAccess() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        stream.getTracks().forEach(track => track.stop()); // Stop stream after permission granted
+        console.log("กล้องพร้อมใช้งานแล้ว.");
+    } catch (err) {
+        console.error("การอนุญาตเข้าถึงกล้องล้มเหลว:", err);
+        throw new Error("กรุณาอนุญาตให้เว็บไซต์เข้าถึงกล้อง.");
+    }
+}
