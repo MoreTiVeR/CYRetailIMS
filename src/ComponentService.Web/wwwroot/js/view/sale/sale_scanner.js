@@ -477,31 +477,7 @@ $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
         }
 
         // Start scanning
-        if (!scannerRunning) {
-            scannerRunning = true;
-
-            await codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', async (result, err) => {
-                if (result && scannerRunning) {
-                    const barcode = result.text;
-                    $('#result').text(`พบบาร์โค้ด: ${barcode}`);
-
-                    scannerRunning = false; // temporarily pause to process the barcode
-
-                    alert(`พบบาร์โค้ด: ${barcode}`);
-                    try {
-                        //await AddItemDataList(barcode);
-                        HandleScanResult(barcode);
-                    } catch (error) {
-                        console.error('Scan process failed:', error);
-                    }
-
-                    // Resume scanning after a short delay
-                    setTimeout(() => {
-                        scannerRunning = true;
-                    }, 1000);
-                }
-            });
-        }
+        startScanner();
         $('#scanner-loading').hide();
     } catch (err) {
         $('#scanner-loading').hide();
@@ -515,6 +491,55 @@ $('#mdlMobileScannerV2').on('hidden.bs.modal', function () {
         scannerRunning = false;
     }
 });
+
+// Start scanning
+async function startScanner() {
+    if (!selectedDeviceId) {
+        const videoInputDevices = await codeReader.listVideoInputDevices();
+
+        // Prefer back camera if available
+        if (videoInputDevices.length > 0) {
+            const backCamera = videoInputDevices.find(device => /back|rear|environment/i.test(device.label)) || videoInputDevices[0];
+            selectedDeviceId = backCamera.deviceId;
+        }
+        else {
+            document.getElementById('scanner-loading').style.display = 'none';
+            throw new Error("ไม่พบกล้องบนอุปกรณ์");
+        }
+    }
+
+    scannerRunning = true;
+    await codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', async (result, err) => {
+        if (result && scannerRunning) {
+
+            // handle result
+            //scannerRunning = false;
+            //codeReader.reset();
+
+            const barcode = result.text;
+            $('#result').text("พบบาร์โค้ด: " + barcode);
+
+            alert("พบบาร์โค้ด: " + barcode);
+            try {
+                //await AddItemDataList(barcode);
+                HandleScanResult(barcode);
+            } catch (error) {
+                console.error('Scan process failed:', error);
+            }
+        }
+    });
+}
+
+// Stop scanning
+function stopScanner() {
+    scannerRunning = false;
+    codeReader.reset();
+}
+
+// Resume scanning
+function resumeScanner() {
+    startScanner();
+}
 
 function HandleScanResult(qrCodeMessage) {
     console.log("Scanned:", qrCodeMessage);
@@ -537,7 +562,6 @@ function HandleScanResult(qrCodeMessage) {
         }
         else {
             //รายการใหม่ ยังไม่ซ้ำ ยังไม่ได้สแกน
-            scannerRunning = false; // Pause immediately after a scan
             AddItemDataList(qrCodeMessage).then(() => {
                 // Handle success if needed
 
@@ -546,9 +570,6 @@ function HandleScanResult(qrCodeMessage) {
                 ShowMessageError(error);
             }).finally(() => {
                 console.log("Scan completed."); // Cleanup or final actions
-                setTimeout(function () {
-                    scannerRunning = true; // Pause immediately after a scan
-                }, 1000)
             });
         }
 
@@ -560,10 +581,9 @@ function HandleScanResult(qrCodeMessage) {
 }
 
 async function HandleDuplicateItem(qrCodeMessage, errMsg) {
-    scannerRunning = false; // Pause immediately after a scan
-
+    stopScanner();
     Swal.fire({
-        title: `<strong>${errMsg}</strong>`,
+        title: '<strong>' + errMsg +'</strong>',
         icon: 'warning',
         html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนยืนยัน!</span></u>',
         showCancelButton: true,
@@ -584,7 +604,7 @@ async function HandleDuplicateItem(qrCodeMessage, errMsg) {
             // Add item
             AddItemDataList(qrCodeMessage).then(() => {
                 // Resume scanning after adding
-                scannerRunning = true;
+                startScanner();
 
             }).catch((error) => {
                 // Handle any error from AddItemDataList
@@ -594,12 +614,12 @@ async function HandleDuplicateItem(qrCodeMessage, errMsg) {
                 ShowMessageError(error);
 
                 // Resume scanning even if there was an error
-                scannerRunning = true;
+                startScanner();
             });
         }
         else {
             // Just resume if canceled
-            scannerRunning = true;
+            startScanner();
         }
     });
 }

@@ -19,6 +19,38 @@
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style type="text/css">
+	/* Make the modal background transparent */
+	#mdlMobileScannerV2 .smodal-content {
+		background: rgba(0,0,0,0.2); /* semi-transparent black, adjust alpha as needed */
+		box-shadow: none;
+		border: none;
+	}
+
+	/* Optional: Remove modal body padding for full video */
+	#mdlMobileScannerV2 .smodal-body {
+		background: transparent;
+		padding: 0;
+	}
+
+	/* Optional: Remove modal dialog background */
+	#mdlMobileScannerV2 .smodal-dialog {
+		background: transparent;
+		margin: 0 auto;
+	}
+
+	#mdlMobileScannerV2 .scanned-barcode {
+		background: rgba(0,0,0,0.2); /* semi-transparent black, adjust alpha as needed */
+		box-shadow: none;
+		border: none;
+	}
+	/* Optional: Make the modal backdrop transparent */
+	.modal-backdrop.show {
+		opacity: 0 !important;
+	}
+
+</style>
+
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
 <link rel="stylesheet" type="text/css" href="~/css/view/sale/mobile.css" />
@@ -150,15 +182,13 @@
 				<div class="container-fluid">
 					<div class="row">
 						<div class="col-md-12">
-							<div id="scanned-barcode" style="width:100%">
+							<div id="scanned-barcode" class="scanned-barcode" style="width:100%">
 								<video id="video" width="100%" height="auto" autoplay></video>
 							</div>
 							<div id="scanner-loading" class="text-center mt-2">
 								<div class="spinner-border text-primary" role="status"></div>
 								<p>กำลังโหลดกล้อง...</p>
 							</div>
-							@* <p id="result" class="mt-2 fw-bold text-success"></p>
-							<button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">ปิด</button> *@
 						</div>
 					</div>
 				</div>
