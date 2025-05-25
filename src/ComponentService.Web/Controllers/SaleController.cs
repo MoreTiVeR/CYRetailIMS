@@ -132,6 +132,21 @@ public class SaleController : BaseController
         return View();
     }
 
+    public async Task<IActionResult> Scanner()
+    {
+        #region Get- Set Item
+        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        #endregion
+
+        BaseResponse<List<GetTrasnactionByCriteriaResponseDTO>> resTransactionType = await _transactionTypeAPI.GetTransactionTypeByCriteriaAsync(new GetTrasnactionByCriteriaQuery
+        {
+            isactive = true
+        });
+        ViewBag.TransactionType = resTransactionType;
+        ViewBag.SellingTransactionTypeList = PrepareSelectSellingType();
+        return View();
+    }
+
     /// <summary>
     /// ค้นหาสำหรับ Select2
     /// http://dotnetqueries.com/Article/159/how-to-implement-select2-with-ajax-and-json-in-asp-net-mvc
