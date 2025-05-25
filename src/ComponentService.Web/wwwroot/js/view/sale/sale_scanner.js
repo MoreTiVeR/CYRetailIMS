@@ -458,6 +458,7 @@ let selectedDeviceId;
 let scannerRunning = false;
 
 $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
+    ShowMessageInfo("Initial Camera v3.0.5")
     $('#scanner-loading').show();
     $('#result').text('');
 
@@ -466,29 +467,9 @@ $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
         const videoInputDevices = await codeReader.listVideoInputDevices();
 
         // Prefer back camera if available
-        //selectedDeviceId = videoInputDevices.find(d => d.label.toLowerCase().includes('back'))?.deviceId || videoInputDevices[0]?.deviceId;
-
         if (videoInputDevices.length > 0) {
             const backCamera = videoInputDevices.find(device => /back|rear|environment/i.test(device.label)) || videoInputDevices[0];
             selectedDeviceId = backCamera.deviceId;
-
-            //await codeReader.decodeFromVideoDevice(selectedDeviceId, 'reader', async (result, err) => {
-            //    if (result && !scanned) {
-            //        scanned = true;
-            //        const barcode = result.getText();
-            //        document.getElementById('result').innerText = `📦 Barcode: ${barcode}`;
-            //        document.getElementById('scanner-loading').style.display = 'none';
-
-            //        await AddItemDataList(barcode)
-            //            .catch(err => console.error("AddItemDataList failed:", err))
-            //            .finally(() => codeReader.reset());
-            //    }
-
-            //    if (err && !(err instanceof ZXing.NotFoundException)) {
-            //        console.error(err);
-            //    }
-            //});
-
         }
         else {
             document.getElementById('scanner-loading').style.display = 'none';
@@ -496,28 +477,31 @@ $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
         }
 
         // Start scanning
-        await codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', async (result, err) => {
-            if (result) {
-                const barcode = result.text;
-                $('#result').text(`พบบาร์โค้ด: ${barcode}`);
+        if (!scannerRunning) {
+            scannerRunning = true;
 
-                if (!scannerRunning) return;
+            await codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', async (result, err) => {
+                if (result && scannerRunning) {
+                    const barcode = result.text;
+                    $('#result').text(`พบบาร์โค้ด: ${barcode}`);
 
-                scannerRunning = false;
-                codeReader.reset(); // stop camera
+                    scannerRunning = false; // temporarily pause to process the barcode
 
-                try {
-                    await AddItemDataList(barcode);
-                    //$('#mdlMobileScannerV2').modal('hide');
-                } catch (error) {
-                    console.error('Scan process failed:', error);
-                    scannerRunning = true; // allow retry
-                    await codeReader.decodeFromVideoDevice(selectedDeviceId, 'video'); // restart
+                    alert(`พบบาร์โค้ด: ${barcode}`);
+                    try {
+                        //await AddItemDataList(barcode);
+                        HandleScanResult(barcode);
+                    } catch (error) {
+                        console.error('Scan process failed:', error);
+                    }
+
+                    // Resume scanning after a short delay
+                    setTimeout(() => {
+                        scannerRunning = true;
+                    }, 1000);
                 }
-            }
-        });
-
-        scannerRunning = true;
+            });
+        }
         $('#scanner-loading').hide();
     } catch (err) {
         $('#scanner-loading').hide();
@@ -531,3 +515,91 @@ $('#mdlMobileScannerV2').on('hidden.bs.modal', function () {
         scannerRunning = false;
     }
 });
+
+function HandleScanResult(qrCodeMessage) {
+    console.log("Scanned:", qrCodeMessage);
+
+    const jsonData = JSON.stringify({ barcode: qrCodeMessage });
+
+    $.ajax({
+        url: "/Sale/IsExistItemDataByMobileBarcode",
+        type: "POST",
+        contentType: "application/json", // Set the content type to JSON
+        data: jsonData
+    }).done(function (res) {
+        // Handle the server response
+
+        if (res.result) {
+            //มีรายการเพิ่มอยู่แล้ว
+            //Pasue camera
+            console.log(res.message);
+            HandleDuplicateItem(qrCodeMessage, res.message);
+        }
+        else {
+            //รายการใหม่ ยังไม่ซ้ำ ยังไม่ได้สแกน
+            scannerRunning = false; // Pause immediately after a scan
+            AddItemDataList(qrCodeMessage).then(() => {
+                // Handle success if needed
+
+            }).catch((error) => {
+                // Handle error from AddItemDataList if needed
+                ShowMessageError(error);
+            }).finally(() => {
+                console.log("Scan completed."); // Cleanup or final actions
+                setTimeout(function () {
+                    scannerRunning = true; // Pause immediately after a scan
+                }, 1000)
+            });
+        }
+
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        // Handle AJAX request failure
+        console.error('Failed', textStatus, errorThrown);
+        ShowMessageError(jqXHR.responseText || 'Unknown error => Validate barcode data.');
+    });
+}
+
+async function HandleDuplicateItem(qrCodeMessage, errMsg) {
+    scannerRunning = false; // Pause immediately after a scan
+
+    Swal.fire({
+        title: `<strong>${errMsg}</strong>`,
+        icon: 'warning',
+        html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนยืนยัน!</span></u>',
+        showCancelButton: true,
+        confirmButtonColor: '#04B431',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonColor: '#D33',
+        cancelButtonText: "ยกเลิก",
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-danger ml-1'
+        },
+        buttonsStyling: false,
+        focusConfirm: true,
+    }).then((result) => {
+
+
+        if (result.isConfirmed) {
+            // Add item
+            AddItemDataList(qrCodeMessage).then(() => {
+                // Resume scanning after adding
+                scannerRunning = true;
+
+            }).catch((error) => {
+                // Handle any error from AddItemDataList
+                console.error('Error adding item:', error);
+
+                // Optional: Show an error message
+                ShowMessageError(error);
+
+                // Resume scanning even if there was an error
+                scannerRunning = true;
+            });
+        }
+        else {
+            // Just resume if canceled
+            scannerRunning = true;
+        }
+    });
+}
