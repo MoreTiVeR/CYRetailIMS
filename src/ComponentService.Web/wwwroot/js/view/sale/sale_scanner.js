@@ -460,7 +460,7 @@ let scannerRunning = false;
 
 // Show the modal and initialize the camera
 $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
-    ShowMessageInfo("Initial Camera v3.0.6")
+    ShowMessageInfo("Initial Camera v3.0.5")
     $('#scanner-loading').show();
     $('#result').text('');
 
@@ -472,31 +472,57 @@ $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
         const videoInputDevices = await codeReader.listVideoInputDevices();
 
         // Populate camera select dropdown
+        //cameraSelect.innerHTML = '';
+        //videoInputDevices.forEach(device => {
+        //    const option = document.createElement('option');
+        //    option.value = device.deviceId;
+
+        //    // Normalize label for easier matching
+        //    const label = device.label ? device.label.toLowerCase() : '';
+
+        //    if (label.includes('front')) {
+        //        option.text = 'กล้องหน้า';
+        //    } else if (
+        //        label.includes('back') ||
+        //        label.includes('rear') ||
+        //        label.includes('environment')
+        //    ) {
+        //        option.text = 'กล้องหลัง';
+        //    } else {
+        //        // Fallback: if only one camera, assume it's the back camera
+        //        option.text = (videoInputDevices.length === 1)
+        //            ? 'กล้องหลัง'
+        //            : `กล้อง ${idx + 1}`;
+        //    }
+
+        //    cameraSelect.appendChild(option);
+        //});
         cameraSelect.innerHTML = '';
-        videoInputDevices.forEach((device, idx) => {
+        if (videoInputDevices.length === 1) {
+            // iOS/Safari: Only one camera, usually the back camera
             const option = document.createElement('option');
-            option.value = device.deviceId;
-
-            // Normalize label for easier matching
-            const label = device.label ? device.label.toLowerCase() : '';
-
-            if (label.includes('front')) {
-                option.text = 'กล้องหน้า';
-            } else if (
-                label.includes('back') ||
-                label.includes('rear') ||
-                label.includes('environment')
-            ) {
-                option.text = 'กล้องหลัง';
-            } else {
-                // Fallback: if only one camera, assume it's the back camera
-                option.text = (videoInputDevices.length === 1)
-                    ? 'กล้องหลัง'
-                    : `กล้อง ${idx + 1}`;
-            }
-
+            option.value = videoInputDevices[0].deviceId;
+            option.text = 'กล้องหลัง';
             cameraSelect.appendChild(option);
-        });
+        } else {
+            videoInputDevices.forEach((device, idx) => {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                const label = device.label ? device.label.toLowerCase() : '';
+                if (label.includes('front')) {
+                    option.text = 'กล้องหน้า';
+                } else if (
+                    label.includes('back') ||
+                    label.includes('rear') ||
+                    label.includes('environment')
+                ) {
+                    option.text = 'กล้องหลัง';
+                } else {
+                    option.text = `กล้อง ${idx + 1}`;
+                }
+                cameraSelect.appendChild(option);
+            });
+        }
 
         // Prefer back camera if available
         if (videoInputDevices.length > 0) {
