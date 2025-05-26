@@ -3,6 +3,7 @@ var datepicker;
 
 $('.ddl-ddlBranch').select2();
 $('.ddl-transactiontype').select2();
+$('.ddl-camera-select').select2();
 InitialDatePicker();
 InitialNumberInput();
 
@@ -457,19 +458,56 @@ const codeReader = new ZXing.BrowserMultiFormatReader();
 let selectedDeviceId;
 let scannerRunning = false;
 
+// Show the modal and initialize the camera
 $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
-    ShowMessageInfo("Initial Camera v3.0.5")
+    ShowMessageInfo("Initial Camera v3.0.6")
     $('#scanner-loading').show();
     $('#result').text('');
 
+    const cameraSelect = document.getElementById('cameraSelect');
+    cameraSelect.innerHTML = '<option>Loading...</option>';
     try {
 
+        //Get list of video input devices
         const videoInputDevices = await codeReader.listVideoInputDevices();
+
+        // Populate camera select dropdown
+        cameraSelect.innerHTML = '';
+        videoInputDevices.forEach((device, idx) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+
+            // Normalize label for easier matching
+            const label = device.label ? device.label.toLowerCase() : '';
+
+            if (label.includes('front')) {
+                option.text = 'กล้องหน้า';
+            } else if (
+                label.includes('back') ||
+                label.includes('rear') ||
+                label.includes('environment')
+            ) {
+                option.text = 'กล้องหลัง';
+            } else {
+                // Fallback: if only one camera, assume it's the back camera
+                option.text = (videoInputDevices.length === 1)
+                    ? 'กล้องหลัง'
+                    : `กล้อง ${idx + 1}`;
+            }
+
+            cameraSelect.appendChild(option);
+        });
 
         // Prefer back camera if available
         if (videoInputDevices.length > 0) {
             const backCamera = videoInputDevices.find(device => /back|rear|environment/i.test(device.label)) || videoInputDevices[0];
+
+            // Set selected device ID to back camera or first available camera
             selectedDeviceId = backCamera.deviceId;
+
+            //// Set the camera select dropdown to the selected device
+            cameraSelect.value = backCamera.deviceId;
+
         }
         else {
             document.getElementById('scanner-loading').style.display = 'none';
@@ -485,6 +523,7 @@ $('#mdlMobileScannerV2').on('shown.bs.modal', async function () {
     }
 });
 
+// Handle modal close event to stop the scanner
 $('#mdlMobileScannerV2').on('hidden.bs.modal', function () {
     if (codeReader) {
         codeReader.reset();
@@ -492,15 +531,41 @@ $('#mdlMobileScannerV2').on('hidden.bs.modal', function () {
     }
 });
 
+// Handle camera selection change
+//document.getElementById('cameraSelect').addEventListener('change', async function () {
+//    ShowMessageInfo("Selected camera: " + this.value);
+//    selectedDeviceId = this.value;
+//    stopScanner();
+//    startScanner();
+//});
+
+$(document).on('change', '.ddl-camera-select', function (e) {
+    // Get the selected value
+    var selectedValue = $(this).val();
+    selectedDeviceId = selectedValue; // Update the selected device ID
+    stopScanner();
+    startScanner();
+});
+
+
 // Start scanning
 async function startScanner() {
+
     if (!selectedDeviceId) {
+
+        // Get list of video input devices
         const videoInputDevices = await codeReader.listVideoInputDevices();
 
         // Prefer back camera if available
         if (videoInputDevices.length > 0) {
             const backCamera = videoInputDevices.find(device => /back|rear|environment/i.test(device.label)) || videoInputDevices[0];
+
+            // Set selected device ID to back camera or first available camera
             selectedDeviceId = backCamera.deviceId;
+
+            // Set the camera select dropdown to the selected device
+            cameraSelect.value = backCamera.deviceId;
+
         }
         else {
             document.getElementById('scanner-loading').style.display = 'none';
@@ -519,7 +584,7 @@ async function startScanner() {
             const barcode = result.text;
             $('#result').text("พบบาร์โค้ด: " + barcode);
 
-            alert("พบบาร์โค้ด: " + barcode);
+            //alert("พบบาร์โค้ด: " + barcode);
             try {
                 //await AddItemDataList(barcode);
                 HandleScanResult(barcode);
@@ -532,6 +597,7 @@ async function startScanner() {
 
 // Stop scanning
 function stopScanner() {
+
     scannerRunning = false;
     codeReader.reset();
 }

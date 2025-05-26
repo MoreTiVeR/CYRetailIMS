@@ -180,6 +180,11 @@
 		<div class="modal-content">
 			<div class="modal-body">
 				<div class="container-fluid">
+					<!-- Add this inside your modal, before <div id="reader"></div> -->
+					<div class="mb-2">
+						<label for="cameraSelect" class="form-label">เลือกกล้อง</label>
+						<select id="cameraSelect" class="form-select ddl-camera-select"></select>
+					</div>
 					<div class="row">
 						<div class="col-md-12">
 							<div id="scanned-barcode" class="scanned-barcode" style="width:100%">
