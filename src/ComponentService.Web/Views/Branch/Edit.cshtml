@@ -34,6 +34,27 @@
                                 <span asp-validation-for="branchcode" class="text-danger"></span>
                             </div>
                         </div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="form-group">
+								<label>สถานะเปิดใช้งาน</label>
+								@{
+									bool.TryParse(Model.isactive, out bool outIsActive);
+								}
+								<select class="select" asp-for="isactive">
+									@if (outIsActive)
+									{
+										<option value="1" selected>ใช้งาน</option>
+										<option value="0">ไม่ใช้งาน</option>
+									}
+									else
+									{
+										<option value="1">ใช้งาน</option>
+										<option value="0" selected>ไม่ใช้งาน</option>
+									}
+								</select>
+								<span asp-validation-for="isactive" class="text-danger"></span>
+							</div>
+						</div>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
@@ -55,10 +76,6 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
-                            @*<button id="btnCancel" name="btnCancel" type="reset" class="btn btn-cancel me-2">
-                                <i class="bx bx-plus"></i>
-                                ยกเลิก
-                            </button>*@
                             <a asp-action="Index" asp-controller="Branch" class="btn btn-cancel me-2">ยกเลิก</a>
                             <button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
                                 <i class="bx bx-plus"></i>

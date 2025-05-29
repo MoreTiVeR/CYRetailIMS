@@ -19,16 +19,20 @@ datatable = $("#tbBranchs").DataTable({
                 return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
             }
         },
-        //{
-        //    "data": { itemimageurl: "itemimageurl", name: "name" },
-        //    "render": function (data) {
-        //        console.log('columns : render => ' + data);
-        //        return "<a asp-action='Detail' asp-controller='Item' asp-all-route-data='aItemID'>" + data.name + "</a>";
-        //    }
-        //},
         { "data": "branchcode" },
         { "data": "branchname" },
-        { "data": "address1" },
+        { "data": "address1", "className": "wrap-text" },
+        {
+            "data": { isactive: "isactive" },
+            "render": function (data) {
+                if (data.isactive) {
+                    return "<span class='badges bg-lightgreen'>ใช้งาน</span>";
+                }
+                else {
+                    return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
+                }
+            }
+        },
         {
             "data": { branchid: "branchid" },
             "render": function (data) {
@@ -36,9 +40,9 @@ datatable = $("#tbBranchs").DataTable({
             }
         }
     ],
-    //"language": {
-    //    "emptyTable": "ไม่พบข้อมูล."
-    //},
+    "language": {
+        "emptyTable": "ไม่พบข้อมูล."
+    },
     "order": [[0, "desc"]],
     "columnDefs": [
         {
@@ -73,10 +77,6 @@ datatable = $("#tbBranchs").DataTable({
             extend: 'pdfHtml5',
             title: 'PDF',
             text: 'Export to PDF'
-            //Columns to export
-            //exportOptions: {
-            //     columns: [0, 1, 2, 3, 4, 5, 6]
-            //  }
         }
     ]
 });
