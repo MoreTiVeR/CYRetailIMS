@@ -301,14 +301,20 @@ public class OrderController : BaseController
         orderItem.sitemname = resItems.data.FirstOrDefault(w => w.itemid == refItemID).name;
     }
 
+    /// <summary>
+    /// Get Item List from TMItem
+    /// ModeifiedDate: 2023-10-20
+    /// ModifyDesc: Remove get from sessionGet from itmitem no use session because of when add new item it no showing.
+    /// </summary>
+    /// <returns></returns>
     private async Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemSessionDataAsync()
     {
-        BaseResponse<List<GetItemListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");
-        if (res != null)
-        {
-            return res;
-        }
-        res = await _itemAPI.GetItemListAsync();
+        //BaseResponse<List<GetItemListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>("ITEM_DATA");
+        //if (res != null)
+        //{
+        //    return res;
+        //}
+        BaseResponse<List<GetItemListResponseDTO>> res = await _itemAPI.GetItemListAsync();
         HttpContext.Session.SetDataToSession("ITEM_DATA", res);
         return res;
     }

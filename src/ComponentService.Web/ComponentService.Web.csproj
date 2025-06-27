@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CYRetailIMS.ComponentService.Web</RootNamespace>
     <AssemblyName>CYRetailIMS.ComponentService.Web</AssemblyName>
-    <Version>3.0.6.1</Version>
-    <FileVersion>3.0.6.1</FileVersion>
-    <AssemblyVersion>3.0.6.1</AssemblyVersion>
+    <Version>3.0.6.2</Version>
+    <FileVersion>3.0.6.2</FileVersion>
+    <AssemblyVersion>3.0.6.2</AssemblyVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <UserSecretsId>ef3ef566-0220-4c5b-bc85-b5a840b5bcda</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
