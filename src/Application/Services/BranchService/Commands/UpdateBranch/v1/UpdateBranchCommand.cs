@@ -27,4 +27,6 @@ public record UpdateBranchCommand : IRequest<BaseResponse<CommandResponse>>
 
     [Required]
     public string updatedby { get; init; }
+
+    public bool isactive { get; set; }
 }

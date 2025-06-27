@@ -4,7 +4,6 @@
 @using static CYRetailIMS.Application.Common.Models.EnumModel
 @model SellingItemViewModel
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-
 @{
 	ViewData["Title"] = "Mobile";
 	Layout = "~/Views/Shared/_Layout.cshtml";
@@ -12,10 +11,45 @@
 @{
 	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
 	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
-
-	// Serialize the role id to make sure it's a valid JavaScript string
 	ViewBag.CurrentRoleID = JsonConvert.SerializeObject(userProfile.roleid);
 }
+
+@{
+	ViewData["Title"] = "Scanner";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+	/* Make the modal background transparent */
+	#mdlMobileScannerV2 .smodal-content {
+		background: rgba(0,0,0,0.2); /* semi-transparent black, adjust alpha as needed */
+		box-shadow: none;
+		border: none;
+	}
+
+	/* Optional: Remove modal body padding for full video */
+	#mdlMobileScannerV2 .smodal-body {
+		background: transparent;
+		padding: 0;
+	}
+
+	/* Optional: Remove modal dialog background */
+	#mdlMobileScannerV2 .smodal-dialog {
+		background: transparent;
+		margin: 0 auto;
+	}
+
+	#mdlMobileScannerV2 .scanned-barcode {
+		background: rgba(0,0,0,0.2); /* semi-transparent black, adjust alpha as needed */
+		box-shadow: none;
+		border: none;
+	}
+	/* Optional: Make the modal backdrop transparent */
+	.modal-backdrop.show {
+		opacity: 0 !important;
+	}
+
+</style>
 
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
@@ -50,12 +84,12 @@
 											{
 												foreach (var branch in userProfile.access_branch)
 												{
-													<option value="@branch.branchid">@branch.branchname</option>
+															<option value="@branch.branchid">@branch.branchname</option>
 												}
 											}
 											else
 											{
-												<option value="">-- ไม่พบสาขา --</option>
+													<option value="">-- ไม่พบสาขา --</option>
 											}
 										</select>
 									</div>
@@ -138,7 +172,8 @@
 	</div>
 </div>
 
-<div div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
+<!-- Modal -->
+<div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
 	 aria-labelledby="mdlMobileScannerV2" data-bs-keyboard="false"
 	 aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -146,18 +181,19 @@
 			<div class="modal-body">
 				<div class="container-fluid">
 					<!-- Add this inside your modal, before <div id="reader"></div> -->
-					@* <div class="mb-2">
+					<div class="mb-2">
 						<label for="cameraSelect" class="form-label">เลือกกล้อง</label>
-						<select id="cameraSelect" class="form-select"></select>
-					</div> *@
+						<select id="cameraSelect" class="form-select ddl-camera-select"></select>
+					</div>
 					<div class="row">
 						<div class="col-md-12">
-							<div id="reader"></div>
+							<div id="scanned-barcode" class="scanned-barcode" style="width:100%">
+								<video id="video" width="100%" height="auto" autoplay></video>
+							</div>
 							<div id="scanner-loading" class="text-center mt-2">
 								<div class="spinner-border text-primary" role="status"></div>
 								<p>กำลังโหลดกล้อง...</p>
 							</div>
-							<p id="result"></p>
 						</div>
 					</div>
 				</div>
@@ -166,22 +202,19 @@
 	</div>
 </div>
 
+
+<!-- Include ZXing JavaScript library -->
 @section Scripts {
-
-
-	<script type="text/javascript" charset="utf8" src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-	@* <script type="text/javascript" src="~/lib/html5-qrcode/html5-qrcode.min.js"></script> *@
 	
+	<script type="text/javascript" charset="utf8"  src="https://cdn.jsdelivr.net/npm/@@zxing/library@0.21.3/umd/index.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-	
+
 	<script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
-	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
 
-	<script src="~/js/view/sale/sale_mobile.js"></script>
-
+	<script src="~/js/view/sale/sale_scanner.js"></script>
 }

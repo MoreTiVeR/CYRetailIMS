@@ -26,6 +26,8 @@ public class EditBranchViewModel
     [Display(Name = "ที่อยู่สาขา")]
     public string address { get; set; }
 
+    public string? isactive { get; set; }
+
     #region Phase 2
     //[Required(ErrorMessage = "* กรุณาระบุตำบล")]
     //[Display(Name = "ตำบล")]

@@ -12,6 +12,7 @@ using CYRetailIMS.Application.Services.BranchService.Commands.DeleteBranch.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactions.v1;
+using CYRetailIMS.Application.Common.Extensions;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -95,7 +96,8 @@ public class BranchController : BaseController
             branchcode = editBranchViewModel.branchcode,
             branchname = editBranchViewModel.branchname,
             address = editBranchViewModel.address,
-            updatedby = base.UserProfile.username
+            updatedby = base.UserProfile.username,
+            isactive = editBranchViewModel.isactive.ToBoolFromIntString()
         };
     }
 
@@ -114,7 +116,8 @@ public class BranchController : BaseController
         {
             branchcode = resObj.branchcode,
             branchname = resObj.branchname,
-            address = resObj.address1
+            address = resObj.address1,
+            isactive = resObj.isactive ? "true" : "false"
         };
     }
 
