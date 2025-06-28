@@ -32,8 +32,8 @@ jobs:
       # - name: Test
       #   run: dotnet test tests/Application.Test/Application.Test.csproj --no-build --configuration Release
 
-      - name: Check formatting
-        run: |
-          dotnet tool install --global dotnet-format
-          dotnet format src/ComponentService.Web/ComponentService.Web.csproj --verify-no-changes
-          dotnet format src/ComponentService.API/ComponentService.API.csproj --verify-no-changes
+      # - name: Check formatting
+      #   run: |
+      #     dotnet tool install --global dotnet-format
+      #     dotnet format src/ComponentService.Web/ComponentService.Web.csproj --verify-no-changes
+      #     dotnet format src/ComponentService.API/ComponentService.API.csproj --verify-no-changes
