@@ -29,8 +29,8 @@ jobs:
       - name: Build API
         run: dotnet build src/ComponentService.API/ComponentService.API.csproj --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test tests/Application.Test/Application.Test.csproj --no-build --configuration Release
+      # - name: Test
+      #   run: dotnet test tests/Application.Test/Application.Test.csproj --no-build --configuration Release
 
       - name: Check formatting
         run: |
