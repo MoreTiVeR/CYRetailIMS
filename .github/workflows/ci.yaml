@@ -30,7 +30,7 @@ jobs:
         run: dotnet build src/ComponentService.API/ComponentService.API.csproj --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build
 
       - name: Check formatting
         run: |
