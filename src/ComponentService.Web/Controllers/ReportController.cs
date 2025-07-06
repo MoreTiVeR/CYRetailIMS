@@ -8,11 +8,6 @@ using CYRetailIMS.Application.ExternalService.BranchAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
-using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
-using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
-using CYRetailIMS.Application.Services.ItemService.Commands.UpdateItem;
-using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
-using CYRetailIMS.Application.Services.ItemTransferService.Queries.GetItemTransferByTransferID.v1;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
@@ -25,14 +20,9 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
-using CYRetailIMS.Application.Services.UserService.Commands.UpdateUser.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
-using CYRetailIMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Operations;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
-using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -738,6 +728,15 @@ public class ReportController : BaseController
         {
             return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<ItemTransferShortageReportResponseDTO>() });
         }
+    }
+    #endregion
+
+    #region รายงานสต๊อกสินค้า
+    public async Task<IActionResult> ItemStockReport()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
+        return View();
     }
     #endregion
 }
