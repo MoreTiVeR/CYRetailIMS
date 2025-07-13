@@ -14,6 +14,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBra
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
@@ -21,6 +22,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
+using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
@@ -738,5 +740,111 @@ public class ReportController : BaseController
         ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
         return View();
     }
+
+    [HttpPost]
+    public async Task<IActionResult> SearchItemStockReport([FromBody] SearchItemStockReportViewModel searchItem)
+    {
+        //BaseResponse<ItemStockReportResponseDTO> resItemStockReport = new BaseResponse<ItemStockReportResponseDTO>();
+        try
+        {
+            #region Prepare Search Start & End Date
+            DateTime sDate = DateTime.Now;
+            DateTime eDate = DateTime.Now;
+            int? branchID = null;
+
+            if (!string.IsNullOrEmpty(searchItem.startdate))
+            {
+                string[] sTransferDate = searchItem.startdate.Split("-");
+                if (sTransferDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                sDate = new DateTime(sTransferDate[2].ToInt32(), sTransferDate[1].ToInt32(), sTransferDate[0].ToInt32());
+            }
+
+            if (!string.IsNullOrEmpty(searchItem.enddate))
+            {
+                string[] sTransferEndDate = searchItem.enddate.Split("-");
+                if (sTransferEndDate.Count() != 3)
+                {
+                    throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                }
+                eDate = new DateTime(sTransferEndDate[2].ToInt32(), sTransferEndDate[1].ToInt32(), sTransferEndDate[0].ToInt32());
+            }
+
+            //เช็ควันที่สิ้นสุดน้อยกว่า วันเริ่มต้น
+            if (DateTime.Compare(sDate, eDate) == 1)
+            {
+                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+            #endregion
+
+            branchID = searchItem.branchid == 999 ? null : searchItem.branchid;
+            BaseResponse<ItemStockReportResponseDTO> resReport = await _reportAPI.GetItemStockReportAsync(new ItemStockReportQuery
+            {
+                branchid = branchID,
+                startrow = searchItem.start,
+                pagesize = searchItem.length,
+                //searchvalue = searchItem.searchValue.Replace("\t", "").Replace("\n", ""),
+                isexportalldata = searchItem.isexportalldata,
+            });
+
+            if (!resReport.result)
+            {
+                return Json(new { data = new List<ItemStockReportDetailDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+            }
+
+            #region Search Filter
+            if (!string.IsNullOrEmpty(searchItem.searchValue))
+            {
+                string searchValue = searchItem.searchValue.Replace("\t", "").Replace("\n", "");
+
+                resReport.data.data = resReport.data.data.Where(w => w.itemname.Contains(searchValue)
+                || w.itemcode.Contains(searchValue)
+                || w.branchname.Contains(searchValue)
+                || w.brandname.Contains(searchValue)
+                || w.itemname.Contains(searchValue)
+                || w.itemcode.Contains(searchValue)).ToList();
+            }
+            #endregion
+
+            //var totalRows = resReport.data.totalrow;
+            var totalItems = resReport.data.totalrow; // Get total item count for pagination
+
+            #region Search by order: ยังไม่เสร็จ ไม่สามารถ order ทั้งหมดได้ order ได้แค่หน้าปัจจุบัน
+            //// Filter based on searchValue if necessary
+            //var query = resReport.data.data.AsQueryable();
+
+            //string columnName = searchItem.columns[searchItem.order[0].column].GetColumnName();
+            //var orderColumnName = columnName;
+
+            //if (searchItem.order != null && searchItem.order.FirstOrDefault().dir == "asc")
+            //{
+            //    query = query.OrderByDynamic(propertyName: orderColumnName, ascending: true);
+            //}
+            //else
+            //{
+            //    query = query.OrderByDynamic(propertyName: orderColumnName, ascending: false);
+            //}
+            #endregion
+
+            // Calculate paginated data
+            //var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
+
+            // Prepare response for DataTables
+            return Json(new
+            {
+                draw = searchItem.draw, // Echo the draw parameter
+                recordsTotal = totalItems, // Total records before filtering
+                recordsFiltered = totalItems, // Total records after applying filtering
+                data = resReport.data.data // The actual data to be displayed
+            });
+        }
+        catch
+        {
+            return Json(new { data = new List<ItemStockReportDetailDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+        }
+    }
+
     #endregion
 }

@@ -23,7 +23,6 @@ public class ItemStockReportHandler : BaseService, IRequestHandler<ItemStockRepo
     {
         var resData = request.branchid.HasValue && request.branchid.Value > 1 ? await GetItemStockBranchAsync(request) : await GetItemStockWarehouseAsync(request);
         
-        
         return new BaseResponse<ItemStockReportResponseDTO>
         {
             result = true,
@@ -69,10 +68,10 @@ public class ItemStockReportHandler : BaseService, IRequestHandler<ItemStockRepo
             resData = resData.Where(w => w.subitemtypeid == request.subitemtypeid.Value);
         }
 
-        if(request.searchvalue != null && request.searchvalue.Trim().Length > 0)
-        {
-            resData = resData.Where(w => w.itemname.Contains(request.searchvalue) || w.itemcode.Contains(request.searchvalue));
-        }
+        //if(request.searchvalue != null && request.searchvalue.Trim().Length > 0)
+        //{
+        //    resData = resData.Where(w => w.itemname.Contains(request.searchvalue) || w.itemcode.Contains(request.searchvalue));
+        //}
 
         if(request.brandid.HasValue && request.brandid.Value > 0)
         {
@@ -139,10 +138,10 @@ public class ItemStockReportHandler : BaseService, IRequestHandler<ItemStockRepo
             resData = resData.Where(w => w.subitemtypeid == request.subitemtypeid.Value);
         }
 
-        if (request.searchvalue != null && request.searchvalue.Trim().Length > 0)
-        {
-            resData = resData.Where(w => w.itemname.Contains(request.searchvalue) || w.itemcode.Contains(request.searchvalue));
-        }
+        //if (request.searchvalue != null && request.searchvalue.Trim().Length > 0)
+        //{
+        //    resData = resData.Where(w => w.itemname.Contains(request.searchvalue) || w.itemcode.Contains(request.searchvalue));
+        //}
 
         if (request.brandid.HasValue && request.brandid.Value > 0)
         {
