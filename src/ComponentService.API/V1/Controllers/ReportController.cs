@@ -15,6 +15,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferBy
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -268,6 +269,27 @@ public class ReportController : BaseApiController
     {
         DateTime dtStart = DateTime.Now;
         BaseResponse<List<ItemTransferShortageReportResponseDTO>> res = await Mediator.Send(transferShortageReportQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]ItemTransferShortageReportAsync Success");
+        return Ok(res.data);
+    }
+
+
+    /// <summary>
+    /// รายงานสต๊อกสินค้าทั้งหมด
+    /// </summary>
+    /// <param name="transferShortageReportQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/itemstock")]
+    [ProducesResponseType(typeof(ItemStockReportResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ItemStockReportAsync(ItemStockReportQuery itemStockReportQuery)
+    {
+        BaseResponse<ItemStockReportResponseDTO> res = await Mediator.Send(itemStockReportQuery);
         Response.Headers.Add("responsecode", res.status);
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));

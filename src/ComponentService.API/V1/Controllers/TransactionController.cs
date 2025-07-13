@@ -1,13 +1,12 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Commands.DeleteTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Commands.UpdateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByCriteria.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByTransactionID.v1;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
@@ -78,6 +77,22 @@ public class TransactionController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]CreateTransactionByBrachIDAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v2/transactionbybranch")]
+    [ProducesResponseType(typeof(GetTransactionByBranchIDV2ReseponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateTransactionByBrachIDV2Async(GetTransactionByBranchIDV2Query reqGetTransactionByBranch)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<GetTransactionByBranchIDV2ReseponseDTO> res = await Mediator.Send(reqGetTransactionByBranch);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CreateTransactionByBrachIDV2Async Success");
         return Ok(res.data);
     }
 

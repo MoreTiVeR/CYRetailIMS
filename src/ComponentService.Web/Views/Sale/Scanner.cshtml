@@ -1,0 +1,220 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json
+@using static CYRetailIMS.Application.Common.Models.EnumModel
+@model SellingItemViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+	ViewData["Title"] = "Mobile";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+	string userprofileJson = HttpContextAccessor.HttpContext.Session.GetString("userprofile");
+	UserProfileViewModel userProfile = JsonConvert.DeserializeObject<UserProfileViewModel>(userprofileJson);
+	ViewBag.CurrentRoleID = JsonConvert.SerializeObject(userProfile.roleid);
+}
+
+@{
+	ViewData["Title"] = "Scanner";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+	/* Make the modal background transparent */
+	#mdlMobileScannerV2 .smodal-content {
+		background: rgba(0,0,0,0.2); /* semi-transparent black, adjust alpha as needed */
+		box-shadow: none;
+		border: none;
+	}
+
+	/* Optional: Remove modal body padding for full video */
+	#mdlMobileScannerV2 .smodal-body {
+		background: transparent;
+		padding: 0;
+	}
+
+	/* Optional: Remove modal dialog background */
+	#mdlMobileScannerV2 .smodal-dialog {
+		background: transparent;
+		margin: 0 auto;
+	}
+
+	#mdlMobileScannerV2 .scanned-barcode {
+		background: rgba(0,0,0,0.2); /* semi-transparent black, adjust alpha as needed */
+		box-shadow: none;
+		border: none;
+	}
+	/* Optional: Make the modal backdrop transparent */
+	.modal-backdrop.show {
+		opacity: 0 !important;
+	}
+
+</style>
+
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
+<link rel="stylesheet" type="text/css" href="~/css/view/sale/mobile.css" />
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>สแกนขายสินค้า</h4>
+		<h6>บันทึกรายการขายผ่านกล้องมือถือ</h6>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="form-group">
+				<input type="hidden" id="uRoleID" value="@ViewBag.CurrentRoleID" readonly />
+				<form id="frmSelling" class="form" asp-action="SaveSellingItemByMobileBarcode" asp-controller="Sale" method="post"
+					  data-ajax="true"
+					  data-ajax-update=""
+					  data-ajax-success="OnSuccess"
+					  data-ajax-failure=""
+					  data-ajax-begin="">
+					<div class="row">
+						<div class="col-lg-5 col-sm-6 col-12">
+							<div class="form-group">
+								<label>สาขา</label>
+								<div class="row">
+									<div class="col-lg-12 col-sm-10 col-12">
+										<select id="ddlBranch" class="form-control select2 ddl-ddlBranch" asp-for="branch">
+											@if (userProfile.access_branch is not null)
+											{
+												foreach (var branch in userProfile.access_branch)
+												{
+															<option value="@branch.branchid">@branch.branchname</option>
+												}
+											}
+											else
+											{
+													<option value="">-- ไม่พบสาขา --</option>
+											}
+										</select>
+									</div>
+									<span asp-validation-for="branch" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4 col-sm-6 col-12">
+							<div class="form-group">
+								<label>วันที่ขาย</label>
+								<div class="input-groupicon">
+									<input id="txtSaleDate" type="text" placeholder="กรุณาเลือกวันที่ขายสินค้า" class="pickadate-saledate" asp-for="saledate">
+									<a class="addonset">
+										<img src="~/assets/img/icons/calendars.svg" alt="img">
+									</a>
+									<span asp-validation-for="saledate" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12 ">
+							<div class="form-group">
+								<label>รวมเงินทั้งหมด :</label>
+								<div class="input-group">
+									<input type="number" id="txtSummaryTHB" name="txtSummaryTHB" asp-for="amount" class="form-control" placeholder="รวมเงิน" readonly aria-label="จำนวนเงิน (บาท)" value="0.00">
+									<div class="input-group-append">
+										<span class="input-group-text">THB</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!--Scann Button-->
+					<div class="row">
+						<div class="col-lg-4 col-sm-4 col-12"></div>
+						<div class="col-lg-4 col-sm-4 col-12" style="text-align: center">
+							<button class="btn" id="btnMobileScanV2" type="button">
+								<img src="~/assets/img/cyui/mobile-scanner-app.png" data-bs-toggle="modal"
+									 data-bs-target="#mdlMobileScannerV2"
+									 alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 100px; width: auto; margin: 0;" />
+							</button>
+						</div>
+						<div class="col-lg-4 col-sm-4 col-12"></div>
+					</div>
+
+					<!--Desiplay items-->
+					<div class="table-responsive no-pagination">
+						<table id="tbItems" class="table table-striped table-bordered">
+							<thead>
+								<tr>
+									<th style="width:10%">#</th>
+									<th hidden>รหัสสินค้า</th>
+									<th style="width:30%">ชื่อสินค้า</th>
+									<th style="width:20%">จำนวนสินค้า</th>
+									<th style="width:20%">ราคา</th>
+									<th style="width:20%">ดำเนินการ</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+
+					@if (userProfile.roleid == (int)UserRole.Admin || userProfile.roleid == (int)UserRole.Stock)
+					{
+						@await Html.PartialAsync("_PartialPage/_SellingBarcodePartialPage")
+					}
+
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12 text-center">
+				<a asp-action="Index" asp-controller="Sale" class="btn btn-cancel me-2">ยกเลิก</a>
+				<button id="btnSave" name="btnSave" class="btn btn-submit me-2">
+					<i class="bx bx-plus"></i>
+					บันทึกข้อมูล
+				</button>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
+	 aria-labelledby="mdlMobileScannerV2" data-bs-keyboard="false"
+	 aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="container-fluid">
+					<!-- Add this inside your modal, before <div id="reader"></div> -->
+					<div class="mb-2">
+						<label for="cameraSelect" class="form-label">เลือกกล้อง</label>
+						<select id="cameraSelect" class="form-select ddl-camera-select"></select>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div id="scanned-barcode" class="scanned-barcode" style="width:100%">
+								<video id="video" width="100%" height="auto" autoplay></video>
+							</div>
+							<div id="scanner-loading" class="text-center mt-2">
+								<div class="spinner-border text-primary" role="status"></div>
+								<p>กำลังโหลดกล้อง...</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Include ZXing JavaScript library -->
+@section Scripts {
+	
+	<script type="text/javascript" charset="utf8"  src="https://cdn.jsdelivr.net/npm/@@zxing/library@0.21.3/umd/index.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+	<script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
+	<script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
+	<script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
+	<script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
+
+	<script src="~/js/view/sale/sale_scanner.js"></script>
+}

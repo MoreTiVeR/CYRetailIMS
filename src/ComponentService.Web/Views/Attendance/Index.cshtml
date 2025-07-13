@@ -20,56 +20,39 @@
 
 
 @section Scripts {
-
-	<script src="https://maps.googleapis.com/maps/api/js?key=@apiKey&callback=initMap&loading=async" async defer></script>
-
-	@* <script>
-				// Calling without a location
-		fetch('/getMapData')
-			.then(response => response.json())
-			.then(data => {
-				console.log(data); // Will return data for "New York"
-
-				// Assuming the response contains results in the following format:
-				// { results: [{ geometry: { location: { lat: 40.7128, lng: -74.0060 } } }] }
-				if (data.results && data.results.length > 0) {
-					const userLocation = {
-						lat: data.results[0].geometry.location.lat,
-						lng: data.results[0].geometry.location.lng
-					};
-
-					addMarker(userLocation); // Add the marker to the map
-				} else {
-					console.error('No results found for the specified location.');
-				}
-			})
-			.catch(error => console.error('Error:', error));
-
-
-			// Function to add a marker to the map
-		function addMarker(location) {
-			const defaultLocation = { lat: 0, lng: 0 };
-			const map = new google.maps.Map(document.getElementById('map'), {
-				zoom: 2,
-				center: defaultLocation,
-			});
-
-			alert('Set marker');
-			map.setCenter(defaultLocation); // Update map center
-			map.setZoom(15); // Set zoom level
-
-			new google.maps.Marker({
-				position: defaultLocation,
-				map: map,
-				title: 'User Location' // Optional: Add a title for the marker
-			});
-		}
-	</script> *@
+	@* <script src="https://maps.googleapis.com/maps/api/js?key=@apiKey&callback=initMap&loading=async" async defer></script> *@
 }
 
 <script>
 
-	function getLocation() {
+	loadGoogleMapsScript();
+
+	function loadGoogleMapsScript() {
+			fetch('/Attendance/GetGoogleMapsApiKey')
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					const contentType = response.headers.get('content-type');
+					if (!contentType || !contentType.includes('application/json')) {
+						throw new Error('Response is not JSON');
+					}
+					return response.json();
+				})
+				.then(data => {
+					const script = document.createElement('script');
+					// Add &libraries=marker to enable AdvancedMarkerElement
+					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&callback=initMap&loading=async&libraries=marker`;
+					script.async = true;
+					script.defer = true;
+					document.head.appendChild(script);
+				})
+				.catch(error => console.error('Error loading Google Maps API key:', error));
+	}
+
+
+
+	 function getLocation() {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(showPosition, showError);
 		} else {
@@ -102,9 +85,6 @@
 		}
 	}
 
-	// Google Maps API Key
-	//const googleMapsApiKey = 'AIzaSyD4aX-6dnU6tfyhBuGabob1sP6fPMD8LV4';
-
 	// Initialize the map
 	function initMap() {
 		// Default location (if user location is not available)
@@ -113,6 +93,7 @@
 		const map = new google.maps.Map(document.getElementById('map'), {
 			zoom: 2,
 			center: defaultLocation,
+			mapId: '5d0d417b6a46b3cf9522eb44' // <-- Replace with your actual Map ID
 		});
 
 		// Check-in button functionality
@@ -121,8 +102,9 @@
 		});
 	}
 
+
 	// Fetch user's location
-	function fetchLocation(map) {
+		function fetchLocation(map) {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
@@ -132,13 +114,13 @@
 
 					// Update map center and add marker
 					map.setCenter(userLocation);
-
-					//Set zoom to closed
 					map.setZoom(15);
 
-					new google.maps.Marker({
-						position: userLocation,
-						map: map
+					// Use AdvancedMarkerElement instead of Marker
+					const { AdvancedMarkerElement } = google.maps.marker;
+					new AdvancedMarkerElement({
+						map: map,
+						position: userLocation
 					});
 
 					// Send location to server
@@ -151,17 +133,15 @@
 					})
 						.then((response) => response.text())
 						.then((data) => {
-							//document.getElementById('status').innerHTML = 'Check-in successful!';
 							const statusElement = document.getElementById('status');
 							statusElement.innerHTML = 'Check-in successful!';
-							statusElement.style.color = 'green'; // Set text color to green
+							statusElement.style.color = 'green';
 						})
 						.catch((error) => {
 							console.error('Error:', error);
-							//document.getElementById('status').innerHTML = 'Error during check-in.';
 							const statusElement = document.getElementById('status');
 							statusElement.innerHTML = 'Error during check-in.' + 'error: ' + error;
-							statusElement.style.color = 'red'; // Set text color to green
+							statusElement.style.color = 'red';
 						});
 				},
 				(error) => {
@@ -175,6 +155,7 @@
 				'Geolocation is not supported by this browser.';
 		}
 	}
+
 
 	// Dynamically load the Google Maps script
 	// function loadGoogleMapsScript() {

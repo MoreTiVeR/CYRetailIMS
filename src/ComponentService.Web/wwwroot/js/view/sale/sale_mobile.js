@@ -398,29 +398,6 @@ function CreateData(objData) {
     });
 }
 
-//function AddItemDataList(barcode) {
-//    var sBarCode = barcode;
-//    var data = { "barcode": sBarCode };
-//    $.ajax({
-//        type: 'POST',
-//        url: '/Sale/AddTempItemSellingMobileBarcode',
-//        data: JSON.stringify(data),
-//        contentType: 'application/json',
-//        success: function (response) {
-//            if (response.result) {
-//                ShowMessageSuccess(response.message);
-//                dataTable.ajax.reload();
-
-//                //Set sum amount
-//                $("#txtSummaryTHB").val(currencyFormat(response.amount));
-//            }
-//            else {
-//                AlertErrorNoTitle(response.message);
-//            }
-//        }
-//    });
-//}
-
 async function AddItemDataList(barcode)
 {    
     return new Promise((resolve, reject) => {
@@ -475,15 +452,14 @@ function CheckExistItemDataByMobileBarcode(barcode) {
 }
 
 //Camera Func
-
 class QrScannerWrapper {
     constructor(elementId, config) {
         this.qrCodeScanner = new Html5Qrcode(elementId);
         this.config = config || {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
+            fps: 15,
+            qrbox: { width: 300, height: 300 },
             aspectRatio: 1.7777778,
-            disableFlip: false
+            disableFlip: true
         };
 
         this.cameraId = null;
@@ -498,7 +474,12 @@ class QrScannerWrapper {
         if (!cameras || cameras.length === 0) {
             throw new Error("ขออภัย, ไม่พบกล้อง.");
         }
-        const backCam = cameras.find(c => c.label.toLowerCase().includes(cameraLabelContains)) || cameras[0];
+        //const backCam = cameras.find(c => c.label.toLowerCase().includes(cameraLabelContains)) || cameras[0];
+        const backCam = cameras.find(c =>
+            c.label.toLowerCase().includes('back') ||
+            c.label.toLowerCase().includes('rear') ||
+            c.label.toLowerCase().includes('environment')
+        ) || cameras[cameras.length - 1]; // Fallback to last camera
         this.cameraId = backCam.id;
         document.getElementById("result").innerText = "Initial successful.";
     }
@@ -512,20 +493,38 @@ class QrScannerWrapper {
         this.resultCallback = onScanSuccess;
         this.errorCallback = onScanFailure;
 
-        await this.qrCodeScanner.start(
-            { deviceId: { exact: this.cameraId } },
-            this.config,
-            decodedText => {
-                if (!this.isPaused && typeof this.resultCallback === "function") {
-                    this.resultCallback(decodedText);
+        try {
+            await this.qrCodeScanner.start(
+                { deviceId: { exact: this.cameraId } },
+                this.config,
+                decodedText => {
+                    if (!this.isPaused && typeof this.resultCallback === "function") {
+                        this.resultCallback(decodedText);
+                    }
+                },
+                errorMessage => {
+                    if (typeof this.errorCallback === "function") {
+                        this.errorCallback(errorMessage);
+                    }
                 }
-            },
-            errorMessage => {
-                if (typeof this.errorCallback === "function") {
-                    this.errorCallback(errorMessage);
+            );
+        } catch (e) {
+            console.warn("Failed to start with camera ID, trying fallback...", err);
+            await this.qrCodeScanner.start(
+                { facingMode: "environment" },
+                this.config,
+                decodedText => {
+                    if (!this.isPaused && typeof this.resultCallback === "function") {
+                        this.resultCallback(decodedText);
+                    }
+                },
+                errorMessage => {
+                    if (typeof this.errorCallback === "function") {
+                        this.errorCallback(errorMessage);
+                    }
                 }
-            }
-        );
+            );
+        }
 
         this.isScanning = true;
         this.isPaused = false;
@@ -562,67 +561,32 @@ let html5QrCode;
 let isCameraStarted = false;
 let lastCameraId = null;
 const scannerModal = document.getElementById('mdlMobileScannerV2');
-const btnScanAgain = document.getElementById('btnScanAgain');
 const scanner = new QrScannerWrapper("reader");
 let lastResult = null; // Moved to global scope for accessibility
 let countResults = 0;  // Moved to global scope for accessibility
 
 scannerModal.addEventListener('shown.bs.modal', async () => {
-    try {
-        document.getElementById("result").innerText = "";
-        
-        //let lastResult = null;
-        //let countResults = 0;
+    setTimeout(async () => {
+        try {
+            document.getElementById("result").innerText = "";
+            await scanner.start(
+                (qrCodeMessage) => handleScanResultV2(qrCodeMessage),
+                (error) => handleScanError(error)
+            );
 
-        //test
-        //handleScanResultV2('d6957303855339');
-
-        //setTimeout(function () {
-        //    console.log("Hello world, 10 sec in the future");
-        //    handleScanResultV2('6957303855339');
-        //}, 10000)
-
-        
-        await scanner.start(
-            (qrCodeMessage) => handleScanResultV2(qrCodeMessage),
-            (error) => handleScanError(error)
-        );
-    } catch (err) {
-        console.log(`Camera error: ${err.message}`);
-        document.getElementById("result").innerText = `Camera error: ${err.message}`;
-    }
+            // Only hide loader after camera actually starts
+            document.getElementById("scanner-loading").style.display = "none";
+        } catch (err) {
+            console.log(`ไม่สามารถเข้าถึงกล้อง: ${err.message}`);
+            document.getElementById("result").innerText = `ไม่สามารถเข้าถึงกล้อง: ${err.message}`;
+        }
+    }, 1500); // Delay 300ms to allow modal rendering to complete
 });
 
 scannerModal.addEventListener('hidden.bs.modal', async () => {
-    //stopScanner();
-    //document.getElementById("result").innerText = ""; // Clear result
-    //btnScanAgain.classList.add("d-none");
     await scanner.stop();
     document.getElementById("result").innerText = ""; // Clear result
-    btnScanAgain.classList.add("d-none");
 });
-
-//btnScanAgain.addEventListener('click', function () {
-//    btnScanAgain.classList.add("d-none");
-//    document.getElementById("result").innerText = "Scanning...";
-//    startScanner(lastCameraId); // Resume with same camera
-//});
-
-// Handle the scanned QR code message
-//async function handleScanResult(qrCodeMessage) {
-//    console.log("Scanned:", qrCodeMessage);
-
-//    if (qrCodeMessage !== lastResult) {
-//        countResults++;
-//        lastResult = qrCodeMessage;
-
-//        // Handle the success condition with the decoded message
-//        console.log(`Scan result ${qrCodeMessage}`);
-//        await AddItemDataList(qrCodeMessage);
-//    } else {
-//        handleDuplicateItem(qrCodeMessage);
-//    }
-//}
 
 function handleScanResultV2(qrCodeMessage) {
     console.log("Scanned:", qrCodeMessage);
@@ -763,11 +727,20 @@ async function showConfirmationDialog(qrCodeMessage, errMsg) {
 }
 
 function startScanner(cameraId = null) {
+
+    document.getElementById("scanner-loading").style.display = "block";
+
+    //let config = {
+    //    fps: 10,
+    //    qrbox: { width: 250, height: 250 },
+    //    aspectRatio: 1.7777778,
+    //    disableFlip: false
+    //};
     let config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.7777778,
-        disableFlip: false
+        fps: 15,
+        qrbox: { width: 300, height: 300 },
+        aspectRatio: 1.7778,
+        disableFlip: true
     };
 
     if (!html5QrCode) {
@@ -776,17 +749,18 @@ function startScanner(cameraId = null) {
     
     const startWithCamera = (camera) => {
         lastCameraId = camera.id;
-        
+
+        const highResConstraints = {
+            deviceId: { exact: camera.id },
+            width: { min: 640, ideal: 1280 },
+            height: { min: 480, ideal: 1280 }
+        };
+
         html5QrCode.start(
-            { deviceId: { exact: camera.id } },
+            highResConstraints,
             config,
             qrCodeMessage => {
                
-                //document.getElementById("result").innerText = `Scanned: ${qrCodeMessage}`;
-                //AddItemDataList(qrCodeMessage);
-                //stopScanner(); // Stop scanning after one scan
-                //btnScanAgain.classList.remove("d-none"); // Show rescan button
-
                 if (qrCodeMessage !== lastResult) {
                     ++countResults;
                     lastResult = qrCodeMessage;
@@ -827,8 +801,7 @@ function startScanner(cameraId = null) {
 
                             //Add item
                             AddItemDataList(qrCodeMessage);
-                            //stopScanner(); // Stop scanning after one scan
-                            //btnScanAgain.classList.remove("d-none"); // Show rescan button
+
                             startWithCamera({ id: cameraId });
                         }
                         else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -843,26 +816,126 @@ function startScanner(cameraId = null) {
                 // Ignore scan errors
             }
         ).then(() => {
+            document.getElementById("scanner-loading").style.display = "none";
             isCameraStarted = true;
         }).catch(err => {
-            console.error("Failed to start camera:", err);
-            ShowMessageError(`Failed to start camera: ${err}`);
+            console.error("ขออภัย, ไม่สามารถเข้าถึงกล้อง:", err);
+            document.getElementById("scanner-loading").style.display = "none";
+            if (err.name === "NotAllowedError") {
+                ShowMessageError("กรุณาอนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณ.");
+            }
+            else {
+                ShowMessageError(`ขออภัย, ไม่สามารถเข้าถึงกล้อง: ${err}`);
+            }
         });
     };
 
     if (cameraId) {
         // If we already know which camera to use
         startWithCamera({ id: cameraId });
-    } else {
-        // First-time: fetch camera list
-        Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-                let backCamera = cameras.find(c => c.label.toLowerCase().includes('back')) || cameras[0];
-                startWithCamera(backCamera);
+    }
+    else
+    {
+       // If no cameras found or label access is restricted
+        Html5Qrcode.getCameras().then(cameras =>
+        {
+            if (cameras && cameras.length)
+            {
+                //let backCamera = cameras.find(c => c.label.toLowerCase().includes('back')) || cameras[0];
+                //startWithCamera(backCamera);
+
+                // Prefer camera with label containing 'back' or facingMode workaround
+                let backCamera = cameras.find(c =>
+                    c.label.toLowerCase().includes('back') ||
+                    c.label.toLowerCase().includes('rear') ||
+                    c.label.toLowerCase().includes('environment')
+                ) || cameras[cameras.length - 1]; // Fallback to last camera
+
+                // Try to use back camera by deviceId
+                startWithCamera({ id: backCamera.id });
             }
-        }).catch(err => {
-            console.error("Camera access error:", err);
-            ShowMessageError(`Camera access error: ${err}`);
+            else {
+                // If no cameras found or label access is restricted
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    qrCodeMessage => {
+
+                        if (qrCodeMessage !== lastResult) {
+                            ++countResults;
+                            lastResult = qrCodeMessage;
+
+                            // Handle on success condition with the decoded message.
+                            console.log(`Scan result ${qrCodeMessage}`);
+
+                            document.getElementById("result").innerText = `Scanned: ${qrCodeMessage}`;
+                            AddItemDataList(qrCodeMessage);
+                        }
+                        else {
+
+                            stopScanner();
+                            Swal.fire({
+                                title: `<strong>ต้องการเพิ่มจำนวนสินค้า ${lastResult} รายการเดิมหรือไม่?</strong>`,
+                                icon: 'warning',
+                                html: '<u><span style="color:red">กรุณาตรวจสอบข้อมูลก่อนยืนยัน!</span></u>',
+                                showCancelButton: true,
+                                //showDenyButton: true,
+                                confirmButtonColor: '#04B431',
+                                confirmButtonText: 'ยืนยัน',
+                                cancelButtonColor: '#D33',
+                                cancelButtonText: "ยกเลิก",
+                                //denyButtonText: 'ยืนยัน-ไม่ออกใบเสร็จ',
+                                //denyButtonColor: '#D33',
+                                customClass: {
+                                    confirmButton: 'btn btn-success',
+                                    denyButton: 'btn btn-warning ml-1',
+                                    cancelButton: 'btn btn-danger ml-1'
+                                },
+                                buttonsStyling: false,
+                                focusConfirm: true,
+                                didOpen: function () {
+                                    //Initial
+                                }
+                            }).then(function (result) {
+
+                                if (result.isConfirmed) {
+
+                                    //Add item
+                                    AddItemDataList(qrCodeMessage);
+
+                                    startWithCamera({ id: cameraId });
+                                }
+                                else if (result.dismiss === Swal.DismissReason.cancel) {
+                                    //Do nothing
+                                    //html5QrcodeScanner.resume();
+                                }
+                            });
+                        }
+                    },
+                    error => {
+                        // Ignore scan errors
+                        console.error("Scan error:", err);
+                        ShowMessageError(`Scan error: ${err}`);
+                    }
+                ).then(() => {
+                    isCameraStarted = true;
+                }).catch(err => {
+
+                    console.error("ขออภัย, ไม่สามารถเข้าถึงกล้อง:", err);
+                    document.getElementById("scanner-loading").style.display = "none";
+                    if (err.name === "NotAllowedError") {
+                        ShowMessageError("กรุณาอนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณ.");
+                    }
+                    else {
+                        ShowMessageError(`ขออภัย, ไม่สามารถเข้าถึงกล้อง: ${err}`);
+                    }
+                });
+            }
+        }).catch(err =>
+        {
+            console.error("พบข้อผิดพลาดในการเข้าถึงกล้อง", err);
+            document.getElementById("scanner-loading").style.display = "none";
+            ShowMessageError(`พบข้อผิดพลาดในการเข้าถึงกล้อง: ${err}`);
         });
     }
 }
@@ -873,8 +946,8 @@ function stopScanner() {
             html5QrCode.clear();
             isCameraStarted = false;
         }).catch(err => {
-            console.error("Failed to stop camera:", err);
-            ShowMessageError(`Failed to stop camera: ${err}`);
+            console.error("เกิดข้อผิดพลาดการปิดใช้งานกล้อง:", err);
+            ShowMessageError(`เกิดข้อผิดพลาดการปิดใช้งานกล้อง: ${err}`);
         });
     }
 }
@@ -885,9 +958,45 @@ function pauseScanner() {
             html5QrCode.clear();
             isCameraStarted = false;
         }).catch(err => {
-            console.error("Failed to stop camera:", err);
-            ShowMessageError(`Failed to stop camera: ${err}`);
+            console.error("เกิดข้อผิดพลาดการหยุดใช้งานกล้อง:", err);
+            ShowMessageError(`เกิดข้อผิดพลาดการหยุดใช้งานกล้อง: ${err}`);
         });
     }
 }
 
+//async function requestCameraPermissionSilently() {
+//    try {
+//        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+//        stream.getTracks().forEach(track => track.stop());
+//        console.log("อนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณสำเร็จ.");
+//        ShowMessageSuccess("อนุญาตให้เว็บไซต์เข้าถึงกล้องของคุณสำเร็จ.");
+
+//    } catch (err) {
+//        console.warn("ปฎิเสธการเข้าถึงกล้องหรือเว็บไซตืเข้าถึงกล้องไม่สำเร็จ!.");
+//        ShowMessageWarning("ปฎิเสธการเข้าถึงกล้องหรือเว็บไซตืเข้าถึงกล้องไม่สำเร็จ!.");
+//    }
+//}
+
+//document.getElementById("btnMobileScanV2").addEventListener("click", async () => {
+//    await requestCameraPermissionSilently();
+//});
+
+document.getElementById("btnMobileScanV2").addEventListener("click", async () => {
+    try {
+        await prepareCameraAccess();
+        $('#mdlMobileScannerV2').modal('show');
+    } catch (err) {
+        ShowMessageWarning(err.message);
+    }
+});
+
+async function prepareCameraAccess() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        stream.getTracks().forEach(track => track.stop()); // Stop stream after permission granted
+        console.log("กล้องพร้อมใช้งานแล้ว.");
+    } catch (err) {
+        console.error("การอนุญาตเข้าถึงกล้องล้มเหลว:", err);
+        throw new Error("กรุณาอนุญาตให้เว็บไซต์เข้าถึงกล้อง.");
+    }
+}

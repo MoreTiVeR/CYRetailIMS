@@ -1,0 +1,15 @@
+@media (max-width: 768px) {
+    #mdlMobileScannerV2 .modal-dialog {
+        margin: 0;
+    }
+
+    #mdlMobileScannerV2 .modal-content {
+        border-radius: 0;
+    }
+}
+
+#reader video {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}

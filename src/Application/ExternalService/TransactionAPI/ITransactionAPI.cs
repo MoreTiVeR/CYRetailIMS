@@ -3,6 +3,7 @@ using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransac
 using CYRetailIMS.Application.Services.TransactionService.Commands.DeleteTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Commands.UpdateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByCriteria.v1;
 
 namespace CYRetailIMS.Application.ExternalService.TransactionAPI;
@@ -15,6 +16,8 @@ public interface ITransactionAPI
     Task<BaseResponse<CommandResponse>> UpdateTransactionAsync(UpdateTransactionCommand updateTransactionCommand);
 
     Task<BaseResponse<List<GetTransactionByBranchIDResponseDTO>>> GetTransactionByBranchIDAsync(int branchid);
+
+    Task<BaseResponse<GetTransactionByBranchIDV2ReseponseDTO>> GetTransactionByBranchIDV2Async(GetTransactionByBranchIDV2Query reqObj);
 
     Task<BaseResponse<GetTransactionByBranchIDResponseDTO>> GetTransactionByIDAsync(int transactionid);
 

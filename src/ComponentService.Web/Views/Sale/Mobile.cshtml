@@ -19,7 +19,7 @@
 
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/pickadate/pickadate.css">
 <link rel="stylesheet" type="text/css" href="~/assets/plugins/pickers/daterange/daterangepicker.css">
-
+<link rel="stylesheet" type="text/css" href="~/css/view/sale/mobile.css" />
 
 <div class="page-header">
 	<div class="page-title">
@@ -88,20 +88,7 @@
 						</div>
 					</div>
 
-					<!--Scann input-->
-					@* <div class="row">
-						<div class="col-lg-4 col-sm-4 col-12"></div>
-						<div class="col-lg-4 col-sm-4 col-12" style="text-align: center">
-							<button class="btn" id="btnMobileScan" type="button">
-								<img src="~/assets/img/cyui/mobile-scanner-app.png" data-bs-toggle="modal"
-									 data-bs-target="#mdlMobileScanner"
-									 alt="สแกนบาร์โค้ด" title="สแกนบาร์โค้ด" style="height: 100px; width: auto; margin: 0;" />
-							</button>
-						</div>
-						<div class="col-lg-4 col-sm-4 col-12"></div>
-					</div> *@
-
-					<!--Scann input-->
+					<!--Scann Button-->
 					<div class="row">
 						<div class="col-lg-4 col-sm-4 col-12"></div>
 						<div class="col-lg-4 col-sm-4 col-12" style="text-align: center">
@@ -151,36 +138,25 @@
 	</div>
 </div>
 
-@* <div class="modal fade" id="mdlMobileScanner" tabindex="-1"
-	 aria-labelledby="mdlMobileScanner" data-bs-keyboard="false"
-	 aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-		<div class="modal-content">
-			<div class="modal-body">
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-md-12">
-							<div id="qr-reader" style="width:auto"></div>
-							<div id="qr-reader-results"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div> *@
-
-<div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
+<div div class="modal fade" id="mdlMobileScannerV2" tabindex="-1"
 	 aria-labelledby="mdlMobileScannerV2" data-bs-keyboard="false"
 	 aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 		<div class="modal-content">
 			<div class="modal-body">
 				<div class="container-fluid">
+					<!-- Add this inside your modal, before <div id="reader"></div> -->
+					@* <div class="mb-2">
+						<label for="cameraSelect" class="form-label">เลือกกล้อง</label>
+						<select id="cameraSelect" class="form-select"></select>
+					</div> *@
 					<div class="row">
 						<div class="col-md-12">
-							<div id="reader" style="width: auto;"></div>
-							<button id="btnScanAgain" class="btn btn-primary mt-3 d-none" type="button">Scan Again</button>
+							<div id="reader"></div>
+							<div id="scanner-loading" class="text-center mt-2">
+								<div class="spinner-border text-primary" role="status"></div>
+								<p>กำลังโหลดกล้อง...</p>
+							</div>
 							<p id="result"></p>
 						</div>
 					</div>
@@ -192,11 +168,14 @@
 
 @section Scripts {
 
-	<script src="~/lib/html5-qrcode/html5-qrcode.min.js" asp-append-version="true"></script>
+
+	<script type="text/javascript" charset="utf8" src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+	@* <script type="text/javascript" src="~/lib/html5-qrcode/html5-qrcode.min.js"></script> *@
+	
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-
+	
 	<script src="~/assets/plugins/pickers/pickadate/picker.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/picker.date.js"></script>
 	<script src="~/assets/plugins/pickers/pickadate/picker.time.js"></script>
@@ -205,5 +184,4 @@
 
 	<script src="~/js/view/sale/sale_mobile.js"></script>
 
-	
 }

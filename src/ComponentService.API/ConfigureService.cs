@@ -16,24 +16,15 @@ public static class ConfigureService
     public static IServiceCollection AddComponentServices(this IServiceCollection services, IConfiguration configuration, string envName)
     {
         #region Response Compression
-        services.Configure<GzipCompressionProviderOptions>(options =>
-        {
-            options.Level = CompressionLevel.Fastest;
-        });
-
-        // Add Response Compression services
         services.AddResponseCompression(options =>
-        {
-            options.EnableForHttps = true; // Enable compression for HTTPS
-            options.Providers.Add<GzipCompressionProvider>(); // Add GZip compression provider
-            options.Providers.Add<BrotliCompressionProvider>(); // Optionally add Brotli compression
-        });
+               {
+                   options.EnableForHttps = true;
+                   options.Providers.Add<BrotliCompressionProvider>();
+                   options.Providers.Add<GzipCompressionProvider>();
+               });
 
-        // Configure GZip compression settings (optional)
-        services.Configure<GzipCompressionProviderOptions>(options =>
-        {
-            options.Level = CompressionLevel.Fastest; // Set compression level
-        });
+        services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
+        services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
         #endregion
 
         services.AddHttpContextAccessor();

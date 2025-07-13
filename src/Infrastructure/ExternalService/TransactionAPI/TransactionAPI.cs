@@ -6,6 +6,7 @@ using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransac
 using CYRetailIMS.Application.Services.TransactionService.Commands.DeleteTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Commands.UpdateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByCriteria.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByTransactionID.v1;
 
@@ -38,6 +39,12 @@ public class TransactionAPI : HttpClientService, ITransactionAPI
         return await _httpClientRequest.HttpRequestToObject<List<GetTransactionByBranchIDResponseDTO>,
             GetTransactionByBranchIDQuery>(HttpMethod.Get, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/transaction/v1/transactionbybranchid/{branchid}"), null);
 	}
+
+    public async Task<BaseResponse<GetTransactionByBranchIDV2ReseponseDTO>> GetTransactionByBranchIDV2Async(GetTransactionByBranchIDV2Query reqObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetTransactionByBranchIDV2ReseponseDTO,
+            GetTransactionByBranchIDV2Query>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/transaction/v2/transactionbybranch"), reqObj);
+    }
 
     public async Task<BaseResponse<GetTransactionByBranchIDResponseDTO>> GetTransactionByIDAsync(int transactionid)
     {

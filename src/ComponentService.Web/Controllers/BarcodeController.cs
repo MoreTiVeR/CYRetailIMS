@@ -4,16 +4,16 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class BarcodeController : Controller
 {
 
-    //public IActionResult Index()
-    //{
-    //    return View();
-    //}
+    public IActionResult Index()
+    {
+        return View();
+    }
 
-    // GET: Barcode
-    //public IActionResult Zxing()
-    //{
-    //    return View();
-    //}
+    //GET: Barcode
+    public IActionResult Zxing()
+    {
+        return View();
+    }
 
     public IActionResult QRCode()
     {

@@ -27,4 +27,6 @@ public class GetBranchResponseDTO
 
 	public int zipcode { get; set; }
 
+    public bool isactive { get; set; }
+
 }

@@ -35,6 +35,7 @@ public class UpdateBranchHandler : BaseService, IRequestHandler<UpdateBranchComm
         branchEnt.BranchName = request.branchname;
         branchEnt.SetUpdatedBy(request.updatedby);
         branchEnt.SetUpdatedDate(updateDate);
+        branchEnt.IsActive = request.isactive;
         //If exist then update
         if (branchEnt.TMBranchDetail != null)
         {

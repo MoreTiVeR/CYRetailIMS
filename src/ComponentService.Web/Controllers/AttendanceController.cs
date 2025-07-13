@@ -22,6 +22,14 @@ public class AttendanceController : Controller
         return View();
     }
 
+
+    [HttpGet]
+    public IActionResult GetGoogleMapsApiKey()
+    {
+        //var apiKey = /* retrieve your API key logic */
+        return Json(new { apiKey = googleApiRestrictionKey });
+    }
+
     [HttpGet("getMapData")]
     public async Task<IActionResult> GetMapData(string location = "Bangkok")
     {

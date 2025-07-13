@@ -21,7 +21,7 @@ public class GetBranchListHandler : BaseService, IRequestHandler<GetBranchListQu
 
     public async Task<BaseResponse<List<GetBranchResponseDTO>>> Handle(GetBranchListQuery request, CancellationToken cancellationToken)
     {
-		IEnumerable<TMBranch> resBrach = await _unitOfWork.Repository<TMBranch>().FindWithInclude(w => w.IsActive == true, i => i.Include(ii => ii.TMBranchDetail));
+		IEnumerable<TMBranch> resBrach = await _unitOfWork.Repository<TMBranch>().FindWithInclude(w => w.IsActive != null, i => i.Include(ii => ii.TMBranchDetail));
 		if (!resBrach.Any())
 		{
 			throw new Exception("Data not found");

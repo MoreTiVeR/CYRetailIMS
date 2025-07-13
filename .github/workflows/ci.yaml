@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev, feature/*, bugfix/* ]
+  pull_request:
+    branches: [ main, dev, feature/*, bugfix/* ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore src/ComponentService.Web/ComponentService.Web.csproj && dotnet restore src/ComponentService.API/ComponentService.API.csproj
+
+      - name: Build Web
+        run: dotnet build src/ComponentService.Web/ComponentService.Web.csproj --configuration Release --no-restore
+
+      - name: Build API
+        run: dotnet build src/ComponentService.API/ComponentService.API.csproj --configuration Release --no-restore
+
+      # - name: Test
+      #   run: dotnet test tests/Application.Test/Application.Test.csproj --no-build --configuration Release
+
+      # - name: Check formatting
+      #   run: |
+      #     dotnet tool install --global dotnet-format
+      #     dotnet format src/ComponentService.Web/ComponentService.Web.csproj --verify-no-changes
+      #     dotnet format src/ComponentService.API/ComponentService.API.csproj --verify-no-changes

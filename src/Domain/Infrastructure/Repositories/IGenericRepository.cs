@@ -9,7 +9,7 @@ public interface IGenericRepository<T> where T : class
 	IQueryable<T> Query();
 	Task<IQueryable<T>> QueryAsync();
 
-	IQueryable<T> Query(Expression<Func<T, bool>> predicate);
+    IQueryable<T> Query(Expression<Func<T, bool>> predicate);
 	Task<IQueryable<T>> QueryAsync(Expression<Func<T, bool>> predicate);
 
 	IEnumerable<T> GetAll();
