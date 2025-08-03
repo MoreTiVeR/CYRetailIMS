@@ -190,24 +190,15 @@ public static class ConfigureService
         services.AddHttpContextAccessor();
         //services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 
-        services.AddHttpClient<IHttpClientRequest, HttpClientRequest>("ApiClient");
-        //services.AddHttpClient<IHttpClientRequest, HttpClientRequest>("ApiClient").ConfigureHttpClient(client =>
-        //{
-        //    //s.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
-        //    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        //    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        //}).ConfigurePrimaryHttpMessageHandler(() =>
-        //{
-        //    //var handler = new SocketsHttpHandler();
-        //    //handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli;
-        //    //return handler;
-
-        //    return new HttpClientHandler
-        //    {
-        //        AutomaticDecompression = DecompressionMethods.None
-        //        //AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-        //    };
-        //});
+        //services.AddHttpClient<IHttpClientRequest, HttpClientRequest>("ApiClient");
+        services.AddHttpClient<IHttpClientRequest, HttpClientRequest>("ApiClient").ConfigureHttpClient(client =>
+        {
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, br");
+        }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.GZip
+        });
         services.AddSingleton<IDateTimeProvider, DateTimeService>();
 		#endregion
 

@@ -31,8 +31,8 @@ datatable = $("#tbItemStock").DataTable({
             //data.enddate = $("#txtEndDate").val();
 
             var selectedBranch = $('.ddl-branch').val();
-            var branchid = isNaN(parseInt(selectedBranch, 10)) ? 1 : parseInt(selectedBranch, 10); // Parse and if NaN, set to -1
-
+            var branchid = isNaN(parseInt(selectedBranch, 10)) ? null : parseInt(selectedBranch, 10); // Parse and if NaN, set to -1
+            console.log("branch: " + branchid);
             data.branchid = branchid;
             data.draw = data.draw;
             data.start = data.start;
@@ -166,7 +166,7 @@ datatable = $("#tbItemStock").DataTable({
                     data: JSON.stringify({
                         //startdate: $("#txtStartDate").val(),
                         //enddate: $("#txtEndDate").val(),
-                        branchid: $('.ddl-branch').val() || 1,
+                        branchid: $('.ddl-branch').val() || null,
                         draw: dt.page.info().draw,
                         start: dt.page.info().start,
                         length: dt.page.info().length,

@@ -736,7 +736,9 @@ public class ReportController : BaseController
     #region รายงานสต๊อกสินค้า
     public async Task<IActionResult> ItemStockReport()
     {
-        ViewBag.BranchList = await PrepareSelectBranch();
+        var branchList = await PrepareSelectBranch();
+        branchList.Insert(0, new SelectListItem { Text = "ทุกสาขา", Value = "" });
+        ViewBag.BranchList = branchList;
         ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
         return View();
     }

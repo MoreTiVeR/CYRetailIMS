@@ -34,8 +34,11 @@ public class Program
 
         var app = builder.Build();
 
-		#region Set Current Culture
-		var ci = new CultureInfo("en-US");
+        // Enable Response Compression Middleware
+        app.UseResponseCompression();
+
+        #region Set Current Culture
+        var ci = new CultureInfo("en-US");
 		//var th = new CultureInfo("th-TH");
 		//CultureInfo.DefaultThreadCurrentCulture = ci;
 		//CultureInfo.DefaultThreadCurrentUICulture = ci;
@@ -91,9 +94,6 @@ public class Program
 
         //ExceptionSettings exceptionSettings = _configuration.GetSection("ExceptionSettings").Get<ExceptionSettings>();
         app.UseMiddleware<ExceptionHandlerMiddleware>();
-
-        // Enable Response Compression Middleware
-        app.UseResponseCompression();
 
         app.MapControllers();
 
