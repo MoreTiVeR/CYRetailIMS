@@ -208,8 +208,13 @@ datatable = $("#tbItemTransferHistory").DataTable({
 $("#btnSearch").on('click', function (event) {
     ShowLoading();
     event.preventDefault(); // Prevent the default form submission
-    datatable.ajax.reload(); // This will use the updated parameters automatically
-    HideLoading();
+    //datatable.ajax.reload(); // This will use the updated parameters automatically
+    //HideLoading();
+    datatable.ajax.reload(function () {
+        // This function will be executed after the data has been reloaded
+        HideLoading();
+        console.log("Load data success.");
+    });
     //var transferStartdate = $("#txtTransferDate").val();
     //var transferEndDate = $("#txtTransferEndDate").val();
 
