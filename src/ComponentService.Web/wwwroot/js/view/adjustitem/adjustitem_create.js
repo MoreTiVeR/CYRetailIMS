@@ -63,22 +63,27 @@ function SaveAdjustItem(form) {
                     //popup.dialog('close');
 
                     AlertSuccess("ปรับสต๊อกสินค้าสำเร็จ");
-                    //$("#frmSaveAdjustItem")[0].reset();
-                    $("#global-loader").css('display', 'none');
-                    dataTable.ajax.reload();
+                    //$("#global-loader").css('display', 'none');
+                    //dataTable.ajax.reload();
+                    datatable.ajax.reload(function () {
+                        // This function will be executed after the data has been reloaded
+                        HideLoading();
+                        console.log("Load data success.");
+                    });
                     //To do next?
                     //window.location = data.url;
                 }
                 else {
                     AlertError(data.message);
-                    $("#global-loader").css('display', 'none');
+                    //$("#global-loader").css('display', 'none');
+                    HideLoading();
                 }
             }
         });
         return false;
     }
     else {
-        $("#global-loader").css('display', 'none');
+        HideLoading();
     }
 }
 
@@ -107,10 +112,6 @@ function AddAdjustItem(form) {
                 //popup.dialog('close');
                 ShowMessageSuccess(data.message);
                 dataTable.ajax.reload();
-                //$('#frmAddAdjustItem')[0].reset();
-
-                //$('#mdlAddItem').modal('toggle');
-                //$('#mdlAddItem').modal('hide');
                 $("#btnCloseMdl").click();
             }
         }
@@ -164,9 +165,13 @@ function Delete(id) {
                     if (response.result) {
 
                         ShowMessageSuccess('ลบข้อมูลสำเร็จ');
-                        $("#global-loader").css('display', 'none');
-
-                        dataTable.ajax.reload();
+                        //$("#global-loader").css('display', 'none');
+                        //dataTable.ajax.reload();
+                        datatable.ajax.reload(function () {
+                            // This function will be executed after the data has been reloaded
+                            HideLoading();
+                            console.log("Load data success.");
+                        });
                     }
                     else {
                         //ShowMessageError(data.message);
@@ -177,27 +182,6 @@ function Delete(id) {
             });
         }
     });
-    //swal({
-    //    title: "ยืนยันการลบข้อมูล?",
-    //    text: "คุณจะไม่สามารถเรียกคืนข้อมูลที่ถูกลบไปแล้วได้!",
-    //    type: "warning",
-    //    showCancelButton: true,
-    //    confirmButtonColor: "#DD6B55",
-    //    confirmButtonText: "ยืนยัน",
-    //    cancelButtonText: "ยกเลิก",
-    //    closeOnConfirm: true
-    //}, function () {
-    //    $.ajax({
-    //        type: 'POST',
-    //        url: '/Order/DeleteItem/' + id,
-    //        success: function (data) {
-    //            if (data.success) {
-    //                ShowMessage(data.message);
-    //                dataTable.ajax.reload();
-    //            }
-    //        }
-    //    });
-    //});
 }
 
 $("#nbranchid").on("change", function () {

@@ -260,7 +260,7 @@ public class ItemController : BaseController
             var totalItems = transferHistory.data.totalrow; // Get total item count for pagination
 
             // Filter based on searchValue if necessary
-            var query = transferHistory.data.transactiondata;
+            //var query = transferHistory.data.transactiondata.OrderBy(s => s.transferstatusid).ThenByDescending(s => s.createddate);
 
             // Calculate paginated data
             //var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
@@ -272,6 +272,7 @@ public class ItemController : BaseController
                 recordsTotal = totalItems, // Total records before filtering
                 recordsFiltered = totalItems, // Total records after applying filtering
                 data = transferHistory.data.transactiondata // The actual data to be displayed
+                //data = query
             });
         }
         catch

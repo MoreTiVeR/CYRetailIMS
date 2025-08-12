@@ -40,7 +40,7 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
                            destinationid = a.DestinationID,
                            createddate = a.CreatedDate,
                            createdby = a.CreatedBy,
-                           transferstatusid = b.TransferStatusID,
+                           transferstatusid = a.TransferStatus,
                            transferstatusname_th = b.TransferStatusName_TH,
                            transferstatusname_en = b.TransferStatusName_EN,
                            itemid = a.ItemID,
@@ -57,11 +57,11 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
         {
             resData = resData.Where(w => w.createddate.Date >= request.transferstartdate.Value.Date);
         }
-        else
-        {
-            //Current Month
-            resData = resData.Where(w => w.createddate.Month >= DateTime.Now.Month);
-        }
+        //else
+        //{
+        //    //Current Month
+        //    resData = resData.Where(w => w.createddate.Month >= DateTime.Now.Month);
+        //}
 
         if (request.transferenddate.HasValue)
         {
@@ -85,11 +85,11 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
         List<GetItemTransferResponseDTO> resItemTransfer = new List<GetItemTransferResponseDTO>();
         if (request.isexportalldata)
         {
-            resItemTransfer = resData.ToList();
+            resItemTransfer = resData.OrderBy(s => s.transferstatusid).ThenByDescending(w => w.createddate).ToList();
         }
         else
         {
-            resItemTransfer = resData.ToList().Skip(request.startrow).Take(request.pagesize).ToList();
+            resItemTransfer = resData.OrderBy(s => s.transferstatusid).ThenByDescending(w => w.createddate).ToList().Skip(request.startrow).Take(request.pagesize).ToList();
         }
 
         //Get TMApproveStatus list
@@ -128,7 +128,7 @@ public class GetItemTransferByDestinationBranchIDHandler : BaseService, IRequest
             data = new GetItemTransferListResponseDTO
             {
                 totalrow = totalRow,
-                transactiondata = resItemTransfer.OrderByDescending(w => w.createddate).ToList()
+                transactiondata = resItemTransfer.OrderBy(s => s.transferstatusid).ThenByDescending(w => w.createddate).ToList()
             },
             message = "Success",
             soruce = "db",
