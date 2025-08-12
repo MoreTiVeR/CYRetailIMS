@@ -45,9 +45,6 @@ public class HttpClientRequest : IHttpClientRequest
             StringContent ReqConten = new StringContent(StringBodyRequest, Encoding.UTF8, "application/json");
             ReqMsg.Content = ReqConten;
         }
-        //ReqMsg.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        //_httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        //_httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
         Response = await _httpClient.SendAsync(ReqMsg);
         return Response;
     }
@@ -56,24 +53,6 @@ public class HttpClientRequest : IHttpClientRequest
     {
         string SearchResultString = string.Empty;
         HttpResponseMessage response = await Invoke(method, Endpoint, Req);
-
-        //#region Sample Get size
-        //byte[] contentBytes = await response.Content.ReadAsByteArrayAsync();
-        //long contentSize = contentBytes.Length;
-        //#endregion
-
-        //#region Method_1: Manual Response DeCompression
-        //// Read the content as a byte array
-        //byte[] compressedData = await response.Content.ReadAsByteArrayAsync();
-
-        //// Manually decompress the data
-        //using var compressedStream = new MemoryStream(compressedData);
-        //using var decompressionStream = new GZipStream(compressedStream, CompressionMode.Decompress);
-        //using var resultStream = new MemoryStream();
-        //await decompressionStream.CopyToAsync(resultStream);
-        //SearchResultString = Encoding.UTF8.GetString(resultStream.ToArray());
-        //#endregion
-
         SearchResultString = await response.Content.ReadAsStringAsync();
         var res = response.ToResponse<TRes>(SearchResultString);
         return res;
