@@ -1236,6 +1236,7 @@ public class ItemController : BaseController
         {
             itemid = itemViewModel.ItemID,
             subitemid = itemViewModel.SubItemTypeID.HasValue ? itemViewModel.SubItemTypeID.Value : null,
+            brandid = itemViewModel.BrandID,
             name = itemViewModel.Name,
             barcode = itemViewModel.BarCode,
             description = itemViewModel.Description,

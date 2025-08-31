@@ -85,6 +85,7 @@ public class UpdateItemHandler : BaseService, IRequestHandler<UpdateItemCommand,
         itemEnt.DiscountPercent = request.discountpercent;
         itemEnt.ItemImageUrl = !string.IsNullOrEmpty(request.itemimageurl) ? request.itemimageurl : null;
         itemEnt.IsActive = request.isactive;
+        itemEnt.BrandID = request.brandid;
         itemEnt.SetUpdatedBy(request.updatedby);
         itemEnt.SetUpdatedDate();
         #endregion

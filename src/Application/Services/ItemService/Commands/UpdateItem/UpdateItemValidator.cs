@@ -12,6 +12,7 @@ public class UpdateItemValidator : AbstractValidator<UpdateItemCommand>
     public UpdateItemValidator()
     {
         RuleFor(r => r.itemid).NotNull().NotEmpty().WithMessage("กรุณาระบุไอดีสินค้า");
+        RuleFor(r => r.brandid).NotNull().NotEmpty().WithMessage("กรุณาระบุแบรนด์สินค้า");
         RuleFor(r => r.name).NotNull().NotEmpty().WithMessage("กรุณาระบุชื่อสินค้า");
         RuleFor(r => r.price).NotNull().Must(x => x > 0).WithMessage("ระบุราคาห้ามต่ำกว่า 0");
         RuleFor(r => r.qty).NotNull().Must(x => x >= 0).WithMessage("ระบุจำนวนห้ามน้อยกว่า 0");

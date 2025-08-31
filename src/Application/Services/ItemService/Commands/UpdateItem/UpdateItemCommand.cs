@@ -20,6 +20,9 @@ public class UpdateItemCommand : IRequest<BaseResponse<CommandResponse>>
 
     public int? subitemid { get; set; }
 
+    [Required]
+    public int brandid { get; set; }
+
     public string shortname { get; init; }
 
     public string description { get; init; }

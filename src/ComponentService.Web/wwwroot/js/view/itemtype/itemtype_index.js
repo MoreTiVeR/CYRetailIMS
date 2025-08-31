@@ -185,7 +185,7 @@ function deleteItemInBranch(itemid, searchbranchid) {
 function InitialDataTable() {
 
     ShowLoading();
-    datatable = $("#tbItems").DataTable({
+    datatable = $("#tbItemType").DataTable({
         "destroy": true,
         "bFilter": true,
         "sDom": 'fBtlpi',
