@@ -37,6 +37,7 @@ using CYRetailIMS.Application.Services.MoneyTransferService.Commands.UpdateMoney
 using CYRetailIMS.Application.Services.PaymentTypeService.Queries.GetPaymentTypeList.v1;
 using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.CreatePurchaseOrder.v1;
 using CYRetailIMS.Application.Services.PurchaseTypeService.Queries.GetPurchaseTypeList.v1;
+using CYRetailIMS.Application.Services.ReceiveTempService.Commands.CreateReceiveTemplate.v1;
 using CYRetailIMS.Application.Services.RoleService.Queries.GetRoleByID.v1;
 using CYRetailIMS.Application.Services.RoleService.Queries.GetRoles.v1;
 using CYRetailIMS.Application.Services.ShipmentTypeService.Queries.GetShipmentTypeList.v1;
@@ -146,6 +147,8 @@ public static class ConfigureService
             mc.AddProfile<CreateCountStockMappingProfile>();
 
             mc.AddProfile<GetTrasnactionByCriteriaMappingProfile>();
+
+            mc.AddProfile<CreateReceiveTemplateMappingProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();

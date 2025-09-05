@@ -140,6 +140,9 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTCountStocksHistory> TTCountStocksHistories { get; set; }
 
+    public virtual DbSet<TMReceiveTemplate> TMReceiveTemplates { get; set; }
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -601,6 +604,13 @@ public partial class CYDBContext : DbContext
         modelBuilder.Entity<TTCountStocksHistory>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<TMReceiveTemplate>(entity =>
+        {
+            entity.HasKey(e => e.ReceiveTempID)
+                .HasName("PK_TMSaleReceiveTemplate");
+            entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
         });
 
         OnModelCreatingPartial(modelBuilder);
