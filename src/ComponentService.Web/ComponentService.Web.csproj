@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Content Remove="bundleconfig.json" />
+    <Content Remove="package.json" />
     <Content Remove="Views\Item\Index - Copy.cshtml" />
   </ItemGroup>
 
@@ -40,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BundlerMinifier.Core" Version="3.2.449" />
+    <PackageReference Include="BuildBundlerMinifier2022" Version="2.9.11" />
     <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.9" />
@@ -64,12 +65,15 @@
     <Folder Include="Views\Setting\_SettingPartailPage\" />
     <Folder Include="Views\Stock\_PartialPage\" />
     <Folder Include="Views\Stock\_PartialPage\" />
+    <Folder Include="wwwroot\app-assets\vendors\" />
+    <Folder Include="wwwroot\assets\css\bundle\" />
     <Folder Include="wwwroot\assets\js\bundle\" />
     <Folder Include="wwwroot\money_transfer_slip\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="bundleconfig.json" />
+    <None Include="package.json" />
     <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\export-csv\export-csv.js" />
     <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\highcharts-export-clientside\.gitignore" />
     <None Include="wwwroot\assets\plugins\Highcharts-4.0.1\highcharts-export-clientside\highcharts-export-clientside.js" />

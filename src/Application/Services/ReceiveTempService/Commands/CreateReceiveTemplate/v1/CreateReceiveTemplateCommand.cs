@@ -17,5 +17,4 @@ public record CreateReceiveTemplateCommand: IRequest<BaseResponse<CommandRespons
     public string? additionalfootertext { get; init; }
     public string telephoneno { get; init; }
     public string createdby { get; init; }
-    public DateTime createddate { get; init; }
 }

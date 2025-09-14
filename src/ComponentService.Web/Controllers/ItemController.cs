@@ -35,7 +35,6 @@ using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTy
 using NetBarcode;
 using Type = NetBarcode.Type;
 using CYRetailIMS.Infrastructure.Common.Extensions;
-using NUglify.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemTransferStatusService.Queries.GetItemTransferStatus.v1;
@@ -1427,7 +1426,7 @@ public class ItemController : BaseController
                 if (existData != null)
                 {
                     //Update QTY
-                    tempTransferItemList.Where(w => w.sbarcode == transferItemData.sbarcode).ForEach(e =>
+                    tempTransferItemList.Where(w => w.sbarcode == transferItemData.sbarcode).ToList().ForEach(e =>
                     {
                         e.nqty = e.nqty + transferItemData.nqty;
                     });

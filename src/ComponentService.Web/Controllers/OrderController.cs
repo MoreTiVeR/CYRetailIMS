@@ -25,7 +25,6 @@ using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NUglify.Helpers;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -225,7 +224,7 @@ public class OrderController : BaseController
                 }
 
                 //Update QTY
-                tempOrderItemList.Where(w =>  w.nitemid == orderItemData.nitemid).ForEach(e =>
+                tempOrderItemList.Where(w =>  w.nitemid == orderItemData.nitemid).ToList().ForEach(e =>
                 {
                     e.nqty = e.nqty + orderItemData.nqty;
                     e.totalprice = e.totalprice + orderItemData.totalprice;

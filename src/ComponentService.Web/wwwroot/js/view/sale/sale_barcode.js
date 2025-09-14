@@ -99,9 +99,6 @@ $("#btnSave").on("click", function (e) {
     if (isValid) {
         $.validator.unobtrusive.parse(frmSelling);
         var data = $(frmSelling).serializeJSON();
-        //data.qty = 1;
-        //data.iscash = true;
-        //data = JSON.stringify(data);
 
         // Access the role ID from the userProfile object in JavaScript
         var userRoleId = document.getElementById("uRoleID").value;
@@ -299,6 +296,7 @@ function ResetForm() {
     dataTable.clear().draw(); // Clear the table and redraw
 }
 
+
 $("#txtBarCode").keyup(function (event) {
     
     if (event.keyCode == 13) {
@@ -461,12 +459,13 @@ function CreateSellingTrasnactionDataByAdmin(data) {
         focusConfirm: true,
         didOpen: function () {
             //Initial
-        }
+        },
+        reverseButtons: true // this will put Cancel on left, Confirm on right
     }).then(function (result) {
 
         if (result.isConfirmed) {
 
-            //Prepare Request Data
+            //Prepare Request Data and Direct create transaction if is admin
             data.qty = 1;
             data = JSON.stringify(data);
             CreateData(data);
@@ -504,7 +503,8 @@ function CreateSellingTransactionDataBySale(data) {
             data.transactiontype = 3;
             data.iscash = true;
             data = JSON.stringify(data);
-            CreateData(data);
+            //CreateData(data);
+            ShowPrintReceipt(data);
         }
         else if (result.dismiss === Swal.DismissReason.cancel) {
             //เงินโอน
@@ -512,12 +512,14 @@ function CreateSellingTransactionDataBySale(data) {
             data.transactiontype = 3;
             data.iscash = false;
             data = JSON.stringify(data);
-            CreateData(data);
+            //CreateData(data);
+            ShowPrintReceipt(data);
         }
     });
 }
 
 function CreateData(objData) {
+    
     $.ajax({
         type: 'POST',
         url: '/Sale/SaveSellingItemByBarcode',
@@ -538,4 +540,139 @@ function CreateData(objData) {
             }
         }
     });
+}
+
+
+async function CreateDataAsync(objData) {
+    try
+    {
+        const response = await $.ajax({
+            type: 'POST',
+            url: '/Sale/SaveSellingItemByBarcode',
+            data: objData, // stringify ถ้าเป็น object
+            contentType: 'application/json'
+        });
+
+        if (response.result) {
+            ShowMessageSuccess(response.msg);
+            dataTable.ajax.reload();
+
+            AlertSuccess(response.msg);
+            $("#txtSummaryTHB").val(0);
+            ResetForm();
+        } else {
+            ShowMessageError(response.msg);
+        }
+        return response; // important: return response ไปให้ await ใช้งาน
+    } catch (error) {
+        ShowMessageError(error.statusText || 'เกิดข้อผิดพลาด');
+        throw error; // ส่ง error กลับไปเพื่อให้ .catch ใช้ได้
+    }
+}
+
+function ShowPrintReceipt(objData) {
+    ShowLoading();
+
+    $.ajax({
+        url: "/Sale/GenerateReceiveSlip",
+        type: "POST",
+        data: objData,
+        contentType: "application/json; charset=utf-8",
+        success: function (res) {
+            if (res.result) {
+                $("body").append(res.msg);
+                $("#print-receipt").modal("show");
+                HideLoading();
+
+                document.getElementById('btnPrintReceipt').addEventListener('click', async () =>
+                {
+                    try
+                    {
+                        ShowLoading();
+                        const result = await CreateDataAsync(objData); // ถ้า CreateData return promise
+                        if (result && result.result === true) {
+                            console.log('PrintReceipt Success');
+
+                            $('#print-receipt').modal('hide');
+
+                            // ใช้ Response จากการบันทึกข้อมูล Sale/GenerateReceiveSlip
+                            console.log('Printer Command and Printer Name:' + res.printername);
+                            //console.log(res.cmds);
+                            //console.log(res.printername);
+                            InitPOSPrinter(res.cmds, res.printername);
+
+                        } else {
+                            console.log('PrintReceipt Failed');
+                            AlertError(result?.msg || 'ไม่สามารถบันทึกข้อมูลได้');
+                        }
+                        HideLoading();
+                    } catch (error) {
+                        console.log('PrintReceipt Error');
+                        AlertError(error.message || 'เกิดข้อผิดพลาด');
+                        HideLoading();
+                    }
+                });
+            } else {
+                AlertError(res.msg);
+                HideLoading();
+            }
+        }
+    });
+
+    //$.post("/Sale/GenerateReceiveSlip", { sellingItemView: objData }, function (res) {
+    //    if (res.result) {
+    //        $("body").append(res.msg);
+    //        $("#print-receipt").modal("show");
+
+    //        document.getElementById('btnPrintReceipt').addEventListener('click', async () => {
+    //            try
+    //            {
+    //                const result = await CreateDataAsync(objData); // ถ้า CreateData return promise
+    //                if (result && result.result === true) {
+    //                    console.log('PrintReceipt Success');
+
+    //                    $('#print-receipt').modal('hide');
+    //                } else {
+    //                    console.log('PrintReceipt Failed');
+    //                    AlertError(result?.msg || 'ไม่สามารถบันทึกข้อมูลได้');
+    //                }
+    //            } catch (error) {
+    //                console.log('PrintReceipt Error');
+    //                AlertError(error.message || 'เกิดข้อผิดพลาด');
+    //            }
+    //        });
+    //    } else {
+    //        AlertError(res.msg);
+    //    }
+    //});
+    
+}
+
+function InitPOSPrinter(cmds, printername) {
+    //printername = 'POS-80'
+    JSPM.JSPrintManager.start()
+        .then(_ => {
+            var cpj = new JSPM.ClientPrintJob();
+            var myPrinter = new JSPM.InstalledPrinter(printername);
+            cpj.clientPrinter = myPrinter;
+
+
+            //Set content to print...
+            //Create ESP/POS commands for sample label
+            //var esc = '\x1B'; //ESC byte in hex notation
+            //var newLine = '\x0A'; //LF byte in hex notation
+            //var gs = '\x1D';
+            //var v = '\x56';
+
+            console.log(cmds);
+            //Set command
+            cpj.printerCommands = cmds;
+
+            //Send print job to printer!
+            cpj.sendToClient();
+        })
+        .catch((e) => {
+            console.log('[ERROR]InitPOSPrinter -> ' + e);
+            AlertError(e);
+        });
 }

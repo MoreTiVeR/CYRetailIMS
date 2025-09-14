@@ -1,0 +1,86 @@
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@model ReceiptViewModel
+
+<div class="modal fade" id="print-receipt" tabindex="-1" aria-labelledby="print-receipt-label" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				<!-- Logo -->
+				<div class="text-center mb-3">
+					<img src="~/assets/img/logo.png" width="100" height="30" alt="Logo">
+					<h6>@Model.CompanyName</h6>
+					<p class="mb-0">@Model.TelephoneNo</p>
+					<p class="mb-0">@Model.CompanyAddress</p>
+					@if (!string.IsNullOrEmpty(Model.AdditionalHeaderText))
+					{
+						<p class="mb-0">@Model.AdditionalHeaderText</p>
+					}
+				</div>
+
+				<!-- Invoice Info -->
+				<div class="row mb-3">
+					<div class="col-md-12">
+						<div class="hr-with-text"><span>ใบเสร็จรับเงิน</span></div>
+					</div>
+					<div class="col-md-6">
+						<p><b>เลขที่ใบเสร็จ:</b> CS132453</p>
+					</div>
+					<div class="col-md-6">
+						<p><b>วันที่:</b> @Model.Date.ToString("dd/MM/yyyy")</p>
+					</div>
+				</div>
+				<hr class="hr-receive" />
+
+				<!-- Items Table -->
+				<table class="table table-borderless table-sm w-100">
+					<thead>
+						<tr>
+							<th># Item</th>
+							<th>Price</th>
+							<th>Qty</th>
+							<th class="text-end">Total</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for (int i = 0; i < Model.Items.Count; i++)
+						{
+							<tr>
+								<td>@(i + 1). @Model.Items[i].itemname</td>
+								<td>@Model.Items[i].itemprice.ToString("0,0.00")</td>
+								<td>@Model.Items[i].qty</td>
+								<td class="text-end">@Model.Items[i].totalprice.ToString("0,0.00")</td>
+							</tr>
+						}
+
+						<tr>
+							<td colspan="4">
+								<table class="table table-borderless table-sm w-100">
+									<tr><td>ราคารวม :</td><td class="text-end">@Model.SubTotal.ToString("0,0.00")</td></tr>
+									<tr><td>ส่วนลด :</td><td class="text-end">@Model.Discount.ToString("0,0.00")</td></tr>
+									<tr><td>VAT (7%) :</td><td class="text-end">@Model.Vat.ToString("0,0.00")</td></tr>
+									<tr><td>ยอดรวมทั้งหมด :</td><td class="text-end">@Model.TotalBill.ToString("0,0.00")</td></tr>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<!-- Footer -->
+				<div class="text-center mt-3">
+					<p>@Model.ShopFooterText</p>
+					<p>@Model.AdditionalFooterText</p>
+					<img hidden src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1024px-QR_code_for_mobile_English_Wikipedia.svg.png"
+						 alt="Barcode" title="สแกนบาร์โค้ด" class="barcode">
+					@* <p>{EMPLOYEE_NAME}</p>
+					<p>Thank You For Shopping With Us. Please Come Again</p> *@
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="col-lg-12 text-center">
+					<button type="button" class="btn btn-cancel me-2" data-bs-dismiss="modal">ยกเลิก</button>
+					<button type="button" class="btn btn-submit me-2" id="btnPrintReceipt">ยืนยัน/ปริ้นใบเสร็จ</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -23,7 +23,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.Generic;
 using CYRetailIMS.Application.Services.ItemInBranchService.Queries.GetItemInBranchByBranchID.v1;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NUglify.Helpers;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.AdjustItemTransactionService.Queries.GetAdjustItemTransactionByID.v1;
 
@@ -129,7 +128,7 @@ public class AdjustItemController : BaseController
                 //}).ToList();
                 tempAdjustItemList.Where(w => w.nbranchid == adjustItemData.nbranchid
                 && w.nitemid == adjustItemData.nitemid
-                && w.nadjusttypeid == adjustItemData.nadjusttypeid).ForEach(e =>
+                && w.nadjusttypeid == adjustItemData.nadjusttypeid).ToList().ForEach(e =>
                 {
                     e.nqty = e.nqty + adjustItemData.nqty;
                 });

@@ -30,6 +30,7 @@ public class GetReceiveTempByIDHandler : BaseService, IRequestHandler<GetReceive
                            branchname = branch.BranchName,
                            shopheadernametext = rtemp.ShopHeaderNameText,
                            shopheaderaddresstext = rtemp.ShopHeaderAddressText,
+                           telephoneno = rtemp.TelephoneNo,
                            additionalheadertext = rtemp.AdditionalHeaderText,
                            shopfootertext = rtemp.ShopFooterText,
                            additionalfootertext = rtemp.AdditionalFooterText,

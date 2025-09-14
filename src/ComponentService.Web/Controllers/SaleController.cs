@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
@@ -11,6 +11,7 @@ using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Application.ExternalService.ReceiveTempAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.TransactionTypeAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
@@ -23,6 +24,7 @@ using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
+using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByBranchID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
@@ -38,8 +40,9 @@ using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using NetTopologySuite.Index.HPRtree;
-using NUglify.Helpers;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -59,6 +62,8 @@ public class SaleController : BaseController
     private readonly IItemTypeAPI _itemTypeAPI;
     private readonly IItemUnitOfMeasureAPI _itemUnitOfMeasureAPI;
     private readonly ITransactionTypeAPI _transactionTypeAPI;
+    private readonly ICompositeViewEngine _viewEngine;
+    private readonly IReceiveTempAPI _receiveTempAPI;
 
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemInBranchAPI itemInBranchAPI,
@@ -67,7 +72,9 @@ public class SaleController : BaseController
         IItemBrandAPI itemBrandAPI,
         IItemTypeAPI itemTypeAPI,
         IItemUnitOfMeasureAPI itemUnitOfMeasureAPI,
-        ITransactionTypeAPI transactionTypeAPI) : base(httpClientRequest, mapper, log)
+        ITransactionTypeAPI transactionTypeAPI, 
+        ICompositeViewEngine viewEngine,
+        IReceiveTempAPI receiveTempAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
         _itemAPI = itemAPI;
@@ -76,6 +83,8 @@ public class SaleController : BaseController
         _itemTypeAPI = itemTypeAPI;
         _itemUnitOfMeasureAPI = itemUnitOfMeasureAPI;
         _transactionTypeAPI = transactionTypeAPI;
+        _viewEngine = viewEngine;
+        _receiveTempAPI = receiveTempAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -231,7 +240,7 @@ public class SaleController : BaseController
             //    throw new Exception(resSaleSummaryReport.error.error.message);
             //}
             //return Json(new { data = resSaleSummaryReport.data });
-            return Json(new { result = true, message="สำเร็จ", data = new List<SaleSummaryReportResponseDTO>() });
+            return Json(new { result = true, message = "สำเร็จ", data = new List<SaleSummaryReportResponseDTO>() });
         }
         catch
         {
@@ -475,7 +484,7 @@ public class SaleController : BaseController
     }
 
     #region Private Method
-    private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj, 
+    private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj,
         List<CreateTransactionDetailCommand> createTransactionDetailCommands,
         SellTransactionType sellTransactionType)
     {
@@ -597,7 +606,7 @@ public class SaleController : BaseController
             return Json(new { data = new List<TransferItemDetailViewModel>() });
         }
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> AddTempItemSellingBarcode([FromBody] SellingBarcodeItemViewModel sellingBarcodeItem)
     {
@@ -624,7 +633,7 @@ public class SaleController : BaseController
                 if (existData != null)
                 {
                     //Update QTY
-                    tempSellingBarcodeItemList.Where(w => w.barcode == sellingBarcodeItem.barcode).ForEach(e =>
+                    tempSellingBarcodeItemList.Where(w => w.barcode == sellingBarcodeItem.barcode).ToList().ForEach(e =>
                     {
                         e.qty = e.qty + sellingBarcodeItem.qty;
                     });
@@ -703,6 +712,10 @@ public class SaleController : BaseController
         {
             #region PrePare TransactionRequest
             List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
+            if (tempSellingBarcodeItemList == null || tempSellingBarcodeItemList.Count == 0)
+            {
+                return Json(new { result = false, msg = $"ขออภัย ไม่พบรายการสินค้า" });
+            }
             List<CreateTransactionDetailCommand> createTransactionDetailCommands = tempSellingBarcodeItemList.Select(s => new CreateTransactionDetailCommand
             {
                 itemid = s.itemid,
@@ -768,7 +781,7 @@ public class SaleController : BaseController
         {
             //Get Current List
             List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeMobileName);
-            if(tempSellingBarcodeItemList != null)
+            if (tempSellingBarcodeItemList != null)
             {
                 SellingBarcodeItemViewModel resExist = tempSellingBarcodeItemList.FirstOrDefault(s => s.barcode == reqSellingCheckExistItem.barcode);
                 if (resExist != null)
@@ -810,7 +823,7 @@ public class SaleController : BaseController
                 if (existData != null)
                 {
                     //Update QTY
-                    tempSellingBarcodeItemList.Where(w => w.barcode == sellingBarcodeItem.barcode).ForEach(e =>
+                    tempSellingBarcodeItemList.Where(w => w.barcode == sellingBarcodeItem.barcode).ToList().ForEach(e =>
                     {
                         e.qty = e.qty + sellingBarcodeItem.qty;
                     });
@@ -1055,6 +1068,141 @@ public class SaleController : BaseController
         {
             return Json(new { data = new List<GetTransactionByBranchIDResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
         }
+    }
+
+    #endregion
+
+    #region POS
+    [HttpPost]
+    public async Task<IActionResult> GenerateReceiveSlip([FromBody] SellingItemViewModel sellingItemView)
+    {
+        var tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
+        if (tempSellingBarcodeItemList == null || tempSellingBarcodeItemList.Count == 0)
+        {
+            return Json(new { result = false, msg = "ขออภัย ไม่พบรายการสินค้า" });
+        }
+
+        var getReceiveTemplate = await _receiveTempAPI.GetReceiveTemplatehByBranchIDAsync(new GetReceiveTempByBranchIDQuery
+        {
+            branchid = sellingItemView.branch.ToInt32()
+        });
+        if (!getReceiveTemplate.result)
+        {
+            return Json(new { result = false, msg = "ขออภัย ไม่พบแม่แบบใบเสร็จรับเงิน" });
+        }
+
+        // คำนวณ
+        decimal subTotal = tempSellingBarcodeItemList.Sum(s => s.totalprice);
+        decimal discount = 0;
+        decimal shipping = 0;
+        decimal vat = subTotal.ToExVat();
+        decimal totalBill = subTotal - discount + shipping + vat;
+        decimal due = 0;
+
+        var model = new ReceiptViewModel
+        {
+            CompanyName = getReceiveTemplate.data.shopheadernametext,
+            CompanyAddress = getReceiveTemplate.data.shopheaderaddresstext,
+            AdditionalHeaderText = getReceiveTemplate.data.additionalheadertext,
+            TelephoneNo = getReceiveTemplate.data.telephoneno,
+            ShopFooterText = getReceiveTemplate.data.shopfootertext,
+            AdditionalFooterText = getReceiveTemplate.data.additionalfootertext,
+            Items = tempSellingBarcodeItemList,
+            SubTotal = subTotal,
+            Discount = discount,
+            Shipping = shipping,
+            Vat = vat,
+            TotalBill = totalBill,
+            Due = due,
+            Date = DateTime.Now
+        };
+
+        string escposCmd = GenerateEscPos(model);
+        string printerName = "POS-80";
+
+        // return PartialView เป็น string
+        string html = RenderPartialViewToString("_ReceiptModal", model);
+        return Json(new { result = true, msg = html, cmds = escposCmd, printername = printerName });
+    }
+
+    private string RenderPartialViewToString(string viewName, object model)
+    {
+        ViewData.Model = model;
+        using var sw = new StringWriter();
+        var viewResult = _viewEngine.FindView(ControllerContext, viewName, false);
+        var viewContext = new ViewContext(
+            ControllerContext,
+            viewResult.View,
+            ViewData,
+            TempData,
+            sw,
+            new HtmlHelperOptions()
+        );
+        viewResult.View.RenderAsync(viewContext).Wait();
+        return sw.ToString();
+    }
+
+    public string GenerateEscPos(ReceiptViewModel model)
+    {
+        var esc = "\x1B"; // ESC
+        var gs = "\x1D"; // GS
+        var nl = "\x0A"; // New Line
+        var cmds = new StringBuilder();
+
+        // Initialize printer
+        cmds.Append(esc + "@");
+
+        // --- Header ---
+        cmds.Append(esc + "!" + "\x38"); // Font double height + bold
+        cmds.Append(esc + "a" + "\x01"); // Center align
+        cmds.Append(model.CompanyName + nl);
+
+        cmds.Append(esc + "!" + "\x00"); // Normal font
+        cmds.Append(model.TelephoneNo + nl);
+        cmds.Append(model.CompanyAddress + nl);
+        if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
+            cmds.Append(model.AdditionalHeaderText + nl);
+
+        cmds.Append(nl);
+
+        // --- Invoice info ---
+        cmds.Append(esc + "a" + "\x00"); // Left align
+        cmds.Append("ใบเสร็จรับเงิน" + nl);
+        cmds.Append($"เลขที่: {model.InvoiceNo}" + nl);
+        cmds.Append($"วันที่: {model.Date:dd/MM/yyyy}" + nl);
+        cmds.Append("--------------------------------" + nl);
+
+        // --- Items ---
+        int i = 1;
+        foreach (var item in model.Items)
+        {
+            string line = $"{i}. {item.itemname}";
+            cmds.Append(line + nl);
+
+            string priceLine = $"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}".PadLeft(32);
+            cmds.Append(priceLine + nl);
+            i++;
+        }
+
+        cmds.Append("--------------------------------" + nl);
+
+        // --- Summary ---
+        cmds.Append($"ราคารวม: {model.SubTotal:0.00}".PadLeft(32) + nl);
+        cmds.Append($"ส่วนลด: {model.Discount:0.00}".PadLeft(32) + nl);
+        cmds.Append($"VAT 7%: {model.Vat:0.00}".PadLeft(32) + nl);
+        cmds.Append($"ยอดรวม: {model.TotalBill:0.00}".PadLeft(32) + nl);
+
+        cmds.Append("--------------------------------" + nl);
+
+        // --- Footer ---
+        cmds.Append(esc + "a" + "\x01"); // Center align
+        cmds.Append(model.ShopFooterText + nl);
+        cmds.Append(model.AdditionalFooterText + nl);
+
+        // Cut paper
+        cmds.Append(gs + "V" + "\x41" + "\x03");
+
+        return cmds.ToString();
     }
 
     #endregion

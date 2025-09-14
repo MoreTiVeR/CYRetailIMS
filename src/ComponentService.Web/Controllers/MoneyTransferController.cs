@@ -19,7 +19,6 @@ using CYRetailIMS.Application.Services.MoneyTransferSlipService.Queries.GetSlipB
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NUglify.Helpers;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -317,7 +316,7 @@ public class MoneyTransferController : BaseController
             #region Check image from upload all
             if (mTransferData.ImageFile != null && mTransferData.ImageFile.Count() > 0)
             {
-                mTransferData.ImageFile.ForEach(file =>
+                mTransferData.ImageFile.ToList().ForEach(file =>
                 {
                     string fileName = $"{Guid.NewGuid().ToString()}_{Path.GetExtension(file.FileName)}";
                     string fileSavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", _moneyTransferSlipSubPath, datePath, branchPath, fileName);
