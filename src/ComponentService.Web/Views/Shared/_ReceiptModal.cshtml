@@ -1,5 +1,22 @@
 ﻿@using CYRetailIMS.Application.Common.Models.UI
 @model ReceiptViewModel
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+	/* กำหนดให้คอลัมน์ Item ห่อข้อความและไม่ทำให้ตารางขยาย */
+.table td {
+    word-break: break-word; /* ห่อคำเมื่อยาวเกิน */
+    max-width: 250px;       /* กำหนดความกว้างสูงสุดตามต้องการ */
+}
+
+/* ถ้าต้องการตัดด้วย ... */
+.table td.ellipsis {
+    white-space: nowrap;   /* อยู่บรรทัดเดียว */
+    overflow: hidden;      /* ซ่อนส่วนเกิน */
+    text-overflow: ellipsis; /* แสดง ... */
+    max-width: 250px;
+}
+
+</style>
 
 <div class="modal fade" id="print-receipt" tabindex="-1" aria-labelledby="print-receipt-label" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg">
@@ -45,7 +62,7 @@
 						@for (int i = 0; i < Model.Items.Count; i++)
 						{
 							<tr>
-								<td>@(i + 1). @Model.Items[i].itemname</td>
+								<td class="ellipsis">@(i + 1). @Model.Items[i].itemname</td>
 								<td>@Model.Items[i].itemprice.ToString("0,0.00")</td>
 								<td>@Model.Items[i].qty</td>
 								<td class="text-end">@Model.Items[i].totalprice.ToString("0,0.00")</td>

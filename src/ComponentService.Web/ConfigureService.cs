@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Confiuration;
@@ -94,6 +95,8 @@ public static class ConfigureService
 {
     public static IServiceCollection AddWebComponentServices(this IServiceCollection services, IConfiguration configuration, string envName)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
         #region Session Timeout
         int sessionTimeout = configuration.GetSection("Appsettings")["SESSION_TIMEOUT"] != null ? int.Parse(configuration.GetSection("Appsettings")["SESSION_TIMEOUT"]) : 60;
         #endregion

@@ -505,6 +505,9 @@ function CreateSellingTransactionDataBySale(data) {
             data = JSON.stringify(data);
             //CreateData(data);
             ShowPrintReceipt(data);
+
+            // Remove the event listener after printing
+            document.getElementById('btnPrintReceipt').removeEventListener('click', ShowPrintReceipt);
         }
         else if (result.dismiss === Swal.DismissReason.cancel) {
             //เงินโอน
@@ -514,6 +517,9 @@ function CreateSellingTransactionDataBySale(data) {
             data = JSON.stringify(data);
             //CreateData(data);
             ShowPrintReceipt(data);
+
+            // Remove the event listener after printing
+            document.getElementById('btnPrintReceipt').removeEventListener('click', ShowPrintReceipt);
         }
     });
 }
@@ -574,7 +580,7 @@ function ShowPrintReceipt(objData) {
     ShowLoading();
 
     $.ajax({
-        url: "/Sale/GenerateReceiveSlip",
+        url: "/Sale/GenerateReceiveSlipText",
         type: "POST",
         data: objData,
         contentType: "application/json; charset=utf-8",
@@ -597,9 +603,10 @@ function ShowPrintReceipt(objData) {
 
                             // ใช้ Response จากการบันทึกข้อมูล Sale/GenerateReceiveSlip
                             console.log('Printer Command and Printer Name:' + res.printername);
-                            //console.log(res.cmds);
+                            console.log(res.text);
                             //console.log(res.printername);
-                            InitPOSPrinter(res.cmds, res.printername);
+
+                            await SendPOSCommand(res.text, res.printername);
 
                         } else {
                             console.log('PrintReceipt Failed');
@@ -619,60 +626,54 @@ function ShowPrintReceipt(objData) {
         }
     });
 
-    //$.post("/Sale/GenerateReceiveSlip", { sellingItemView: objData }, function (res) {
-    //    if (res.result) {
-    //        $("body").append(res.msg);
-    //        $("#print-receipt").modal("show");
-
-    //        document.getElementById('btnPrintReceipt').addEventListener('click', async () => {
-    //            try
-    //            {
-    //                const result = await CreateDataAsync(objData); // ถ้า CreateData return promise
-    //                if (result && result.result === true) {
-    //                    console.log('PrintReceipt Success');
-
-    //                    $('#print-receipt').modal('hide');
-    //                } else {
-    //                    console.log('PrintReceipt Failed');
-    //                    AlertError(result?.msg || 'ไม่สามารถบันทึกข้อมูลได้');
-    //                }
-    //            } catch (error) {
-    //                console.log('PrintReceipt Error');
-    //                AlertError(error.message || 'เกิดข้อผิดพลาด');
-    //            }
-    //        });
-    //    } else {
-    //        AlertError(res.msg);
-    //    }
-    //});
-    
 }
 
-function InitPOSPrinter(cmds, printername) {
-    //printername = 'POS-80'
-    JSPM.JSPrintManager.start()
-        .then(_ => {
-            var cpj = new JSPM.ClientPrintJob();
-            var myPrinter = new JSPM.InstalledPrinter(printername);
-            cpj.clientPrinter = myPrinter;
+function startJSPM() {
+    if (!window.JSPM || !JSPM.JSPrintManager) { setTimeout(startJSPM, 200); return; }
+    JSPM.JSPrintManager.auto_reconnect = true;
+    JSPM.JSPrintManager.start();
+}
+startJSPM();
 
+async function SendPOSCommand(cmds, printername) {
+    try {
+        // Start JSPM
+        await JSPM.JSPrintManager.start();
 
-            //Set content to print...
-            //Create ESP/POS commands for sample label
-            //var esc = '\x1B'; //ESC byte in hex notation
-            //var newLine = '\x0A'; //LF byte in hex notation
-            //var gs = '\x1D';
-            //var v = '\x56';
+        if (!window.JSPM || !JSPM.ClientPrintJob) {
+            console.error('PrintManager not available.');
+            return;
+        }
 
-            console.log(cmds);
-            //Set command
-            cpj.printerCommands = cmds;
+        // Create print job
+        const cpj = new JSPM.ClientPrintJob();
+        const myPrinter = new JSPM.InstalledPrinter(printername);
+        cpj.clientPrinter = myPrinter;
 
-            //Send print job to printer!
-            cpj.sendToClient();
-        })
-        .catch((e) => {
-            console.log('[ERROR]InitPOSPrinter -> ' + e);
-            AlertError(e);
-        });
+        // Prepare ESC/POS commands
+        const escpos = Neodynamic.JSESCPOSBuilder;
+        const doc = new escpos.Document();
+
+        const escposCommands = doc
+            .font(escpos.FontFamily.A)   // Font A
+            .size(0, 0)                  // Normal size
+            .setCharacterCodeTable(255)  // Codepage 874 for Thai
+            .text(cmds, 874)             // Use cmds as the text
+            //.feed(2)
+            //.cut()
+            .generateUInt8Array();
+
+        console.log('ESC/POS Commands:', escposCommands);
+
+        // Assign commands
+        cpj.binaryPrinterCommands = escposCommands;
+
+        // Send to printer
+        await cpj.sendToClient();
+
+        console.log('Print job sent successfully.');
+    } catch (e) {
+        console.error('[ERROR] SendPOSCommand ->', e);
+        if (typeof AlertError === "function") AlertError(e);
+    }
 }

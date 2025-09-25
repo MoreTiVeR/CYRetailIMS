@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -1117,12 +1118,75 @@ public class SaleController : BaseController
             Date = DateTime.Now
         };
 
-        string escposCmd = GenerateEscPos(model);
+        // ลอง Text Mode ก่อน
+        string base64Cmds = GenerateEscPosBase64(model);
+
+        // ถ้า Text Mode พิมพ์ไทยยังเพี้ยน → ใช้ fallback (Image Mode)
+        string escposCmd = GenerateEscPos(model, false);
+
         string printerName = "POS-80";
 
         // return PartialView เป็น string
         string html = RenderPartialViewToString("_ReceiptModal", model);
-        return Json(new { result = true, msg = html, cmds = escposCmd, printername = printerName });
+        return Json(new { result = true, msg = html, cmds = base64Cmds, cmdfallback = escposCmd, printername = printerName });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GenerateReceiveSlipText([FromBody] SellingItemViewModel sellingItemView)
+    {
+        var tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
+        if (tempSellingBarcodeItemList == null || tempSellingBarcodeItemList.Count == 0)
+        {
+            return Json(new { result = false, msg = "ขออภัย ไม่พบรายการสินค้า" });
+        }
+
+        var getReceiveTemplate = await _receiveTempAPI.GetReceiveTemplatehByBranchIDAsync(new GetReceiveTempByBranchIDQuery
+        {
+            branchid = sellingItemView.branch.ToInt32()
+        });
+        if (!getReceiveTemplate.result)
+        {
+            return Json(new { result = false, msg = "ขออภัย ไม่พบแม่แบบใบเสร็จรับเงิน" });
+        }
+
+        // คำนวณ
+        decimal subTotal = tempSellingBarcodeItemList.Sum(s => s.totalprice);
+        decimal discount = 0;
+        decimal shipping = 0;
+        decimal vat = subTotal.ToExVat();
+        decimal totalBill = subTotal - discount + shipping + vat;
+        decimal due = 0;
+
+        var model = new ReceiptViewModel
+        {
+            CompanyName = getReceiveTemplate.data.shopheadernametext,
+            CompanyAddress = getReceiveTemplate.data.shopheaderaddresstext,
+            AdditionalHeaderText = getReceiveTemplate.data.additionalheadertext,
+            TelephoneNo = getReceiveTemplate.data.telephoneno,
+            ShopFooterText = getReceiveTemplate.data.shopfootertext,
+            AdditionalFooterText = getReceiveTemplate.data.additionalfootertext,
+            Items = tempSellingBarcodeItemList,
+            SubTotal = subTotal,
+            Discount = discount,
+            Shipping = shipping,
+            Vat = vat,
+            TotalBill = totalBill,
+            Due = due,
+            Date = DateTime.Now
+        };
+
+        // Text Mode
+        string recetiveText = GenerateReceiptEscPos(model);
+
+        // Convert to Base64 for JS transfer
+        byte[] bytes = Encoding.GetEncoding(874).GetBytes(recetiveText);
+        string recetiveBase64 = Convert.ToBase64String(bytes);
+
+        string printerName = "POS-80";
+
+        // return PartialView เป็น string
+        string html = RenderPartialViewToString("_ReceiptModal", model);
+        return Json(new { result = true, msg = html, cmds = recetiveBase64, text = recetiveText, printername = printerName });
     }
 
     private string RenderPartialViewToString(string viewName, object model)
@@ -1142,7 +1206,157 @@ public class SaleController : BaseController
         return sw.ToString();
     }
 
-    public string GenerateEscPos(ReceiptViewModel model)
+    //public string GenerateEscPos(ReceiptViewModel model)
+    //{
+    //    var esc = "\x1B"; // ESC
+    //    var gs = "\x1D"; // GS
+    //    var nl = "\x0A"; // New Line
+    //    var cmds = new StringBuilder();
+
+    //    // Initialize printer
+    //    cmds.Append(esc + "@");
+
+    //    // --- Header ---
+    //    cmds.Append(esc + "!" + "\x38"); // Font double height + bold
+    //    cmds.Append(esc + "a" + "\x01"); // Center align
+    //    cmds.Append(model.CompanyName + nl);
+
+    //    cmds.Append(esc + "!" + "\x00"); // Normal font
+    //    cmds.Append(model.TelephoneNo + nl);
+    //    cmds.Append(model.CompanyAddress + nl);
+    //    if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
+    //        cmds.Append(model.AdditionalHeaderText + nl);
+
+    //    cmds.Append(nl);
+
+    //    // --- Invoice info ---
+    //    cmds.Append(esc + "a" + "\x00"); // Left align
+    //    cmds.Append("ใบเสร็จรับเงิน" + nl);
+    //    cmds.Append($"เลขที่: {model.InvoiceNo}" + nl);
+    //    cmds.Append($"วันที่: {model.Date:dd/MM/yyyy}" + nl);
+    //    cmds.Append("--------------------------------" + nl);
+
+    //    // --- Items ---
+    //    int i = 1;
+    //    foreach (var item in model.Items)
+    //    {
+    //        string line = $"{i}. {item.itemname}";
+    //        cmds.Append(line + nl);
+
+    //        string priceLine = $"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}".PadLeft(32);
+    //        cmds.Append(priceLine + nl);
+    //        i++;
+    //    }
+
+    //    cmds.Append("--------------------------------" + nl);
+
+    //    // --- Summary ---
+    //    cmds.Append($"ราคารวม: {model.SubTotal:0.00}".PadLeft(32) + nl);
+    //    cmds.Append($"ส่วนลด: {model.Discount:0.00}".PadLeft(32) + nl);
+    //    cmds.Append($"VAT 7%: {model.Vat:0.00}".PadLeft(32) + nl);
+    //    cmds.Append($"ยอดรวม: {model.TotalBill:0.00}".PadLeft(32) + nl);
+
+    //    cmds.Append("--------------------------------" + nl);
+
+    //    // --- Footer ---
+    //    cmds.Append(esc + "a" + "\x01"); // Center align
+    //    cmds.Append(model.ShopFooterText + nl);
+    //    cmds.Append(model.AdditionalFooterText + nl);
+
+    //    // Cut paper
+    //    cmds.Append(gs + "V" + "\x41" + "\x03");
+
+    //    return cmds.ToString();
+    //}
+
+    public string GenerateEscPosBase64(ReceiptViewModel model)
+    {
+        // *** ถ้ายังไม่ได้ register ที่ Startup ให้เรียกที่นี่ (ปลอดภัยเรียกซ้ำ) ***
+        Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+        // เลือก encoding ที่ printer คาดหวัง (Windows-874 / TIS-620 variant)
+        // ถ้ารู้แน่ชัดว่าต้องเป็น TIS-620 ให้ใช้รหัส 874 หรือ "windows-874" ขึ้นกับแพลตฟอร์ม
+        var enc = Encoding.GetEncoding(874);
+
+        var b = new List<byte>();
+
+        // init printer: ESC @
+        b.AddRange(new byte[] { 0x1B, 0x40 });
+
+        // --- ลองเลือก code page ของเครื่อง (หลายเครื่องใช้ค่า 26 สำหรับ Thai — ถ้าไม่ถูกให้ลองค่าต่างๆ ตาม manual) ---
+        // ESC t n  (n = 26 decimal -> 0x1A)
+        b.AddRange(new byte[] { 0x1B, 0x74, 0x1A });
+
+        // center align: ESC a 1
+        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x01 });
+
+        // double height + bold example (ถ้าเครื่องรองรับ)
+        // b.AddRange(new byte[] { 0x1B, (byte)'!', 0x38 });
+
+        // ข้อความหัว (เป็นไบต์ด้วย encoding ที่เราเลือก)
+        b.AddRange(enc.GetBytes(model.CompanyName + "\n"));
+
+        // ปรับเป็น font ปกติ: ESC ! 0
+        b.AddRange(new byte[] { 0x1B, (byte)'!', 0x00 });
+
+        // เบอร์โทร/ที่อยู่ ฯลฯ
+        if (!string.IsNullOrEmpty(model.TelephoneNo))
+            b.AddRange(enc.GetBytes("Phone: " + model.TelephoneNo + "\n"));
+
+        if (!string.IsNullOrEmpty(model.CompanyAddress))
+            b.AddRange(enc.GetBytes(model.CompanyAddress + "\n"));
+
+        b.AddRange(enc.GetBytes("\n"));
+
+        // Invoice header (left align)
+        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x00 });
+        b.AddRange(enc.GetBytes("ใบเสร็จรับเงิน\n"));
+        b.AddRange(enc.GetBytes($"วันที่: {model.Date:dd/MM/yyyy}\n"));
+        b.AddRange(enc.GetBytes("--------------------------------\n"));
+
+        // Items
+        int i = 1;
+        foreach (var item in model.Items)
+        {
+            // ชื่อสินค้า (อาจต้องตัดความยาวให้พอดีคอลัมน์)
+            b.AddRange(enc.GetBytes($"{i}. {item.itemname}\n"));
+
+            // price x qty   total (align ง่ายๆ โดยเว้นช่อง)
+            var priceQty = $"{item.itemprice:0.00} x {item.qty}";
+            var total = $"{item.totalprice:0.00}";
+            // โยกให้อยู่ขวาด้วยการเติม space ตามความยาวที่ต้องการ (ปรับความกว้างตาม printer)
+            var line = priceQty.PadRight(24) + total.PadLeft(8);
+            b.AddRange(enc.GetBytes(line + "\n"));
+            i++;
+        }
+
+        b.AddRange(enc.GetBytes("--------------------------------\n"));
+
+        // Summary
+        b.AddRange(enc.GetBytes($"ราคารวม: {model.SubTotal:0.00}\n"));
+        b.AddRange(enc.GetBytes($"ส่วนลด: {model.Discount:0.00}\n"));
+        b.AddRange(enc.GetBytes($"VAT 7%: {model.Vat:0.00}\n"));
+        b.AddRange(enc.GetBytes($"ยอดรวม: {model.TotalBill:0.00}\n"));
+
+        b.AddRange(enc.GetBytes("\n"));
+
+        // Footer center
+        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x01 });
+        if (!string.IsNullOrEmpty(model.ShopFooterText))
+            b.AddRange(enc.GetBytes(model.ShopFooterText + "\n"));
+        if (!string.IsNullOrEmpty(model.AdditionalFooterText))
+            b.AddRange(enc.GetBytes(model.AdditionalFooterText + "\n"));
+
+        b.AddRange(enc.GetBytes("\n"));
+
+        // Cut paper: GS V A 3  (may vary by printer)
+        b.AddRange(new byte[] { 0x1D, 0x56, 0x41, 0x03 });
+
+        // ส่งเป็น Base64 กลับไปยัง client (JSON)
+        return Convert.ToBase64String(b.ToArray());
+    }
+
+    public string GenerateEscPos(ReceiptViewModel model, bool useImageFallback = false)
     {
         var esc = "\x1B"; // ESC
         var gs = "\x1D"; // GS
@@ -1151,6 +1365,189 @@ public class SaleController : BaseController
 
         // Initialize printer
         cmds.Append(esc + "@");
+
+        if (!useImageFallback)
+        {
+            // --- Mode 1: พิมพ์แบบ Text ---
+            cmds.Append(esc + "t" + "\x1A"); // Thai TIS-620 code page (26)
+
+            // --- Header ---
+            cmds.Append(esc + "!" + "\x38"); // Font double height + bold
+            cmds.Append(esc + "a" + "\x01"); // Center align
+            cmds.Append(model.CompanyName + nl);
+
+            cmds.Append(esc + "!" + "\x00"); // Normal font
+            cmds.Append(model.TelephoneNo + nl);
+            cmds.Append(model.CompanyAddress + nl);
+            if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
+                cmds.Append(model.AdditionalHeaderText + nl);
+
+            cmds.Append(nl);
+
+            // --- Invoice info ---
+            cmds.Append(esc + "a" + "\x00"); // Left align
+            cmds.Append("ใบเสร็จรับเงิน" + nl);
+            cmds.Append($"เลขที่: {model.InvoiceNo}" + nl);
+            cmds.Append($"วันที่: {model.Date:dd/MM/yyyy}" + nl);
+            cmds.Append("--------------------------------" + nl);
+
+            // --- Items ---
+            int i = 1;
+            foreach (var item in model.Items)
+            {
+                string line = $"{i}. {item.itemname}";
+                cmds.Append(line + nl);
+
+                string priceLine = $"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}".PadLeft(32);
+                cmds.Append(priceLine + nl);
+                i++;
+            }
+
+            cmds.Append("--------------------------------" + nl);
+
+            // --- Summary ---
+            cmds.Append($"ราคารวม: {model.SubTotal:0.00}".PadLeft(32) + nl);
+            cmds.Append($"ส่วนลด: {model.Discount:0.00}".PadLeft(32) + nl);
+            cmds.Append($"VAT 7%: {model.Vat:0.00}".PadLeft(32) + nl);
+            cmds.Append($"ยอดรวม: {model.TotalBill:0.00}".PadLeft(32) + nl);
+
+            cmds.Append("--------------------------------" + nl);
+
+            // --- Footer ---
+            cmds.Append(esc + "a" + "\x01"); // Center align
+            cmds.Append(model.ShopFooterText + nl);
+            cmds.Append(model.AdditionalFooterText + nl);
+
+            // Cut paper
+            cmds.Append(gs + "V" + "\x41" + "\x03");
+        }
+        else
+        {
+            // --- Mode 2: Fallback → แปลงเป็น Image ---
+            // รวมข้อความทั้งหมดเป็น string เดียว
+            var textBlock = new StringBuilder();
+            textBlock.AppendLine(model.CompanyName);
+            textBlock.AppendLine(model.TelephoneNo);
+            textBlock.AppendLine(model.CompanyAddress);
+            if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
+                textBlock.AppendLine(model.AdditionalHeaderText);
+            textBlock.AppendLine();
+            textBlock.AppendLine("ใบเสร็จรับเงิน");
+            textBlock.AppendLine($"เลขที่: {model.InvoiceNo}");
+            textBlock.AppendLine($"วันที่: {model.Date:dd/MM/yyyy}");
+            textBlock.AppendLine("--------------------------------");
+
+            int i = 1;
+            foreach (var item in model.Items)
+            {
+                textBlock.AppendLine($"{i}. {item.itemname}");
+                textBlock.AppendLine($"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}");
+                i++;
+            }
+            textBlock.AppendLine("--------------------------------");
+            textBlock.AppendLine($"ราคารวม: {model.SubTotal:0.00}");
+            textBlock.AppendLine($"ส่วนลด: {model.Discount:0.00}");
+            textBlock.AppendLine($"VAT 7%: {model.Vat:0.00}");
+            textBlock.AppendLine($"ยอดรวม: {model.TotalBill:0.00}");
+            textBlock.AppendLine("--------------------------------");
+            textBlock.AppendLine(model.ShopFooterText);
+            textBlock.AppendLine(model.AdditionalFooterText);
+
+            // 👉 Convert ข้อความนี้เป็น Bitmap
+            using (var bmp = RenderTextToBitmap(textBlock.ToString(), "Tahoma", 12))
+            {
+                byte[] rasterCmd = ConvertBitmapToRaster(bmp);
+                return Encoding.Default.GetString(rasterCmd);
+            }
+        }
+
+        return cmds.ToString();
+    }
+
+    // Helper: สร้าง Bitmap จากข้อความ
+    private Bitmap RenderTextToBitmap(string text, string fontName, int fontSize)
+    {
+        Font font = new Font(fontName, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+        SizeF textSize;
+        using (var bmpTemp = new Bitmap(1, 1))
+        {
+            using (var g = Graphics.FromImage(bmpTemp))
+            {
+                textSize = g.MeasureString(text, font);
+            }
+        }
+        var bmp = new Bitmap((int)textSize.Width, (int)textSize.Height);
+        using (var g = Graphics.FromImage(bmp))
+        {
+            g.Clear(Color.White);
+            g.DrawString(text, font, Brushes.Black, 0, 0);
+        }
+        return bmp;
+    }
+
+    // Helper: แปลง Bitmap → ESC/POS Raster
+    private byte[] ConvertBitmapToRaster(Bitmap bmp)
+    {
+        int width = bmp.Width;
+        int height = bmp.Height;
+        List<byte> result = new List<byte>();
+
+        // Initialize printer
+        result.AddRange(new byte[] { 0x1B, 0x40 });
+
+        // Raster bit image command: GS v 0
+        for (int y = 0; y < height; y += 24)
+        {
+            result.AddRange(new byte[] { 0x1D, 0x76, 0x30, 0x00 });
+            result.Add((byte)(width / 8 % 256));
+            result.Add((byte)(width / 8 / 256));
+            result.Add((byte)(24 % 256));
+            result.Add((byte)(24 / 256));
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    byte slice = 0;
+                    for (int b = 0; b < 8; b++)
+                    {
+                        int yPos = y + (k * 8) + b;
+                        if (yPos >= height) continue;
+                        Color pixel = bmp.GetPixel(x, yPos);
+                        int luminance = (int)((pixel.R + pixel.G + pixel.B) / 3);
+                        if (luminance < 128)
+                            slice |= (byte)(1 << (7 - b));
+                    }
+                    result.Add(slice);
+                }
+            }
+        }
+
+        // Cut paper
+        result.AddRange(new byte[] { 0x1D, 0x56, 0x41, 0x03 });
+
+        return result.ToArray();
+    }
+
+    /// <summary>
+    /// Backup old method
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public string GenerateEscPos_back(ReceiptViewModel model)
+    {
+
+        var esc = "\x1B"; // ESC
+        var gs = "\x1D"; // GS
+        var nl = "\x0A"; // New Line
+        var cmds = new StringBuilder();
+
+        // Initialize printer
+        cmds.Append(esc + "@");
+
+        // 👉 สลับ Code Page ไปเป็น TIS-620 (Thai)
+        // ESC t n  (ลองใช้ค่า 26 หรือ 255 ขึ้นกับรุ่นเครื่อง)
+        cmds.Append(esc + "t" + "\x1A");  // \x1A = 26 (TIS-620 Thai codepage)
 
         // --- Header ---
         cmds.Append(esc + "!" + "\x38"); // Font double height + bold
@@ -1205,6 +1602,136 @@ public class SaleController : BaseController
         return cmds.ToString();
     }
 
+    public string GenerateReceiptEscPos(ReceiptViewModel model)
+    {
+        var sb = new StringBuilder();
+
+        // ESC/POS Init
+        sb.Append("\x1B\x40"); // Initialize
+
+        // Reduce top margin
+        //sb.Insert(0, "\x1B\x4A\x00"); // optional
+
+        // ==== Header ====
+        sb.AppendLine();
+        sb.Append("\x1B\x61\x01"); // Center align
+        sb.AppendLine(model.CompanyName);
+        sb.AppendLine(model.CompanyAddress);
+        if (!string.IsNullOrEmpty(model.TelephoneNo))
+            sb.AppendLine(model.TelephoneNo);
+        sb.AppendLine(new string('-', 48));
+
+        // Invoice & Date
+        sb.Append("\x1B\x61\x00"); // Left align
+        sb.AppendLine($"Invoice: {model.InvoiceNo}");
+        sb.AppendLine($"Date: {model.Date:dd/MM/yyyy HH:mm}");
+        sb.AppendLine(new string('-', 48));
+
+        // ==== Items ====
+        sb.AppendLine($"{"Item",-24}{"Qty",5}{"Price",9}{"Total",10}");
+        sb.AppendLine(new string('-', 48));
+        foreach (var item in model.Items)
+        {
+
+            // Item line with matching column widths
+            //string name = PadItemNameEscPos(item.itemname, 24);
+            //string line = $"{name}{item.qty,5}{item.itemprice,9:N2}{item.totalprice,10:N2}";
+            //sb.AppendLine(line);
+
+            string name = TruncateItemNameEscPos(item.itemname, 24);
+            sb.AppendLine($"{name,-24}{item.qty,5}{item.itemprice,9:N2}{item.totalprice,10:N2}");
+        }
+        sb.AppendLine(new string('-', 48));
+
+        // ==== Totals ====
+        sb.AppendLine($"{"SubTotal",-32}{model.SubTotal,16:N2}");
+        sb.AppendLine($"{"Discount",-32}{model.Discount,16:N2}");
+        sb.AppendLine($"{"Shipping",-32}{model.Shipping,16:N2}");
+        sb.AppendLine($"{"VAT",-32}{model.Vat,16:N2}");
+        sb.AppendLine($"{"TOTAL",-32}{model.TotalBill,16:N2}");
+        sb.AppendLine(new string('-', 48));
+
+        // ==== Footer ====
+        sb.Append("\x1B\x61\x01"); // Center align
+        if (!string.IsNullOrEmpty(model.ShopFooterText))
+            sb.AppendLine(model.ShopFooterText);
+        if (!string.IsNullOrEmpty(model.AdditionalFooterText))
+            sb.AppendLine(model.AdditionalFooterText);
+        sb.AppendLine("THANK YOU!");
+        sb.AppendLine();
+
+        // Cut paper
+        sb.Append("\x1D\x56\x41"); // Partial cut
+        return sb.ToString();
+    }
+
+    private string TruncateItemNameEscPos(string name, int maxLength = 24)
+    {
+        if (string.IsNullOrEmpty(name)) return "";
+        if (name.Length <= maxLength) return name;
+        return name.Substring(0, maxLength - 3) + "...";
+    }
+
+    private string PadItemNameEscPos(string name, int colWidth)
+    {
+        if (string.IsNullOrEmpty(name)) return new string(' ', colWidth);
+
+        int width = 0;
+        var sb = new StringBuilder();
+        foreach (char c in name)
+        {
+            // ESC/POS monospaced font: ASCII = 1, Thai/other multibyte = 2
+            int charWidth = (c <= 0x7F) ? 1 : 2;
+            if (width + charWidth > colWidth - 3) // reserve 3 for "..."
+            {
+                sb.Append("...");
+                break;
+            }
+            sb.Append(c);
+            width += charWidth;
+        }
+
+        // pad remaining spaces
+        while (width < colWidth)
+        {
+            sb.Append(' ');
+            width++;
+        }
+
+        return sb.ToString();
+    }
+
+
     #endregion
 
+
+    #region Test
+    [HttpGet]
+    public IActionResult TestThaiPrint(int codePage = 26) // เปลี่ยนค่า n ได้จาก query string
+    {
+        Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+        var enc = Encoding.GetEncoding(874); // Windows-874 (Thai)
+
+        var b = new List<byte>();
+
+        // init
+        b.AddRange(new byte[] { 0x1B, 0x40 });
+
+        // เลือก code page (เปลี่ยนค่า n เพื่อทดสอบ)
+        b.AddRange(new byte[] { 0x1B, 0x74, (byte)codePage });
+
+        // center
+        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x01 });
+
+        // พิมพ์ข้อความ "สวัสดี"
+        b.AddRange(enc.GetBytes("สวัสดี\n"));
+
+        // cut paper
+        b.AddRange(new byte[] { 0x1D, 0x56, 0x41, 0x03 });
+
+        var base64 = Convert.ToBase64String(b.ToArray());
+
+        return Json(new { cmdsBase64 = base64, n = codePage });
+    }
+    #endregion
 }
