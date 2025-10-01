@@ -34,6 +34,7 @@ public class GetReceiveTempByIDHandler : BaseService, IRequestHandler<GetReceive
                            additionalheadertext = rtemp.AdditionalHeaderText,
                            shopfootertext = rtemp.ShopFooterText,
                            additionalfootertext = rtemp.AdditionalFooterText,
+                           printername = rtemp.PrinterName,
                            createdby = rtemp.CreatedBy,
                            createddate = rtemp.CreatedDate,
                            updatedby = rtemp.UpdatedBy,

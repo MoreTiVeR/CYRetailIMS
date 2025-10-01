@@ -20,6 +20,7 @@ public class CreateReceiveTemplateMappingProfile : Profile
             .ForMember(dest => dest.ShopFooterText, opt => opt.MapFrom(src => src.shopfootertext))
             .ForMember(dest => dest.AdditionalFooterText, opt => opt.MapFrom(src => src.additionalfootertext))
             .ForMember(dest => dest.TelephoneNo, opt => opt.MapFrom(src => src.telephoneno))
+            .ForMember(dest => dest.PrinterName, opt => opt.MapFrom(src => src.printername))
             .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.createdby));
             //.ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.createddate))
             //.ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())

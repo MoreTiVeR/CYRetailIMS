@@ -16,5 +16,6 @@ public record CreateReceiveTemplateCommand: IRequest<BaseResponse<CommandRespons
     public string? shopfootertext { get; init; }
     public string? additionalfootertext { get; init; }
     public string telephoneno { get; init; }
+    public string printername { get; init; }
     public string createdby { get; init; }
 }

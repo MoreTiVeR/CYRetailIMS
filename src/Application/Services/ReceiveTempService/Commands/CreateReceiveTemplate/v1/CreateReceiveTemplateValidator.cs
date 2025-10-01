@@ -14,6 +14,7 @@ public class CreateReceiveTemplateValidator : AbstractValidator<CreateReceiveTem
         RuleFor(w => w.shopheadernametext).NotEmpty().WithMessage("กรุณาระบุชื่อร้าน");
         RuleFor(w => w.shopheaderaddresstext).NotEmpty().WithMessage("กรุณาระบุที่อยู่ร้าน");
         RuleFor(w => w.telephoneno).NotEmpty().WithMessage("กรุณาระบุเบอร์โทรศัพท์สาขา");
+        RuleFor(w => w.printername).NotEmpty().WithMessage("กรุณาระบุชื่อเครื่องพิมพ์");
         RuleFor(w => w.createdby).NotEmpty().WithMessage("กรุณาระบุผู้สร้าง");
         //RuleFor(w => w.createddate).NotNull().WithMessage("กรุณาระบุวันที่สร้าง");
     }

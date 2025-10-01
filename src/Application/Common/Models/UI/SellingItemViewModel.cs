@@ -21,6 +21,8 @@ public class AddSaleItemViewModel
 [JsonObject]
 public class SellingItemViewModel
 {
+    public string? version { get; set; }
+
     [Required(ErrorMessage = "* กรุณาระบุสาขา")]
     [Display(Name = "สาขา")]
     public string branch { get; set; }

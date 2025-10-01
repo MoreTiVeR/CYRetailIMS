@@ -36,6 +36,7 @@ using CYRetailIMS.Application.ExternalService.MoneyTransferSlipAPI;
 using CYRetailIMS.Application.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
+using CYRetailIMS.Application.ExternalService.ReceiptAPI;
 using CYRetailIMS.Application.ExternalService.ReceiveTempAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.ShipmentTypeAPI;
@@ -74,6 +75,7 @@ using CYRetailIMS.Infrastructure.ExternalService.MoneyTransferSlipAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Infrastructure.ExternalService.PurchaseTypeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.ReceiptAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ReceiveTempAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ShipmentTypeAPI;
@@ -246,6 +248,7 @@ public static class ConfigureService
         services.AddScoped<ICountStockAPI, CountStockAPI>();
         services.AddScoped<ITransactionTypeAPI, TransactionTypeAPI>();
         services.AddScoped<IReceiveTempAPI, ReceiveTempAPI>();
+        services.AddScoped<IReceiptAPI, ReceiptAPI>();
         #endregion
 
         services.AddControllersWithViews();

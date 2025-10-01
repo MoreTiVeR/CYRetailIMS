@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Common.Models.UI;
 public class ReceiptViewModel
 {
-    public string InvoiceNo => $"CY{new Random().Next(100000, 999999).ToString()}";
+    //public string InvoiceNo => $"CY{new Random().Next(100000, 999999).ToString()}";
+    public string InvoiceNo { get; set; }
     public int ReceiveTempID { get; set; }
     public int BranchID { get; set; }
     public string CompanyName { get; set; }

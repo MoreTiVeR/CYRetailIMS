@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CYRetailIMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using static CYRetailIMS.Infrastructure.Database.ValueConversion;
 
 namespace CYRetailIMS.Infrastructure.Database;
 
@@ -142,6 +143,9 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TMReceiveTemplate> TMReceiveTemplates { get; set; }
 
+    public virtual DbSet<TMReceiptNumber> TMReceiptNumbers { get; set; }
+
+    public virtual DbSet<TTReceipt> TTReceipts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -611,6 +615,19 @@ public partial class CYDBContext : DbContext
             entity.HasKey(e => e.ReceiveTempID)
                 .HasName("PK_TMSaleReceiveTemplate");
             entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+        });
+
+        // TMReceiptNumber ใช้ DateOnly
+        modelBuilder.Entity<TMReceiptNumber>()
+            .Property(e => e.ReceiptDate)
+            .HasConversion(EfCoreConverters.DateOnlyConverter)
+            .HasColumnType("date");   // ใช้ type DATE ของ SQL Server
+
+        modelBuilder.Entity<TTReceipt>(entity =>
+        {
+            entity.HasKey(e => e.ReceiptID).HasName("PK__TTReceip__CC08C40016CE6296");
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
         });
 
         OnModelCreatingPartial(modelBuilder);

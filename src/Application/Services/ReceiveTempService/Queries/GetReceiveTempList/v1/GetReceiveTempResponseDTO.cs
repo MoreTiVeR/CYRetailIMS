@@ -9,6 +9,7 @@ public class GetReceiveTempResponseDTO
 {
     public int receivetempid { get; set; }
     public int branchid { get; set; }
+    public string branchcode { get; set; }
     public string branchname { get; set; }
     public string shopheadernametext { get; set; }
     public string shopheaderaddresstext { get; set; }
@@ -16,6 +17,7 @@ public class GetReceiveTempResponseDTO
     public string? shopfootertext { get; set; }
     public string? additionalfootertext { get; set; }
     public string telephoneno { get; set; }
+    public string printername { get; set; }
     public string createdby { get; set; }
     public DateTime createddate { get; set; }
     public string? updatedby { get; set; }

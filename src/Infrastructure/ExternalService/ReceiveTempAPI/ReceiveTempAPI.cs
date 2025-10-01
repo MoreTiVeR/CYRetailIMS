@@ -25,37 +25,37 @@ public class ReceiveTempAPI : HttpClientService, IReceiveTempAPI
     public async Task<BaseResponse<CommandResponse>> CreateBranchAsync(CreateReceiveTemplateCommand createReceiveTemplateCommand)
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateReceiveTemplateCommand>(HttpMethod.Post,
-            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receive/v1/create"), createReceiveTemplateCommand);
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/create"), createReceiveTemplateCommand);
     }
 
     public async Task<BaseResponse<CommandResponse>> UpdateBranchAsync(UpdateReceiveTemplateCommand updateReceiveTemplateCommand)
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, UpdateReceiveTemplateCommand>(HttpMethod.Post,
-            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receive/v1/update"), updateReceiveTemplateCommand);
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/update"), updateReceiveTemplateCommand);
     }
 
     public async Task<BaseResponse<CommandResponse>> DeleteBranchAsync(DeleteReceiveTemplateCommand deleteReceiveTemplateCommand)
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, DeleteReceiveTemplateCommand>(HttpMethod.Post,
-            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receive/v1/delete"), deleteReceiveTemplateCommand);
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/delete"), deleteReceiveTemplateCommand);
     }
 
     public async Task<BaseResponse<List<GetReceiveTempResponseDTO>>> GetReceiveTemplatehListAsync()
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetReceiveTempResponseDTO>, object>(HttpMethod.Get,
-                new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receive/v1/templates"), null);
+                new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/templates"), null);
     }
 
     public async Task<BaseResponse<GetReceiveTempResponseDTO>> GetReceiveTemplatehByIDAsync(GetReceiveTempByIDQuery objReq)
     {
         return await _httpClientRequest.HttpRequestToObject<GetReceiveTempResponseDTO, object>(HttpMethod.Post,
-                        new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receive/v1/receivetemplatebyid"), objReq);
+                        new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/receivetemplatebyid"), objReq);
     }
 
     public async Task<BaseResponse<GetReceiveTempResponseDTO>> GetReceiveTemplatehByBranchIDAsync(GetReceiveTempByBranchIDQuery objReq)
     {
         return await _httpClientRequest.HttpRequestToObject<GetReceiveTempResponseDTO, object>(HttpMethod.Post,
-                new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receive/v1/receivetemplatebybranch"), objReq);
+                new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/receivetemplatebybranch"), objReq);
     }
 
 }

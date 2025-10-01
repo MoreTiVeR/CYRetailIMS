@@ -85,7 +85,11 @@ public class CreateTransactionHandler : BaseService, IRequestHandler<CreateTrans
         return new BaseResponse<CommandResponse>
         {
             result = true,
-            data = new CommandResponse { result = true },
+            data = new CommandResponse
+            {
+                result = true,
+                transactionid = tranEntity.TransactionID
+            },
             status = StatusCodes.Status200OK.ToString(),
             message = "Success",
             soruce = "db"

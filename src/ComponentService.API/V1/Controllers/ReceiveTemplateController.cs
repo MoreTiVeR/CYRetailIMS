@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 
-[Route("api/v{version:apiVersion}/receive")]
+[Route("api/v{version:apiVersion}/receipttemplate")]
 [ApiController]
 public class ReceiveTemplateController : BaseApiController
 {

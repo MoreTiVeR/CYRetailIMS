@@ -11,4 +11,13 @@ public class CommandResponse
 {
     public bool result { get; set; }
 
+    public int transactionid { get; set; }
+
+}
+
+[Serializable]
+public class ResponseTransactionData
+{
+    public int transactionid { get; set; }
+
 }

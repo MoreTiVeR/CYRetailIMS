@@ -26,6 +26,7 @@ public class GetReceiveTempByBranchIDHandler : BaseService, IRequestHandler<GetR
                        {
                            receivetempid = rtemp.ReceiveTempID,
                            branchid = rtemp.BranchID,
+                           branchcode = branch.BranchCode,
                            branchname = branch.BranchName,
                            shopheadernametext = rtemp.ShopHeaderNameText,
                            shopheaderaddresstext = rtemp.ShopHeaderAddressText,
@@ -33,6 +34,7 @@ public class GetReceiveTempByBranchIDHandler : BaseService, IRequestHandler<GetR
                            additionalheadertext = rtemp.AdditionalHeaderText,
                            shopfootertext = rtemp.ShopFooterText,
                            additionalfootertext = rtemp.AdditionalFooterText,
+                           printername = rtemp.PrinterName,
                            createdby = rtemp.CreatedBy,
                            createddate = rtemp.CreatedDate,
                            updatedby = rtemp.UpdatedBy,

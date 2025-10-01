@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using System.Globalization;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -12,6 +14,7 @@ using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
+using CYRetailIMS.Application.ExternalService.ReceiptAPI;
 using CYRetailIMS.Application.ExternalService.ReceiveTempAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.TransactionTypeAPI;
@@ -25,7 +28,10 @@ using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByBarcode.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemByID.v1;
 using CYRetailIMS.Application.Services.ItemService.Queries.GetItemList.v1;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
+using CYRetailIMS.Application.Services.ReceiveTempService.Commands.CreateReceipt.v1;
+using CYRetailIMS.Application.Services.ReceiveTempService.Commands.GenerateReceiptNo.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByBranchID.v1;
+using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempList.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
@@ -56,6 +62,8 @@ public class SaleController : BaseController
     private string _sessionTempSellingItemBarcodeMobileName => "TEMP_SELLING_ITEM_BARCODE_MOBILE_DATA";
     private string _sessionTempSaleItemData => "SALE_ITEM_DATA";
 
+    private string _sessionReceiptNo => "SALE_RECEIPT_NO";
+
     private readonly IItemInBranchAPI _itemInBranchAPI;
     private readonly IItemAPI _itemAPI;
     private readonly ITransactionAPI _transactionAPI;
@@ -65,6 +73,7 @@ public class SaleController : BaseController
     private readonly ITransactionTypeAPI _transactionTypeAPI;
     private readonly ICompositeViewEngine _viewEngine;
     private readonly IReceiveTempAPI _receiveTempAPI;
+    private readonly IReceiptAPI _receiptAPI;
 
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IItemInBranchAPI itemInBranchAPI,
@@ -75,7 +84,8 @@ public class SaleController : BaseController
         IItemUnitOfMeasureAPI itemUnitOfMeasureAPI,
         ITransactionTypeAPI transactionTypeAPI, 
         ICompositeViewEngine viewEngine,
-        IReceiveTempAPI receiveTempAPI) : base(httpClientRequest, mapper, log)
+        IReceiveTempAPI receiveTempAPI,
+        IReceiptAPI receiptAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
         _itemAPI = itemAPI;
@@ -86,6 +96,7 @@ public class SaleController : BaseController
         _transactionTypeAPI = transactionTypeAPI;
         _viewEngine = viewEngine;
         _receiveTempAPI = receiveTempAPI;
+        _receiptAPI = receiptAPI;
     }
 
     public async Task<IActionResult> Index()
@@ -736,6 +747,18 @@ public class SaleController : BaseController
             }
             #endregion
 
+            #region Prepare & Create Receipt
+            string receiptNo = HttpContext.Session.GetDataFromSession<string>(_sessionReceiptNo);
+            CreateReceiptCommand createReceiptCommand = new CreateReceiptCommand
+            {
+                transactionid = resCreateTrn.data.transactionid,
+                createdby = base.UserProfile.username,
+                receiptno = receiptNo
+            };
+            var resCreateReceipt = await _receiptAPI.CreateReceiptAsync(createReceiptCommand);
+            HttpContext.Session.Remove(_sessionReceiptNo);
+            #endregion
+
             HttpContext.Session.Remove(_sessionTempSellingItemBarcodeScannerName);
             return Json(new { result = true, msg = "บันทึกข้อมูลสำเร็จ." });
         }
@@ -1074,91 +1097,61 @@ public class SaleController : BaseController
     #endregion
 
     #region POS
-    [HttpPost]
-    public async Task<IActionResult> GenerateReceiveSlip([FromBody] SellingItemViewModel sellingItemView)
-    {
-        var tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
-        if (tempSellingBarcodeItemList == null || tempSellingBarcodeItemList.Count == 0)
-        {
-            return Json(new { result = false, msg = "ขออภัย ไม่พบรายการสินค้า" });
-        }
 
-        var getReceiveTemplate = await _receiveTempAPI.GetReceiveTemplatehByBranchIDAsync(new GetReceiveTempByBranchIDQuery
-        {
-            branchid = sellingItemView.branch.ToInt32()
-        });
-        if (!getReceiveTemplate.result)
-        {
-            return Json(new { result = false, msg = "ขออภัย ไม่พบแม่แบบใบเสร็จรับเงิน" });
-        }
-
-        // คำนวณ
-        decimal subTotal = tempSellingBarcodeItemList.Sum(s => s.totalprice);
-        decimal discount = 0;
-        decimal shipping = 0;
-        decimal vat = subTotal.ToExVat();
-        decimal totalBill = subTotal - discount + shipping + vat;
-        decimal due = 0;
-
-        var model = new ReceiptViewModel
-        {
-            CompanyName = getReceiveTemplate.data.shopheadernametext,
-            CompanyAddress = getReceiveTemplate.data.shopheaderaddresstext,
-            AdditionalHeaderText = getReceiveTemplate.data.additionalheadertext,
-            TelephoneNo = getReceiveTemplate.data.telephoneno,
-            ShopFooterText = getReceiveTemplate.data.shopfootertext,
-            AdditionalFooterText = getReceiveTemplate.data.additionalfootertext,
-            Items = tempSellingBarcodeItemList,
-            SubTotal = subTotal,
-            Discount = discount,
-            Shipping = shipping,
-            Vat = vat,
-            TotalBill = totalBill,
-            Due = due,
-            Date = DateTime.Now
-        };
-
-        // ลอง Text Mode ก่อน
-        string base64Cmds = GenerateEscPosBase64(model);
-
-        // ถ้า Text Mode พิมพ์ไทยยังเพี้ยน → ใช้ fallback (Image Mode)
-        string escposCmd = GenerateEscPos(model, false);
-
-        string printerName = "POS-80";
-
-        // return PartialView เป็น string
-        string html = RenderPartialViewToString("_ReceiptModal", model);
-        return Json(new { result = true, msg = html, cmds = base64Cmds, cmdfallback = escposCmd, printername = printerName });
-    }
-
+    /// <summary>
+    /// Method to generate receipt text for printing
+    /// </summary>
+    /// <param name="sellingItemView"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<IActionResult> GenerateReceiveSlipText([FromBody] SellingItemViewModel sellingItemView)
     {
+        int branchID = sellingItemView.branch.ToInt32();
         var tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
         if (tempSellingBarcodeItemList == null || tempSellingBarcodeItemList.Count == 0)
         {
             return Json(new { result = false, msg = "ขออภัย ไม่พบรายการสินค้า" });
         }
 
-        var getReceiveTemplate = await _receiveTempAPI.GetReceiveTemplatehByBranchIDAsync(new GetReceiveTempByBranchIDQuery
+        BaseResponse<GetReceiveTempResponseDTO> getReceiveTemplate = await _receiveTempAPI.GetReceiveTemplatehByBranchIDAsync(new GetReceiveTempByBranchIDQuery
         {
-            branchid = sellingItemView.branch.ToInt32()
+            branchid = branchID
         });
         if (!getReceiveTemplate.result)
         {
             return Json(new { result = false, msg = "ขออภัย ไม่พบแม่แบบใบเสร็จรับเงิน" });
         }
 
+        #region Generate Receipt Number by branch code
+        string currentReceiptNo = HttpContext.Session.GetDataFromSession<string>(_sessionReceiptNo);
+        if (string.IsNullOrEmpty(currentReceiptNo))
+        {
+            var resGenReceiptNo = await _receiptAPI.GenerateReceiptNoByBranchAsync(new GenerateReceiptNoCommand
+            {
+                branchcode = getReceiveTemplate.data.branchcode,
+            });
+            if (!resGenReceiptNo.result)
+            {
+                return Json(new { result = false, msg = "ขออภัย ไม่สามารถสร้างเลขที่ใบเสร็จได้." });
+            }
+            HttpContext.Session.SetDataToSession(_sessionReceiptNo, resGenReceiptNo.data.receiptno);
+            currentReceiptNo = resGenReceiptNo.data.receiptno;
+        }
+        #endregion
+
         // คำนวณ
         decimal subTotal = tempSellingBarcodeItemList.Sum(s => s.totalprice);
-        decimal discount = 0;
-        decimal shipping = 0;
+        decimal discount = 0.0m;
+        decimal shipping = 0.0m;
         decimal vat = subTotal.ToExVat();
-        decimal totalBill = subTotal - discount + shipping + vat;
-        decimal due = 0;
+        //decimal totalBill = subTotal - discount + shipping + vat;
+        //inc vat VAT รวมในสินค้าแล้ว ไม่ต้องตำนวนบวกเพิ่ม
+        decimal totalBill = subTotal - discount + shipping;
+        decimal due = 0.0m;
 
         var model = new ReceiptViewModel
         {
+            InvoiceNo = currentReceiptNo,
             CompanyName = getReceiveTemplate.data.shopheadernametext,
             CompanyAddress = getReceiveTemplate.data.shopheaderaddresstext,
             AdditionalHeaderText = getReceiveTemplate.data.additionalheadertext,
@@ -1176,19 +1169,25 @@ public class SaleController : BaseController
         };
 
         // Text Mode
-        string recetiveText = GenerateReceiptEscPos(model);
+        string recetiveText = !string.IsNullOrEmpty(sellingItemView.version) && sellingItemView.version.Equals("2") ? GenerateReceiptEscPosV2(model) : GenerateReceiptEscPos(model);
 
         // Convert to Base64 for JS transfer
         byte[] bytes = Encoding.GetEncoding(874).GetBytes(recetiveText);
         string recetiveBase64 = Convert.ToBase64String(bytes);
 
-        string printerName = "POS-80";
+        string printerName = getReceiveTemplate.data.printername;
 
         // return PartialView เป็น string
         string html = RenderPartialViewToString("_ReceiptModal", model);
         return Json(new { result = true, msg = html, cmds = recetiveBase64, text = recetiveText, printername = printerName });
     }
 
+    /// <summary>
+    /// Method to render a partial view to string Modal ReceiptModal
+    /// </summary>
+    /// <param name="viewName"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
     private string RenderPartialViewToString(string viewName, object model)
     {
         ViewData.Model = model;
@@ -1206,403 +1205,12 @@ public class SaleController : BaseController
         return sw.ToString();
     }
 
-    //public string GenerateEscPos(ReceiptViewModel model)
-    //{
-    //    var esc = "\x1B"; // ESC
-    //    var gs = "\x1D"; // GS
-    //    var nl = "\x0A"; // New Line
-    //    var cmds = new StringBuilder();
-
-    //    // Initialize printer
-    //    cmds.Append(esc + "@");
-
-    //    // --- Header ---
-    //    cmds.Append(esc + "!" + "\x38"); // Font double height + bold
-    //    cmds.Append(esc + "a" + "\x01"); // Center align
-    //    cmds.Append(model.CompanyName + nl);
-
-    //    cmds.Append(esc + "!" + "\x00"); // Normal font
-    //    cmds.Append(model.TelephoneNo + nl);
-    //    cmds.Append(model.CompanyAddress + nl);
-    //    if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
-    //        cmds.Append(model.AdditionalHeaderText + nl);
-
-    //    cmds.Append(nl);
-
-    //    // --- Invoice info ---
-    //    cmds.Append(esc + "a" + "\x00"); // Left align
-    //    cmds.Append("ใบเสร็จรับเงิน" + nl);
-    //    cmds.Append($"เลขที่: {model.InvoiceNo}" + nl);
-    //    cmds.Append($"วันที่: {model.Date:dd/MM/yyyy}" + nl);
-    //    cmds.Append("--------------------------------" + nl);
-
-    //    // --- Items ---
-    //    int i = 1;
-    //    foreach (var item in model.Items)
-    //    {
-    //        string line = $"{i}. {item.itemname}";
-    //        cmds.Append(line + nl);
-
-    //        string priceLine = $"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}".PadLeft(32);
-    //        cmds.Append(priceLine + nl);
-    //        i++;
-    //    }
-
-    //    cmds.Append("--------------------------------" + nl);
-
-    //    // --- Summary ---
-    //    cmds.Append($"ราคารวม: {model.SubTotal:0.00}".PadLeft(32) + nl);
-    //    cmds.Append($"ส่วนลด: {model.Discount:0.00}".PadLeft(32) + nl);
-    //    cmds.Append($"VAT 7%: {model.Vat:0.00}".PadLeft(32) + nl);
-    //    cmds.Append($"ยอดรวม: {model.TotalBill:0.00}".PadLeft(32) + nl);
-
-    //    cmds.Append("--------------------------------" + nl);
-
-    //    // --- Footer ---
-    //    cmds.Append(esc + "a" + "\x01"); // Center align
-    //    cmds.Append(model.ShopFooterText + nl);
-    //    cmds.Append(model.AdditionalFooterText + nl);
-
-    //    // Cut paper
-    //    cmds.Append(gs + "V" + "\x41" + "\x03");
-
-    //    return cmds.ToString();
-    //}
-
-    public string GenerateEscPosBase64(ReceiptViewModel model)
-    {
-        // *** ถ้ายังไม่ได้ register ที่ Startup ให้เรียกที่นี่ (ปลอดภัยเรียกซ้ำ) ***
-        Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-        // เลือก encoding ที่ printer คาดหวัง (Windows-874 / TIS-620 variant)
-        // ถ้ารู้แน่ชัดว่าต้องเป็น TIS-620 ให้ใช้รหัส 874 หรือ "windows-874" ขึ้นกับแพลตฟอร์ม
-        var enc = Encoding.GetEncoding(874);
-
-        var b = new List<byte>();
-
-        // init printer: ESC @
-        b.AddRange(new byte[] { 0x1B, 0x40 });
-
-        // --- ลองเลือก code page ของเครื่อง (หลายเครื่องใช้ค่า 26 สำหรับ Thai — ถ้าไม่ถูกให้ลองค่าต่างๆ ตาม manual) ---
-        // ESC t n  (n = 26 decimal -> 0x1A)
-        b.AddRange(new byte[] { 0x1B, 0x74, 0x1A });
-
-        // center align: ESC a 1
-        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x01 });
-
-        // double height + bold example (ถ้าเครื่องรองรับ)
-        // b.AddRange(new byte[] { 0x1B, (byte)'!', 0x38 });
-
-        // ข้อความหัว (เป็นไบต์ด้วย encoding ที่เราเลือก)
-        b.AddRange(enc.GetBytes(model.CompanyName + "\n"));
-
-        // ปรับเป็น font ปกติ: ESC ! 0
-        b.AddRange(new byte[] { 0x1B, (byte)'!', 0x00 });
-
-        // เบอร์โทร/ที่อยู่ ฯลฯ
-        if (!string.IsNullOrEmpty(model.TelephoneNo))
-            b.AddRange(enc.GetBytes("Phone: " + model.TelephoneNo + "\n"));
-
-        if (!string.IsNullOrEmpty(model.CompanyAddress))
-            b.AddRange(enc.GetBytes(model.CompanyAddress + "\n"));
-
-        b.AddRange(enc.GetBytes("\n"));
-
-        // Invoice header (left align)
-        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x00 });
-        b.AddRange(enc.GetBytes("ใบเสร็จรับเงิน\n"));
-        b.AddRange(enc.GetBytes($"วันที่: {model.Date:dd/MM/yyyy}\n"));
-        b.AddRange(enc.GetBytes("--------------------------------\n"));
-
-        // Items
-        int i = 1;
-        foreach (var item in model.Items)
-        {
-            // ชื่อสินค้า (อาจต้องตัดความยาวให้พอดีคอลัมน์)
-            b.AddRange(enc.GetBytes($"{i}. {item.itemname}\n"));
-
-            // price x qty   total (align ง่ายๆ โดยเว้นช่อง)
-            var priceQty = $"{item.itemprice:0.00} x {item.qty}";
-            var total = $"{item.totalprice:0.00}";
-            // โยกให้อยู่ขวาด้วยการเติม space ตามความยาวที่ต้องการ (ปรับความกว้างตาม printer)
-            var line = priceQty.PadRight(24) + total.PadLeft(8);
-            b.AddRange(enc.GetBytes(line + "\n"));
-            i++;
-        }
-
-        b.AddRange(enc.GetBytes("--------------------------------\n"));
-
-        // Summary
-        b.AddRange(enc.GetBytes($"ราคารวม: {model.SubTotal:0.00}\n"));
-        b.AddRange(enc.GetBytes($"ส่วนลด: {model.Discount:0.00}\n"));
-        b.AddRange(enc.GetBytes($"VAT 7%: {model.Vat:0.00}\n"));
-        b.AddRange(enc.GetBytes($"ยอดรวม: {model.TotalBill:0.00}\n"));
-
-        b.AddRange(enc.GetBytes("\n"));
-
-        // Footer center
-        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x01 });
-        if (!string.IsNullOrEmpty(model.ShopFooterText))
-            b.AddRange(enc.GetBytes(model.ShopFooterText + "\n"));
-        if (!string.IsNullOrEmpty(model.AdditionalFooterText))
-            b.AddRange(enc.GetBytes(model.AdditionalFooterText + "\n"));
-
-        b.AddRange(enc.GetBytes("\n"));
-
-        // Cut paper: GS V A 3  (may vary by printer)
-        b.AddRange(new byte[] { 0x1D, 0x56, 0x41, 0x03 });
-
-        // ส่งเป็น Base64 กลับไปยัง client (JSON)
-        return Convert.ToBase64String(b.ToArray());
-    }
-
-    public string GenerateEscPos(ReceiptViewModel model, bool useImageFallback = false)
-    {
-        var esc = "\x1B"; // ESC
-        var gs = "\x1D"; // GS
-        var nl = "\x0A"; // New Line
-        var cmds = new StringBuilder();
-
-        // Initialize printer
-        cmds.Append(esc + "@");
-
-        if (!useImageFallback)
-        {
-            // --- Mode 1: พิมพ์แบบ Text ---
-            cmds.Append(esc + "t" + "\x1A"); // Thai TIS-620 code page (26)
-
-            // --- Header ---
-            cmds.Append(esc + "!" + "\x38"); // Font double height + bold
-            cmds.Append(esc + "a" + "\x01"); // Center align
-            cmds.Append(model.CompanyName + nl);
-
-            cmds.Append(esc + "!" + "\x00"); // Normal font
-            cmds.Append(model.TelephoneNo + nl);
-            cmds.Append(model.CompanyAddress + nl);
-            if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
-                cmds.Append(model.AdditionalHeaderText + nl);
-
-            cmds.Append(nl);
-
-            // --- Invoice info ---
-            cmds.Append(esc + "a" + "\x00"); // Left align
-            cmds.Append("ใบเสร็จรับเงิน" + nl);
-            cmds.Append($"เลขที่: {model.InvoiceNo}" + nl);
-            cmds.Append($"วันที่: {model.Date:dd/MM/yyyy}" + nl);
-            cmds.Append("--------------------------------" + nl);
-
-            // --- Items ---
-            int i = 1;
-            foreach (var item in model.Items)
-            {
-                string line = $"{i}. {item.itemname}";
-                cmds.Append(line + nl);
-
-                string priceLine = $"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}".PadLeft(32);
-                cmds.Append(priceLine + nl);
-                i++;
-            }
-
-            cmds.Append("--------------------------------" + nl);
-
-            // --- Summary ---
-            cmds.Append($"ราคารวม: {model.SubTotal:0.00}".PadLeft(32) + nl);
-            cmds.Append($"ส่วนลด: {model.Discount:0.00}".PadLeft(32) + nl);
-            cmds.Append($"VAT 7%: {model.Vat:0.00}".PadLeft(32) + nl);
-            cmds.Append($"ยอดรวม: {model.TotalBill:0.00}".PadLeft(32) + nl);
-
-            cmds.Append("--------------------------------" + nl);
-
-            // --- Footer ---
-            cmds.Append(esc + "a" + "\x01"); // Center align
-            cmds.Append(model.ShopFooterText + nl);
-            cmds.Append(model.AdditionalFooterText + nl);
-
-            // Cut paper
-            cmds.Append(gs + "V" + "\x41" + "\x03");
-        }
-        else
-        {
-            // --- Mode 2: Fallback → แปลงเป็น Image ---
-            // รวมข้อความทั้งหมดเป็น string เดียว
-            var textBlock = new StringBuilder();
-            textBlock.AppendLine(model.CompanyName);
-            textBlock.AppendLine(model.TelephoneNo);
-            textBlock.AppendLine(model.CompanyAddress);
-            if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
-                textBlock.AppendLine(model.AdditionalHeaderText);
-            textBlock.AppendLine();
-            textBlock.AppendLine("ใบเสร็จรับเงิน");
-            textBlock.AppendLine($"เลขที่: {model.InvoiceNo}");
-            textBlock.AppendLine($"วันที่: {model.Date:dd/MM/yyyy}");
-            textBlock.AppendLine("--------------------------------");
-
-            int i = 1;
-            foreach (var item in model.Items)
-            {
-                textBlock.AppendLine($"{i}. {item.itemname}");
-                textBlock.AppendLine($"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}");
-                i++;
-            }
-            textBlock.AppendLine("--------------------------------");
-            textBlock.AppendLine($"ราคารวม: {model.SubTotal:0.00}");
-            textBlock.AppendLine($"ส่วนลด: {model.Discount:0.00}");
-            textBlock.AppendLine($"VAT 7%: {model.Vat:0.00}");
-            textBlock.AppendLine($"ยอดรวม: {model.TotalBill:0.00}");
-            textBlock.AppendLine("--------------------------------");
-            textBlock.AppendLine(model.ShopFooterText);
-            textBlock.AppendLine(model.AdditionalFooterText);
-
-            // 👉 Convert ข้อความนี้เป็น Bitmap
-            using (var bmp = RenderTextToBitmap(textBlock.ToString(), "Tahoma", 12))
-            {
-                byte[] rasterCmd = ConvertBitmapToRaster(bmp);
-                return Encoding.Default.GetString(rasterCmd);
-            }
-        }
-
-        return cmds.ToString();
-    }
-
-    // Helper: สร้าง Bitmap จากข้อความ
-    private Bitmap RenderTextToBitmap(string text, string fontName, int fontSize)
-    {
-        Font font = new Font(fontName, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
-        SizeF textSize;
-        using (var bmpTemp = new Bitmap(1, 1))
-        {
-            using (var g = Graphics.FromImage(bmpTemp))
-            {
-                textSize = g.MeasureString(text, font);
-            }
-        }
-        var bmp = new Bitmap((int)textSize.Width, (int)textSize.Height);
-        using (var g = Graphics.FromImage(bmp))
-        {
-            g.Clear(Color.White);
-            g.DrawString(text, font, Brushes.Black, 0, 0);
-        }
-        return bmp;
-    }
-
-    // Helper: แปลง Bitmap → ESC/POS Raster
-    private byte[] ConvertBitmapToRaster(Bitmap bmp)
-    {
-        int width = bmp.Width;
-        int height = bmp.Height;
-        List<byte> result = new List<byte>();
-
-        // Initialize printer
-        result.AddRange(new byte[] { 0x1B, 0x40 });
-
-        // Raster bit image command: GS v 0
-        for (int y = 0; y < height; y += 24)
-        {
-            result.AddRange(new byte[] { 0x1D, 0x76, 0x30, 0x00 });
-            result.Add((byte)(width / 8 % 256));
-            result.Add((byte)(width / 8 / 256));
-            result.Add((byte)(24 % 256));
-            result.Add((byte)(24 / 256));
-
-            for (int x = 0; x < width; x++)
-            {
-                for (int k = 0; k < 3; k++)
-                {
-                    byte slice = 0;
-                    for (int b = 0; b < 8; b++)
-                    {
-                        int yPos = y + (k * 8) + b;
-                        if (yPos >= height) continue;
-                        Color pixel = bmp.GetPixel(x, yPos);
-                        int luminance = (int)((pixel.R + pixel.G + pixel.B) / 3);
-                        if (luminance < 128)
-                            slice |= (byte)(1 << (7 - b));
-                    }
-                    result.Add(slice);
-                }
-            }
-        }
-
-        // Cut paper
-        result.AddRange(new byte[] { 0x1D, 0x56, 0x41, 0x03 });
-
-        return result.ToArray();
-    }
-
     /// <summary>
-    /// Backup old method
+    /// Method to generate ESC/POS receipt text for printing [Version 1]
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public string GenerateEscPos_back(ReceiptViewModel model)
-    {
-
-        var esc = "\x1B"; // ESC
-        var gs = "\x1D"; // GS
-        var nl = "\x0A"; // New Line
-        var cmds = new StringBuilder();
-
-        // Initialize printer
-        cmds.Append(esc + "@");
-
-        // 👉 สลับ Code Page ไปเป็น TIS-620 (Thai)
-        // ESC t n  (ลองใช้ค่า 26 หรือ 255 ขึ้นกับรุ่นเครื่อง)
-        cmds.Append(esc + "t" + "\x1A");  // \x1A = 26 (TIS-620 Thai codepage)
-
-        // --- Header ---
-        cmds.Append(esc + "!" + "\x38"); // Font double height + bold
-        cmds.Append(esc + "a" + "\x01"); // Center align
-        cmds.Append(model.CompanyName + nl);
-
-        cmds.Append(esc + "!" + "\x00"); // Normal font
-        cmds.Append(model.TelephoneNo + nl);
-        cmds.Append(model.CompanyAddress + nl);
-        if (!string.IsNullOrEmpty(model.AdditionalHeaderText))
-            cmds.Append(model.AdditionalHeaderText + nl);
-
-        cmds.Append(nl);
-
-        // --- Invoice info ---
-        cmds.Append(esc + "a" + "\x00"); // Left align
-        cmds.Append("ใบเสร็จรับเงิน" + nl);
-        cmds.Append($"เลขที่: {model.InvoiceNo}" + nl);
-        cmds.Append($"วันที่: {model.Date:dd/MM/yyyy}" + nl);
-        cmds.Append("--------------------------------" + nl);
-
-        // --- Items ---
-        int i = 1;
-        foreach (var item in model.Items)
-        {
-            string line = $"{i}. {item.itemname}";
-            cmds.Append(line + nl);
-
-            string priceLine = $"{item.itemprice:0.00} x {item.qty}   {item.totalprice:0.00}".PadLeft(32);
-            cmds.Append(priceLine + nl);
-            i++;
-        }
-
-        cmds.Append("--------------------------------" + nl);
-
-        // --- Summary ---
-        cmds.Append($"ราคารวม: {model.SubTotal:0.00}".PadLeft(32) + nl);
-        cmds.Append($"ส่วนลด: {model.Discount:0.00}".PadLeft(32) + nl);
-        cmds.Append($"VAT 7%: {model.Vat:0.00}".PadLeft(32) + nl);
-        cmds.Append($"ยอดรวม: {model.TotalBill:0.00}".PadLeft(32) + nl);
-
-        cmds.Append("--------------------------------" + nl);
-
-        // --- Footer ---
-        cmds.Append(esc + "a" + "\x01"); // Center align
-        cmds.Append(model.ShopFooterText + nl);
-        cmds.Append(model.AdditionalFooterText + nl);
-
-        // Cut paper
-        cmds.Append(gs + "V" + "\x41" + "\x03");
-
-        return cmds.ToString();
-    }
-
-    public string GenerateReceiptEscPos(ReceiptViewModel model)
+    private string GenerateReceiptEscPos(ReceiptViewModel model)
     {
         var sb = new StringBuilder();
 
@@ -1623,12 +1231,12 @@ public class SaleController : BaseController
 
         // Invoice & Date
         sb.Append("\x1B\x61\x00"); // Left align
-        sb.AppendLine($"Invoice: {model.InvoiceNo}");
-        sb.AppendLine($"Date: {model.Date:dd/MM/yyyy HH:mm}");
+        sb.AppendLine($"เลขที่ใบเสร็จ: {model.InvoiceNo}");
+        sb.AppendLine($"วันที่: {model.Date:dd/MM/yyyy HH:mm}");
         sb.AppendLine(new string('-', 48));
 
         // ==== Items ====
-        sb.AppendLine($"{"Item",-24}{"Qty",5}{"Price",9}{"Total",10}");
+        sb.AppendLine($"{"# Item",-24}{"Price",5}{"Qty",9}{"Total",10}");
         sb.AppendLine(new string('-', 48));
         foreach (var item in model.Items)
         {
@@ -1644,11 +1252,11 @@ public class SaleController : BaseController
         sb.AppendLine(new string('-', 48));
 
         // ==== Totals ====
-        sb.AppendLine($"{"SubTotal",-32}{model.SubTotal,16:N2}");
-        sb.AppendLine($"{"Discount",-32}{model.Discount,16:N2}");
-        sb.AppendLine($"{"Shipping",-32}{model.Shipping,16:N2}");
-        sb.AppendLine($"{"VAT",-32}{model.Vat,16:N2}");
-        sb.AppendLine($"{"TOTAL",-32}{model.TotalBill,16:N2}");
+        sb.AppendLine($"{"ราคารวม :",-32}{model.SubTotal,16:N2}");
+        sb.AppendLine($"{"ส่วนลด :",-32}{model.Discount,16:N2}");
+        //sb.AppendLine($"{"Shipping",-32}{model.Shipping,16:N2}");
+        sb.AppendLine($"{"VAT(7%) :",-32}{model.Vat,16:N2}");
+        sb.AppendLine($"{"ยอดรวมทั้งหมด :",-32}{model.TotalBill,16:N2}");
         sb.AppendLine(new string('-', 48));
 
         // ==== Footer ====
@@ -1665,6 +1273,12 @@ public class SaleController : BaseController
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Method to truncate item name for ESC/POS printing
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="maxLength"></param>
+    /// <returns></returns>
     private string TruncateItemNameEscPos(string name, int maxLength = 24)
     {
         if (string.IsNullOrEmpty(name)) return "";
@@ -1672,66 +1286,275 @@ public class SaleController : BaseController
         return name.Substring(0, maxLength - 3) + "...";
     }
 
-    private string PadItemNameEscPos(string name, int colWidth)
+
+    /// <summary>
+    /// Method to generate ESC/POS receipt text for printing [Version 2]
+    /// 
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private string GenerateReceiptEscPosV2(ReceiptViewModel model)
     {
-        if (string.IsNullOrEmpty(name)) return new string(' ', colWidth);
-
-        int width = 0;
         var sb = new StringBuilder();
-        foreach (char c in name)
+        var enc = Encoding.GetEncoding("TIS-620"); // TIS-620 Thai encoding for ESC/POS
+
+        //// ===== Utility: Pad with byte awareness =====
+        //string PadRightEscPos(string text, int width) => PadEscPos(text, width, enc, right: false);
+        //string PadLeftEscPos(string text, int width) => PadEscPos(text, width, enc, right: true);
+
+        // ===== ESC/POS Init =====
+        //sb.Append("\x1B\x40"); // Initialize
+        sb.Append("\x1B\x4D\x00"); // Initialize Font A (default)
+
+        // ✅ เลือก Code Page ไทย (กรณีเครื่อง map CP874 ไว้ที่ 18)
+        //sb.Append("\x1B\x74\x12");
+
+        // ✅ เลือก Code Page ไทย (กรณีเครื่อง map CP874 ไว้ที่ 255) not working BUG? use .setCharacterCodeTable(255) in js script
+        //sb.Append("\x1B\x74\xFF");
+        //sb.Append("\x1B\x74\xFF");
+
+        //sb.Append("\x1B\x4D\x01"); // Initialize Font B
+        sb.AppendLine();
+        sb.Append("\x1B\x61\x01"); // Center align
+
+        // ===== Header =====
+        sb.AppendLine(model.CompanyName);
+        sb.AppendLine(model.CompanyAddress);
+        if (!string.IsNullOrEmpty(model.TelephoneNo))
+            sb.AppendLine(model.TelephoneNo);
+        sb.AppendLine(new string('-', 48));
+
+        // ===== Invoice & Date =====
+        sb.Append("\x1B\x61\x00"); // Left align
+        sb.AppendLine($"Invoice: {model.InvoiceNo}");
+        sb.AppendLine($"Date: {model.Date:dd/MM/yyyy HH:mm}");
+        sb.AppendLine(new string('-', 48));
+
+        // ===== Items Header =====
+        sb.AppendLine($"{PadRightEscPos("Item", 24)}{PadLeftEscPos("Qty", 5)}{PadLeftEscPos("Price", 9)}{PadLeftEscPos("Total", 10)}");
+        sb.AppendLine(new string('-', 48));
+
+        // ===== Items =====
+        foreach (var item in model.Items)
         {
-            // ESC/POS monospaced font: ASCII = 1, Thai/other multibyte = 2
-            int charWidth = (c <= 0x7F) ? 1 : 2;
-            if (width + charWidth > colWidth - 3) // reserve 3 for "..."
+            string stripItemName = PadRightEscPos(item.itemname, 24);
+            if (!IsAscii(stripItemName))
             {
-                sb.Append("...");
-                break;
+                //string name = item.itemname.Length > 24 ? PadItemNameRightEscPos(item.itemname.Substring(0, 24), 27) : PadItemNameRightEscPos(item.itemname, 27);
+                //string name = LimitByByteLength(item.itemname, 24, Encoding.GetEncoding(874));
+                //string name = PadRightEscPos(item.itemname, 24);
+                //name = name + "..";
+                string name = PadItemNameRightEscPos(item.itemname, 27);
+                //name = PadTextEscPos(name, 27, Encoding.GetEncoding(874), false);
+                int targetSize = 62;
+                byte[] utf8Bytes = Encoding.UTF8.GetBytes(name);
+                int padBytes = utf8Bytes.Length - targetSize;
+                if (padBytes > 0)
+                {
+                    name = name.Remove(name.Length - 1);
+                    //name = name + new string(' ', padBytes);
+                    //for (int i = 1; i <= padBytes; i++)
+                    //{
+                    //    name = name + ".";
+                    //}
+                }
+                byte[] paddedBytes = Encoding.UTF8.GetBytes(name);
+
+                string qty = PadLeftEscPos(item.qty.ToString(), 5);
+                string price = PadLeftEscPos(item.itemprice.ToString("N2"), 9);
+                string total = PadLeftEscPos(item.totalprice.ToString("N2"), 10);
+
+                // ข้อความ (encode เป็น CP874 ก่อน)
+                //sb.Append(Encoding.GetEncoding(874).GetString(Encoding.GetEncoding(874).GetBytes($"{name}{qty}{price}{total}")));
+                sb.AppendLine($"{Encoding.GetEncoding(874).GetString(Encoding.GetEncoding(874).GetBytes(name))}{qty}{price}{total}");
             }
-            sb.Append(c);
-            width += charWidth;
+            else
+            {
+                string name = PadRightEscPos(item.itemname, 24);
+                byte[] finalByte = Encoding.GetEncoding(874).GetBytes(name);
+                string qty = PadLeftEscPos(item.qty.ToString(), 5);
+                string price = PadLeftEscPos(item.itemprice.ToString("N2"), 9);
+                string total = PadLeftEscPos(item.totalprice.ToString("N2"), 10);
+                sb.AppendLine($"{name}{qty}{price}{total}");
+            }
         }
+        sb.AppendLine(new string('-', 48));
 
-        // pad remaining spaces
-        while (width < colWidth)
-        {
-            sb.Append(' ');
-            width++;
-        }
+        // ===== Totals =====
+        //sb.AppendLine($"{PadRightEscPos("SubTotal", 32)}{PadLeftEscPos(model.SubTotal.ToString("N2"), 16)}");
+        //sb.AppendLine($"{PadRightEscPos("Discount", 32)}{PadLeftEscPos(model.Discount.ToString("N2"), 16)}");
+        ////sb.AppendLine($"{PadRightEscPos("Shipping", 32)}{PadLeftEscPos(model.Shipping.ToString("N2"), 16)}");
+        //sb.AppendLine($"{PadRightEscPos("VAT", 32)}{PadLeftEscPos(model.Vat.ToString("N2"), 16)}");
+        //sb.AppendLine($"{PadRightEscPos("Total", 32)}{PadLeftEscPos(model.TotalBill.ToString("N2"), 16)}");
 
+        sb.AppendLine($"{PadTextRightEscPos("ราคารวม :", 40-9)}{PadTextLeftEscPos(model.SubTotal.ToString("N2"), (48 - (40 + model.SubTotal.ToString("N2").Length)))}");
+        //sb.AppendLine($"{PadTextRightEscPos("ส่วนลด :", 40-8)}{PadTextLeftEscPos(model.Discount.ToString("N2"), (48 - (40 + model.Discount.ToString("N2").Length)) + 1)}");
+        sb.AppendLine($"{PadTextRightEscPos("VAT(7%) :", 40-9)}{PadTextLeftEscPos(model.Vat.ToString("N2"), (48 - (40 + model.Vat.ToString("N2").Length)))}");
+        sb.AppendLine($"{PadTextRightEscPos("ยอดรวมทั้งหมด :", 40-15)}{PadTextLeftEscPos(model.TotalBill.ToString("N2"), (48 - (40 + model.TotalBill.ToString("N2").Length)) + 2)}");
+
+
+        //sb.AppendLine($"{PadRightEscPos("ราคารวม :", GetDisplayWidth("ราคารวม :"))}{PadLeftEscPos(model.SubTotal.ToString("N2"), model.SubTotal.ToString("N2").Length)}");
+        //sb.AppendLine($"{PadRightEscPos("ส่วนลด :", GetDisplayWidth("ส่วนลด :"))}{PadLeftEscPos(model.Discount.ToString("N2"), model.Discount.ToString("N2").Length)}");
+        //sb.AppendLine($"{PadRightEscPos("VAT(7%) :", GetDisplayWidth("VAT(7%) :"))}{PadLeftEscPos(model.Vat.ToString("N2"), model.Vat.ToString("N2").Length)}");
+        //sb.AppendLine($"{PadRightEscPos("ยอดรวมทั้งหมด :", GetDisplayWidth("ยอดรวมทั้งหมด :"))}{PadLeftEscPos(model.TotalBill.ToString("N2"), model.TotalBill.ToString("N2").Length)}");
+
+        
+        sb.AppendLine(new string('-', 48));
+
+        // ===== Footer =====
+        sb.Append("\x1B\x61\x01"); // Center align
+        if (!string.IsNullOrEmpty(model.ShopFooterText))
+            sb.AppendLine(model.ShopFooterText);
+        if (!string.IsNullOrEmpty(model.AdditionalFooterText))
+            sb.AppendLine(model.AdditionalFooterText);
+        sb.AppendLine("THANK YOU!");
+        sb.AppendLine();
+
+        // Cut paper
+        sb.Append("\x1D\x56\x41"); // Partial cut
         return sb.ToString();
     }
 
-
-    #endregion
-
-
-    #region Test
-    [HttpGet]
-    public IActionResult TestThaiPrint(int codePage = 26) // เปลี่ยนค่า n ได้จาก query string
+    /// <summary>
+    /// Method to pad text for ESC/POS printing with byte-length awareness
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="width"></param>
+    /// <param name="encoding"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
+    private string PadEscPos(string text, int width, Encoding encoding, bool right)
     {
-        Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        var enc = Encoding.GetEncoding(874); // Windows-874 (Thai)
+        if (string.IsNullOrEmpty(text)) text = "";
 
-        var b = new List<byte>();
+        int textWidth = GetDisplayWidth(text);
+        if (textWidth > width)
+        {
+            // ตัดข้อความโดยไม่เกินความกว้าง
+            int currentWidth = 0;
+            var sb = new StringBuilder();
+            foreach (char c in text)
+            {
+                int charWidth = (c < 128) ? 1 : 2;
+                if (currentWidth + charWidth > width)
+                    break;
+                sb.Append(c);
+                currentWidth += charWidth;
+            }
+            text = sb.ToString();
+            textWidth = currentWidth;
+        }
 
-        // init
-        b.AddRange(new byte[] { 0x1B, 0x40 });
-
-        // เลือก code page (เปลี่ยนค่า n เพื่อทดสอบ)
-        b.AddRange(new byte[] { 0x1B, 0x74, (byte)codePage });
-
-        // center
-        b.AddRange(new byte[] { 0x1B, (byte)'a', 0x01 });
-
-        // พิมพ์ข้อความ "สวัสดี"
-        b.AddRange(enc.GetBytes("สวัสดี\n"));
-
-        // cut paper
-        b.AddRange(new byte[] { 0x1D, 0x56, 0x41, 0x03 });
-
-        var base64 = Convert.ToBase64String(b.ToArray());
-
-        return Json(new { cmdsBase64 = base64, n = codePage });
+        int spaces = width - textWidth;
+        return right ? new string(' ', spaces) + text : text + new string(' ', spaces);
     }
+
+    private string PadTextEscPos(string text, int width, Encoding encoding, bool right)
+    {
+        int spaces = width - text.Length;
+        return right ? new string(' ', width) + text : text + new string(' ', width);
+    }
+
+    private string PadItemTextEscPos(string text, int width, Encoding encoding, bool right)
+    {
+        var dsd = Encoding.UTF8.GetBytes(text);
+        int spaces = width - text.Length;
+        if (spaces == 0)
+        {
+            return text;
+        }
+        if (spaces < 0)
+        {
+            return text.Substring(0, width);
+        }
+        return right ? new string(' ', spaces) + text : text + new string(' ', spaces);
+    }
+
+    private string PadRightEscPos(string text, int width) => PadEscPos(text, width, Encoding.GetEncoding("TIS-620"), right: false);
+
+    private string PadLeftEscPos(string text, int width) => PadEscPos(text, width, Encoding.GetEncoding("TIS-620"), right: true);
+
+    private string PadItemNameRightEscPos(string text, int width) => PadItemTextEscPos(text, width, Encoding.GetEncoding("TIS-620"), right: false);
+
+    private string PadTextRightEscPos(string text, int width) => PadTextEscPos(text, width, Encoding.GetEncoding("TIS-620"), right: false);
+
+    private string PadTextLeftEscPos(string text, int width) => PadTextEscPos(text, width, Encoding.GetEncoding("TIS-620"), right: true);
+
+    private int GetDisplayWidth(string text)
+    {
+        //int width = 0;
+        //foreach (char c in text)
+        //{
+        //    // ASCII → กว้าง 1
+        //    if (c < 128)
+        //        width += 1;
+        //    else
+        //        width += 2; // ไทย/ยูนิโค้ด ส่วนใหญ่กิน 2 ช่อง
+        //}
+        int width = 0;
+
+        foreach (char c in text)
+        {
+            width += (c < 128) ? 1 : 2;
+        }
+
+        return width;
+    }
+
+    private bool IsAscii(string text)
+    {
+        foreach (char c in text)
+        {
+            if (c > 127) return false; // not ASCII
+        }
+        return true;
+    }
+
+    private string PadItemNameEscPos(string text, int columnWidth, Encoding encoding)
+    {
+        // Convert to printer bytes
+        byte[] bytes = encoding.GetBytes(text);
+
+        if (bytes.Length > columnWidth)
+        {
+            // truncate properly by bytes, not chars
+            int cutIndex = columnWidth;
+            while (cutIndex > 0 && (bytes[cutIndex] & 0xC0) == 0x80) // avoid cutting inside multibyte
+            {
+                cutIndex--;
+            }
+            return encoding.GetString(bytes, 0, cutIndex);
+        }
+
+        // Pad with spaces to reach columnWidth
+        var res = text + new string(' ', columnWidth - bytes.Length);
+        return res;
+    }
+
+    private string LimitByByteLength(string text, int maxBytes, Encoding encoding)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+
+        byte[] bytes = encoding.GetBytes(text);
+        if (bytes.Length <= maxBytes) return text;
+
+        // ตัดให้ไม่ขาดกลางตัวอักษร
+        int cut = maxBytes;
+        while (cut > 0)
+        {
+            try
+            {
+                string sub = encoding.GetString(bytes, 0, cut);
+                if (encoding.GetByteCount(sub) <= maxBytes)
+                    return sub;
+            }
+            catch { }
+            cut--;
+        }
+        return "";
+    }
+
     #endregion
+
+
 }

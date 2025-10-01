@@ -40,4 +40,8 @@ public partial class TMReceiveTemplate : BaseAuditableEntity
     [StringLength(10)]
     [Unicode(false)]
     public string TelephoneNo { get; set; }
+
+    [StringLength(50)]
+    [Unicode(false)]
+    public string PrinterName { get; set; }
 }

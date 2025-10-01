@@ -17,6 +17,7 @@ public record UpdateReceiveTemplateCommand : IRequest<BaseResponse<CommandRespon
     public string? shopfootertext { get; init; }
     public string? additionalfootertext { get; init; }
     public string telephoneno { get; init; }
+    public string printername { get; init; }
     public string updatedby { get; init; }
     public bool isactive { get; set; }
 }

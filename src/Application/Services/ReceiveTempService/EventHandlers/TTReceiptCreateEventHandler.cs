@@ -9,16 +9,16 @@ using CYRetailIMS.Domain.Events.TTPurchaseOrders;
 using MediatR;
 
 namespace CYRetailIMS.Application.Services.ReceiveTempService.EventHandlers;
-public class ReceiveTempCreateEventHandler : INotificationHandler<TTReceiptCreateEvent>
+public class TTReceiptCreateEventHandler : INotificationHandler<TTReceiptCreateEvent>
 {
     private readonly ILog4NetLogger _logger;
-    public ReceiveTempCreateEventHandler(ILog4NetLogger log4NetLogger)
+    public TTReceiptCreateEventHandler(ILog4NetLogger log4NetLogger)
     {
         _logger = log4NetLogger;
     }
     public Task Handle(TTReceiptCreateEvent notification, CancellationToken cancellationToken)
     {
-        _logger.Info($"ReceiveTempCreateEventHandler: {notification.GetType().Name}");
+        _logger.Info($"TTReceiptCreateEventHandler: {notification.GetType().Name}");
         return Task.CompletedTask;
     }
 }
