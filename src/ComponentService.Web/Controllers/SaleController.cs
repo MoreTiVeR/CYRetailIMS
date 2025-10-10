@@ -1126,7 +1126,7 @@ public class SaleController : BaseController
         string currentReceiptNo = HttpContext.Session.GetDataFromSession<string>(_sessionReceiptNo);
         if (string.IsNullOrEmpty(currentReceiptNo))
         {
-            var resGenReceiptNo = await _receiptAPI.GenerateReceiptNoByBranchAsync(new GenerateReceiptNoCommand
+            BaseResponse<GenerateReceiptNoResponseDTO> resGenReceiptNo = await _receiptAPI.GenerateReceiptNoByBranchAsync(new GenerateReceiptNoCommand
             {
                 branchcode = getReceiveTemplate.data.branchcode,
             });
@@ -1140,15 +1140,21 @@ public class SaleController : BaseController
         #endregion
 
         // คำนวณ
+        bool isVatInclusive = true; // หรือ true ถ้าราคาในระบบรวม VAT มาแล้ว
+
         decimal subTotal = tempSellingBarcodeItemList.Sum(s => s.totalprice);
         decimal discount = 0.0m;
         decimal shipping = 0.0m;
-        decimal vat = subTotal.ToExVat();
+        //decimal vat = subTotal.ToVat();
         //decimal totalBill = subTotal - discount + shipping + vat;
         //inc vat VAT รวมในสินค้าแล้ว ไม่ต้องตำนวนบวกเพิ่ม
-        decimal totalBill = subTotal - discount + shipping;
+        //decimal totalBill = subTotal - discount + shipping;
         decimal due = 0.0m;
 
+        ///subTotalExcludeVat ยอดก่อน vat
+        ///vat ภาษี
+        ///totalBill หลัง vat
+        var (subTotalExcludeVat, vat, totalBill) = VatHelper.CalculateTotal(subTotal, discount, shipping, isVatInclusive);
         var model = new ReceiptViewModel
         {
             InvoiceNo = currentReceiptNo,
@@ -1159,7 +1165,7 @@ public class SaleController : BaseController
             ShopFooterText = getReceiveTemplate.data.shopfootertext,
             AdditionalFooterText = getReceiveTemplate.data.additionalfootertext,
             Items = tempSellingBarcodeItemList,
-            SubTotal = subTotal,
+            SubTotal = subTotalExcludeVat,
             Discount = discount,
             Shipping = shipping,
             Vat = vat,
