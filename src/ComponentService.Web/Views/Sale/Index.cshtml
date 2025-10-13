@@ -6,6 +6,92 @@
 	ViewData["Title"] = "Index";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<link href="~/css/site.css" rel="stylesheet" />
+
+<style>
+
+	.bg-primary {
+		background-color: #FF9F43 !important;
+		border: 1px solid #FF9F43 !important;
+		color: #ffffff;
+	}
+
+	/* Container ระดับบน */
+	.table-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	/* กลุ่มการ์ดทั้งหมด */
+	.sale-cards {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem; /* 🔸 ระยะห่างระหว่างการ์ด */
+	}
+
+	/* การ์ดยอดขาย */
+	.sale-card {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		height: 40px; /* เท่ากับ search box */
+		background-color: #FF9F43 !important;
+		border: 1px solid #FF9F43 !important;
+		color: #fff;
+		border-radius: 6px;
+		padding: 0 1rem;
+		min-width: fit-content; /* ความยาวพอดีเนื้อหา */
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+		cursor: pointer;
+		transition: all 0.25s ease-in-out; /* เพิ่มความนุ่ม */
+	}
+
+		/* เอฟเฟกต์ตอน hover */
+		.sale-card:hover {
+			background-color: #FFA94D !important; /* เฉดส้มอ่อนลง */
+			transform: translateY(-3px); /* ยกขึ้นเล็กน้อย */
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		}
+
+	/* ภายในการ์ด */
+	.sale-info {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.sale-icon {
+		width: 24px;
+		height: 24px;
+		transition: transform 0.25s ease-in-out;
+	}
+
+	/* เอฟเฟกต์ไอคอนหมุนเบาๆ เมื่อ hover */
+	.sale-card:hover .sale-icon {
+		transform: scale(1.1) rotate(5deg);
+	}
+
+	/* ตัวเลขยอดขาย */
+	.sale-text h3 {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: 700;
+		color: #fff;
+		line-height: 1;
+	}
+
+	/* ข้อความย่อย */
+	.sale-text p {
+		margin: 0;
+		font-size: 0.7rem;
+		line-height: 1;
+		opacity: 0.9;
+	}
+
+</style>
 
 <div class="page-header">
 	<div class="page-title">
@@ -27,17 +113,47 @@
 					</a>
 				</div>
 				<div class="search-input">
-					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+					<a class="btn btn-searchset">
+						<img src="~/assets/img/icons/search-white.svg" alt="img">
+					</a>
 				</div>
 			</div>
-			@*<div class="wordset">
-                <ul>
-                    <li>
-                        <a id="btnExportExcel" data-bs-toggle="tooltip" data-bs-placement="top" title="ดาวน์โหลดไฟล์ excel"><img src="~/assets/img/icons/excel.svg" alt="img"></a>
-                    </li>
-                </ul>
-            </div>*@
+
+			<!-- กลุ่มการ์ด -->
+			<div class="sale-cards">
+				
+				<div class="sale-card bg-primary">
+					<div class="sale-info">
+						<img src="~/assets/img/icons/total-sales.svg" alt="total-mtransfer" class="sale-icon" />
+						<div class="sale-text">
+							<h3 id="hTotalMoneyTransfer" class="counters"></h3>
+							<p>ยอดเงินโอน</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="sale-card bg-primary">
+					<div class="sale-info">
+						<img src="~/assets/img/icons/purchased-earnings.svg" alt="total-cash" class="sale-icon" />
+						<div class="sale-text">
+							<h3 id="hTotalCash" class="counters"></h3>
+							<p>ยอดเงินสด</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="sale-card bg-primary">
+					<div class="sale-info">
+						<img src="~/assets/img/icons/purchased-earnings.svg" alt="total-fee" class="sale-icon" />
+						<div class="sale-text">
+							<h3 id="hTotalDepositFee" class="counters"></h3>
+							<p>ค่าธรรมเนียมฝาก</p>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+
 		<!-- /Filter -->
 		<div class="card" id="filter_inputs">
 			<div class="card-body pb-0">

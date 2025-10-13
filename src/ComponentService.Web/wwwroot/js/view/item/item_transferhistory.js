@@ -215,64 +215,7 @@ $("#btnSearch").on('click', function (event) {
         HideLoading();
         console.log("Load data success.");
     });
-    //var transferStartdate = $("#txtTransferDate").val();
-    //var transferEndDate = $("#txtTransferEndDate").val();
-
-    //var selectedBranch = $("#ddlTransferBranch").val();
-    //var branchid = parseInt(selectedBranch);
-
-    //var selectedTransferStatus = $("#ddlTransferStatus").val();
-    //var transferstatusid = parseInt(selectedTransferStatus);
-
-    //var reqdata = { "transferstartdate": transferStartdate, "transferenddate": transferEndDate, "branchid": branchid, "transferstatusid": transferstatusid };
-    //var jsonreqdata = JSON.stringify(reqdata);
-    //console.log(jsonreqdata);
-    //var request = $.ajax({
-    //    type: 'POST',
-    //    url: '/Item/SearchItemTransferHistory',
-    //    data: jsonreqdata,
-    //    contentType: 'application/json',
-    //    success: function (response) {
-
-    //        if (response.result) {
-    //            ShowMessageSuccess(response.message);
-    //        }
-    //        else {
-    //            AlertErrorNoTitle(response.message);
-    //        }
-
-    //        //console.log(response.data);
-    //        $("#tbItemTransferHistory").DataTable().clear().rows.add(response.data).draw();
-
-    //        HideLoading();
-    //    },
-    //    failure: function (response) {
-    //        AlertError(response.message);
-    //    },
-    //    error: function (response) {
-    //        AlertError(response.message);
-    //    }
-    //});
 });
-
-//$(document).on('change', '.select2', function (e) {
-
-//    // Get the selected value
-//    var selectedValue = $(this).val();
-//    // Get the data-row attribute to identify the row
-//    var row = $(this).data('row');
-//    console.log($(this).data('name'));
-//    // Log the selected value for the current row (you can replace this with your desired logic)
-//    console.log("Row " + row + ": " + selectedValue);
-//    //ShowMessageInfo('Selected value :' + selectedValue);
-//});
-
-//$('.ddl-transferstatus').on('change', function () {
-//    var selectedTransferStatus = $(this).val();
-//    console.log("Selected Transfer Status:", selectedTransferStatus);
-//    var transferstatusid = parseInt(selectedTransferStatus, 10) || -1;
-//    console.log("Transfer Status ID:", transferstatusid);
-//});
 
 function deleteItem(itemid) {
 
@@ -304,31 +247,12 @@ function deleteItem(itemid) {
 
                         AlertSuccess('ลบข้อมูลสำเร็จ');
                         $("#global-loader").css('display', 'none');
-                        //ShowMessageSuccess(data.message);
-
-                        //To do next?
-                        //window.location = data.url;
-                        //itemDataTable.row('.selected').remove().draw(false);
-                        //dataTable.ajax.reload();
-                        /*$("#tbItems").DataTable().ajax.reload();*/
-                        /* $('#tbItems').DataTable().ajax.reload();*/
-                        //$('#tbItems').DataTable().ajax.reload();
 
                         console.log("#rowid" + itemid);
                         //$("#rowid" + itemid).closest("tr").remove();
 
                         //Reload data
                         $('#tbItems').DataTable().ajax.reload();
-
-                        //$("#rowid" + itemid).closest("tr").remove().draw(false);
-                        //console.log(row);
-                        //$('#tbItems').DataTable().row(row).remove().draw(false);
-
-                        //var row = $('#dataTable').DataTable().rows('.remove-row').closest('tr');
-                        //alert('test -> ' + row);
-                        //var rowdata = $('#tbItems').DataTable().row(row).data();
-                        //alert('data -> ' + rowdata)
-                        //AlertSuccess('ลบแถวสำเร็จ');
                     }
                     else {
                         //ShowMessageError(data.message);
@@ -370,31 +294,10 @@ function deleteItemInBranch(itemid, searchbranchid) {
 
                         AlertSuccess('ลบข้อมูลสำเร็จ');
                         $("#global-loader").css('display', 'none');
-                        //ShowMessageSuccess(data.message);
-
-                        //To do next?
-                        //window.location = data.url;
-                        //itemDataTable.row('.selected').remove().draw(false);
-                        //dataTable.ajax.reload();
-                        /*$("#tbItems").DataTable().ajax.reload();*/
-                        /* $('#tbItems').DataTable().ajax.reload();*/
-                        //$('#tbItems').DataTable().ajax.reload();
 
                         console.log("#rowid" + itemid);
                         $("#rowid" + itemid).closest("tr").remove();
 
-                        //Reload data
-                        //$('#tbItems').DataTable().ajax.reload();
-
-                        //$("#rowid" + itemid).closest("tr").remove().draw(false);
-                        //console.log(row);
-                        //$('#tbItems').DataTable().row(row).remove().draw(false);
-
-                        //var row = $('#dataTable').DataTable().rows('.remove-row').closest('tr');
-                        //alert('test -> ' + row);
-                        //var rowdata = $('#tbItems').DataTable().row(row).data();
-                        //alert('data -> ' + rowdata)
-                        //AlertSuccess('ลบแถวสำเร็จ');
                     }
                     else {
                         //ShowMessageError(data.message);

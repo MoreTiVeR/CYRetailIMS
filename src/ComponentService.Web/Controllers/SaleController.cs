@@ -99,6 +99,12 @@ public class SaleController : BaseController
         _receiptAPI = receiptAPI;
     }
 
+    public IActionResult Dashboard()
+    {
+        return View();
+    }
+
+
     public async Task<IActionResult> Index()
     {
         BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
@@ -1085,7 +1091,11 @@ public class SaleController : BaseController
                 draw = searchItem.draw, // Echo the draw parameter
                 recordsTotal = totalItems, // Total records before filtering
                 recordsFiltered = totalItems, // Total records after applying filtering
-                data = resSaleTransactions.data.transactiondata // The actual data to be displayed
+                data = resSaleTransactions.data.transactiondata, // The actual data to be displayed
+                totalamount  = resSaleTransactions.data.totalamount,
+                totalcash = resSaleTransactions.data.totalcash,
+                totaltransfer = resSaleTransactions.data.totaltransfer,
+                totaldepositfee = resSaleTransactions.data.totaldepositfee,
             });
         }
         catch

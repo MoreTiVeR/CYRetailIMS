@@ -96,7 +96,56 @@ datatable = $("#tbSaleTransaction").DataTable({
     initComplete: (settings, json) => {
         $('.dataTables_filter').appendTo("#tbSaleTransaction");
         $('.dataTables_filter').appendTo('.search-input');
+
+        const totalcash = json.totalcash ?? 0;
+        const totaltransfer = json.totaltransfer ?? 0;
+
+        // อัปเดต attribute data-count ด้วย (สำหรับใช้ animate counter)
+        //$('#hTotalCash').attr('data-count', totalcash);
+        //$('#hTotalTransfer').attr('data-count', totaltransfer);
+
+        //$('#hTotalCash').text(totalcash.toLocaleString());
+        //$('#hTotalTransfer').text(totaltransfer.toLocaleString());
+        
     }
+});
+
+// ✅ เมื่อ DataTable ดึงข้อมูลเสร็จ (ทุกครั้งที่ search / paging / reload)
+$('#tbSaleTransaction').on('xhr.dt', function (e, settings, json, xhr) {
+
+    // ป้องกัน null หรือ summary หาย
+    const totalcash = json?.totalcash ?? 0;
+    const totaltransfer = json?.totaltransfer ?? 0;
+    const totaldepositfee = json?.totaldepositfee ?? 0;
+
+    // อัปเดต attribute และ text
+    $('#hTotalCash').attr('data-count', totalcash);
+    $('#hTotalMoneyTransfer').attr('data-count', totaltransfer);
+    $('#hTotalDepositFee').attr('data-count', totaldepositfee);
+
+    // เริ่ม counter animation
+    $('.counters').each(function () {
+        const $this = $(this);
+        const target = parseFloat($this.attr('data-count')) || 0;
+        const current = parseFloat($this.text().replace(/,/g, '')) || 0;
+
+        // ถ้ามี animation เดิมอยู่ให้หยุดก่อน
+        $this.stop(true, true);
+
+        $({ value: current }).animate(
+            { value: target },
+            {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $this.text(Math.ceil(now).toLocaleString());
+                },
+                complete: function () {
+                    $this.text(target.toLocaleString());
+                }
+            }
+        );
+    });
 });
 
 

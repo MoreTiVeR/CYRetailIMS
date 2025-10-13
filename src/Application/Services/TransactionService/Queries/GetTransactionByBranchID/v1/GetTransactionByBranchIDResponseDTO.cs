@@ -22,9 +22,13 @@ public class GetTransactionByBranchIDResponseDTO
 	public int transactiontypeid { get; set; }
 	public string transactiontypename { get; set; }
 	public string transactiontypedesc { get; set; }
-	#endregion
+    #endregion
 
-	public decimal amounttransfer { get; set; }
+    #region Payment type
+    public int? paymenttypeid { get; set; }
+    #endregion
+
+    public decimal amounttransfer { get; set; }
 	public decimal amountdeposit { get; set; }
 	public decimal amountcash { get; set; }
 	public decimal totalamount { get; set; }

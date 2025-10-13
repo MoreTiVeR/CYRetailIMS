@@ -58,7 +58,21 @@ public class GetTransactionByBranchIDHandler : BaseService, IRequestHandler<GetT
                                                                           //              amount = a.Amount,
                                                                           //              isactive = a.IsActive.HasValue ? a.IsActive.Value : false
                                                                           //          }).ToList()
+                                                                          paymenttypeid = tran.PaymenTypeID
                                                                       }).AsQueryable();
+
+        //เงินรวมทั้งหมด
+        var totalAmount = searchData.Sum(s => s.totalamount);
+
+        //เงินสด
+        var totalCash = searchData.Sum(s => s.amountdeposit);
+
+        //เงินโอน
+        var totalTransfer = searchData.Sum(s => s.amounttransfer);
+
+        //ค่าธรรมเนียมฝากเงินทั้งหมด
+        var totalDepositFee = searchData.Sum(s => s.depositfee);
+
 
         totalRowCount = searchData.Count();
         List<GetTransactionByBranchIDResponseDTO> resData = new List<GetTransactionByBranchIDResponseDTO>();
@@ -102,6 +116,10 @@ public class GetTransactionByBranchIDHandler : BaseService, IRequestHandler<GetT
             data = new GetTransactionByBranchIDV2ReseponseDTO
             {
                 totalrow = totalRowCount,
+                totalamount = totalAmount,
+                totalcash = totalCash,
+                totaltransfer = totalTransfer,
+                totaldepositfee = totalDepositFee,
                 transactiondata = resData.OrderByDescending(o => o.transactiondate).ToList()
             },
             message = " Success",

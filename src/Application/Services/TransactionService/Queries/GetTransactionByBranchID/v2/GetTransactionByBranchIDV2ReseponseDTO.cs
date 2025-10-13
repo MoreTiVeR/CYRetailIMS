@@ -12,5 +12,26 @@ namespace CYRetailIMS.Application.Services.TransactionService.Queries.GetTransac
 public class GetTransactionByBranchIDV2ReseponseDTO
 {
     public int totalrow { get; set; }
+
+    /// <summary>
+    /// เงินรวมทั้งหมด
+    /// </summary>
+    public decimal totalamount { get; set; }
+
+    /// <summary>
+    /// เงินสดทั้งหมด
+    /// </summary>
+    public decimal totalcash { get; set; }
+
+    /// <summary>
+    /// เงินโอนทั้งหมด
+    /// </summary>
+    public decimal totaltransfer { get; set; }
+
+    /// <summary>
+    /// ค่าธรรมเนียมงานเงินทั้งหมด
+    /// </summary>
+    public decimal totaldepositfee { get; set; }
+
     public List<GetTransactionByBranchIDResponseDTO> transactiondata { get; set; }
 }
