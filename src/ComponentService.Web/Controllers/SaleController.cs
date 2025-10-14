@@ -132,7 +132,7 @@ public class SaleController : BaseController
     public async Task<IActionResult> Barcode()
     {
         #region Get- Set Item
-        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        List<GetItemInBranchByBranchIDItemResponseDTO> resItemList = await GetItemSessionDataAsync();
         #endregion
 
         BaseResponse<List<GetTrasnactionByCriteriaResponseDTO>> resTransactionType = await _transactionTypeAPI.GetTransactionTypeByCriteriaAsync(new GetTrasnactionByCriteriaQuery
@@ -147,7 +147,7 @@ public class SaleController : BaseController
     public async Task<IActionResult> Mobile()
     {
         #region Get- Set Item
-        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        List<GetItemInBranchByBranchIDItemResponseDTO> resItemList = await GetItemSessionDataAsync();
         #endregion
 
         BaseResponse<List<GetTrasnactionByCriteriaResponseDTO>> resTransactionType = await _transactionTypeAPI.GetTransactionTypeByCriteriaAsync(new GetTrasnactionByCriteriaQuery
@@ -162,7 +162,7 @@ public class SaleController : BaseController
     public async Task<IActionResult> Scanner()
     {
         #region Get- Set Item
-        BaseResponse<List<GetItemListResponseDTO>> resItemList = await GetItemSessionDataAsync();
+        List<GetItemInBranchByBranchIDItemResponseDTO> resItemList = await GetItemSessionDataAsync();
         #endregion
 
         BaseResponse<List<GetTrasnactionByCriteriaResponseDTO>> resTransactionType = await _transactionTypeAPI.GetTransactionTypeByCriteriaAsync(new GetTrasnactionByCriteriaQuery
@@ -961,32 +961,39 @@ public class SaleController : BaseController
     }
     #endregion
 
-    #region Func for Scanner ,Mobile
-    private async Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemSessionDataAsync()
+    #region Func for Scanner ,Mobile, Barcode
+
+    /// <summary>
+    /// Get Master Item each Branch
+    /// </summary>
+    /// <returns></returns>
+    private async Task<List<GetItemInBranchByBranchIDItemResponseDTO>> GetItemSessionDataAsync()
     {
-        BaseResponse<List<GetItemListResponseDTO>> res = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>(_sessionTempSaleItemData);
+        List<GetItemInBranchByBranchIDItemResponseDTO> res = HttpContext.Session.GetDataFromSession<List<GetItemInBranchByBranchIDItemResponseDTO>>(_sessionTempSaleItemData);
         if (res != null)
         {
             return res;
         }
-        res = await _itemAPI.GetItemListAsync();
+        //res = await _itemAPI.GetItemListAsync();
+        BaseResponse<GetItemInBranchByBranchIDResponseDTO> resItemBranch = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(base.UserProfile.access_branch.FirstOrDefault().branchid);
+        res = resItemBranch.data.itemlist;
         HttpContext.Session.SetDataToSession(_sessionTempSaleItemData, res);
         return res;
     }
 
     private void MappingSellingBarcodeItem(ref SellingBarcodeItemViewModel sellingBarcodeItemView)
     {
-        BaseResponse<List<GetItemListResponseDTO>> resItems = HttpContext.Session.GetDataFromSession<BaseResponse<List<GetItemListResponseDTO>>>(_sessionTempSaleItemData);
+        List<GetItemInBranchByBranchIDItemResponseDTO> resItems = HttpContext.Session.GetDataFromSession<List<GetItemInBranchByBranchIDItemResponseDTO>>(_sessionTempSaleItemData);
         string itemBarcode = sellingBarcodeItemView.barcode;
 
-        GetItemListResponseDTO existItem = resItems.data.Where(w => !string.IsNullOrEmpty(w.barcode)).FirstOrDefault(w => w.barcode.Trim().ToUpper() == itemBarcode.Trim().ToUpper());
+        GetItemInBranchByBranchIDItemResponseDTO existItem = resItems.Where(w => !string.IsNullOrEmpty(w.barcode)).FirstOrDefault(w => w.barcode.Trim().ToUpper() == itemBarcode.Trim().ToUpper());
         if (existItem == null)
         {
             throw new Exception("ไม่พบข้อมูลบาร์โค้ดสินค้า!");
         }
         sellingBarcodeItemView.itemid = existItem != null ? existItem.itemid : 0;
-        sellingBarcodeItemView.itemname = existItem != null ? existItem.name : null;
-        sellingBarcodeItemView.itemprice = existItem != null ? existItem.price : 0;
+        sellingBarcodeItemView.itemname = existItem != null ? existItem.itemname : null;
+        sellingBarcodeItemView.itemprice = existItem != null ? existItem.price.HasValue ? existItem.price.Value : 0 : 0;
         sellingBarcodeItemView.qty = sellingBarcodeItemView.qty > 0 ? sellingBarcodeItemView.qty : 1;
     }
 
