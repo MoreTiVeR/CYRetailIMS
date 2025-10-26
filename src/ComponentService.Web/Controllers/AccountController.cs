@@ -63,9 +63,32 @@ public class AccountController : BaseController
 
     public async Task<IActionResult> Logout()
     {
+        // Update logout
         await _accountAPI.LogoutAsync(new LogoutQuery { username = base.UserProfile.username });
-		HttpContext.Session.Clear();
+
+        // Clear session
+        HttpContext.Session.Clear();
+
+        //await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // Sign out all schemes you use
+        await HttpContext.SignOutAsync();
+        await HttpContext.SignOutAsync("Cookies");
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        //await HttpContext.SignOutAsync(Microsoft.AspNetCore.Identity.IdentityConstants.ApplicationScheme);
+
+        // Hard-delete common cookies (path/domain mismatches can leave stale copies)
+        foreach (var c in Request.Cookies.Keys)
+        {
+            // delete for default path
+            Response.Cookies.Delete(c);
+            // also try root path to cover cookies set with Path="/"
+            Response.Cookies.Delete(c, new CookieOptions { Path = "/" });
+        }
+
+        // (Optional) explicitly target known cookies
+        Response.Cookies.Delete(".AspNetCore.Cookies", new CookieOptions { Path = "/" });
+        Response.Cookies.Delete(".CYWeb.Session", new CookieOptions { Path = "/" });
 
         return RedirectToAction("Login", "Account");
     }

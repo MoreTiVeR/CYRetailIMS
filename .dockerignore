@@ -28,3 +28,12 @@ README.md
 !.git/config
 !.git/packed-refs
 !.git/refs/heads/**
+
+# Text files → LF
+* text=auto eol=lf
+
+# Keep minified/binary assets as-is
+*.min.js binary
+*.png binary
+*.jpg binary
+*.ico binary

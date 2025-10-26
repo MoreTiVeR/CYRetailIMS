@@ -1,21 +1,22 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
-using Microsoft.AspNetCore.Mvc;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByTransID.v1;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockByBrachReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.AvailableStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferByDraftID.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferReportByDraftID.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.CountStockReport.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByTransID.v1;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 [Route("api/v{version:apiVersion}/report")]
@@ -294,6 +295,27 @@ public class ReportController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]ItemTransferShortageReportAsync Success");
+        return Ok(res.data);
+    }
+
+    /// <summary>
+    /// รายงานยอดรวมตามรหัสสินค้า แยกตามสาขา วันที่ค้นหา
+    /// </summary>
+    /// <param name="saleReportQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/salereportbygroup")]
+    [ProducesResponseType(typeof(SaleReportResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SaleReportByGroupAsync(SaleReportGroupByBranchQuery saleReportGroupByBranchQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<SaleReportGroupByBranchResposneDTO> res = await Mediator.Send(saleReportGroupByBranchQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]SaleReportByGroupAsync Success");
         return Ok(res.data);
     }
 }

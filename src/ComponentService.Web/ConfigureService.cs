@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using AutoMapper;
@@ -155,6 +156,23 @@ public static class ConfigureService
             options.AccessDeniedPath = "/AccessDenied";
             options.LoginPath = "/Login";
         });
+
+        //services.AddAuthentication("Cookies")
+        //.AddCookie("Cookies", options =>
+        //{
+        //    options.Cookie.Name = ".AspNetCore.Cookies";
+        //    options.Events = new CookieAuthenticationEvents
+        //    {
+        //        OnSigningIn = ctx =>
+        //        {
+        //            var id = (ClaimsIdentity)ctx.Principal!.Identity!;
+        //            var keep = new[] { ClaimTypes.NameIdentifier, ClaimTypes.Name, ClaimTypes.Email, ClaimTypes.Role };
+        //            var drop = id.Claims.Where(c => !keep.Contains(c.Type)).ToList();
+        //            foreach (var c in drop) id.RemoveClaim(c);
+        //            return Task.CompletedTask;
+        //        }
+        //    };
+        //});
         #endregion
 
         #region Auto Mapper Configurations

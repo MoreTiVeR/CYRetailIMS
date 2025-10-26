@@ -1,0 +1,90 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>ตั้งค่าใบเสร็จ</h4>
+		<h6>ตั้งค่าใบเสร็จแยกตามสาขา</h6>
+	</div>
+	<div class="page-btn">
+		<a asp-action="Create" asp-controller="ItemBrand" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มใบเสร็จสาขาใหม่</a>
+	</div>
+</div>
+
+<!-- /product list -->
+<div class="card">
+	<div class="card-body">
+		<div class="table-top">
+			<div class="search-set">
+				<div class="search-path">
+					<a class="btn btn-filter" id="filter_search">
+						<img src="~/assets/img/icons/filter.svg" alt="img">
+						<span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
+					</a>
+				</div>
+				<div class="search-input">
+					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+				</div>
+			</div>
+		</div>
+		<!-- /Filter -->
+		<div class="card mb-0" id="filter_inputs">
+			<div class="card-body pb-0">
+				<div class="row">
+					<div class="col-lg-3 col-sm-6 col-12">
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Filter -->
+		<div class="table-responsive">
+			<table id="tbBrands" class="table">
+				<thead>
+					<tr>
+						<th hidden>
+							<label class="checkboxs">
+								<input type="checkbox" id="select-all">
+								<span class="checkmarks"></span>
+							</label>
+						</th>
+						<th>รหัสใบเสร็จ</th>
+						<th>สาขา</th>
+						<th>โค้ดเลขที่ใบเสร็จ</th>
+						<th>เครื่องปริ้น</th>
+						<th>ข้อความหัวกระดาษ</th>
+						<th>ข้อความท้ายกระดาษ</th>
+						<th>สร้างโดย</th>
+						<th>วันที่สร้าง</th>
+						<th>แก้ไขโดย</th>
+						<th>วันที่แก้ไข</th>
+						<th class="text-center">สถานะ</th>
+						<th>ดำเนินการ</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- /product list -->
+@section Scripts {
+
+
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+	<!--Page Script-->
+	@* <script src="~/js/view/itembrand/itembrand_index.js" asp-append-version="true"></script> *@
+}
+

@@ -16,6 +16,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 
@@ -49,4 +50,6 @@ public interface IReportAPI
     Task<BaseResponse<List<ItemTransferShortageReportResponseDTO>>> GetItemTransferShortageReportAsync(ItemTransferShortageReportQuery transferShortageReportQuery);
 
     Task<BaseResponse<ItemStockReportResponseDTO>> GetItemStockReportAsync(ItemStockReportQuery itemStockReport);
+
+    Task<BaseResponse<SaleReportGroupByBranchResposneDTO>> GetSaleReportByGroupAsync(SaleReportGroupByBranchQuery saleReportGroupByBranchQuery);
 }

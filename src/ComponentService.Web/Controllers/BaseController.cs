@@ -39,20 +39,25 @@ public class BaseController : Controller
 
 	protected ClaimsPrincipal CreatePrincipal(UserProfileViewModel result)
     {
-        var claims = new List<Claim>
-            {
-                new Claim("UserId", result.userid.ToString()),
-                new Claim("UserName", result.username),
-                new Claim("RoleName", result.rolename),
-                new Claim("AccessBranch", result.access_branch.ToJson()),
-                new Claim("AccessMenu", result.access_menu.ToJson())
-                //new Claim("CanRead", "CanRead"),
-                //new Claim("CanWrite", "CanWrite")
-            };
+        var id = new ClaimsIdentity("Cookies");
+        id.AddClaim(new Claim(ClaimTypes.NameIdentifier, result.userid.ToString()));
+        id.AddClaim(new Claim(ClaimTypes.Name, result.username));
+        id.AddClaim(new Claim(ClaimTypes.Role, result.rolename));
+        return new ClaimsPrincipal(id);
+        //var claims = new List<Claim>
+        //    {
+        //        new Claim("UserId", result.userid.ToString()),
+        //        new Claim("UserName", result.username),
+        //        new Claim("RoleName", result.rolename),
+        //        new Claim("AccessBranch", result.access_branch.ToJson()),
+        //        new Claim("AccessMenu", result.access_menu.ToJson())
+        //        //new Claim("CanRead", "CanRead"),
+        //        //new Claim("CanWrite", "CanWrite")
+        //    };
 
-        ClaimsPrincipal principal = new ClaimsPrincipal();
-        principal.AddIdentity(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-        return principal;
+        //ClaimsPrincipal principal = new ClaimsPrincipal();
+        //principal.AddIdentity(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+        //return principal;
     }
 
 }

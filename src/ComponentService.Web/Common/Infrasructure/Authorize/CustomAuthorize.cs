@@ -41,7 +41,8 @@ public class CustomAuthorize : TypeFilterAttribute
 
 		public void OnAuthorization(AuthorizationFilterContext context)
 		{
-			var IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
+            var user = context.HttpContext.User;
+            var IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
 			var claimsIndentity = context.HttpContext.User.Identity as ClaimsIdentity;
 
 			// Retrieve the user's role and requested resource URL
@@ -60,30 +61,38 @@ public class CustomAuthorize : TypeFilterAttribute
 
 			if (IsAuthenticated)
 			{
-				bool flagClaim = false;
-				foreach (var item in _claim)
-				{
-					if (context.HttpContext.User.HasClaim("RoleName", item))
-						flagClaim = true;
-				}
-
-				#region Testing
-				//var requestPath = context.HttpContext.Request.Path.Value;
-				//RouteValueDictionary routeValues = context.HttpContext.Request.RouteValues;
-				//string controllerName = routeValues["controller"].ToString();
-				//string actionName = routeValues["action"].ToString();
-
-				//List<GetMenuByRoleIDResponseDTO> accessMenu = JsonConvert.DeserializeObject<List<GetMenuByRoleIDResponseDTO>>(claimsIndentity.Claims.FirstOrDefault(w => w.Type == "AccessMenu").Value);
-				//var menu = accessMenu.SelectMany(s => s.submenulist).FirstOrDefault(w => w.cms_actionname == actionName && w.cms_controllername == controllerName);
-				//if (!accessMenu.SelectMany(s => s.submenulist).Any(a => a.cms_controllername == controllerName && a.cms_actionname == actionName))
+				//bool flagClaim = false;
+				//foreach (var item in _claim)
 				//{
-				//	flagClaim = false;
+				//	if (context.HttpContext.User.HasClaim("RoleName", item))
+				//		flagClaim = true;
 				//}
-				#endregion
 
-				if (!flagClaim || context.HttpContext.Session.GetString("userprofile") is null)
-					context.Result = new RedirectResult("~/Permission/AccessDenied");
-			}
+                //if (!flagClaim || context.HttpContext.Session.GetString("userprofile") is null)
+                //{
+                //    context.Result = new RedirectResult("~/Permission/AccessDenied");
+                //}
+
+
+                #region Testing
+                //var requestPath = context.HttpContext.Request.Path.Value;
+                //RouteValueDictionary routeValues = context.HttpContext.Request.RouteValues;
+                //string controllerName = routeValues["controller"].ToString();
+                //string actionName = routeValues["action"].ToString();
+
+                //List<GetMenuByRoleIDResponseDTO> accessMenu = JsonConvert.DeserializeObject<List<GetMenuByRoleIDResponseDTO>>(claimsIndentity.Claims.FirstOrDefault(w => w.Type == "AccessMenu").Value);
+                //var menu = accessMenu.SelectMany(s => s.submenulist).FirstOrDefault(w => w.cms_actionname == actionName && w.cms_controllername == controllerName);
+                //if (!accessMenu.SelectMany(s => s.submenulist).Any(a => a.cms_controllername == controllerName && a.cms_actionname == actionName))
+                //{
+                //	flagClaim = false;
+                //}
+                #endregion
+
+
+                var inRole = _claim.Any(r => user.IsInRole(r) || user.HasClaim(ClaimTypes.Role, r) || user.HasClaim("RoleName", r));
+                if (!inRole || context.HttpContext.Session.GetString("userprofile") is null)
+                    context.Result = new RedirectResult("~/Permission/AccessDenied");
+            }
 			else
 			{
 				context.Result = new RedirectResult("~/Permission/AccessDenied");
