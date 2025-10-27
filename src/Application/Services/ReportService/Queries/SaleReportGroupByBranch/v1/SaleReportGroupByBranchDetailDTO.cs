@@ -8,6 +8,7 @@ namespace CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroup
 public class SaleReportGroupByBranchDetailDTO
 {
     public DateTime transactiondate { get; set; }
+    public string transactiondaterange { get; set; }
     public int branchid { get; set; }
     public string branchname { get; set; }
 

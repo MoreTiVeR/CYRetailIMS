@@ -3,14 +3,19 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+<link href="~/css/site.css" rel="stylesheet" />
+@* <style type="text/css">
+	.text-center {
+		text-align: center !important;
+	}
+</style> *@
 <div class="page-header">
 	<div class="page-title">
 		<h4>ตั้งค่าใบเสร็จ</h4>
 		<h6>ตั้งค่าใบเสร็จแยกตามสาขา</h6>
 	</div>
 	<div class="page-btn">
-		<a asp-action="Create" asp-controller="ItemBrand" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มใบเสร็จสาขาใหม่</a>
+		<a asp-action="Create" asp-controller="Receipt" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มใบเสร็จสาขาใหม่</a>
 	</div>
 </div>
 
@@ -31,12 +36,20 @@
 			</div>
 		</div>
 		<!-- /Filter -->
-		<div class="card mb-0" id="filter_inputs">
+		<div class="card" id="filter_inputs">
 			<div class="card-body pb-0">
 				<div class="row">
 					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<select id="ddlBranch" class="ddl-select2 select2 ddl-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+								<option value="">-- ทั้งหมด --</option>
+							</select>
+						</div>
 					</div>
 					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group" style="text-align: left">
+							<a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+						</div>
 					</div>
 					<div class="col-lg-3 col-sm-6 col-12">
 					</div>
@@ -47,7 +60,7 @@
 		</div>
 		<!-- /Filter -->
 		<div class="table-responsive">
-			<table id="tbBrands" class="table">
+			<table id="tbReceipts" class="table">
 				<thead>
 					<tr>
 						<th hidden>
@@ -56,12 +69,12 @@
 								<span class="checkmarks"></span>
 							</label>
 						</th>
-						<th>รหัสใบเสร็จ</th>
+						<th>#</th>
 						<th>สาขา</th>
-						<th>โค้ดเลขที่ใบเสร็จ</th>
 						<th>เครื่องปริ้น</th>
 						<th>ข้อความหัวกระดาษ</th>
 						<th>ข้อความท้ายกระดาษ</th>
+						<th>ที่อยู่</th>
 						<th>สร้างโดย</th>
 						<th>วันที่สร้าง</th>
 						<th>แก้ไขโดย</th>
@@ -85,6 +98,6 @@
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
 	<!--Page Script-->
-	@* <script src="~/js/view/itembrand/itembrand_index.js" asp-append-version="true"></script> *@
+	<script src="~/js/view/receipt/receipt_index.js" asp-append-version="true"></script>
 }
 

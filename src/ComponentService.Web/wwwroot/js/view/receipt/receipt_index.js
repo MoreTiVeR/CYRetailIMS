@@ -3,7 +3,7 @@ var datatable;
 $('.select2').select2();
 
 //tbSaleReport
-datatable = $("#tbSaleItemGroupReport").DataTable({
+datatable = $("#tbReceipts").DataTable({
     "processing": true,         // Show processing indicator
     "serverSide": true,        // Enable server-side processing
     "destroy": true,
@@ -14,7 +14,7 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
     "pagingType": 'numbers',
     "ordering": true,
     "ajax": {
-        "url": "/Report/SearchSaleItemGroupReport",
+        "url": "/Receipt/SearchReceipt",
         "type": "POST",
         "contentType": "application/json", // Add this line
         "data": function (data) {
@@ -48,17 +48,59 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
         //        return formatDate(new Date(data.transactiondate));
         //    }
         //},
-        { "data": "transactiondaterange" },
+        { "data": "receivetempid" },
         { "data": "branchname" },
-        { "data": "itemcode" },
-        { "data": "itemname" },
-        { "data": "brandname" },
-        { "data": "totalsaleqty" },
-        { "data": "itempriceinbranch" },
-        { "data": "totalamount" }
+        { "data": "printername" },
+        { "data": "shopheadernametext" },
+        { "data": "shopfootertext" },
+        { "data": "shopheaderaddresstext" },
+        { "data": "createdby" },
+        {
+            "data": { createddate: "createddate" },
+            "render": function (data) {
+                if (data.createddate === null) {
+                    return data.createddate;
+                }
+                return formatDateTime(new Date(data.createddate));
+            }
+        },
+        { "data": "updatedby" },
+        {
+            "data": { updateddate: "updateddate" },
+            "render": function (data) {
+                if (data.updateddate === null) {
+                    return data.updateddate;
+                }
+                return formatDateTime(new Date(data.updateddate));
+            }
+        },
+        {
+            "data": { isactive: "isactive" },
+            "render": function (data) {
+                if (data.isactive) {
+                    return "<span class='badges bg-lightgreen'>ใช้งาน</span>";
+                }
+                else {
+                    return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
+                }
+            }
+        },
+        {
+            "data": { receivetempid: "receivetempid", branchid: "branchid" },
+            "render": function (data) {
+                var dict = {
+                    "receivetempid": data.receivetempid,
+                };
+                return "<a href='Edit?receivetempid=" + data.receivetempid + "'  class='me-3' title='แก้ไขข้อมูลใบเสร็จ'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.receivetempid + "' title='ลบข้อมูลใบเสร็จ' onclick=deleteReceipt(" + data.receivetempid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+            }
+        },
     ],
     "order": [[0, "desc"]],
     "columnDefs": [
+        {
+            "targets": 1, // index of receivetempid column
+            //"className": "text-center"
+        },
         {
             "targets": [0],
             "visible": false
@@ -73,28 +115,28 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
         processing: '<div class="spinner"></div><div class="processing-text">Processing your request...</div>'
     },
     initComplete: (settings, json) => {
-        $('.dataTables_filter').appendTo("#tbSaleItemGroupReport");
+        $('.dataTables_filter').appendTo("#tbReceipts");
         $('.dataTables_filter').appendTo('.search-input');
     },
     /*dom: 'Bfrtip',*/
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานยอดรวมตามรหัสสินค้า',
+            title: 'ข้อมูลใบเสร็จสาขา',
             text: 'ดาวโหลดรายงานหน้าปัจจุบัน',
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
             }
         },
         {
             extend: 'excelHtml5',
-            title: 'รายงานยอดรวมตามรหัสสินค้าทั้งหมด',
+            title: 'ข้อมูลใบเสร็จสาขาทั้งหมด',
             text: 'ดาวโหลดรายงานทั้งหมด',
             class: 'btn-primary',
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 modifier: {
                     page: 'all'
                 },
@@ -125,7 +167,7 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
 
                 // Custom action to fetch all data
                 $.ajax({
-                    url: "/Report/SearchSaleItemGroupReport", // Create a new endpoint for all data
+                    url: "/Receipt/SearchReceipt", // Create a new endpoint for all data
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({
@@ -147,18 +189,6 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
                         $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
 
                         HideLoading();
-                        // Restore the original data (optional, if needed)
-                        // $.ajax({
-                        //     url: "/Item/GetItemTransferHistoryV2",
-                        //     type: "POST",
-                        //     contentType: "application/json",
-                        //     data: function (d) {
-                        //         // Your original data parameters
-                        //     },
-                        //     success: function (originalData) {
-                        //         table.clear().rows.add(originalData).draw();
-                        //     }
-                        // });
                     },
                     error: function (xhr, status, error) {
                         console.error("Error fetching data for export:", error);
@@ -180,3 +210,48 @@ $("#btnSearch").on('click', function (event) {
     datatable.ajax.reload(); // This will use the updated parameters automatically
     HideLoading();
 });
+
+function deleteReceipt(receiptid) {
+
+    Swal.fire({
+        title: "ยืนยันการลบข้อมูล?",
+        //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
+        html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!</span>",
+        icon: 'warning',
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        confirmButtonClass: "btn btn-primary",
+        cancelButtonText: "ยกเลิก",
+        cancelButtonClass: "btn btn-danger ml-1",
+        buttonsStyling: false,
+    }).then(function (t) {
+        if (t.value) {
+
+            //Delete
+            $.ajax({
+                type: 'POST',
+                url: '/Receipt/DeleteReceiptByID',
+                data: JSON.stringify({ receipttempid: receiptid }),
+                contentType: 'application/json',
+                success: function (data) {
+                    if (data.result) {
+
+                        AlertSuccess('ลบข้อมูลสำเร็จ');
+                        HideLoading();
+
+                        //Reload data
+                        $('#tbReceipts').DataTable().ajax.reload();
+                    }
+                    else {
+                        //ShowMessageError(data.message);
+                        AlertError(data.message);
+                        HideLoading();
+                    }
+                }
+            });
+        }
+    });
+}

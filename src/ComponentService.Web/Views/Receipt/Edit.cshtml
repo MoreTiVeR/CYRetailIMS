@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+	.error-box {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex;
+		align-items: center;
+		-webkit-box-align: center;
+		-ms-flex-align: center;
+		justify-content: center;
+		-webkit-justify-content: center;
+		-ms-flex-pack: center;
+		-ms-flex-direction: column;
+		flex-direction: column;
+	}
+</style>
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>แก้ไขแม่แบบใบเสร็จ</h4>
+		<h6>แก้ไขแม่แบบใบเสร็จสาขา</h6>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<!-- Main Wrapper -->
+		<div class="main-wrapper">
+			<div class="error-box">
+				<div class="error-img">
+					<img src="../assets/img/pages/under-maintenance.png" class="img-fluid" alt="">
+				</div>
+				<h3 class="h2 mb-3">ขออภัย, กำลังปรับปรุง!</h3>
+				<a asp-action="Index" asp-controller="Receipt" class="btn btn-primary">กลับ</a>
+			</div>
+		</div>
+		<!-- /Main Wrapper -->
+	</div>
+</div>
+
+
+

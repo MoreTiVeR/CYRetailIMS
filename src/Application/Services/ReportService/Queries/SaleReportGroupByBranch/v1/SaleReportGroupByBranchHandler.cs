@@ -62,33 +62,33 @@ public class SaleReportGroupByBranchHandler : BaseService, IRequestHandler<SaleR
                 || w.brandname.Contains(request.searchvalue));
             }
 
-            var groupData = searchData.ToList().GroupBy(g => new { g.transactiondate.Date, g.itemcode }).Select(s => new
+            var groupData = searchData.ToList().GroupBy(g => g.itemcode).Select(s => new
             {
-                transactiondate = s.Key.Date,
-                itemcode = s.Key.itemcode,
+                itemcode = s.Key,
                 data = s
             }).Select(s => new SaleReportGroupByBranchDetailDTO
             {
-                transactiondate = s.transactiondate,
+                //transactiondate = s.transactiondate,
+                transactiondaterange = $"{request.transaction_startdate:dd/MM/yyyy} - {request.transaction_enddate:dd/MM/yyyy}",
                 branchid = s.data.FirstOrDefault().branchid,
                 branchname = s.data.FirstOrDefault().branchname,
                 itemcode = s.itemcode,
-                itemname = s.data.FirstOrDefault(w => w.itemcode == s.itemcode && w.transactiondate == s.transactiondate).itemname,
-                brandid = s.data.FirstOrDefault(w => w.itemcode == s.itemcode && w.transactiondate == s.transactiondate).brandid,
-                brandname = s.data.FirstOrDefault(w => w.itemcode == s.itemcode && w.transactiondate == s.transactiondate).brandname,
-                totalsaleqty = s.data.Where(w => w.itemcode == s.itemcode && w.transactiondate == s.transactiondate).Sum(w => w.totalsaleqty),
-                itempriceinbranch = s.data.FirstOrDefault(w => w.itemcode == s.itemcode && w.transactiondate == s.transactiondate).itempriceinbranch
+                itemname = s.data.FirstOrDefault(w => w.itemcode == s.itemcode).itemname,
+                brandid = s.data.FirstOrDefault(w => w.itemcode == s.itemcode).brandid,
+                brandname = s.data.FirstOrDefault(w => w.itemcode == s.itemcode).brandname,
+                totalsaleqty = s.data.Where(w => w.itemcode == s.itemcode).Sum(w => w.totalsaleqty),
+                itempriceinbranch = s.data.FirstOrDefault(w => w.itemcode == s.itemcode).itempriceinbranch
             }).OrderBy(x => x.transactiondate).ToList();
 
             #region Filter
-            totalRowCount = searchData.Count();
+            totalRowCount = groupData.Count();
             if (request.isexportalldata)
             {
-                resData = searchData.ToList();
+                resData = groupData;
             }
             else
             {
-                resData = searchData.ToList().Skip(request.startrow).Take(request.pagesize).ToList();
+                resData = groupData.Skip(request.startrow).Take(request.pagesize).ToList();
             }
             if (!resData.Any())
             {
@@ -164,24 +164,25 @@ public class SaleReportGroupByBranchHandler : BaseService, IRequestHandler<SaleR
             }
 
             // ค้นหาแบบทั้งหมด ทุกสาขา groupby ด้วย transactiondate, branchid ,itemcode
-            var groupData = resData.GroupBy(g => new { g.transactiondate, g.branchid, g.itemid }).Select(s => new
+            var groupData = resData.GroupBy(g => new { g.branchid, g.itemid }).Select(s => new
             {
-                transactiondate = s.Key.transactiondate,
+                //transactiondate = s.Key.transactiondate,
                 branchid = s.Key.branchid,
                 itemid = s.Key.itemid,
                 data = s
             }).Select(s => new SaleReportGroupByBranchDetailDTO
             {
-                transactiondate = s.transactiondate,
+                //transactiondate = s.transactiondate,
+                transactiondaterange = $"{request.transaction_startdate:dd/MM/yyyy} - {request.transaction_enddate:dd/MM/yyyy}",
                 branchid = s.data.FirstOrDefault().branchid,
                 branchname = s.data.FirstOrDefault()?.branchname,
                 itemid = s.itemid,
-                itemcode = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid && w.transactiondate == s.transactiondate)?.itemcode,
-                itemname = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid && w.transactiondate == s.transactiondate)?.itemname,
-                brandid = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid && w.transactiondate == s.transactiondate)?.brandid,
-                brandname = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid && w.transactiondate == s.transactiondate)?.brandname,
-                totalsaleqty = s.data.Where(w => w.itemid == s.itemid && w.branchid == s.branchid && w.transactiondate == s.transactiondate).Sum(w => w.totalsaleqty),
-                itempriceinbranch = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid && w.transactiondate == s.transactiondate).itempriceinbranch
+                itemcode = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid)?.itemcode,
+                itemname = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid)?.itemname,
+                brandid = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid)?.brandid,
+                brandname = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid)?.brandname,
+                totalsaleqty = s.data.Where(w => w.itemid == s.itemid && w.branchid == s.branchid).Sum(w => w.totalsaleqty),
+                itempriceinbranch = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid).itempriceinbranch
             }).OrderBy(x => x.transactiondate).ThenBy(x => x.branchid).ThenBy(x => x.itemid).ToList();
 
             #region Filter
