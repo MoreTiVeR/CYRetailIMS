@@ -50,6 +50,8 @@ public record CreateTransactionCommand : IRequest<BaseResponse<CommandResponse>>
 
     public int? paymenttypeid { get; set; }
 
+    public bool? isignorefee { get; set; }
+
     [Required(ErrorMessage = "Required field")]
     [JsonProperty(Required = Required.Always)]
     public List<CreateTransactionDetailCommand> transactiondetail { get; init; }

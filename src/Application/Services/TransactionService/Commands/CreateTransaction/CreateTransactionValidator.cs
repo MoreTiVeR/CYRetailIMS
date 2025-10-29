@@ -33,9 +33,13 @@ public class CreateTransactionValidator : AbstractValidator<CreateTransactionCom
 
     private bool IsValidTotalAmount(CreateTransactionCommand command, decimal totalAmount)
     {
-		//If have amountdeposit (Back Deposit) must have fee
+		//If have amountdeposit (Bank Deposit) must have fee
         if(command.amountdeposit > 0)
         {
+            if (command.isignorefee.HasValue && command.isignorefee.Value)
+            {
+                return true;
+            }
             if(command.fee <= 0)
             {
                 return false;

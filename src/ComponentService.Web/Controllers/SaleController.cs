@@ -493,6 +493,13 @@ public class SaleController : BaseController
     }
 
     #region Private Method
+    /// <summary>
+    /// ขาย mode เก่า บางครั้งพนักงานรับเงินสด แต่โอนให้ บัญชีบริษัทแทน แล้วลงเงินโอน แต่ไมีใส่ค่าธรรมเนียม
+    /// </summary>
+    /// <param name="reqObj"></param>
+    /// <param name="createTransactionDetailCommands"></param>
+    /// <param name="sellTransactionType"></param>
+    /// <returns></returns>
     private CreateTransactionCommand PrepareCreateTransactionCommand(SellingItemViewModel reqObj,
         List<CreateTransactionDetailCommand> createTransactionDetailCommands,
         SellTransactionType sellTransactionType)
@@ -513,7 +520,8 @@ public class SaleController : BaseController
             createddate = DateTime.Now,
             createdby = base.UserProfile.username,
             transactiondetail = createTransactionDetailCommands,
-            remark = reqObj.Remark
+            remark = reqObj.Remark,
+            isignorefee = true
         };
     }
 
