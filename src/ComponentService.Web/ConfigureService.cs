@@ -38,7 +38,7 @@ using CYRetailIMS.Application.ExternalService.PaymentTypeAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseOrderAPI;
 using CYRetailIMS.Application.ExternalService.PurchaseTypeAPI;
 using CYRetailIMS.Application.ExternalService.ReceiptAPI;
-using CYRetailIMS.Application.ExternalService.ReceiveTempAPI;
+using CYRetailIMS.Application.ExternalService.ReceiptTempAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.ShipmentTypeAPI;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
@@ -265,7 +265,7 @@ public static class ConfigureService
         services.AddScoped<ISubItemTypeAPI, SubItemTypeAPI>();
         services.AddScoped<ICountStockAPI, CountStockAPI>();
         services.AddScoped<ITransactionTypeAPI, TransactionTypeAPI>();
-        services.AddScoped<IReceiveTempAPI, ReceiveTempAPI>();
+        services.AddScoped<IReceiptTempAPI, ReceiptTempAPI>();
         services.AddScoped<IReceiptAPI, ReceiptAPI>();
         #endregion
 

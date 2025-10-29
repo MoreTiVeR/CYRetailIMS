@@ -5,20 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
-using CYRetailIMS.Application.ExternalService.ReceiveTempAPI;
-using CYRetailIMS.Application.Services.PurchaseOrderService.Commands.CreatePurchaseOrder.v1;
-using CYRetailIMS.Application.Services.PurchaseOrderService.Queries.GetPurchaseOrderList.v1;
+using CYRetailIMS.Application.ExternalService.ReceiptTempAPI;
 using CYRetailIMS.Application.Services.ReceiveTempService.Commands.CreateReceiveTemplate.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Commands.DeleteReceiveTemplate.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Commands.UpdateReceiveTemplate.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByBranchID.v1;
+using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByCriteria.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByID.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempList.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ReceiveTempAPI;
-public class ReceiveTempAPI : HttpClientService, IReceiveTempAPI
+public class ReceiptTempAPI : HttpClientService, IReceiptTempAPI
 {
-    public ReceiveTempAPI(ILog4NetLogger log, IHttpClientRequest httpClientRequest) : base(log, httpClientRequest)
+    public ReceiptTempAPI(ILog4NetLogger log, IHttpClientRequest httpClientRequest) : base(log, httpClientRequest)
     {
     }
 
@@ -40,22 +39,28 @@ public class ReceiveTempAPI : HttpClientService, IReceiveTempAPI
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/delete"), deleteReceiveTemplateCommand);
     }
 
-    public async Task<BaseResponse<List<GetReceiveTempResponseDTO>>> GetReceiveTemplatehListAsync()
+    public async Task<BaseResponse<List<GetReceiveTempResponseDTO>>> GetReceiptTemplateListAsync()
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetReceiveTempResponseDTO>, object>(HttpMethod.Get,
                 new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/templates"), null);
     }
 
-    public async Task<BaseResponse<GetReceiveTempResponseDTO>> GetReceiveTemplatehByIDAsync(GetReceiveTempByIDQuery objReq)
+    public async Task<BaseResponse<GetReceiveTempResponseDTO>> GetReceiptTemplateByIDAsync(GetReceiveTempByIDQuery objReq)
     {
         return await _httpClientRequest.HttpRequestToObject<GetReceiveTempResponseDTO, object>(HttpMethod.Post,
                         new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/receivetemplatebyid"), objReq);
     }
 
-    public async Task<BaseResponse<GetReceiveTempResponseDTO>> GetReceiveTemplatehByBranchIDAsync(GetReceiveTempByBranchIDQuery objReq)
+    public async Task<BaseResponse<GetReceiveTempResponseDTO>> GetReceiptTemplateByBranchIDAsync(GetReceiveTempByBranchIDQuery objReq)
     {
         return await _httpClientRequest.HttpRequestToObject<GetReceiveTempResponseDTO, object>(HttpMethod.Post,
                 new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/receivetemplatebybranch"), objReq);
+    }
+
+    public async Task<BaseResponse<GetReceiveTempByCriteriaResponseDTO>> GetReceiptTemplateByCriteriaAsync(GetReceiveTempByCriteriaQuery objReq)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetReceiveTempByCriteriaResponseDTO, object>(HttpMethod.Post,
+                new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/receipttemplate/v1/search"), objReq);
     }
 
 }

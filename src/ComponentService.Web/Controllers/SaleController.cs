@@ -1,9 +1,5 @@
-﻿using System.Drawing;
-using System.Globalization;
-using System.Linq;
-using System.Security.Policy;
+﻿
 using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Extensions;
 using CYRetailIMS.Application.Common.Interfaces;
@@ -15,10 +11,9 @@ using CYRetailIMS.Application.ExternalService.ItemInBranchAPI;
 using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.ExternalService.ItemUnitOfMeasureAPI;
 using CYRetailIMS.Application.ExternalService.ReceiptAPI;
-using CYRetailIMS.Application.ExternalService.ReceiveTempAPI;
+using CYRetailIMS.Application.ExternalService.ReceiptTempAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.ExternalService.TransactionTypeAPI;
-using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.DeleteItemInBranch.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.UpdateItemInBranch.v1;
@@ -32,24 +27,20 @@ using CYRetailIMS.Application.Services.ReceiveTempService.Commands.CreateReceipt
 using CYRetailIMS.Application.Services.ReceiveTempService.Commands.GenerateReceiptNo.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByBranchID.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempList.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.TransactionService.Commands.CreateTransaction;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
 using CYRetailIMS.Application.Services.TransactionTypeService.Queries.GetTrasnactionList.v1;
-using CYRetailIMS.Application.Services.TransferTypeService.Queries.GetTransferTypeList.v1;
 using CYRetailIMS.Application.Services.UnitOfMeasureService.Queries.GetUnitOfMeasureList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.ComponentService.Web.Models;
-using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using NetTopologySuite.Index.HPRtree;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -72,7 +63,7 @@ public class SaleController : BaseController
     private readonly IItemUnitOfMeasureAPI _itemUnitOfMeasureAPI;
     private readonly ITransactionTypeAPI _transactionTypeAPI;
     private readonly ICompositeViewEngine _viewEngine;
-    private readonly IReceiveTempAPI _receiveTempAPI;
+    private readonly IReceiptTempAPI _receiveTempAPI;
     private readonly IReceiptAPI _receiptAPI;
 
     public SaleController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
@@ -84,7 +75,7 @@ public class SaleController : BaseController
         IItemUnitOfMeasureAPI itemUnitOfMeasureAPI,
         ITransactionTypeAPI transactionTypeAPI, 
         ICompositeViewEngine viewEngine,
-        IReceiveTempAPI receiveTempAPI,
+        IReceiptTempAPI receiveTempAPI,
         IReceiptAPI receiptAPI) : base(httpClientRequest, mapper, log)
     {
         _itemInBranchAPI = itemInBranchAPI;
@@ -1130,7 +1121,7 @@ public class SaleController : BaseController
             return Json(new { result = false, msg = "ขออภัย ไม่พบรายการสินค้า" });
         }
 
-        BaseResponse<GetReceiveTempResponseDTO> getReceiveTemplate = await _receiveTempAPI.GetReceiveTemplatehByBranchIDAsync(new GetReceiveTempByBranchIDQuery
+        BaseResponse<GetReceiveTempResponseDTO> getReceiveTemplate = await _receiveTempAPI.GetReceiptTemplateByBranchIDAsync(new GetReceiveTempByBranchIDQuery
         {
             branchid = branchID
         });

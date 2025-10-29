@@ -48,6 +48,15 @@ datatable = $("#tbReceipts").DataTable({
         //        return formatDate(new Date(data.transactiondate));
         //    }
         //},
+        {
+            "data": { receivetempid: "receivetempid", branchid: "branchid" },
+            "render": function (data) {
+                var dict = {
+                    "receivetempid": data.receivetempid,
+                };
+                return "<a href='Edit?receivetempid=" + data.receivetempid + "'  class='me-3' title='แก้ไขข้อมูลใบเสร็จ'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.receivetempid + "' title='ลบข้อมูลใบเสร็จ' onclick=deleteReceipt(" + data.receivetempid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
+            }
+        },
         { "data": "receivetempid" },
         { "data": "branchname" },
         { "data": "printername" },
@@ -84,16 +93,7 @@ datatable = $("#tbReceipts").DataTable({
                     return "<span class='badges bg-lightyellow'>ยกเลิก</span>";
                 }
             }
-        },
-        {
-            "data": { receivetempid: "receivetempid", branchid: "branchid" },
-            "render": function (data) {
-                var dict = {
-                    "receivetempid": data.receivetempid,
-                };
-                return "<a href='Edit?receivetempid=" + data.receivetempid + "'  class='me-3' title='แก้ไขข้อมูลใบเสร็จ'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.receivetempid + "' title='ลบข้อมูลใบเสร็จ' onclick=deleteReceipt(" + data.receivetempid + ") class='me-3'><img src='../assets/img/icons/delete.svg' alt='img'></a>";
-            }
-        },
+        }
     ],
     "order": [[0, "desc"]],
     "columnDefs": [
@@ -127,7 +127,7 @@ datatable = $("#tbReceipts").DataTable({
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
             }
         },
         {
@@ -136,7 +136,7 @@ datatable = $("#tbReceipts").DataTable({
             text: 'ดาวโหลดรายงานทั้งหมด',
             class: 'btn-primary',
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                 modifier: {
                     page: 'all'
                 },

@@ -4,6 +4,7 @@ using CYRetailIMS.Application.Services.ReceiveTempService.Commands.CreateReceive
 using CYRetailIMS.Application.Services.ReceiveTempService.Commands.DeleteReceiveTemplate.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Commands.UpdateReceiveTemplate.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByBranchID.v1;
+using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByCriteria.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempByID.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Queries.GetReceiveTempList.v1;
 using CYRetailIMS.Application.Services.ShipmentTypeService.Queries.GetShipmentTypeList.v1;
@@ -14,9 +15,9 @@ namespace CYRetailIMS.ComponentService.API.V1.Controllers;
 
 [Route("api/v{version:apiVersion}/receipttemplate")]
 [ApiController]
-public class ReceiveTemplateController : BaseApiController
+public class ReceiptTemplateController : BaseApiController
 {
-    public ReceiveTemplateController(ILog4NetLogger log) : base(log)
+    public ReceiptTemplateController(ILog4NetLogger log) : base(log)
     {
     }
 
@@ -113,6 +114,23 @@ public class ReceiveTemplateController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetTempReceiveByBranchIDAsync Success");
+        return Ok(res.data);
+    }
+
+
+    [HttpPost]
+    [Route("v1/search")]
+    [ProducesResponseType(typeof(GetReceiveTempByCriteriaResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetTempReceiveByCriteriaAsync(GetReceiveTempByCriteriaQuery getReceiveTempByCriteriaQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<GetReceiveTempByCriteriaResponseDTO> res = await Mediator.Send(getReceiveTempByCriteriaQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetTempReceiveByCriteriaAsync Success");
         return Ok(res.data);
     }
 

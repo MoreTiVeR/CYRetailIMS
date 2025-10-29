@@ -20,6 +20,11 @@ public class CreateReceiveTemplateHandler : BaseService, IRequestHandler<CreateR
 
     public async Task<BaseResponse<CommandResponse>> Handle(CreateReceiveTemplateCommand request, CancellationToken cancellationToken)
     {
+        var isExist = await _unitOfWork.Repository<TMReceiveTemplate>().AnyAsync(w => w.BranchID == request.branchid);
+        if (isExist)
+        {
+            throw new Exception("ไม่สามารภทำรายการได้ เนื่องจากมีข้อมูลแม่แบบใบเสร็จสาขานี้ในระบบแล้ว.");
+        }
         TMReceiveTemplate tmReceiveTemplateEntity = _mapper.Map<TMReceiveTemplate>(request);
         tmReceiveTemplateEntity.ActiveStatus();
         tmReceiveTemplateEntity.SetCreatedDate();

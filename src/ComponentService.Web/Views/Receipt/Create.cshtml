@@ -1,4 +1,6 @@
-﻿
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@model CreateReceiptTemplateViewModel
+
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -29,16 +31,116 @@
 
 <div class="card">
 	<div class="card-body">
-		<!-- Main Wrapper -->
-		<div class="main-wrapper">
-			<div class="error-box">
-				<div class="error-img">
-					<img src="../assets/img/pages/under-maintenance.png" class="img-fluid" alt="">
+		<form id="frmCreateReceiptTemplate" class="form-edit-brand" onsubmit="return CreateReceiptTemp(this)">
+			<div class="row">
+				<!--ROW1-->
+				<div class="col-lg-6 col-sm-6 col-12">
+					<div class="form-group">
+						<label>สาขา</label>
+						<select id="ddlBranch" class="ddl-select2 select2 ddl-branch" asp-for="branchid" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
+							<option value="">--เลือกสาขาที่เพิ่มใบเสร็จ--</option>
+						</select>
+					</div>
 				</div>
-				<h3 class="h2 mb-3">ขออภัย, กำลังปรับปรุง!</h3>
-				<a asp-action="Index" asp-controller="Receipt" class="btn btn-primary">กลับ</a>
+				<div class="col-lg-6 col-sm-6 col-12">
+					<div class="form-group">
+						<label>ชื่อบริษัท</label>
+						<input type="text" asp-for="shopheadernametext">
+						<span asp-validation-for="shopheadernametext" class="text-danger"></span>
+					</div>
+				</div>
+
+				<!--ROW 2-->
+				@* <div class="col-lg-12">
+					<div class="form-group">
+						<label>ที่อยู่บริษัท</label>
+						<textarea class="form-control" asp-for="shopheaderaddresstext"></textarea>
+						<span asp-validation-for="shopheaderaddresstext" class="text-danger"></span>
+					</div>
+				</div> *@
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="form-group">
+							<label>ที่อยู่บริษัท</label>
+							@Html.TextAreaFor(m => m.shopheaderaddresstext, new
+							{
+								@class = "form-control full-width",
+														@style = "resize: none;",
+														@cols = 5,
+														@rows = 3,
+														@maxlength = 200,
+														value = "",
+														placeholder = Html.DisplayNameFor(n => n.shopheaderaddresstext)
+														})
+						</div>
+					</div>
+				</div>
+
+				<!--ROW --->
+				<div class="col-lg-12">
+					<div class="form-group">
+						<label>ข้อความท้ายกระดาษ</label>
+						@Html.TextAreaFor(m => m.shopfootertext, new
+												{
+							@class = "form-control full-width",
+												@style = "resize: none;",
+												@cols = 5,
+												@rows = 3,
+												@maxlength = 50,
+												value = "",
+												placeholder = Html.DisplayNameFor(n => n.shopfootertext)
+												})
+						<span asp-validation-for="shopfootertext" class="text-danger"></span>
+					</div>
+				</div>
+
+				<!--ROW --->
+				<div class="col-lg-4 col-sm-6 col-12">
+					<div class="form-group">
+						<label>เบอร์ติดต่อ/ข้อความโทรติดต่อ</label>
+						<input type="text" asp-for="telephoneno">
+						<span asp-validation-for="telephoneno" class="text-danger"></span>
+					</div>
+				</div>
+
+				<!--ROW --->
+				<div class="col-lg-4 col-sm-6 col-12">
+					<div class="form-group">
+						<label>ชื่อเครื่องปริ้น</label>
+						<input type="text" asp-for="printername" value="POS-80" placeholder="*เครื่องปริ้นพื้นฐาน POS-80">
+						<span asp-validation-for="printername" class="text-danger"></span>
+					</div>
+				</div>
+
+				<!--ROW 3-->
+				<div class="col-lg-4 col-sm-6 col-12">
+					<div class="form-group">
+						<label>สถานะเปิดใช้งาน</label>
+						<select class="select" asp-for="isactive">
+							<option value="1" selected>ใช้งาน</option>
+							<option value="0">ไม่ใช้งาน</option>
+						</select>
+						<span asp-validation-for="isactive" class="text-danger"></span>
+					</div>
+				</div>
 			</div>
-		</div>
-		<!-- /Main Wrapper -->
+			<div class="col-lg-12">
+				<a asp-action="Index" asp-controller="Receipt" class="btn btn-cancel me-2">ยกเลิก</a>
+				<button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
+					<i class="bx bx-plus"></i>
+					บันทึกข้อมูล
+				</button>
+			</div>
+		</form>
 	</div>
 </div>
+
+
+@section Scripts {
+
+	<!--charactersRemaining-->
+	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
+
+	<!--Page Script-->
+	<script src="~/js/view/receipt/receipt_create.js" asp-append-version="true"></script>
+}
