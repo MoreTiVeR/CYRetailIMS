@@ -2,23 +2,71 @@
 @model CreateReceiptTemplateViewModel
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Create";
+	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<!--Modal CSS-->
 <style type="text/css">
-	.error-box {
-		display: -webkit-box;
-		display: -ms-flexbox;
+	/* wrapper lets us scroll on small screens */
+	.modal .modal-body .receipt-preview-wrapper {
+		width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* WIN THE CASCADE HERE */
+	.modal .modal-body pre.receipt-preview {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", "Liberation Mono", monospace !important;
+		font-variant-ligatures: none;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0 !important;
+		white-space: pre !important;
+		/* 56 columns, exactly your server width */
+		width: 100%;
+		/* max-width: 56ch; */
+		display: inline-block;
+		line-height: 1.25;
+		background: #fff;
+		border: 1px solid #ddd;
+		padding: 16px;
+	}
+
+	/* Optional: if you prefer auto-fit on very small phones, scale instead of scroll */
+	@@media (max-width: 420px) {
+		.modal .modal-body .receipt-preview-wrapper {
+			overflow-x: hidden;
+		}
+
+		.modal .modal-body pre.receipt-preview {
+			transform-origin: top left;
+			transform: scale(0.85);
+		}
+	}
+</style>
+
+<style type="text/css">
+
+	/* .receipt-preview {
+			font-family: monospace;
+			white-space: pre;
+			background: white;
+			padding:20px;
+			border:1px solid #ddd;
+		} */
+
+	/* Top toolbar */
+	.card-toolbar {
 		display: flex;
-		align-items: center;
-		-webkit-box-align: center;
-		-ms-flex-align: center;
-		justify-content: center;
-		-webkit-justify-content: center;
-		-ms-flex-pack: center;
-		-ms-flex-direction: column;
-		flex-direction: column;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	.btn-preview-top {
+		border-radius: 24px;
+		padding: 6px14px;
+		font-weight: 600;
 	}
 </style>
 
@@ -31,6 +79,12 @@
 
 <div class="card">
 	<div class="card-body">
+		<div class="card-toolbar">
+			<button id="btnPreviewTop" type="button" class="btn btn-outline-primary btn-preview-top" onclick="previewReceipt()" title="ดูตัวอย่างใบเสร็จ">
+				<i class="fas fa-eye me-1"></i>
+				ดูตัวอย่าง
+			</button>
+		</div>
 		<form id="frmCreateReceiptTemplate" class="form-edit-brand" onsubmit="return CreateReceiptTemp(this)">
 			<div class="row">
 				<!--ROW1-->
@@ -50,14 +104,7 @@
 					</div>
 				</div>
 
-				<!--ROW 2-->
-				@* <div class="col-lg-12">
-					<div class="form-group">
-						<label>ที่อยู่บริษัท</label>
-						<textarea class="form-control" asp-for="shopheaderaddresstext"></textarea>
-						<span asp-validation-for="shopheaderaddresstext" class="text-danger"></span>
-					</div>
-				</div> *@
+				<!--ROW2-->
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="form-group">
@@ -112,7 +159,7 @@
 					</div>
 				</div>
 
-				<!--ROW 3-->
+				<!--ROW3-->
 				<div class="col-lg-4 col-sm-6 col-12">
 					<div class="form-group">
 						<label>สถานะเปิดใช้งาน</label>
@@ -124,7 +171,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-lg-12">
+			<div class="col-lg-12 mt-3 text-center">
 				<a asp-action="Index" asp-controller="Receipt" class="btn btn-cancel me-2">ยกเลิก</a>
 				<button id="btnSave" name="btnSave" type="submit" class="btn btn-submit me-2">
 					<i class="bx bx-plus"></i>
@@ -135,8 +182,36 @@
 	</div>
 </div>
 
+<!-- Receipt Preview Modal -->
+<div class="modal fade" id="receiptPreviewModal" tabindex="-1" role="dialog" aria-labelledby="receiptPreviewModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<!-- centered helps mobile -->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="receiptPreviewModalLabel">ตัวอย่างใบเสร็จ</h5>
+			</div>
+			<div class="modal-body">
+				<!-- wrapper to manage scrolling/zoom on small screens -->
+				<div class="receipt-preview-wrapper">
+					<pre id="receiptPreview" class="receipt-preview" aria-label="Receipt preview"></pre>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="col-lg-12 mt-3 text-center">
+					<a asp-action="Index" asp-controller="Receipt" class="btn btn-cancel me-2" data-bs-dismiss="modal">ปิด</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 
 @section Scripts {
+
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
 	<!--charactersRemaining-->
 	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>

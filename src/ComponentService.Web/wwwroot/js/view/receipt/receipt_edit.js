@@ -49,3 +49,34 @@ function InitialCharacterRemaining() {
         multipleCharacterText: '## จำนวนตัวอักษรที่พิมพ์ได้'
     });
 }
+
+
+// Preview Receipt Function
+function previewReceipt() {
+    var form = $("#frmEditReceiptTemplate");
+    var model = form.serializeJSON();
+
+    $.ajax({
+        url: '/Receipt/GenerateReceiptText',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(model),
+        success: function (response) {
+            if (response.result) {
+                // Put text into the <pre> so spacing/newlines are preserved
+                $("#receiptPreview").text(response.text);
+
+                // Show modal
+                $("#receiptPreviewModal").modal("show");
+
+                // Reset scroll
+                $("#receiptPreview").closest('.modal-body').scrollTop(0);
+            } else {
+                Swal.fire({ title: 'Error!', text: response.message, icon: 'error' });
+            }
+        },
+        error: function () {
+            Swal.fire({ title: 'Error!', text: 'Failed to generate receipt preview', icon: 'error' });
+        }
+    });
+}
