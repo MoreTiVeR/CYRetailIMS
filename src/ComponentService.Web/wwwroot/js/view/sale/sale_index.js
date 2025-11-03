@@ -70,11 +70,16 @@ datatable = $("#tbSaleTransaction").DataTable({
         { "data": "remark" },
         { "data": "createdbystaff" },
         {
+            //"data": { transactionid: "transactionid" },
+            //"render": function (data) {
+            //    return "<div class='text-center'><a class='action-set' href='javascript:void(0);' data-bs-toggle='dropdown' aria-expanded='true'><i class='fa fa-ellipsis-v' aria-hidden='true'></i></a>"
+            //        + "<ul class='dropdown-menu'><li><a asp-action='Edit' asp-controller='Transactions' title='แก้ไขข้อมูลขาย' asp-all-route-data='aTransactionID' class='dropdown-item' href='/Transactions/Edit?tranid=" + data.transactionid +"'><img src='../assets/img/icons/edit.svg' class='me-2' alt='img'>แก้ไขข้อมูล</a></li>"
+            //        + "<li><a href='#' id='rowid" + data.transactionid + "' class='dropdown-item' onclick='deleteTransaction(" + data.transactionid + ")'><img src='../assets/img/icons/delete1.svg' class='me-2' alt='img'>ลบข้อมูล</a></li></div>";
+            //}
             "data": { transactionid: "transactionid" },
             "render": function (data) {
-                return "<div class='text-center'><a class='action-set' href='javascript:void(0);' data-bs-toggle='dropdown' aria-expanded='true'><i class='fa fa-ellipsis-v' aria-hidden='true'></i></a>"
-                    + "<ul class='dropdown-menu'><li><a asp-action='Edit' asp-controller='Transactions' title='แก้ไขข้อมูลขาย' asp-all-route-data='aTransactionID' class='dropdown-item' href='/Transactions/Edit?tranid=" + data.transactionid +"'><img src='../assets/img/icons/edit.svg' class='me-2' alt='img'>แก้ไขข้อมูล</a></li>"
-                    + "<li><a href='#' id='rowid" + data.transactionid + "' class='dropdown-item' onclick='deleteTransaction(" + data.transactionid + ")'><img src='../assets/img/icons/delete1.svg' class='me-2' alt='img'>ลบข้อมูล</a></li></div>";
+                return "<a href='/Transactions/Edit?tranid=" + data.transactionid + "' asp-all-route-data='aTransactionID' class='me-3' title='แก้ไขข้อมูลใบเสร็จ'><img src='../assets/img/icons/edit.svg' alt='img'></a>";
+                
             }
         }
     ],
@@ -83,6 +88,10 @@ datatable = $("#tbSaleTransaction").DataTable({
         {
             "targets": [0],
             "visible": false
+        },
+        {
+            "targets": 10, // index of receivetempid column
+            "className": "text-center"
         }
     ],
     "language": {
@@ -157,7 +166,8 @@ $("#btnSearch").on('click', function (event) {
 });
 
 function deleteTransaction(tranid) {
-
+    AlertError("ไม่สามารถลบรายการได้ชั่วคราว! <br> กรุณาติดต่อผู้ดูแลระบบ.");
+    return;
     Swal.fire({
         title: "ยืนยันการลบข้อมูล?",
         //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",

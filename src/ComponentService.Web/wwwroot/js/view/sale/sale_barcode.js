@@ -593,63 +593,6 @@ async function CreateDataAsync(objData) {
         throw error; // ส่ง error กลับไปเพื่อให้ .catch ใช้ได้
     }
 }
-
-//function ShowPrintReceipt(objData) {
-//    ShowLoading();
-
-//    $.ajax({
-//        url: "/Sale/GenerateReceiveSlipText",
-//        type: "POST",
-//        data: objData,
-//        contentType: "application/json; charset=utf-8",
-//        success: function (res) {
-//            if (res.result) {
-//                $("body").append(res.msg);
-//                $("#print-receipt").modal("show");
-//                HideLoading();
-
-//                document.getElementById('btnPrintReceipt').addEventListener('click', async function handler()
-//                {
-//                    try
-//                    {
-//                        ShowLoading();
-//                        const result = await CreateDataAsync(objData); // ถ้า CreateData return promise
-//                        if (result && result.result === true) {
-//                            console.log('PrintReceipt Success');
-
-//                            $('#print-receipt').modal('hide');
-
-//                            // ใช้ Response จากการบันทึกข้อมูล Sale/GenerateReceiveSlip
-//                            console.log('Printer Command and Printer Name:' + res.printername);
-//                            console.log(res.text);
-//                            //console.log(res.printername);
-
-//                            await SendPOSCommand(res.text, res.printername);
-
-//                        } else {
-//                            console.log('PrintReceipt Failed');
-//                            AlertError(result?.msg || 'ไม่สามารถบันทึกข้อมูลได้');
-//                        }
-//                        HideLoading();
-//                    } catch (error) {
-//                        console.log('PrintReceipt Error');
-//                        AlertError(error.message || 'เกิดข้อผิดพลาด');
-//                        HideLoading();
-//                    } finally {
-//                        HideLoading();
-//                        // ✅ remove event listener after execution
-//                        document.getElementById('btnPrintReceipt').removeEventListener('click', handler);
-//                    }
-//                });
-//            } else {
-//                AlertError(res.msg);
-//                HideLoading();
-//            }
-//        }
-//    });
-
-//}
-
 function ShowPrintReceipt(objData) {
     return new Promise((resolve, reject) => {
         ShowLoading();
@@ -713,6 +656,36 @@ function ShowPrintReceipt(objData) {
                 reject(err || new Error("AJAX error: " + status));
             }
         });
+    });
+}
+
+function TestPrintReceipt() {
+
+    $.ajax({
+        url: "/Sale/TestGenerateReceiveSlipText",
+        type: "POST",
+        data: null,
+        contentType: "application/json; charset=utf-8",
+        success: function (res) {
+            if (!res.result) {
+                HideLoading();
+                AlertError(res.msg);
+                reject(new Error(res.msg));
+                return;
+            }
+
+            // ✅ Capture values
+            const printerName = res.printername;
+            const printerText = res.text;
+
+            // Reset old handlers before binding new
+            SendPOSCommand(printerText, printerName);
+
+        },
+        error: function (xhr, status, err) {
+            HideLoading();
+            reject(err || new Error("AJAX error: " + status));
+        }
     });
 }
 

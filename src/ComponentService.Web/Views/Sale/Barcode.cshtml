@@ -175,6 +175,24 @@
 	}
 </style>
 
+<!--TestPrint CSS-->
+<style type="text/css">
+
+	/* Top toolbar */
+	.card-toolbar {
+		display: flex;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	.btn-preview-top {
+		border-radius: 24px;
+		padding: 6px14px;
+		font-weight: 600;
+	}
+</style>
+
 <div class="page-header">
 	<div class="page-title">
 		<h4>สแกนขายสินค้า</h4>
@@ -184,6 +202,12 @@
 
 <div class="card">
 	<div class="card-body">
+		<div class="card-toolbar">
+			<button id="btnPreviewTop" type="button" class="btn btn-outline-primary btn-preview-top" onclick="TestPrintReceipt()" title="ทดสอบพิมพ์ใบเสร็จ">
+				<i class="fas fa-print"></i>
+				ทดสอบพิมพ์
+			</button>
+		</div>
 		<div class="row">
 			<div class="form-group">
 				<input type="hidden" id="uRoleID" value="@ViewBag.CurrentRoleID" readonly />

@@ -1204,6 +1204,89 @@ public class SaleController : BaseController
         return Json(new { result = true, msg = html, cmds = recetiveBase64, text = recetiveText, printername = printerName });
     }
 
+    [HttpPost]
+    public IActionResult TestGenerateReceiveSlipText([FromBody] SellingItemViewModel sellingItemView)
+    {
+        string receiptNo = $"TEST001-001-{DateTime.Now:ddMMyyyy}";
+        string receiptDate = $"Date: {DateTime.Now:dd/MM/yyyy HH:mm}";
+        #region Mock Item Data and Receipt Template
+        List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = new List<SellingBarcodeItemViewModel>();
+        tempSellingBarcodeItemList.Add(new SellingBarcodeItemViewModel
+        {
+            itemname = "ทดสอบปริ้น เคส Air Pods ซิลิโคนสีพื้น Gen 1-2 100",
+            qty = 5,
+            itemprice = 100.00m,
+            totalprice = 3 * 100.00m
+        });
+        //tempSellingBarcodeItemList.Add(new SellingBarcodeItemViewModel
+        //{
+        //    itemname = "ทดสอบปริ้น เคส Air Pods ซิลิโคนสีพื้น Gen 3 100",
+        //    qty = 2,
+        //    itemprice = 150.00m,
+        //    totalprice = 2 * 150.00m
+        //});
+
+
+        GetReceiveTempResponseDTO getReceiveTemplate = new GetReceiveTempResponseDTO
+        {
+            shopheadernametext = "บริษัท ทดสอบ จำกัด",
+            shopheaderaddresstext = "64/307, หมู่ 1, ราชาเทวะ, บางพลี, สมุทรปราการ 10540",
+            additionalheadertext = null,
+            telephoneno = "โทร 02-0302479",
+            shopfootertext = "ข้อความท้ายกระดาษ",
+            additionalfootertext = null,
+            printername = "POS-80",
+        };
+        #endregion
+        // คำนวณ
+        bool isVatInclusive = true; // หรือ true ถ้าราคาในระบบรวม VAT มาแล้ว
+
+        decimal subTotal = tempSellingBarcodeItemList.Sum(s => s.totalprice);
+        decimal discount = 0.0m;
+        decimal shipping = 0.0m;
+        //decimal vat = subTotal.ToVat();
+        //decimal totalBill = subTotal - discount + shipping + vat;
+        //inc vat VAT รวมในสินค้าแล้ว ไม่ต้องตำนวนบวกเพิ่ม
+        //decimal totalBill = subTotal - discount + shipping;
+        decimal due = 0.0m;
+
+        ///subTotalExcludeVat ยอดก่อน vat
+        ///vat ภาษี
+        ///totalBill หลัง vat
+        var (subTotalExcludeVat, vat, totalBill) = VatHelper.CalculateTotal(subTotal, discount, shipping, isVatInclusive);
+        var model = new ReceiptViewModel
+        {
+            InvoiceNo = receiptNo,
+            CompanyName = getReceiveTemplate.shopheadernametext,
+            CompanyAddress = getReceiveTemplate.shopheaderaddresstext,
+            AdditionalHeaderText = getReceiveTemplate.additionalheadertext,
+            TelephoneNo = getReceiveTemplate.telephoneno,
+            ShopFooterText = getReceiveTemplate.shopfootertext,
+            AdditionalFooterText = getReceiveTemplate.additionalfootertext,
+            Items = tempSellingBarcodeItemList,
+            SubTotal = subTotalExcludeVat,
+            Discount = discount,
+            Shipping = shipping,
+            Vat = vat,
+            TotalBill = totalBill,
+            Due = due,
+            Date = DateTime.Now
+        };
+
+        // Text Mode
+        string recetiveText = GenerateReceiptEscPosV2(model);
+
+        // Convert to Base64 for JS transfer
+        byte[] bytes = Encoding.GetEncoding(874).GetBytes(recetiveText);
+        string recetiveBase64 = Convert.ToBase64String(bytes);
+
+        string printerName = getReceiveTemplate.printername;
+
+        // return PartialView เป็น string
+        //string html = RenderPartialViewToString("_ReceiptModal", model);
+        return Json(new { result = true, text = recetiveText, printername = printerName });
+    }
+
     /// <summary>
     /// Method to render a partial view to string Modal ReceiptModal
     /// </summary>
