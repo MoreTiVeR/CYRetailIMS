@@ -126,9 +126,9 @@ public class ReportAPI : HttpClientService, IReportAPI
             SaleReportGroupByBranchQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salereportbygroup"), saleReportGroupByBranchQuery);
     }
 
-    public async Task<BaseResponse<List<SaleBarcodeReportResponseDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery)
+    public async Task<BaseResponse<List<SaleBarcodeReportResponseDetailDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery)
     {
-        return await _httpClientRequest.HttpRequestToObject<List<SaleBarcodeReportResponseDTO>,
+        return await _httpClientRequest.HttpRequestToObject<List<SaleBarcodeReportResponseDetailDTO>,
             SaleBarcodeReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salebarcodereport"), saleBarcodeReportQuery);
     }
 }

@@ -165,6 +165,11 @@ public class SaleController : BaseController
         return View();
     }
 
+    public IActionResult EndOfDaySummary()
+    {
+        return View();
+    }
+
     /// <summary>
     /// ค้นหาสำหรับ Select2
     /// http://dotnetqueries.com/Article/159/how-to-implement-select2-with-ajax-and-json-in-asp-net-mvc

@@ -54,5 +54,5 @@ public interface IReportAPI
 
 	Task<BaseResponse<SaleReportGroupByBranchResposneDTO>> GetSaleReportByGroupAsync(SaleReportGroupByBranchQuery saleReportGroupByBranchQuery);
 
-	Task<BaseResponse<List<SaleBarcodeReportResponseDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery);
+	Task<BaseResponse<List<SaleBarcodeReportResponseDetailDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery);
 }

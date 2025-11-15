@@ -958,8 +958,11 @@ public class ReportController : BaseController
 
     #region [SaleBarcodeReport] รายงานสรุปยอดสิ้นวันบาร์โค้ด
 
-    public IActionResult SaleBarcodeReport()
+    public async Task<IActionResult> SaleBarcodeReportAsync()
     {
+        var branchList = await PrepareSelectBranch();
+        branchList.Insert(0, new SelectListItem { Text = "ทุกสาขา", Value = "" });
+        ViewBag.BranchList = branchList;
         return View();
     }
 
@@ -988,7 +991,7 @@ public class ReportController : BaseController
                 throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
             }
 
-            BaseResponse<List<SaleBarcodeReportResponseDTO>> res = await _reportAPI.GetSaleBarcodeReportAsync(new Application.Services.ReportService.Queries.SaleBarcodeReport.v1.SaleBarcodeReportQuery
+            BaseResponse<List<SaleBarcodeReportResponseDetailDTO>> res = await _reportAPI.GetSaleBarcodeReportAsync(new Application.Services.ReportService.Queries.SaleBarcodeReport.v1.SaleBarcodeReportQuery
             {
                 transaction_startdate = sDate,
                 transaction_enddate = eDate,
@@ -997,14 +1000,14 @@ public class ReportController : BaseController
 
             if (!res.result)
             {
-                return Json(new { result = false, message = res.message ?? "ไม่พบข้อมูล", data = new List<SaleBarcodeReportResponseDTO>() });
+                return Json(new { result = false, message = res.message ?? "ไม่พบข้อมูล", data = new List<SaleBarcodeReportResponseDetailDTO>() });
             }
 
             return Json(new { result = true, message = "สำเร็จ", data = res.data });
         }
         catch (Exception ex)
         {
-            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleBarcodeReportResponseDTO>() });
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleBarcodeReportResponseDetailDTO>() });
         }
     }
     #endregion

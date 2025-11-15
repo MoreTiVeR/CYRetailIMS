@@ -147,6 +147,9 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTReceipt> TTReceipts { get; set; }
 
+    public virtual DbSet<TTEndOfDaySummary> TTEndOfDaySummaries { get; set; }
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -628,6 +631,74 @@ public partial class CYDBContext : DbContext
             entity.HasKey(e => e.ReceiptID).HasName("PK__TTReceip__CC08C40016CE6296");
 
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+        });
+
+        modelBuilder.Entity<TTEndOfDaySummary>(entity =>
+        {
+            entity.HasKey(e => e.EndOfDayId);
+
+            entity.Property(e => e.SummaryDate)
+                .IsRequired()
+                .HasColumnType("date");
+
+            entity.Property(e => e.TotalCash)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.DepositedCash)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.TotalTransfer)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.CustomerTransfer)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.GrandTotal)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.SubstituteWage)
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.Fee)
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.OtherExpense)
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.OtherExpenseNote)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.FinalTotal)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.CreatedBy)
+                .IsRequired()
+                .HasMaxLength(10);
+
+            entity.Property(e => e.CreatedDate)
+                .IsRequired()
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(GETDATE())");
+
+            entity.Property(e => e.UpdatedBy)
+                .HasMaxLength(10);
+
+            entity.Property(e => e.UpdatedDate)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.IsActive)
+                .IsRequired()
+                .HasDefaultValue(true);
+
+            entity.HasIndex(e => e.SummaryDate)
+                .IsUnique()
+                .HasDatabaseName("UX_TTEndOfDaySummary_SummaryDate");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -11,6 +11,8 @@ using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferRe
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
@@ -316,6 +318,27 @@ public class ReportController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]SaleReportByGroupAsync Success");
+        return Ok(res.data);
+    }
+
+    /// <summary>
+    /// รายงานยอดรวมตามรหัสสินค้า แยกตามสาขา วันที่ค้นหา
+    /// </summary>
+    /// <param name="saleReportQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/salebarcodereport")]
+    [ProducesResponseType(typeof(SaleBarcodeReportResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<SaleBarcodeReportResponseDTO> res = await Mediator.Send(saleBarcodeReportQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]SaleBarcodeReportAsync Success");
         return Ok(res.data);
     }
 }
