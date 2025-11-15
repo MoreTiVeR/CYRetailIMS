@@ -21,6 +21,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Infrastructure.Common.Extensions;
@@ -950,6 +951,60 @@ public class ReportController : BaseController
         catch
         {
             return Json(new { data = new List<SaleReportGroupByBranchDetailDTO>(), recordsTotal = 0, recordsFiltered = 0 });
+        }
+    }
+    #endregion
+
+
+    #region [SaleBarcodeReport] รายงานสรุปยอดสิ้นวันบาร์โค้ด
+
+    public IActionResult SaleBarcodeReport()
+    {
+        return View();
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> SearchSaleBarcodeReport([FromBody] CYRetailIMS.Application.Common.Models.UI.SearchSaleBarcodeReportViewModel searchObj)
+    {
+        try
+        {
+            // Default dates to current month if not provided
+            DateTime sDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month,1);
+            DateTime eDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+            if (!string.IsNullOrEmpty(searchObj.startdate))
+            {
+                sDate = searchObj.startdate.DatetimePickerToDate();
+            }
+            if (!string.IsNullOrEmpty(searchObj.enddate))
+            {
+                eDate = searchObj.enddate.DatetimePickerToDate();
+            }
+
+            //StartDate > EndDate
+            if (DateTime.Compare(sDate, eDate) ==1)
+            {
+                throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+            }
+
+            BaseResponse<List<SaleBarcodeReportResponseDTO>> res = await _reportAPI.GetSaleBarcodeReportAsync(new Application.Services.ReportService.Queries.SaleBarcodeReport.v1.SaleBarcodeReportQuery
+            {
+                transaction_startdate = sDate,
+                transaction_enddate = eDate,
+                branchid = searchObj.branchid
+            });
+
+            if (!res.result)
+            {
+                return Json(new { result = false, message = res.message ?? "ไม่พบข้อมูล", data = new List<SaleBarcodeReportResponseDTO>() });
+            }
+
+            return Json(new { result = true, message = "สำเร็จ", data = res.data });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleBarcodeReportResponseDTO>() });
         }
     }
     #endregion

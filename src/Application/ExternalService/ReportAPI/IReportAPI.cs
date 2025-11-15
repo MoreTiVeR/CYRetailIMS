@@ -19,37 +19,40 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 
 namespace CYRetailIMS.Application.ExternalService.ReportAPI;
 public interface IReportAPI
 {
 	Task<BaseResponse<CommandResponse>> CreateAuditTransactionReportAsync(CreateAuditReportCommand createAuditReportCommand);
 
-    Task<BaseResponse<SaleReportResponseDTO>> GetSaleReportByCriteriaAsync(SaleReportQuery saleReportQuery);
+	Task<BaseResponse<SaleReportResponseDTO>> GetSaleReportByCriteriaAsync(SaleReportQuery saleReportQuery);
 
 	Task<BaseResponse<List<SaleSummaryReportResponseDTO>>> GetSaleSummaryReportAsync(SaleSummaryReportQuery saleSummaryReportQuery);
 
 	Task<BaseResponse<List<AuditReportResponseDTO>>> GetAuditReportAsync(AuditReportQuery auditReportQuery);
 
-    Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByTransIDAsync(int transactionid);
+	Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByTransIDAsync(int transactionid);
 
-    Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByBranchAsync(SaleSummaryReportByBranchQuery summaryReportByBranchQuery);
+	Task<BaseResponse<SaleSummaryReportResponseDTO>> GetSaleSummaryReportByBranchAsync(SaleSummaryReportByBranchQuery summaryReportByBranchQuery);
 
-    Task<BaseResponse<List<ItemTransactionLogReportResponseDTO>>> GetItemTransactionLogReportAsync(ItemTransactionLogReportQuery logReportQuery);
+	Task<BaseResponse<List<ItemTransactionLogReportResponseDTO>>> GetItemTransactionLogReportAsync(ItemTransactionLogReportQuery logReportQuery);
 
-    Task<BaseResponse<List<AvailableStockReportResponseDTO>>> GetAvailableItemStockReportAsync(AvailableStockReportQuery availableStockReportQuery);
+	Task<BaseResponse<List<AvailableStockReportResponseDTO>>> GetAvailableItemStockReportAsync(AvailableStockReportQuery availableStockReportQuery);
 
-    Task<BaseResponse<List<AvailableStockReportResponseDTO>>> GetAvailableItemStockByBranchReportAsync(AvailableStockByBrachReportQuery availableStockByBrachReportQuery);
+	Task<BaseResponse<List<AvailableStockReportResponseDTO>>> GetAvailableItemStockByBranchReportAsync(AvailableStockByBrachReportQuery availableStockByBrachReportQuery);
 
-    Task<BaseResponse<List<InventoryReportResponseDTO>>> GetInventoryReportAsync(InventoryReportQuery inventoryReportQuery);
+	Task<BaseResponse<List<InventoryReportResponseDTO>>> GetInventoryReportAsync(InventoryReportQuery inventoryReportQuery);
 
-    Task<BaseResponse<InventoryTransferReportByDraftIDResponseDTO>> GetInventoryTransferByDraftReportAsync(InventoryTransferReportByDraftIDQuery inventoryTransferQuery);
+	Task<BaseResponse<InventoryTransferReportByDraftIDResponseDTO>> GetInventoryTransferByDraftReportAsync(InventoryTransferReportByDraftIDQuery inventoryTransferQuery);
 
-    Task<BaseResponse<List<CountStockReportResponseDTO>>> GetCountStockReportAsync(CountStockReportQuery countStockReportQuery);
+	Task<BaseResponse<List<CountStockReportResponseDTO>>> GetCountStockReportAsync(CountStockReportQuery countStockReportQuery);
 
-    Task<BaseResponse<List<ItemTransferShortageReportResponseDTO>>> GetItemTransferShortageReportAsync(ItemTransferShortageReportQuery transferShortageReportQuery);
+	Task<BaseResponse<List<ItemTransferShortageReportResponseDTO>>> GetItemTransferShortageReportAsync(ItemTransferShortageReportQuery transferShortageReportQuery);
 
-    Task<BaseResponse<ItemStockReportResponseDTO>> GetItemStockReportAsync(ItemStockReportQuery itemStockReport);
+	Task<BaseResponse<ItemStockReportResponseDTO>> GetItemStockReportAsync(ItemStockReportQuery itemStockReport);
 
-    Task<BaseResponse<SaleReportGroupByBranchResposneDTO>> GetSaleReportByGroupAsync(SaleReportGroupByBranchQuery saleReportGroupByBranchQuery);
+	Task<BaseResponse<SaleReportGroupByBranchResposneDTO>> GetSaleReportByGroupAsync(SaleReportGroupByBranchQuery saleReportGroupByBranchQuery);
+
+	Task<BaseResponse<List<SaleBarcodeReportResponseDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery);
 }

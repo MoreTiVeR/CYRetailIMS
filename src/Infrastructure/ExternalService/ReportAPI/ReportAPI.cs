@@ -21,6 +21,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 public class ReportAPI : HttpClientService, IReportAPI
@@ -123,5 +124,11 @@ public class ReportAPI : HttpClientService, IReportAPI
     {
         return await _httpClientRequest.HttpRequestToObject<SaleReportGroupByBranchResposneDTO,
             SaleReportGroupByBranchQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salereportbygroup"), saleReportGroupByBranchQuery);
+    }
+
+    public async Task<BaseResponse<List<SaleBarcodeReportResponseDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<SaleBarcodeReportResponseDTO>,
+            SaleBarcodeReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salebarcodereport"), saleBarcodeReportQuery);
     }
 }
