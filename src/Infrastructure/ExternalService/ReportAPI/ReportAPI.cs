@@ -17,11 +17,12 @@ using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferRe
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 public class ReportAPI : HttpClientService, IReportAPI
@@ -126,9 +127,9 @@ public class ReportAPI : HttpClientService, IReportAPI
             SaleReportGroupByBranchQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salereportbygroup"), saleReportGroupByBranchQuery);
     }
 
-    public async Task<BaseResponse<List<SaleBarcodeReportResponseDetailDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery)
+    public async Task<BaseResponse<SaleBarcodeReportResponseDTO>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery)
     {
-        return await _httpClientRequest.HttpRequestToObject<List<SaleBarcodeReportResponseDetailDTO>,
+        return await _httpClientRequest.HttpRequestToObject<SaleBarcodeReportResponseDTO,
             SaleBarcodeReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salebarcodereport"), saleBarcodeReportQuery);
     }
 }

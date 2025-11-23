@@ -15,11 +15,12 @@ using CYRetailIMS.Application.Services.ReportService.Queries.InventoryTransferRe
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 
 namespace CYRetailIMS.Application.ExternalService.ReportAPI;
 public interface IReportAPI
@@ -54,5 +55,5 @@ public interface IReportAPI
 
 	Task<BaseResponse<SaleReportGroupByBranchResposneDTO>> GetSaleReportByGroupAsync(SaleReportGroupByBranchQuery saleReportGroupByBranchQuery);
 
-	Task<BaseResponse<List<SaleBarcodeReportResponseDetailDTO>>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery);
+	Task<BaseResponse<SaleBarcodeReportResponseDTO>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery);
 }

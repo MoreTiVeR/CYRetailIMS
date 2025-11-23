@@ -62,6 +62,28 @@ public class GetEndOfDaySummaryByCriteriaHandler : BaseService, IRequestHandler<
         //Final data
         List<GetEndOfDaySummaryByCriteriaDetail> resEodSummaryData = await resData.ToListAsync();
 
+        #region Update updatedby data from emp name
+        List<string> userNameList = resData.Select(s => s.createdby).Distinct().ToList();
+        List<string> userUpdateNameList = resData.Select(s => s.updatedby).Distinct().ToList();
+        IEnumerable<TMUsers> userList = await _unitOfWork.Repository<TMUsers>().FindWithInclude(w => userNameList.Contains(w.UserName) || userUpdateNameList.Contains(w.UserName), i => i.Include(w => w.TMEmployees));
+        var empDataList = userList.Select(s => new { s.UserName, s.TMEmployees.FirstOrDefault().FirstName }).ToList();
+        resEodSummaryData = resEodSummaryData.Select(s =>
+        {
+            if (!string.IsNullOrEmpty(s.createdby))
+            {
+                s.createdby = empDataList.FirstOrDefault(w => w.UserName == s.createdby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.createdby).FirstName : s.createdby;
+            }
+
+            if (!string.IsNullOrEmpty(s.updatedby))
+            {
+                s.updatedby = empDataList.FirstOrDefault(w => w.UserName == s.updatedby) != null
+                ? empDataList.FirstOrDefault(w => w.UserName == s.updatedby).FirstName : s.updatedby;
+            }
+            return s;
+        }).ToList();
+        #endregion
+
         //Addign total row
         totalRow = resEodSummaryData.Count();
 

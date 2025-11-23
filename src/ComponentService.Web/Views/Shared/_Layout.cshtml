@@ -130,3 +130,24 @@
 
 </body>
 </html>
+
+@* show TempData success message via existing JS helper *@
+@if (TempData["SuccessMessage"] != null)
+{
+	<script>
+		$(function () {
+			var msg = '@(TempData["SuccessMessage"]?.ToString().Replace("'", "\\'"))';
+			if (msg) ShowMessageSuccess(msg);
+		});
+	</script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+	<script>
+		$(function () {
+			var msg = '@(TempData["ErrorMessage"]?.ToString().Replace("'", "\\'"))';
+			if (msg) AlertError(msg);
+		});
+	</script>
+}

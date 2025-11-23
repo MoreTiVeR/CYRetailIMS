@@ -1,16 +1,27 @@
-﻿@{
-    ViewData["Title"] = "SaleBarcodeReport";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+﻿@using CYRetailIMS.Application.Common.Models.UI
+@model EndOfDaySummaryViewModel
+
+@{
+	ViewData["Title"] = "สรุปยอดสิ้นวัน";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+
+	var menu_name = "รายการบันทึกสรุปยอดสิ้นวัน";
+	var menu_desc = "รายการบันทึกสรุปยอดสิ้นวันแยกตามสาขา";
 }
+
 <link href="~/css/site.css" rel="stylesheet" />
 
 <div class="page-header">
 	<div class="page-title">
-		<h4>รายงานสรุปยอดสิ้นวัน บาร์โค้ด</h4>
-		<h6>รายงานสรุปยอดสิ้นวันสำหรับบาร์โค้ด (Sale Barcode)</h6>
+		<h4>@menu_name</h4>
+		<h6>@menu_desc</h6>
+	</div>
+	<div class="page-btn">
+		<a asp-action="Create" asp-controller="EndOfDaySummary" class="btn btn-added"><img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">เพิ่มรายการสรุปยอดใหม่</a>
 	</div>
 </div>
 
+<!-- /add -->
 <div class="card">
 	<div class="card-body">
 		<div class="table-top">
@@ -52,19 +63,12 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="col-lg-3 col-sm-6 col-12">
-						<div class="form-group">
-							<select id="ddlBranch" class="ddl-select2 select2 ddl-branch" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text", null, null))">
-								<option value="">--เลือกสาขา--</option>
-							</select>
-						</div>
-					</div>
-
 					<div class="col-lg-3 col-sm-6 col-12">
 						<div class="form-group" style="text-align: left">
 							<a id="btnSearch" class="btn btn-filters" title="ค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
 						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
 					</div>
 				</div>
 			</div>
@@ -72,7 +76,7 @@
 		<!-- /Filter -->
 
 		<div class="table-responsive">
-			<table id="tblSaleBarcodeReport" class="table">
+			<table id="tblEodSummary" class="table">
 				<thead>
 					<tr>
 						<th hidden>
@@ -81,21 +85,19 @@
 								<span class="checkmarks"></span>
 							</label>
 						</th>
-						<th>วันที่</th>
-						<th>ชื่อสาขา</th>
-						<th>ชื่อพนักงาน</th>
+						<th>วันที่สรุปยอด</th>
+						<th>สาขา</th>
+						<th>เงินสดรวม</th>
+						<th>เงินโอนรวม</th>
 						<th>เงินสดฝาก</th>
 						<th>เงินลูกค้าโอน</th>
 						<th>ค่าแรงคนแทน</th>
 						<th>ค่าธรรมเนียม</th>
 						<th>ค่าอื่นๆ</th>
-						<th>ราคารวม</th>
-						<th>VAT</th>
-						<th>ส่วนลด</th>
-						<th>หมายเหตุ ค่าอื่นๆ</th>
-						<th>สถานะ</th>
-						<th>ผู้ตรวจ</th>
-						<th>เลขอ้างอิง</th>
+						<th>รวมสุทธิ</th>
+						<th>หมายเหตุ</th>
+						<th class="text-center">สถานะ</th>
+						<th class="text-center">ดำเนินการ</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -105,11 +107,11 @@
 	</div>
 </div>
 
-@section Scripts{
+@section Scripts {
+
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
-	<script src="~/js/view/report/report_salebarcodereport.js" asp-append-version="true"></script>
+	<script src="~/js/view/eodsummary/eodsummary_index.js"></script>
 }
-

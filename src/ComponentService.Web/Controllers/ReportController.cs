@@ -17,16 +17,18 @@ using CYRetailIMS.Application.Services.ReportService.Queries.InventoryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemStockReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransactionLogReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.ItemTransferShortageReport.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport;
+using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
-using CYRetailIMS.Application.Services.ReportService.Queries.SaleBarcodeReport.v1;
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Infrastructure.Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -961,6 +963,7 @@ public class ReportController : BaseController
     public async Task<IActionResult> SaleBarcodeReportAsync()
     {
         var branchList = await PrepareSelectBranch();
+        branchList.RemoveAt(0);
         branchList.Insert(0, new SelectListItem { Text = "ทุกสาขา", Value = "" });
         ViewBag.BranchList = branchList;
         return View();
@@ -968,10 +971,11 @@ public class ReportController : BaseController
 
 
     [HttpPost]
-    public async Task<IActionResult> SearchSaleBarcodeReport([FromBody] CYRetailIMS.Application.Common.Models.UI.SearchSaleBarcodeReportViewModel searchObj)
+    public async Task<IActionResult> SearchSaleBarcodeReport([FromBody] SearchSaleBarcodeReportViewModel searchObj)
     {
         try
         {
+            int? branchID = 0;
             // Default dates to current month if not provided
             DateTime sDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month,1);
             DateTime eDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
@@ -990,24 +994,55 @@ public class ReportController : BaseController
             {
                 throw new Exception("รุปแบบวันที่ในการค้นหาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
             }
-
-            BaseResponse<List<SaleBarcodeReportResponseDetailDTO>> res = await _reportAPI.GetSaleBarcodeReportAsync(new Application.Services.ReportService.Queries.SaleBarcodeReport.v1.SaleBarcodeReportQuery
+            branchID = searchObj.branchid == 999 ? null : searchObj.branchid;
+            BaseResponse<SaleBarcodeReportResponseDTO> resReport = await _reportAPI.GetSaleBarcodeReportAsync(new SaleBarcodeReportQuery
             {
                 transaction_startdate = sDate,
                 transaction_enddate = eDate,
-                branchid = searchObj.branchid
+                branchid = branchID,
+                startrow = searchObj.start,
+                pagesize = searchObj.length,
+                searchvalue = searchObj.searchValue.Replace("\t", "").Replace("\n", ""),
+                isexportalldata = searchObj.isexportalldata,
             });
 
-            if (!res.result)
+            if (!resReport.result)
             {
-                return Json(new { result = false, message = res.message ?? "ไม่พบข้อมูล", data = new List<SaleBarcodeReportResponseDetailDTO>() });
+                return Json(new { data = new List<SaleBarcodeReportResponseDetailDTO>(), recordsTotal = 0, recordsFiltered = 0 });
             }
 
-            return Json(new { result = true, message = "สำเร็จ", data = res.data });
+            #region Search Filter
+            if (!string.IsNullOrEmpty(searchObj.searchValue))
+            {
+                string searchValue = searchObj.searchValue.Replace("\t", "").Replace("\n", "");
+
+                resReport.data.data = resReport.data.data.Where(w => w.branchname.Contains(searchValue)
+                || w.auditorname.Contains(searchValue)
+                || w.username.Contains(searchValue)).ToList();
+            }
+            #endregion
+
+            //var totalRows = resReport.data.totalrow;
+            var totalItems = resReport.data.totalrow; // Get total item count for pagination
+
+            // Filter based on searchValue if necessary
+            //var query = resReport.data.data;
+
+            // Calculate paginated data
+            //var items = searchItem.isexportalldata ? query : query.Skip(searchItem.start).Take(searchItem.length).ToList();
+
+            // Prepare response for DataTables
+            return Json(new
+            {
+                draw = searchObj.draw, // Echo the draw parameter
+                recordsTotal = totalItems, // Total records before filtering
+                recordsFiltered = totalItems, // Total records after applying filtering
+                data = resReport.data.data // The actual data to be displayed
+            });
         }
         catch (Exception ex)
         {
-            return Json(new { result = false, message = $"ขออภัย, เกิดข้อผิดพลาด {ex.Message}", data = new List<SaleBarcodeReportResponseDetailDTO>() });
+            return Json(new { data = new List<SaleBarcodeReportResponseDetailDTO>(), recordsTotal = 0, recordsFiltered = 0 });
         }
     }
     #endregion

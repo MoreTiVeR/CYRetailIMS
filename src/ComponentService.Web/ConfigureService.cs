@@ -1,10 +1,6 @@
 ﻿using System.Configuration;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text;
-using System.Threading;
 using AutoMapper;
 using CYRetailIMS.Application.Common.Confiuration;
 using CYRetailIMS.Application.Common.Interfaces;
@@ -25,6 +21,7 @@ using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.ExternalService.CurrencyAPI;
 using CYRetailIMS.Application.ExternalService.DepartmentAPI;
 using CYRetailIMS.Application.ExternalService.EmployeeAPI;
+using CYRetailIMS.Application.ExternalService.EndOfDaySummaryAPI;
 using CYRetailIMS.Application.ExternalService.ExcelAPI;
 using CYRetailIMS.Application.ExternalService.ItemAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
@@ -50,6 +47,7 @@ using CYRetailIMS.Application.ExternalService.TransactionTypeAPI;
 using CYRetailIMS.Application.ExternalService.UserAPI;
 using CYRetailIMS.Application.ExternalService.UserRoleAPI;
 using CYRetailIMS.Application.ExternalService.WarehouseAPI;
+using CYRetailIMS.Application.ExternalService.EndOfDaySummaryAPI;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Filters;
 using CYRetailIMS.ComponentService.Web.Models;
 using CYRetailIMS.Infrastructure.Common.Configuration;
@@ -64,6 +62,7 @@ using CYRetailIMS.Infrastructure.ExternalService.CountStockAPI;
 using CYRetailIMS.Infrastructure.ExternalService.CurrencyAPI;
 using CYRetailIMS.Infrastructure.ExternalService.DepartmentAPI;
 using CYRetailIMS.Infrastructure.ExternalService.EmployeeAPI;
+using CYRetailIMS.Infrastructure.ExternalService.EndOfDaySummaryAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ExcelAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemAPI;
 using CYRetailIMS.Infrastructure.ExternalService.ItemBrand;
@@ -89,6 +88,7 @@ using CYRetailIMS.Infrastructure.ExternalService.TransactionTypeAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserAPI;
 using CYRetailIMS.Infrastructure.ExternalService.UserRoleAPI;
 using CYRetailIMS.Infrastructure.ExternalService.WarehouseAPI;
+using CYRetailIMS.Infrastructure.ExternalService.EndOfDaySummaryAPI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
 
@@ -267,6 +267,7 @@ public static class ConfigureService
         services.AddScoped<ITransactionTypeAPI, TransactionTypeAPI>();
         services.AddScoped<IReceiptTempAPI, ReceiptTempAPI>();
         services.AddScoped<IReceiptAPI, ReceiptAPI>();
+        services.AddScoped<IEndOfDaySummaryAPI, EndOfDaySummaryAPI>();
         #endregion
 
         services.AddControllersWithViews();

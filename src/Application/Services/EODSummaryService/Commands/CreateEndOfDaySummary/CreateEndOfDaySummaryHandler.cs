@@ -21,7 +21,9 @@ public class CreateEndOfDaySummaryHandler : BaseService, IRequestHandler<CreateE
 
     public async Task<BaseResponse<CommandResponse>> Handle(CreateEndOfDaySummaryCommand request, CancellationToken cancellationToken)
     {
-        var isExist = await _unitOfWork.Repository<TTEndOfDaySummary>().AnyAsync(x => x.BranchID == request.branchid && x.SummaryDate.Date == request.summarydate.Date);
+        var isExist = await _unitOfWork.Repository<TTEndOfDaySummary>().AnyAsync(x => x.BranchID == request.branchid 
+        && x.SummaryDate.Date == request.summarydate.Date
+        && x.IsActive == true);
         if (isExist)
         {
             throw new Exception("ไม่สามารถทำรายการได้, เนื่องจากสาขาดังกล่าวได้ทำการสรุปยอดสิ้นวันเรียบร้อยแล้ว.");

@@ -11,9 +11,9 @@ public class EndOfDaySummaryViewModel
     public int? EndOfDayId { get; set; } // null = Create, มีค่า = Edit
 
     [Required(ErrorMessage = "กรุณาเลือกวันที่สรุปยอด")]
-    [DataType(DataType.Date)]
+    [DataType(DataType.Text)]
     [Display(Name = "วันที่สรุปยอด")]
-    public DateTime SummaryDate { get; set; }
+    public string SummaryDate { get; set; }
 
     [Required(ErrorMessage = "กรุณากรอกเงินสดรวม")]
     [Display(Name = "เงินสดรวม")]
