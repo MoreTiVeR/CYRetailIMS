@@ -637,6 +637,10 @@ public partial class CYDBContext : DbContext
         {
             entity.HasKey(e => e.EndOfDayId);
 
+            entity.Property(e => e.BranchID)
+            .IsRequired()
+            .HasColumnType("int");
+
             entity.Property(e => e.SummaryDate)
                 .IsRequired()
                 .HasColumnType("date");
@@ -698,7 +702,7 @@ public partial class CYDBContext : DbContext
 
             entity.HasIndex(e => e.SummaryDate)
                 .IsUnique()
-                .HasDatabaseName("UX_TTEndOfDaySummary_SummaryDate");
+                .HasDatabaseName("UX_TTEndOfDaySummary_BranchID_SummaryDate");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -18,6 +18,13 @@ public class TTEndOfDaySummary : BaseAuditableEntity
     public int EndOfDayId { get; set; }
 
     /// <summary>
+    /// รหัสสาขา
+    /// </summary>
+    [Required]
+    [Column("BranchID", TypeName = "int")]
+    public int BranchID { get; set; }
+
+    /// <summary>
     /// วันที่สรุปยอด
     /// </summary>
     [Required]
@@ -99,30 +106,30 @@ public class TTEndOfDaySummary : BaseAuditableEntity
     [Column("CreatedBy", TypeName = "VARCHAR(10)")]
     public string CreatedBy { get; set; } = string.Empty;
 
-    /// <summary>
-    /// วันที่สร้าง
-    /// </summary>
-    [Required]
-    [Column("CreatedDate", TypeName = "datetime")]
-    public DateTime CreatedDate { get; set; }
+    ///// <summary>
+    ///// วันที่สร้าง
+    ///// </summary>
+    //[Required]
+    //[Column("CreatedDate", TypeName = "datetime")]
+    //public DateTime CreatedDate { get; set; }
 
-    /// <summary>
-    /// ผู้แก้ไขล่าสุด
-    /// </summary>
-    [MaxLength(10)]
-    [Column("UpdatedBy", TypeName = "VARCHAR(10)")]
-    public string? UpdatedBy { get; set; }
+    ///// <summary>
+    ///// ผู้แก้ไขล่าสุด
+    ///// </summary>
+    //[MaxLength(10)]
+    //[Column("UpdatedBy", TypeName = "VARCHAR(10)")]
+    //public string? UpdatedBy { get; set; }
 
-    /// <summary>
-    /// วันที่แก้ไขล่าสุด
-    /// </summary>
-    [Column("UpdatedDate", TypeName = "datetime")]
-    public DateTime? UpdatedDate { get; set; }
+    ///// <summary>
+    ///// วันที่แก้ไขล่าสุด
+    ///// </summary>
+    //[Column("UpdatedDate", TypeName = "datetime")]
+    //public DateTime? UpdatedDate { get; set; }
 
-    /// <summary>
-    /// สถานะการใช้งาน (1 = ใช้งาน, 0 = ปิด)
-    /// </summary>
-    [Required]
-    [Column("IsActive")]
-    public bool IsActive { get; set; }
+    ///// <summary>
+    ///// สถานะการใช้งาน (1 = ใช้งาน, 0 = ปิด)
+    ///// </summary>
+    //[Required]
+    //[Column("IsActive")]
+    //public bool IsActive { get; set; }
 }

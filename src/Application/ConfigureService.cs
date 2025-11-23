@@ -17,6 +17,7 @@ using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyList.v
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartmentByID.v1;
 using CYRetailIMS.Application.Services.DepartmentService.Queries.GetDepartments.v1;
 using CYRetailIMS.Application.Services.EmployeeService.Commands.CreateEmployee.v1;
+using CYRetailIMS.Application.Services.EODSummaryService.Commands.CreateEndOfDaySummary;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandByID.v1;
 using CYRetailIMS.Application.Services.ItemBrandService.Queries.GetItemBrandList.v1;
 using CYRetailIMS.Application.Services.ItemInBranchService.Commands.CreateItemInBranch.v1;
@@ -149,6 +150,8 @@ public static class ConfigureService
             mc.AddProfile<GetTrasnactionByCriteriaMappingProfile>();
 
             mc.AddProfile<CreateReceiveTemplateMappingProfile>();
+
+            mc.AddProfile<EndOfDaySummaryProfile>();
             #endregion
         });
         IMapper mapper = mappingConfig.CreateMapper();
