@@ -2,11 +2,11 @@
 @model EndOfDaySummaryViewModel
 
 @{
-	ViewData["Title"] = "สรุปยอดสิ้นวัน";
+	ViewData["Title"] = "แก้ไขสรุปยอดสิ้นวัน";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 
-	var menu_name = "เพิ่มรายการสรุปยอดสิ้นวัน";
-	var menu_desc = "เพิ่มรายการบันทึกสรุปยอดสิ้นวันใหม่";
+	var menu_name = "แก้ไขรายการสรุปยอดสิ้นวัน";
+	var menu_desc = "แก้ไขรายการบันทึกสรุปยอดสิ้นวันสาขา";
 	bool isEdit = Model != null && Model.EndOfDayId.HasValue;
 }
 
@@ -44,7 +44,7 @@
 <div class="card">
 	<div class="card-body">
 
-		@using (Html.BeginForm("CreateEodSummary", "EndOfDaySummary", FormMethod.Post, new { @class = "row" }))
+		@using (Html.BeginForm("UpdateEodSummary", "EndOfDaySummary", FormMethod.Post, new { @class = "row" }))
 		{
 			@Html.AntiForgeryToken()
 
@@ -52,6 +52,7 @@
 
 			@* Hidden for Id (for Edit reuse) *@
 			@Html.HiddenFor(m => m.EndOfDayId)
+			@Html.HiddenFor(m => m.IsActive)
 
 			<div class="row">
 				<div class="col-lg-4 col-sm-6 col-12">
@@ -106,7 +107,7 @@
 						@Html.ValidationMessageFor(m => m.DepositedCash, "", new { @class = "text-danger" })
 					</div>
 				</div>
-				
+
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.CustomerTransfer, new { @class = "form-label" })
@@ -123,7 +124,7 @@
 					</div>
 				</div>
 
-				
+
 			</div>
 
 			<div class="row">
@@ -135,7 +136,7 @@
 						@Html.ValidationMessageFor(m => m.Fee, "", new { @class = "text-danger" })
 					</div>
 				</div>
-				
+
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.OtherExpense, new { @class = "form-label" })
@@ -185,5 +186,5 @@
 	<script src="~/assets/plugins/pickers/pickadate/legacy.js"></script>
 	<script src="~/lib/display-remaining-characters/jquery.charactersRemaining.min.js"></script>
 
-	<script src="~/js/view/eodsummary/eodsummary_create.js"></script>
+	<script src="~/js/view/eodsummary/eodsummary_edit.js"></script>
 }

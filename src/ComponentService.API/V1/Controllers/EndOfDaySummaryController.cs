@@ -1,8 +1,10 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.EODSummaryService.Commands.CreateEndOfDaySummary;
+using CYRetailIMS.Application.Services.EODSummaryService.Commands.DeleteEndOfDaySummary;
 using CYRetailIMS.Application.Services.EODSummaryService.Commands.UpdateEndOfDaySummary;
 using CYRetailIMS.Application.Services.EODSummaryService.Queries.GetEndOfDaySummaryByCriteria.v1;
+using CYRetailIMS.Application.Services.EODSummaryService.Queries.GetEndOfDaySummaryByID.v1;
 using CYRetailIMS.Application.Services.EODSummaryService.Queries.GetEndOfDaySummaryList.v1;
 using CYRetailIMS.Application.Services.ReceiveTempService.Commands.CreateReceipt.v1;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +37,22 @@ public class EndOfDaySummaryController : BaseApiController
     }
 
     [HttpPost]
+    [Route("v1/search")]
+    [ProducesResponseType(typeof(GetEndOfDaySummaryByCriteriaDetail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> InquiryEODSummaryByIDAsync(GetEndOfDaySummaryByIDQuery getEndOfDaySummaryByIDQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<GetEndOfDaySummaryByCriteriaDetail> res = await Mediator.Send(getEndOfDaySummaryByIDQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]InquiryEODSummaryByIDAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
     [Route("v1/create")]
     [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
@@ -63,6 +81,22 @@ public class EndOfDaySummaryController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]CreateEodSummaryAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/delete")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteEodSummaryAsync(DeleteEndOfDaySummaryCommand deleteEndOfDaySummaryCommand)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<CommandResponse> res = await Mediator.Send(deleteEndOfDaySummaryCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]DeleteEodSummaryAsync Success");
         return Ok(res.data);
     }
 }

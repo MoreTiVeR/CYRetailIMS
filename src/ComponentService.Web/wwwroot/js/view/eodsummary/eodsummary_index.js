@@ -73,7 +73,7 @@ datatable = $("#tblEodSummary").DataTable({
         {
             "data": { endofdayid: "endofdayid" },
             "render": function (data) {
-                return "<a href='/EndOfDaySummary/Edit?tranid=" + data.endofdayid + "' asp-all-route-data='endofdayid' class='me-3' title='แก้ไขข้อมูลสรุปยอดสิ้นวัน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.endofdayid + "' onclick=deleteEodSummary(" + data.moneytransferid + ") class='me-3' title='ลบรายการสรุปยอดเงินสิ้นวัน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการสรุปยอดเงินสิ้นวัน'></a>";
+                return "<a href='/EndOfDaySummary/Edit?tranid=" + data.endofdayid + "' asp-all-route-data='endofdayid' class='me-3' title='แก้ไขข้อมูลสรุปยอดสิ้นวัน'><img src='../assets/img/icons/edit.svg' alt='img'></a><a id='rowid" + data.endofdayid + "' onclick=deleteEodSummary(" + data.endofdayid + ") class='me-3' title='ลบรายการสรุปยอดเงินสิ้นวัน'><img src='../assets/img/icons/delete.svg' alt='ลบรายการสรุปยอดเงินสิ้นวัน'></a>";
 
             }
         }
@@ -188,11 +188,11 @@ $("#btnSearch").on('click', function (event) {
     datatable.ajax.reload(); // This will use the updated parameters automatically
     HideLoading();
 });
-function Delete(id) {
-    console.log('Call => Delete => ' + id);
+
+function deleteEodSummary(id) {
+    if (!id) return;
     Swal.fire({
-        title: "ยืนยันการลบข้อมูล?",
-        //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
+        title: "ยืนยันการลบสรุปยอดสิ้นวัน?",
         html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!</span>",
         icon: 'warning',
         type: "warning",
@@ -204,38 +204,84 @@ function Delete(id) {
         cancelButtonText: "ยกเลิก",
         cancelButtonClass: "btn btn-danger ml-1",
         buttonsStyling: false,
-    }).then(function (t) {
-        if (t.value) {
-
-            //Delete
+        customClass: {
+            confirmButton: "btn btn-primary",
+            cancelButton: "btn btn-danger ml-1"
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            ShowLoading();
             $.ajax({
-                type: 'POST',
-                url: '/Sale/DeleteTempItemSellingBarcode',
-                dataType: 'JSON',
-                data: { "seq": id },
-                success: function (response) {
-                    if (response.result) {
-
-                        ShowMessageSuccess('ลบข้อมูลสำเร็จ');
-                        HideLoading();
-
-                        dataTable.ajax.reload();
-
-
-                        //Set sum amount
-                        $("#txtSummaryTHB").val(currencyFormat(response.amount));
-
-                        //Set focus to txtBarCode
-                        $('#txtBarCode').trigger('focus');
+                url: '/EndOfDaySummary/DeleteEodSummary',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ eodid: id }),
+                success: function (resp) {
+                    if (resp && resp.result) {
+                        ShowMessageSuccess(resp.message || 'ลบข้อมูลสำเร็จ');
+                        datatable.ajax.reload();
                     }
                     else {
-                        //ShowMessageError(data.message);
-                        ShowMessageError(response.message);
-                        HideLoading();
+                        ShowMessageError(resp?.message || 'ไม่สามารถลบข้อมูลได้');
                     }
+                    HideLoading();
+                },
+                error: function (xhr) {
+                    ShowMessageError('ไม่สามารถลบข้อมูลได้');
+                    HideLoading();
                 }
             });
         }
     });
-
 }
+
+//function Delete(id) {
+//    console.log('Call => Delete => ' + id);
+//    Swal.fire({
+//        title: "ยืนยันการลบข้อมูล?",
+//        //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
+//        html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!</span>",
+//        icon: 'warning',
+//        type: "warning",
+//        showCancelButton: true,
+//        confirmButtonColor: "#3085d6",
+//        cancelButtonColor: "#d33",
+//        confirmButtonText: "ยืนยัน",
+//        confirmButtonClass: "btn btn-primary",
+//        cancelButtonText: "ยกเลิก",
+//        cancelButtonClass: "btn btn-danger ml-1",
+//        buttonsStyling: false,
+//    }).then(function (t) {
+//        if (t.value) {
+
+//            //Delete
+//            $.ajax({
+//                type: 'POST',
+//                url: '/Sale/DeleteTempItemSellingBarcode',
+//                dataType: 'JSON',
+//                data: { "seq": id },
+//                success: function (response) {
+//                    if (response.result) {
+
+//                        ShowMessageSuccess('ลบข้อมูลสำเร็จ');
+//                        HideLoading();
+
+//                        dataTable.ajax.reload();
+
+
+//                        //Set sum amount
+//                        $("#txtSummaryTHB").val(currencyFormat(response.amount));
+
+//                        //Set focus to txtBarCode
+//                        $('#txtBarCode').trigger('focus');
+//                    }
+//                    else {
+//                        //ShowMessageError(data.message);
+//                        ShowMessageError(response.message);
+//                        HideLoading();
+//                    }
+//                }
+//            });
+//        }
+//    });
+//}

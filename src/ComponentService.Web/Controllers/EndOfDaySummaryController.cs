@@ -8,9 +8,13 @@ using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.EndOfDaySummaryAPI;
 using CYRetailIMS.Application.ExternalService.TransactionAPI;
 using CYRetailIMS.Application.Services.EODSummaryService.Commands.CreateEndOfDaySummary;
+using CYRetailIMS.Application.Services.EODSummaryService.Commands.DeleteEndOfDaySummary;
+using CYRetailIMS.Application.Services.EODSummaryService.Commands.UpdateEndOfDaySummary;
 using CYRetailIMS.Application.Services.EODSummaryService.Queries.GetEndOfDaySummaryByCriteria.v1;
+using CYRetailIMS.Application.Services.EODSummaryService.Queries.GetEndOfDaySummaryByID.v1;
 using CYRetailIMS.Application.Services.EODSummaryService.Queries.GetEndOfDaySummaryList.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
+using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -79,6 +83,61 @@ public class EndOfDaySummaryController : BaseController
         }
         model.GrandTotal = curTransaciton.data.totalamount;
 
+        return View(model);
+    }
+
+    public async Task<IActionResult> Edit(int tranid)
+    {
+        BaseResponse<GetEndOfDaySummaryByCriteriaDetail> curEodSummaryData = await _endOfDaySummaryAPI.SearchEndOfDaySummaryByIDAsync(new GetEndOfDaySummaryByIDQuery
+        {
+            eodid = tranid
+        });
+
+        if (!curEodSummaryData.result)
+        {
+            TempData["ErrorMessage"] = "ไม่สามารถสรุปยอดขายได้, เนื่องจากไม่พบข้อมูลขาย ณ วันปัจจุบัน";
+            return View("Index");
+        }
+
+        if(curEodSummaryData.data.branchid != base.UserProfile.access_branch.FirstOrDefault().branchid)
+        {
+            TempData["ErrorMessage"] = "ไม่สามารถดำเนินการได้, เนื่องจากข้อมูลรายการและสาขาไม่ถูกต้อง";
+            return View("Index");
+        }
+
+        BaseResponse<GetTransactionByBranchIDV2ReseponseDTO> curTransaciton = await _transactionAPI.GetTransactionByBranchIDV2Async(new GetTransactionByBranchIDV2Query
+        {
+            branchid = curEodSummaryData.data.branchid,
+            transaction_startdate = curEodSummaryData.data.summarydate,
+            transaction_enddate = curEodSummaryData.data.summarydate,
+            startrow = 0,
+            pagesize = 10
+        });
+        if (!curTransaciton.result)
+        {
+            TempData["ErrorMessage"] = "ไม่สามารถสรุปยอดขายได้, เนื่องจากไม่พบข้อมูลขายวันที่สรุปรายการ";
+            return View("Index");
+        }
+
+        #region Binding View Data
+        var model = new EndOfDaySummaryViewModel()
+        {
+            EndOfDayId = curEodSummaryData.data.endofdayid,
+            SummaryDate = curEodSummaryData.data.summarydate.ToDateString(),
+            TotalCash = curTransaciton.data.totalamount, // transaction
+            TotalTransfer = curTransaciton.data.totaltransfer, // transaction
+            GrandTotal = curTransaciton.data.totalamount, // transaction
+            DepositedCash = curEodSummaryData.data.depositedcash,
+            CustomerTransfer = curEodSummaryData.data.totaltransfer,
+            SubstituteWage = curEodSummaryData.data.substitutewage,
+            Fee = curEodSummaryData.data.fee,
+            OtherExpense = curEodSummaryData.data.otherexpense,
+            OtherExpenseNote = curEodSummaryData.data.otherexpensenote,
+            FinalTotal = curEodSummaryData.data.finaltotal,
+            IsActive = curEodSummaryData.data.isactive,
+            //CurrentUserName = base.UserProfile.username
+        };
+        #endregion
         return View(model);
     }
 
@@ -187,7 +246,6 @@ public class EndOfDaySummaryController : BaseController
         string username = string.Empty;
         int branchId = 0;
 
-
         try
         {
             //Get branchid and username from session
@@ -241,6 +299,102 @@ public class EndOfDaySummaryController : BaseController
         }
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateEodSummary(EndOfDaySummaryViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Edit", model);
+        }
 
+        // parse user info from session
+        string username = string.Empty;
+        int branchId = 0;
+
+        try
+        {
+            //Get branchid and username from session
+            branchId = base.UserProfile.access_branch.FirstOrDefault().branchid;
+
+            // parse date string (expect dd-MM-yyyy)
+            DateTime summaryDate = DateTime.Now;
+            if (!string.IsNullOrEmpty(model.SummaryDate))
+            {
+                if (!DateTime.TryParseExact(model.SummaryDate, "dd/MM/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out summaryDate))
+                {
+                    // try other formats
+                    DateTime.TryParse(model.SummaryDate, out summaryDate);
+                }
+            }
+
+            if (!model.EndOfDayId.HasValue)
+            {
+                TempData["ErrorMessage"] = "ไม่สามารถดำเนินการได้, เนื่องจากข้อมูลรายการและสาขาไม่ถูกต้อง";
+                return View("Index");
+            }
+
+            var cmd = new UpdateEndOfDaySummaryCommand
+            {
+                endofdayid = model.EndOfDayId.Value,
+                summarydate = summaryDate,
+                totalcash = model.TotalCash,
+                depositedcash = model.DepositedCash,
+                totaltransfer = model.TotalTransfer,
+                customertransfer = model.CustomerTransfer,
+                grandtotal = model.GrandTotal,
+                substitutewage = model.SubstituteWage,
+                fee = model.Fee,
+                otherexpense = model.OtherExpense,
+                otherexpensenote = model.OtherExpenseNote,
+                finaltotal = model.FinalTotal,
+                isactive = model.IsActive,
+                updatedby = username
+            };
+
+            var res = await _endOfDaySummaryAPI.UpdateEndOfDaySummaryAsync(cmd);
+            if (res == null || !res.result)
+            {
+                //ModelState.AddModelError(string.Empty, res?.message ?? "ไม่สามารถบันทึกข้อมูลได้");
+                TempData["ErrorMessage"] = res?.error?.error?.message;
+                return View("Edit", model);
+            }
+
+            TempData["SuccessMessage"] = "บันทึกข้อมูลสำเร็จ";
+            return RedirectToAction("Index");
+        }
+        catch (Exception ex)
+        {
+            //ModelState.AddModelError(string.Empty, ex.Message);
+            TempData["ErrorMessage"] = ex.Message;
+            return View("Edit", model);
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteEodSummary([FromBody] DeleteEndOfDaySummaryViewModel request)
+    {
+        try
+        {
+            var cmd = new DeleteEndOfDaySummaryCommand
+            {
+                eodid = request.eodid,
+                isactive = false,
+                updatedby = base.UserProfile?.username ?? string.Empty
+            };
+
+            var resDelete = await _endOfDaySummaryAPI.DeleteEndOfDaySummaryAsync(cmd);
+            if (resDelete == null || !resDelete.result)
+            {
+                return Json(new { result = false, message = resDelete?.message ?? "ไม่สามารถลบข้อมูลได้" });
+            }
+
+            return Json(new { result = true, message = resDelete.message ?? "ลบข้อมูลสำเร็จ" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = ex.Message });
+        }
+    }
 }
 
