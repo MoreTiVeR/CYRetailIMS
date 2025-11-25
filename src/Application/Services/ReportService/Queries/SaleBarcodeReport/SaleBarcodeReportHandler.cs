@@ -24,51 +24,53 @@ public class SaleBarcodeReportHandler : BaseService, IRequestHandler<SaleBarcode
     public async Task<BaseResponse<SaleBarcodeReportResponseDTO>> Handle(SaleBarcodeReportQuery request, CancellationToken cancellationToken)
     {
         int totalRow = 0;
-        IEnumerable<SaleBarcodeReportResponseDetailDTO> resBarcodeSummaryReport = (from tran in await _unitOfWork.Repository<TTTransaction>().QueryAsync()
-                                                                                   //join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
-                                                                                   join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on tran.BranchID equals branch.BranchID
-                                                                                   join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync(w => w.IsActive)
-                                                                                   on new { tran.BranchID, tran.TransactionDate.Date } equals new { audit.BranchID, audit.TransactionDate.Date } into tAudit
-                                                                                   from jAudit in tAudit.DefaultIfEmpty()
-                                                                                   where tran.IsActive
-                                                                                   && (tran.TransactionDate.Date >= request.transaction_startdate.Date && tran.TransactionDate.Date <= request.transaction_enddate.Date)
-                                                                                   select new SaleBarcodeReportResponseDetailDTO
-                                                                                   {
-                                                                                       transactionid = tran.TransactionID,
-                                                                                       transactiondate = tran.TransactionDate,
-                                                                                       branchid = tran.BranchID,
-                                                                                       branchname = branch.BranchName,
-                                                                                       username = tran.CreatedBy, //ชื่อพนักงาน
-                                                                                       amountcash = tran.AmountCash, //เงินสดฝาก
-                                                                                       amounttransfer = tran.AmountTransfer,
-                                                                                       substitutefee = 0, //tran.SubstituteFee,
-                                                                                       depositfee = tran.Fee,
-                                                                                       otherfee = 0, //tran.OtherFee
-                                                                                       totalamount = tran.TotalAmount,
-                                                                                       vat = tran.Vat,
-                                                                                       discount = tran.Discount,
-                                                                                       remark = jAudit != null ? jAudit.Description : null,
-                                                                                       //auditstatus = jAudit != null ? "" : "รอตรวจสอบ",
-                                                                                       auditid = jAudit != null ? jAudit.AuditID : 0,
-                                                                                       auditorname = jAudit != null ? jAudit.CreatedBy : "",
-                                                                                       //referenceno = tran.ReferenceNo,
-                                                                                   }).AsEnumerable();
+        IEnumerable<SaleBarcodeReportResponseDetailDTO> resEodSummaryReport = (from eodsummary in await _unitOfWork.Repository<TTEndOfDaySummary>().QueryAsync()
+                                                                               //join detail in await _unitOfWork.Repository<TTTransactonDetail>().QueryAsync() on tran.TransactionID equals detail.TransactionID
+                                                                               join branch in await _unitOfWork.Repository<TMBranch>().QueryAsync() on eodsummary.BranchID equals branch.BranchID
+                                                                               join audit in await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync(w => w.IsActive)
+                                                                               on new { eodsummary.BranchID, eodsummary.SummaryDate.Date } equals new { audit.BranchID, audit.TransactionDate.Date } into tAudit
+                                                                               from jAudit in tAudit.DefaultIfEmpty()
+                                                                               where eodsummary.IsActive
+                                                                               && (eodsummary.SummaryDate.Date >= request.transaction_startdate.Date && eodsummary.SummaryDate.Date <= request.transaction_enddate.Date)
+                                                                               select new SaleBarcodeReportResponseDetailDTO
+                                                                               {
+                                                                                   transactionid = eodsummary.EndOfDayId,
+                                                                                   transactiondate = eodsummary.SummaryDate,
+                                                                                   branchid = eodsummary.BranchID,
+                                                                                   branchname = branch.BranchName,
+                                                                                   username = eodsummary.CreatedBy, //ชื่อพนักงาน
+                                                                                   amountcash = eodsummary.TotalCash, //เงินสดฝาก
+                                                                                   amounttransfer = eodsummary.TotalTransfer,
+                                                                                   substitutefee = eodsummary.SubstituteWage.HasValue ? eodsummary.SubstituteWage.Value : 0, //tran.SubstituteFee,
+                                                                                   depositfee = eodsummary.Fee.HasValue ? eodsummary.Fee.Value : 0,
+                                                                                   otherfee = eodsummary.OtherExpense.HasValue ? eodsummary.OtherExpense.Value : 0, //tran.OtherFee
+                                                                                   totalamount = eodsummary.FinalTotal,
+                                                                                   vat = 0, //eodsummary.VAT
+                                                                                   discount = 0, //eodsummary.Discount
+                                                                                   remark = eodsummary.OtherExpenseNote,
+                                                                                   //eodsummarystatus = eodsummary.IsActive,
+                                                                                   //remark = jAudit != null ? jAudit.Description : null,
+                                                                                   //auditstatus = jAudit != null ? "" : "รอตรวจสอบ",
+                                                                                   auditid = jAudit != null ? jAudit.AuditID : 0,
+                                                                                   auditorname = jAudit != null ? jAudit.CreatedBy : "",
+                                                                                   //referenceno = tran.ReferenceNo,
+                                                                               }).AsEnumerable();
 
         #region Filter
         if (request.branchid.HasValue)
         {
-            resBarcodeSummaryReport = resBarcodeSummaryReport.Where(w => w.branchid == request.branchid.Value).ToList();
+            resEodSummaryReport = resEodSummaryReport.Where(w => w.branchid == request.branchid.Value).ToList();
         }
 
         if (!string.IsNullOrEmpty(request.searchvalue))
         {
-            resBarcodeSummaryReport = resBarcodeSummaryReport.Where(w => (w.branchname != null && w.branchname.Contains(request.searchvalue)) 
+            resEodSummaryReport = resEodSummaryReport.Where(w => (w.branchname != null && w.branchname.Contains(request.searchvalue)) 
             || (!string.IsNullOrEmpty(w.remark) && w.remark.Contains(request.searchvalue))).ToList();
         }
         #endregion
 
         #region Group by all branch by date
-        var resGroupByDate = (from a in resBarcodeSummaryReport
+        var resGroupByDate = (from a in resEodSummaryReport
                               group a by new { a.branchid, a.transactiondate.Date } into grps
                               select new
                               {
@@ -77,7 +79,7 @@ public class SaleBarcodeReportHandler : BaseService, IRequestHandler<SaleBarcode
                                   data = grps.Where(w => w.transactiondate.Date == grps.Key.Date)
                               }).ToList();
 
-        resBarcodeSummaryReport = resGroupByDate.Select(s => new SaleBarcodeReportResponseDetailDTO
+        resEodSummaryReport = resGroupByDate.Select(s => new SaleBarcodeReportResponseDetailDTO
         {
             //transactionid = s.data.FirstOrDefault().transactionid,
             transactiondate = s.transactiondate,
@@ -98,13 +100,13 @@ public class SaleBarcodeReportHandler : BaseService, IRequestHandler<SaleBarcode
         }).AsEnumerable();
         #endregion
 
-        if (!resBarcodeSummaryReport.Any())
+        if (!resEodSummaryReport.Any())
         {
             throw new Exception("ไม่พบข้อมูลรายงานสรุปยอดสินวันสาขา");
         }
 
         //Final data
-        List<SaleBarcodeReportResponseDetailDTO> resData = resBarcodeSummaryReport.ToList();
+        List<SaleBarcodeReportResponseDetailDTO> resData = resEodSummaryReport.ToList();
 
         #region Update updatedby data from emp name
         List<string> userNameList = resData.Select(s => s.username).Distinct().ToList();

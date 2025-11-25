@@ -128,7 +128,6 @@ function InitialDataTable() {
             }
         ]
     });
-    ShowMessageInfo('Initial DataTable');
 }
 
 $("#btnSearch").on('click', function (event) {

@@ -17,6 +17,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBr
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Operations;
 using Newtonsoft.Json.Linq;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
@@ -243,7 +244,7 @@ public class EndOfDaySummaryController : BaseController
             return View("Create", model);
         }
 
-        if (!EodSummaryDataValidation(model))
+        if (!ValidateGrandTotalEodSummaryData(model))
         {
             TempData["ErrorMessage"] = "จำนวนเงินรวมสุทธิไม่ถูกต้อง, กรุณาตรวจสอบใหม่อีกครั้ง";
             return View("Create", model);
@@ -267,6 +268,15 @@ public class EndOfDaySummaryController : BaseController
                     DateTime.TryParse(model.SummaryDate, out summaryDate);
                 }
             }
+
+            #region Validate Is exist transaction by current summary date
+            bool isValidTrasnaction = await IsExistCurrentTransactionAsync(branchId, summaryDate);
+            if (!isValidTrasnaction)
+            {
+                TempData["ErrorMessage"] = "ไม่พบข้อมูลยอดขายสำหรับวันที่เลือก, กรุณาเลือกวันสรุกยอดใหม่อีกครั้ง";
+                return View("Create", model);
+            }
+            #endregion
 
             var cmd = new CreateEndOfDaySummaryCommand
             {
@@ -312,10 +322,10 @@ public class EndOfDaySummaryController : BaseController
             return View("Edit", model);
         }
 
-        if (!EodSummaryDataValidation(model))
+        if (!ValidateGrandTotalEodSummaryData(model))
         {
             TempData["ErrorMessage"] = "จำนวนเงินรวมสุทธิไม่ถูกต้อง, กรุณาตรวจสอบใหม่อีกครั้ง";
-            return View("Create", model);
+            return View("Edit", model);
         }
 
         // parse user info from session
@@ -342,6 +352,15 @@ public class EndOfDaySummaryController : BaseController
                 TempData["ErrorMessage"] = "ไม่สามารถดำเนินการได้, เนื่องจากข้อมูลรายการและสาขาไม่ถูกต้อง";
                 return View("Index");
             }
+
+            #region Validate Is exist transaction by current summary date
+            bool isValidTrasnaction = await IsExistCurrentTransactionAsync(branchId, summaryDate);
+            if (!isValidTrasnaction)
+            {
+                TempData["ErrorMessage"] = "ไม่พบข้อมูลยอดขายสำหรับวันที่เลือก, กรุณาเลือกวันสรุกยอดใหม่อีกครั้ง";
+                return View("Edit", model);
+            }
+            #endregion
 
             var cmd = new UpdateEndOfDaySummaryCommand
             {
@@ -440,7 +459,7 @@ public class EndOfDaySummaryController : BaseController
                 return Json(new
                 {
                     result = false,
-                    message = "ไม่พบข้อมูลยอดขายสำหรับวันที่เลือก, กรุณาเลือกวันสรุกยอดใหม่อีกครั้ง",
+                    message = "ไม่พบข้อมูลยอดขายสำหรับวันที่เลือก, กรุณาเลือกวันสรุปยอดใหม่อีกครั้ง",
                     data = new
                     {
                         totalcash = 0,
@@ -475,7 +494,20 @@ public class EndOfDaySummaryController : BaseController
         public string? date { get; set; }
     }
 
-    private bool EodSummaryDataValidation(EndOfDaySummaryViewModel requestObj)
+    private async Task<bool> IsExistCurrentTransactionAsync(int branchID, DateTime tnxDate)
+    {
+        var res = await _transactionAPI.GetTransactionByBranchIDV2Async(new GetTransactionByBranchIDV2Query
+        {
+            branchid = branchID,
+            transaction_startdate = tnxDate,
+            transaction_enddate = tnxDate,
+            startrow = 0,
+            pagesize = 10
+        });
+        return res.result;
+    }
+
+    private bool ValidateGrandTotalEodSummaryData(EndOfDaySummaryViewModel requestObj)
     {
         try
         {

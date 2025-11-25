@@ -88,11 +88,16 @@ public class TransactionsController : BaseController
                 transactionid = deleteTranObj.transactionid,
                 deletedby = base.UserProfile.username
             });
-            if (resDeleteTran.result)
-            {
-                return Json(new JsonViewModel { result = resDeleteTran.result, message = resDeleteTran.message });
-            }
-            return Json(new JsonViewModel { result = resDeleteTran.result, message = resDeleteTran.error.error.message });
+            //if (resDeleteTran.result)
+            //{
+            //    return Json(new JsonViewModel { result = resDeleteTran.result, message = resDeleteTran.result ? resDeleteTran.message : resDeleteTran.error.error.message });
+            //}
+            //return Json(new JsonViewModel { result = resDeleteTran.result, message = resDeleteTran.error.error.message });
+            return Json(new JsonViewModel 
+            { 
+                result = resDeleteTran.data.result, 
+                message = resDeleteTran.data.result ? "ลบข้อมูลสำเร็จ" : resDeleteTran.data.error.message
+            });
         }
         catch (Exception ex)
         {

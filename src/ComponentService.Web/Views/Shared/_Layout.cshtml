@@ -134,9 +134,12 @@
 @* show TempData success message via existing JS helper *@
 @if (TempData["SuccessMessage"] != null)
 {
+	var success = TempData["SuccessMessage"]?.ToString();
+	TempData.Remove("SuccessMessage");   // 🔥 force clear
+
 	<script>
 		$(function () {
-			var msg = '@(TempData["SuccessMessage"]?.ToString().Replace("'", "\\'"))';
+			var msg = '@success'.replace("'", "\\'");
 			if (msg) ShowMessageSuccess(msg);
 		});
 	</script>
@@ -144,9 +147,12 @@
 
 @if (TempData["ErrorMessage"] != null)
 {
+	var error = TempData["ErrorMessage"]?.ToString();
+	TempData.Remove("ErrorMessage"); // 🔥 force clear
+
 	<script>
 		$(function () {
-			var msg = '@(TempData["ErrorMessage"]?.ToString().Replace("'", "\\'"))';
+			var msg = '@error'.replace("'", "\\'");
 			if (msg) AlertError(msg);
 		});
 	</script>

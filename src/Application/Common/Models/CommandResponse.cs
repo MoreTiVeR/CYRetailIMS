@@ -13,6 +13,8 @@ public class CommandResponse
 
     public int transactionid { get; set; }
 
+    public ErrorData error { get; set; }
+
 }
 
 [Serializable]

@@ -102,7 +102,7 @@
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.DepositedCash, new { @class = "form-label" })
-						@Html.TextBoxFor(m => m.DepositedCash, new { @class = "form-control text-end", type = "number", step = "0.01" })
+						@Html.TextBoxFor(m => m.DepositedCash, new { @class = "form-control text-end", type = "number", min = "0" })
 						@Html.ValidationMessageFor(m => m.DepositedCash, "", new { @class = "text-danger" })
 					</div>
 				</div>
@@ -110,7 +110,7 @@
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.CustomerTransfer, new { @class = "form-label" })
-						@Html.TextBoxFor(m => m.CustomerTransfer, new { @class = "form-control text-end", type = "number", step = "0.01" })
+						@Html.TextBoxFor(m => m.CustomerTransfer, new { @class = "form-control text-end", type = "number", min = "0" })
 						@Html.ValidationMessageFor(m => m.CustomerTransfer, "", new { @class = "text-danger" })
 					</div>
 				</div>
@@ -118,7 +118,7 @@
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.SubstituteWage, new { @class = "form-label" })
-						@Html.TextBoxFor(m => m.SubstituteWage, new { @class = "form-control text-end", type = "number", step = "0.01" })
+						@Html.TextBoxFor(m => m.SubstituteWage, new { @class = "form-control text-end", type = "number", min = "0" })
 						@Html.ValidationMessageFor(m => m.SubstituteWage, "", new { @class = "text-danger" })
 					</div>
 				</div>
@@ -131,7 +131,7 @@
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.Fee, new { @class = "form-label" })
-						@Html.TextBoxFor(m => m.Fee, new { @class = "form-control text-end", type = "number", step = "0.01" })
+						@Html.TextBoxFor(m => m.Fee, new { @class = "form-control text-end", type = "number", min = "0" })
 						@Html.ValidationMessageFor(m => m.Fee, "", new { @class = "text-danger" })
 					</div>
 				</div>
@@ -139,7 +139,7 @@
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.OtherExpense, new { @class = "form-label" })
-						@Html.TextBoxFor(m => m.OtherExpense, new { @class = "form-control text-end", type = "number", step = "0.01" })
+						@Html.TextBoxFor(m => m.OtherExpense, new { @class = "form-control text-end", type = "number", min = "0" })
 						@Html.ValidationMessageFor(m => m.OtherExpense, "", new { @class = "text-danger" })
 					</div>
 				</div>
@@ -147,7 +147,7 @@
 				<div class="col-md-4">
 					<div class="mb-4">
 						@Html.LabelFor(m => m.FinalTotal, new { @class = "form-label" })
-						@Html.TextBoxFor(m => m.FinalTotal, new { @class = "form-control text-end", type = "number", step = "0.01" })
+						@Html.TextBoxFor(m => m.FinalTotal, new { @class = "form-control text-end", type = "number", min = "0", @readonly = "readonly" })
 						@Html.ValidationMessageFor(m => m.FinalTotal, "", new { @class = "text-danger" })
 					</div>
 				</div>

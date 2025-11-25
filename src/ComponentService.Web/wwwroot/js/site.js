@@ -37,6 +37,19 @@ function formatTimeHHMM(date) {
     return `${hours}:${minutes}`;
 }
 
+function parsePickerDate(value) {
+    if (!value) return null;
+    // normalize separators to '/'
+    var normalized = value.replace(/-/g, '/').trim();
+    var parts = normalized.split('/');
+    if (parts.length !== 3) return null;
+    var day = parseInt(parts[0], 10);
+    var month = parseInt(parts[1], 10);
+    var year = parseInt(parts[2], 10);
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+    return new Date(year, month - 1, day);
+}
+
 function InitialDatePicker() {
     var now = new Date();
     var $input = $('.pickadate-saledate').pickadate({
@@ -89,6 +102,43 @@ function InitialDatePickerWithoutSetCurrentData() {
     });
     datepicker = $input.pickadate('picker');
     //datepicker.set('select', new Date())
+}
+
+function InitialDatePickerSetDateWhenNoInput() {
+    var now = new Date();
+    var $input = $('.pickadate-saledate').pickadate({
+        selectYears: true,
+        selectMonths: true,
+        language: 'th-th',
+        format: 'dd/mm/yyyy',
+        formatSubmit: 'dd/mm/yyyy',
+        monthsFull: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'],
+        monthsShort: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'พ.ย.', 'พ.ย.', 'ธ.ค.'],
+        weekdaysShort: ['อา', 'จ', 'ค', 'พ', 'พฤ', 'ศ', 'ส'],
+        today: 'วันนี้',
+        clear: 'ล้างค่า',
+        close: 'ปิด',
+        onSet: function (event) {
+            var $input = $('#date-fin').pickadate();
+            var picker = $input.pickadate('picker');
+            var tempDate = new Date(event.select);
+            //picker.set('select', tempDate.setDate(tempDate.getDate() + 7));
+            //picker.set('min', new Date(event.select));
+        }
+    });
+    datepicker = $input.pickadate('picker');
+    //datepicker.set('select', new Date())
+    var existing = $('.pickadate-saledate').val();
+    if (existing === null || existing === '') {
+        datepicker.set('select', new Date());
+    } else {
+        // If existing value uses '-' separators try to parse and set it
+        var parsed = parsePickerDate(existing);
+        if (parsed) {
+            datepicker.set('select', parsed);
+        }
+    }
+
 }
 
 function InitialEditDatePicker() {

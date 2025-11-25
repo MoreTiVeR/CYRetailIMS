@@ -1,5 +1,4 @@
-﻿
-InitialDatePicker();
+﻿InitialDatePickerSetDateWhenNoInput();
 InitialNumberInput();
 InitialCharacterRemaining();
 
@@ -69,3 +68,59 @@ function SetEmptyValue() {
     $('#CustomerTransfer').val(null).trigger('change');
     $('#FinalTotal').val(null).trigger('change');
 }
+
+// Calculate FinalTotal when any related input changes
+function calculateFinalTotal() {
+    function valOrZero(selector) {
+        var el = $(selector);
+        if (!el.length) return 0;
+        var v = el.val();
+        if (v === undefined || v === null || v === '') return 0;
+        var n = parseFloat(v);
+        if (isNaN(n)) return 0;
+        // prevent negative via JS enforcement
+        if (n < 0) {
+            n = 0;
+            el.val(n);
+        }
+        return n;
+    }
+
+    var deposited = valOrZero('#DepositedCash');
+    var customerTransfer = valOrZero('#CustomerTransfer');
+    var substitute = valOrZero('#SubstituteWage');
+    var fee = valOrZero('#Fee');
+    var other = valOrZero('#OtherExpense');
+
+    var total = deposited + customerTransfer + substitute + fee + other;
+
+    // keep consistent formatting: show two decimals
+    var display = total.toFixed(2);
+
+    var finalEl = $('#FinalTotal');
+    finalEl.val(display);
+
+    // ensure FinalTotal not negative and has min attribute
+    if (parseFloat(finalEl.val()) < 0) {
+        finalEl.val('0.00');
+    }
+
+    finalEl.trigger('change');
+}
+
+// Attach handlers to recalculate when inputs change or user types
+$(document).on('input change', '#DepositedCash, #CustomerTransfer, #SubstituteWage, #Fee, #OtherExpense', function () {
+    // if user enters negative value manually (some browsers allow), clamp to 0
+    var v = $(this).val();
+    if (v !== undefined && v !== null && v !== '' && parseFloat(v) < 0) {
+        $(this).val(0);
+    }
+    calculateFinalTotal();
+});
+
+// Initial calculation in case values are preset on load
+$(function () {
+    // set min attribute on FinalTotal as readonly protective measure
+    $('#FinalTotal').attr('min', 0);
+    calculateFinalTotal();
+});

@@ -32,6 +32,19 @@ datatable = $("#tbSaleTransaction").DataTable({
             }
         },
         {
+            "data": { transactionid: "transactionid" },
+            "render": function (data) {
+                return "<div class='text-center'><a class='action-set' href='javascript:void(0);' data-bs-toggle='dropdown' aria-expanded='true'><i class='fa fa-ellipsis-v' aria-hidden='true'></i></a>"
+                    + "<ul class='dropdown-menu'><li><a asp-action='Edit' asp-controller='Transactions' title='แก้ไขข้อมูลขาย' asp-all-route-data='aTransactionID' class='dropdown-item' href='/Transactions/Edit?tranid=" + data.transactionid + "'><img src='../assets/img/icons/edit.svg' class='me-2' alt='img'>แก้ไขข้อมูล</a></li>"
+                    + "<li><a href='#' id='rowid" + data.transactionid + "' class='dropdown-item' onclick='deleteTransaction(" + data.transactionid + ")'><img src='../assets/img/icons/delete1.svg' class='me-2' alt='img'>ลบข้อมูล</a></li></div>";
+            }
+            //"data": { transactionid: "transactionid" },
+            //"render": function (data) {
+            //    return "<a href='/Transactions/Edit?tranid=" + data.transactionid + "' asp-all-route-data='aTransactionID' class='me-3' title='แก้ไขข้อมูลใบเสร็จ'><img src='../assets/img/icons/edit.svg' alt='img'></a>";
+
+            //}
+        },
+        {
             "data": { transactiondate: "transactiondate" },
             "render": function (data) {
                 if (data.transactiondate === null || data.transactiondate == null) {
@@ -68,20 +81,7 @@ datatable = $("#tbSaleTransaction").DataTable({
         { "data": "amountdeposit" },
         { "data": "amountcash" },
         { "data": "remark" },
-        { "data": "createdbystaff" },
-        {
-            //"data": { transactionid: "transactionid" },
-            //"render": function (data) {
-            //    return "<div class='text-center'><a class='action-set' href='javascript:void(0);' data-bs-toggle='dropdown' aria-expanded='true'><i class='fa fa-ellipsis-v' aria-hidden='true'></i></a>"
-            //        + "<ul class='dropdown-menu'><li><a asp-action='Edit' asp-controller='Transactions' title='แก้ไขข้อมูลขาย' asp-all-route-data='aTransactionID' class='dropdown-item' href='/Transactions/Edit?tranid=" + data.transactionid +"'><img src='../assets/img/icons/edit.svg' class='me-2' alt='img'>แก้ไขข้อมูล</a></li>"
-            //        + "<li><a href='#' id='rowid" + data.transactionid + "' class='dropdown-item' onclick='deleteTransaction(" + data.transactionid + ")'><img src='../assets/img/icons/delete1.svg' class='me-2' alt='img'>ลบข้อมูล</a></li></div>";
-            //}
-            "data": { transactionid: "transactionid" },
-            "render": function (data) {
-                return "<a href='/Transactions/Edit?tranid=" + data.transactionid + "' asp-all-route-data='aTransactionID' class='me-3' title='แก้ไขข้อมูลใบเสร็จ'><img src='../assets/img/icons/edit.svg' alt='img'></a>";
-                
-            }
-        }
+        { "data": "createdbystaff" }
     ],
     "order": [[0, "desc"]],
     "columnDefs": [
@@ -90,7 +90,7 @@ datatable = $("#tbSaleTransaction").DataTable({
             "visible": false
         },
         {
-            "targets": 10, // index of receivetempid column
+            "targets": 1, // index of receivetempid column
             "className": "text-center"
         }
     ],
@@ -166,8 +166,8 @@ $("#btnSearch").on('click', function (event) {
 });
 
 function deleteTransaction(tranid) {
-    AlertError("ไม่สามารถลบรายการได้ชั่วคราว! <br> กรุณาติดต่อผู้ดูแลระบบ.");
-    return;
+    //AlertError("ไม่สามารถลบรายการได้ชั่วคราว! <br> กรุณาติดต่อผู้ดูแลระบบ.");
+    //return;
     Swal.fire({
         title: "ยืนยันการลบข้อมูล?",
         //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
@@ -194,8 +194,8 @@ function deleteTransaction(tranid) {
                 success: function (data) {
                     if (data.result) {
 
-                        AlertSuccess('ลบข้อมูลสำเร็จ');
-                        $("#global-loader").css('display', 'none');
+                        AlertSuccess(data.message);
+                        HideLoading();
                         //ShowMessageSuccess(data.message);
 
                         //To do next?
@@ -223,7 +223,7 @@ function deleteTransaction(tranid) {
                     else {
                         //ShowMessageError(data.message);
                         AlertError(data.message);
-                        $("#global-loader").css('display', 'none');
+                        HideLoading();
                     }
                 }
             });

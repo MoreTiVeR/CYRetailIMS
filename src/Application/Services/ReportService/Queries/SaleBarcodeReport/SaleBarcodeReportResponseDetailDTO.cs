@@ -87,7 +87,12 @@ public class SaleBarcodeReportResponseDetailDTO
     /// <summary>
     /// สถานะตรวจสอบ
     /// </summary>
-    //public string auditstatus { get; set; }
+    //public string status { get; set; }
+
+    /// <summary>
+    /// สถานะ IsActive ตาราง EndOfDaySummary
+    /// </summary>
+    public bool eodsummarystatus { get; set; }
 
     /// <summary>
     /// รหัสการตรวจสอบ
