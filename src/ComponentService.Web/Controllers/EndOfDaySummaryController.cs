@@ -16,11 +16,15 @@ using CYRetailIMS.Application.Services.EODSummaryService.Queries.GetEndOfDaySumm
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v1;
 using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransactionByBranchID.v2;
+using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Operations;
 using Newtonsoft.Json.Linq;
+using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
+
+[CustomAuthorize(RoleName.Admin, RoleName.Sale)]
 public class EndOfDaySummaryController : BaseController
 {
     private readonly IEndOfDaySummaryAPI _endOfDaySummaryAPI;

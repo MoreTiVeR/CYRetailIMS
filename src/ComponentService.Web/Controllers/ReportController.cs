@@ -747,6 +747,7 @@ public class ReportController : BaseController
     #endregion
 
     #region รายงานสต๊อกสินค้า
+    [CustomAuthorize(RoleName.Admin)]
     public async Task<IActionResult> ItemStockReport()
     {
         var branchList = await PrepareSelectBranch();
@@ -959,7 +960,7 @@ public class ReportController : BaseController
 
 
     #region [SaleBarcodeReport] รายงานสรุปยอดสิ้นวันบาร์โค้ด
-
+    [CustomAuthorize(RoleName.Admin)]
     public async Task<IActionResult> SaleBarcodeReportAsync()
     {
         var branchList = await PrepareSelectBranch();
