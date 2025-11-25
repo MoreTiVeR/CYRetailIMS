@@ -229,6 +229,7 @@ public class EndOfDaySummaryController : BaseController
         }
         catch (Exception ex)
         {
+            TempData["ErrorMessage"] = ex.Message;
             return Json(new { data = new List<GetEndOfDaySummaryByCriteriaDetail>(), recordsTotal = 0, recordsFiltered = 0 });
         }
     }
@@ -242,17 +243,22 @@ public class EndOfDaySummaryController : BaseController
             return View("Create", model);
         }
 
+        if (!EodSummaryDataValidation(model))
+        {
+            TempData["ErrorMessage"] = "จำนวนเงินรวมสุทธิไม่ถูกต้อง, กรุณาตรวจสอบใหม่อีกครั้ง";
+            return View("Create", model);
+        }
+
         // parse user info from session
         string username = string.Empty;
         int branchId = 0;
-
+        DateTime summaryDate = DateTime.Now;
         try
         {
             //Get branchid and username from session
             branchId = base.UserProfile.access_branch.FirstOrDefault().branchid;
 
             // parse date string (expect dd-MM-yyyy)
-            DateTime summaryDate = DateTime.Now;
             if (!string.IsNullOrEmpty(model.SummaryDate))
             {
                 if (!DateTime.TryParseExact(model.SummaryDate, "dd/MM/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out summaryDate))
@@ -283,7 +289,6 @@ public class EndOfDaySummaryController : BaseController
             var res = await _endOfDaySummaryAPI.CreateEndOfDaySummaryAsync(cmd);
             if (res == null || !res.result)
             {
-                //ModelState.AddModelError(string.Empty, res?.message ?? "ไม่สามารถบันทึกข้อมูลได้");
                 TempData["ErrorMessage"] = res?.error?.error?.message;
                 return View("Create", model);
             }
@@ -293,7 +298,6 @@ public class EndOfDaySummaryController : BaseController
         }
         catch (Exception ex)
         {
-            //ModelState.AddModelError(string.Empty, ex.Message);
             TempData["ErrorMessage"] = ex.Message;
             return View("Create", model);
         }
@@ -308,17 +312,22 @@ public class EndOfDaySummaryController : BaseController
             return View("Edit", model);
         }
 
+        if (!EodSummaryDataValidation(model))
+        {
+            TempData["ErrorMessage"] = "จำนวนเงินรวมสุทธิไม่ถูกต้อง, กรุณาตรวจสอบใหม่อีกครั้ง";
+            return View("Create", model);
+        }
+
         // parse user info from session
         string username = string.Empty;
         int branchId = 0;
-
+        DateTime summaryDate = DateTime.Now;
         try
         {
             //Get branchid and username from session
             branchId = base.UserProfile.access_branch.FirstOrDefault().branchid;
 
             // parse date string (expect dd-MM-yyyy)
-            DateTime summaryDate = DateTime.Now;
             if (!string.IsNullOrEmpty(model.SummaryDate))
             {
                 if (!DateTime.TryParseExact(model.SummaryDate, "dd/MM/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out summaryDate))
@@ -355,7 +364,6 @@ public class EndOfDaySummaryController : BaseController
             var res = await _endOfDaySummaryAPI.UpdateEndOfDaySummaryAsync(cmd);
             if (res == null || !res.result)
             {
-                //ModelState.AddModelError(string.Empty, res?.message ?? "ไม่สามารถบันทึกข้อมูลได้");
                 TempData["ErrorMessage"] = res?.error?.error?.message;
                 return View("Edit", model);
             }
@@ -365,7 +373,6 @@ public class EndOfDaySummaryController : BaseController
         }
         catch (Exception ex)
         {
-            //ModelState.AddModelError(string.Empty, ex.Message);
             TempData["ErrorMessage"] = ex.Message;
             return View("Edit", model);
         }
@@ -386,14 +393,109 @@ public class EndOfDaySummaryController : BaseController
             var resDelete = await _endOfDaySummaryAPI.DeleteEndOfDaySummaryAsync(cmd);
             if (resDelete == null || !resDelete.result)
             {
-                return Json(new { result = false, message = resDelete?.message ?? "ไม่สามารถลบข้อมูลได้" });
+                return Json(new { result = false, message = "ไม่สามารถลบข้อมูลได้" });
             }
 
-            return Json(new { result = true, message = resDelete.message ?? "ลบข้อมูลสำเร็จ" });
+            return Json(new { result = true, message = "ลบข้อมูลสำเร็จ" });
         }
         catch (Exception ex)
         {
             return Json(new { result = false, message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Return transaction totals for a given summary date (used by Create view when date changes)
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> GetTransactionSummary([FromBody] TransactionSummaryRequest request)
+    {
+        try
+        {
+            DateTime summaryDate = DateTime.Now;
+            if (!string.IsNullOrEmpty(request?.date))
+            {
+                // try parse common formats dd-MM-yyyy or dd/MM/yyyy
+                if (!DateTime.TryParseExact(request.date, new[] { "dd-MM-yyyy", "dd/MM/yyyy" }, CultureInfo.CurrentCulture, DateTimeStyles.None, out summaryDate))
+                {
+                    DateTime.TryParse(request.date, out summaryDate);
+                }
+            }
+
+            int branchId = base.UserProfile.access_branch.FirstOrDefault()?.branchid ?? 0;
+
+            var res = await _transactionAPI.GetTransactionByBranchIDV2Async(new GetTransactionByBranchIDV2Query
+            {
+                branchid = branchId,
+                transaction_startdate = summaryDate,
+                transaction_enddate = summaryDate,
+                startrow = 0,
+                pagesize = 10
+            });
+
+            if (res == null || !res.result)
+            {
+                //TempData["ErrorMessage"] = "ไม่พบข้อมูลขายในวันที่ระบุ, กรุณาลองใหม่อีกครั้ง";
+                //return View("Create");
+                return Json(new
+                {
+                    result = false,
+                    message = "ไม่พบข้อมูลยอดขายสำหรับวันที่เลือก, กรุณาเลือกวันสรุกยอดใหม่อีกครั้ง",
+                    data = new
+                    {
+                        totalcash = 0,
+                        totaltransfer = 0,
+                        totalamount = 0,
+                        totaldepositfee = 0
+                    }
+                });
+            }
+
+            // return totals
+            return Json(new
+            {
+                result = true,
+                data = new
+                {
+                    totalcash = res.data.totalcash,
+                    totaltransfer = res.data.totaltransfer,
+                    totalamount = res.data.totalamount,
+                    totaldepositfee = res.data.totaldepositfee
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = ex.Message });
+        }
+    }
+
+    public class TransactionSummaryRequest
+    {
+        public string? date { get; set; }
+    }
+
+    private bool EodSummaryDataValidation(EndOfDaySummaryViewModel requestObj)
+    {
+        try
+        {
+            if(requestObj.GrandTotal == 0)
+            {
+                return false;
+            }
+            decimal substituteWage = requestObj.SubstituteWage.HasValue ? requestObj.SubstituteWage.Value : 0;
+            decimal otherExpense = requestObj.OtherExpense.HasValue ? requestObj.OtherExpense.Value : 0;
+            decimal fee = requestObj.Fee.HasValue ? requestObj.Fee.Value : 0;
+            decimal filnalTotal = requestObj.DepositedCash + requestObj.CustomerTransfer + substituteWage + fee + otherExpense;
+            if(filnalTotal == 0)
+            {
+                return false;
+            }
+            return requestObj.GrandTotal == filnalTotal;
+        }
+        catch
+        {
+            return false;
         }
     }
 }
