@@ -69,7 +69,14 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-lg-3 col-sm-6 col-12">
+					<div class="col-lg-2 col-sm-6 col-12">
+						<div class="form-group">
+							<select id="ddlItemBrand" class="ddl-select2 select2 ddl-itembrand" asp-items="@(new SelectList(ViewBag.ItemBrandList, "Value", "Text", null, null))">
+								<option value="">-- ทั้งหมด --</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-1 col-sm-6 col-12">
 						<div class="form-group" style="text-align: left">
 							<a id="btnSearch" class="btn btn-filters" title="กดเพิ่อค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
 						</div>

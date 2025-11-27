@@ -10,6 +10,7 @@ public class SearchSaleReportViewModel
     public int branchid { get; set; }
     public string startdate { get; set; }
 	public string enddate { get; set; }
+    public int? itembrandid { get; set; }
     public int start { get; set; } // Added for pagination
     public int length { get; set; } // Added for pagination
     public int draw { get; set; } // Added for DataTable draw parameter

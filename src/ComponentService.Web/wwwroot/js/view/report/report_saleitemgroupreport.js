@@ -24,6 +24,10 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
             var selectedBranch = $('.ddl-branch').val();
             var branchid = isNaN(parseInt(selectedBranch, 10)) ? 0 : parseInt(selectedBranch, 10); // Parse and if NaN, set to -1
 
+            var selectedItemBrand = $('.ddl-itembrand').val();
+            var itembrandid = isNaN(parseInt(selectedItemBrand, 10)) ? 0 : parseInt(selectedItemBrand, 10); // Parse and if NaN, set to -1
+
+            data.itembrandid = itembrandid;
             data.branchid = branchid;
             data.draw = data.draw;
             data.start = data.start;

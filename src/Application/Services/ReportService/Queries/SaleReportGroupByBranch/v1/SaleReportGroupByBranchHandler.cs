@@ -80,6 +80,13 @@ public class SaleReportGroupByBranchHandler : BaseService, IRequestHandler<SaleR
                 itempriceinbranch = s.data.FirstOrDefault(w => w.itemcode == s.itemcode).itempriceinbranch
             }).OrderBy(x => x.transactiondate).ToList();
 
+            #region Item Brand Filter
+            if (request.itembrandid.HasValue && request.itembrandid > 0)
+            {
+                groupData = groupData.Where(w => w.brandid == request.itembrandid.Value).ToList();
+            }
+            #endregion
+
             #region Filter
             totalRowCount = groupData.Count();
             if (request.isexportalldata)
@@ -184,6 +191,13 @@ public class SaleReportGroupByBranchHandler : BaseService, IRequestHandler<SaleR
                 totalsaleqty = s.data.Where(w => w.itemid == s.itemid && w.branchid == s.branchid).Sum(w => w.totalsaleqty),
                 itempriceinbranch = s.data.FirstOrDefault(w => w.itemid == s.itemid && w.branchid == s.branchid).itempriceinbranch
             }).OrderBy(x => x.transactiondate).ThenBy(x => x.branchid).ThenBy(x => x.itemid).ToList();
+
+            #region Item Brand Filter
+            if (request.itembrandid.HasValue && request.itembrandid > 0)
+            {
+                groupData = groupData.Where(w => w.brandid == request.itembrandid.Value).ToList();
+            }
+            #endregion
 
             #region Filter
             totalRowCount = groupData.Count();

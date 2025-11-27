@@ -5,6 +5,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
@@ -38,13 +39,17 @@ public class ReportController : BaseController
     private readonly IReportAPI _reportAPI;
     private readonly IBranchAPI _branchAPI;
     private readonly ISubItemTypeAPI _subItemTypeAPI;
+    private readonly IItemBrandAPI _itemBrandAPI;
+
     public ReportController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
         IReportAPI reportAPI, IBranchAPI branchAPI,
-        ISubItemTypeAPI subItemTypeAPI) : base(httpClientRequest, mapper, log)
+        ISubItemTypeAPI subItemTypeAPI,
+        IItemBrandAPI itemBrandAPI) : base(httpClientRequest, mapper, log)
     {
         _reportAPI = reportAPI;
         _branchAPI = branchAPI;
         _subItemTypeAPI = subItemTypeAPI;
+        _itemBrandAPI = itemBrandAPI;
     }
 
     public IActionResult Index()
@@ -64,9 +69,11 @@ public class ReportController : BaseController
     [CustomAuthorize(RoleName.Admin)]
     public async Task<IActionResult> SaleItemGroupReport()
     {
+        var itemBrandList = await PrepareSelectItemBrand();
         var branchList = await PrepareSelectBranch();
         branchList.RemoveAt(0);
         ViewBag.BranchList = branchList;
+        ViewBag.ItemBrandList = itemBrandList;
         return View();
     }
 
@@ -521,10 +528,16 @@ public class ReportController : BaseController
         };
     }
 
-    public async Task<List<SelectListItem>> PrepareSelectBranch()
+    private async Task<List<SelectListItem>> PrepareSelectBranch()
     {
         var resBranch = await _branchAPI.GetBranchListAsync();
         return resBranch.data.Select(s => new SelectListItem { Text = s.branchname, Value = s.branchid.ToString() }).ToList();
+    }
+
+    private async Task<List<SelectListItem>> PrepareSelectItemBrand()
+    {
+        var resItemBrands = await _itemBrandAPI.GetItemBrandListAsync();
+        return resItemBrands.data.Select(s => new SelectListItem { Text = s.brandname, Value = s.brandid.ToString() }).ToList();
     }
 
     [HttpGet]
@@ -909,6 +922,7 @@ public class ReportController : BaseController
                 transaction_startdate = sDate,
                 transaction_enddate = eDate,
                 branchid = branchID,
+                itembrandid = searchItem.itembrandid,
                 startrow = searchItem.start,
                 pagesize = searchItem.length,
                 searchvalue = searchItem.searchValue.Replace("\t", "").Replace("\n", ""),

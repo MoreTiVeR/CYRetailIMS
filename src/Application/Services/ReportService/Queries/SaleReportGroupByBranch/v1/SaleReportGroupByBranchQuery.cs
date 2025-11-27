@@ -13,6 +13,7 @@ public record SaleReportGroupByBranchQuery : IRequest<BaseResponse<SaleReportGro
     public int? branchid { get; init; }
     public DateTime transaction_startdate { get; init; }
     public DateTime transaction_enddate { get; init; }
+    public int? itembrandid { get; set; }
 
     /// <summary>
     /// Start index 1
