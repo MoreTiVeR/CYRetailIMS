@@ -12,4 +12,7 @@ namespace CYRetailIMS.Application.Common.Models.UI;
 public class DeleteTransactionViewModel
 {
     public int transactionid { get; set; }
+
+    // optional reason provided by user when deleting a transaction
+    public string? reason { get; set; }
 }

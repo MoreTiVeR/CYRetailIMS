@@ -56,21 +56,6 @@ public class SaleSummaryReportHandler : BaseService, IRequestHandler<SaleSummary
 			resSaleSummaryReport = resSaleSummaryReport.Where(w => w.branchid == request.branchid.Value);
 		}
         
-		//resSaleSummaryReport = resSaleSummaryReport.GroupBy(g => g.branchid).Select(s => new SaleSummaryReportResponseDTO
-		//{
-  //          branchid = s.Key,
-  //          branchname = s.First(w => w.branchid == s.Key).branchname,
-  //          transactiondate = s.First(w => w.branchid == s.Key).transactiondate,
-  //          totalamount = s.Sum(x => x.totalamount),
-  //          amounttransfer = s.Sum(x => x.amounttransfer),
-  //          amountdeposit = s.Sum(x => x.amountdeposit),
-  //          amountcash = s.Sum(x => x.amountcash),
-  //          depositfee = s.Sum(x => x.depositfee),
-  //          createdby = s.First(w => w.branchid == s.Key).createdby,
-  //          auditid = s.First(w => w.branchid == s.Key).auditid,
-  //          totalauditamount = s.First(w => w.branchid == s.Key).totalauditamount,
-  //          auditdescription = s.First(w => w.branchid == s.Key).auditdescription
-  //      }).ToList();
 
         if (!resSaleSummaryReport.Any())
 		{

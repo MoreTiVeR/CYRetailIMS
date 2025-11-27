@@ -50,6 +50,12 @@ public partial class TTTransaction : BaseAuditableEntity
 
     public int? PaymenTypeID { get; set; }
 
+    [InverseProperty("Transaction")]
+    public virtual ICollection<TTReceipt> TTReceipts { get; set; } = new List<TTReceipt>();
+
+    [InverseProperty("Transaction")]
+    public virtual ICollection<TTTransactionDeletionLog> TTTransactionDeletionLogs { get; set; } = new List<TTTransactionDeletionLog>();
+
 
     [InverseProperty("Transaction")]
 	public virtual ICollection<TTTransactonDetail> TTTransactonDetails { get; set; } = new List<TTTransactonDetail>();

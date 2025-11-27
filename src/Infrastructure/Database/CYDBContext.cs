@@ -149,6 +149,8 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTEndOfDaySummary> TTEndOfDaySummaries { get; set; }
 
+    public virtual DbSet<TTTransactionDeletionLog> TTTransactionDeletionLogs { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -703,6 +705,33 @@ public partial class CYDBContext : DbContext
             entity.HasIndex(e => e.SummaryDate)
                 .IsUnique()
                 .HasDatabaseName("UX_TTEndOfDaySummary_BranchID_SummaryDate");
+
+            //entity.Property(e => e.EndOfDayId).HasComment("รหัสรายการสรุปยอด");
+            //entity.Property(e => e.BranchID).HasComment("รหัสสาขา");
+            //entity.Property(e => e.CreatedBy).HasComment("ผู้สร้างรายการ");
+            //entity.Property(e => e.CreatedDate).HasComment("เวลาที่สร้าง (UTC)");
+            //entity.Property(e => e.CustomerTransfer).HasComment("ยอดเงินที่ลูกค้าโอนจริง");
+            //entity.Property(e => e.DepositedCash).HasComment("จำนวนเงินสดที่ฝากเข้าธนาคาร");
+            //entity.Property(e => e.Fee).HasComment("ค่าธรรมเนียมที่จ่าย");
+            //entity.Property(e => e.FinalTotal).HasComment("ยอดรวมหลังหักค่าใช้จ่าย");
+            //entity.Property(e => e.GrandTotal).HasComment("ยอดรวมทั้งหมดก่อนหักค่าใช้จ่าย");
+            //entity.Property(e => e.IsActive).HasComment("สถานะ disable หรือ enable");
+            //entity.Property(e => e.OtherExpense).HasComment("ค่าใช้จ่ายอื่นๆ");
+            //entity.Property(e => e.OtherExpenseNote).HasComment("หมายเหตุค่าใช้จ่ายอื่นๆ");
+            //entity.Property(e => e.SubstituteWage).HasComment("ค่าแรงคนแทน");
+            //entity.Property(e => e.SummaryDate).HasComment("วันที่สรุปยอด");
+            //entity.Property(e => e.TotalCash).HasComment("เงินสดรวมทั้งหมด");
+            //entity.Property(e => e.TotalTransfer).HasComment("เงินโอนรวมทั้งหมด");
+            //entity.Property(e => e.UpdatedBy).HasComment("ผู้สร้างรายการ");
+            //entity.Property(e => e.UpdatedDate).HasComment("เวลาที่สร้าง (UTC)");
+        });
+
+
+        modelBuilder.Entity<TTTransactionDeletionLog>(entity =>
+        {
+            entity.HasOne(d => d.Transaction).WithMany(p => p.TTTransactionDeletionLogs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TTTransactionDeletionLogs_TTTransactions");
         });
 
         OnModelCreatingPartial(modelBuilder);

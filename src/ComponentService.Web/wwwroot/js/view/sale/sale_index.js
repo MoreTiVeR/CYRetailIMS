@@ -63,7 +63,7 @@ datatable = $("#tbSaleTransaction").DataTable({
             "data": { transactiontypeid: "transactiontypeid" },
             "render": function (data) {
                 if (data.transactiontypeid === 1 || data.transactiontypeid == 1) {
-                    return "<span class='badges bg-orange'>" + data.transactiontypedesc +"</span>";
+                    return "<span class='badges bg-lightgrey'>" + data.transactiontypedesc +"</span>";
                 }
                 else if (data.transactiontypeid === 3 || data.transactiontypeid == 3) {
                     return "<span class='badges bg-lightpurple'>" + data.transactiontypedesc + "</span>";
@@ -166,14 +166,15 @@ $("#btnSearch").on('click', function (event) {
 });
 
 function deleteTransaction(tranid) {
-    //AlertError("ไม่สามารถลบรายการได้ชั่วคราว! <br> กรุณาติดต่อผู้ดูแลระบบ.");
-    //return;
+    // Prompt confirmation and require a reason before sending delete request
     Swal.fire({
         title: "ยืนยันการลบข้อมูล?",
-        //text: "เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!",
-        html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!</span>",
-        icon: 'warning',
-        type: "warning",
+        html: "<span class='text-danger'>เมื่อลบข้อมูลแล้ว จะไม่สามารถทำการยกเลิกได้!<br><br>กรุณาระบุเหตุผลในการลบ:</span>",
+        input: 'textarea',
+        inputPlaceholder: 'กรุณาระบุเหตุผลในการลบ...',
+        inputAttributes: {
+            'aria-label': 'Reason for deletion'
+        },
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
@@ -182,49 +183,57 @@ function deleteTransaction(tranid) {
         cancelButtonText: "ยกเลิก",
         cancelButtonClass: "btn btn-danger ml-1",
         buttonsStyling: false,
-    }).then(function (t) {
-        if (t.value) {
-
-            //Delete
+        preConfirm: (reason) => {
+            if (!reason || !reason.trim()) {
+                Swal.showValidationMessage('กรุณาระบุเหตุผลในการลบ');
+            }
+            return reason;
+        }
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var reason = result.value || '';
+            ShowLoading();
+            // Delete with reason
             $.ajax({
                 type: 'POST',
                 url: '/Transactions/DeleteTransaction',
-                data: JSON.stringify({ transactionid: tranid }),
+                data: JSON.stringify({ transactionid: tranid, reason: reason }),
                 contentType: 'application/json',
                 success: function (data) {
+                    HideLoading();
                     if (data.result) {
-
                         AlertSuccess(data.message);
-                        HideLoading();
-                        //ShowMessageSuccess(data.message);
 
-                        //To do next?
-                        //window.location = data.url;
-                        //itemDataTable.row('.selected').remove().draw(false);
-                        //dataTable.ajax.reload();
-                        /*$("#tbItems").DataTable().ajax.reload();*/
-                        /* $('#tbItems').DataTable().ajax.reload();*/
-                        //$('#tbItems').DataTable().ajax.reload();
+                        //// Remove the row from the table if present
+                        //try {
+                        //    console.log("#rowid" + tranid);
+                        //    $("#rowid" + tranid).closest("tr").remove();
+                        //} catch (e) {
+                        //    // ignore
+                        //}
 
-                        console.log("#rowid" + tranid);
-                        $("#rowid" + tranid).closest("tr").remove();
-                        $('#tbItems').DataTable().ajax.reload();
+                        //// Reload DataTable(s) if needed
+                        //try {
+                        //    if ($.fn.dataTable && $('#tbSaleTransaction').length) {
+                        //        $('#tbSaleTransaction').DataTable().ajax.reload();
+                        //    }
+                        //    if ($.fn.dataTable && $('#tbItems').length) {
+                        //        $('#tbItems').DataTable().ajax.reload();
+                        //    }
+                        //} catch (e) {
+                        //    // ignore
+                        //}
 
-                        //$("#rowid" + tranid).closest("tr").remove().draw(false);
-                        //console.log(row);
-                        //$('#tbItems').DataTable().row(row).remove().draw(false);
-
-                        //var row = $('#dataTable').DataTable().rows('.remove-row').closest('tr');
-                        //alert('test -> ' + row);
-                        //var rowdata = $('#tbItems').DataTable().row(row).data();
-                        //alert('data -> ' + rowdata)
-                        //AlertSuccess('ลบแถวสำเร็จ');
+                        //event.preventDefault(); // Prevent the default form submission
+                        datatable.ajax.reload(); // This will use the updated parameters automatically
                     }
                     else {
-                        //ShowMessageError(data.message);
                         AlertError(data.message);
-                        HideLoading();
                     }
+                },
+                error: function (xhr, status, error) {
+                    HideLoading();
+                    AlertError('เกิดข้อผิดพลาดในการลบข้อมูล');
                 }
             });
         }

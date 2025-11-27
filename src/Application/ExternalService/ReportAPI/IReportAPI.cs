@@ -21,6 +21,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.TransactionDeletionLogReport.v1;
 
 namespace CYRetailIMS.Application.ExternalService.ReportAPI;
 public interface IReportAPI
@@ -56,4 +57,6 @@ public interface IReportAPI
 	Task<BaseResponse<SaleReportGroupByBranchResposneDTO>> GetSaleReportByGroupAsync(SaleReportGroupByBranchQuery saleReportGroupByBranchQuery);
 
 	Task<BaseResponse<SaleBarcodeReportResponseDTO>> GetSaleBarcodeReportAsync(SaleBarcodeReportQuery saleBarcodeReportQuery);
+
+    Task<BaseResponse<TransactionDeletionLogReportResponseDTO>> GetTransactionDeletionLogReportAsync(TransactionDeletionLogReportQuery transactionDeletionLogReportQuery);
 }

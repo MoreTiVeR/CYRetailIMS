@@ -12,5 +12,6 @@ public class DeleteTransactionValidator : AbstractValidator<DeleteTransactionCom
     {
         RuleFor(r => r.transactionid).NotNull().Must(s => s > 0).WithMessage("ข้อมูลในการทำรายการไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!");
         RuleFor(r => r.deletedby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
+        RuleFor(r => r.reason).NotNull().NotEmpty().WithMessage("กรุณาระบุสาเหตุที่ยกเลิกรายการ");
     }
 }

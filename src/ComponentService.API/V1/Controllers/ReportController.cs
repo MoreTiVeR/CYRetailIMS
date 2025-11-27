@@ -18,6 +18,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBr
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByTransID.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.TransactionDeletionLogReport.v1;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.ComponentService.API.V1.Controllers;
@@ -341,4 +342,26 @@ public class ReportController : BaseApiController
         _log.Debug($"[{DateTime.Now}]SaleBarcodeReportAsync Success");
         return Ok(res.data);
     }
+
+    /// <summary>
+    /// รายงานยกเลิกรายการขาย
+    /// </summary>
+    /// <param name="deletionLogReportQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("v1/transdeletereport")]
+    [ProducesResponseType(typeof(TransactionDeletionLogReportResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> TransactionDeletionLogReportAsync(TransactionDeletionLogReportQuery deletionLogReportQuery)
+    {
+        DateTime dtStart = DateTime.Now;
+        BaseResponse<TransactionDeletionLogReportResponseDTO> res = await Mediator.Send(deletionLogReportQuery);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]TransactionDeletionLogReportAsync Success");
+        return Ok(res.data);
+    }
+
 }

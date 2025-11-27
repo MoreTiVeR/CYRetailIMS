@@ -3,7 +3,7 @@ var datatable;
 $('.select2').select2();
 
 //tbSaleReport
-datatable = $("#tbSaleItemGroupReport").DataTable({
+datatable = $("#tbTranCanceledLogReport").DataTable({
     "processing": true,         // Show processing indicator
     "serverSide": true,        // Enable server-side processing
     "destroy": true,
@@ -14,7 +14,7 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
     "pagingType": 'numbers',
     "ordering": true,
     "ajax": {
-        "url": "/Report/SearchSaleItemGroupReport",
+        "url": "/Report/SearchTransactionCancelReport",
         "type": "POST",
         "contentType": "application/json", // Add this line
         "data": function (data) {
@@ -24,10 +24,6 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
             var selectedBranch = $('.ddl-branch').val();
             var branchid = isNaN(parseInt(selectedBranch, 10)) ? 0 : parseInt(selectedBranch, 10); // Parse and if NaN, set to -1
 
-            var selectedItemBrand = $('.ddl-itembrand').val();
-            var itembrandid = isNaN(parseInt(selectedItemBrand, 10)) ? 0 : parseInt(selectedItemBrand, 10); // Parse and if NaN, set to -1
-
-            data.itembrandid = itembrandid;
             data.branchid = branchid;
             data.draw = data.draw;
             data.start = data.start;
@@ -43,23 +39,20 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
                 return "<label class='checkboxs'><input type='checkbox' id='select-all'><span class='checkmarks'></span></label>";
             }
         },
-        //{
-        //    "data": { createddate: "transactiondate" },
-        //    "render": function (data) {
-        //        if (data.transactiondate === null || data.transactiondate == null) {
-        //            return data.transactiondate;
-        //        }
-        //        return formatDate(new Date(data.transactiondate));
-        //    }
-        //},
-        { "data": "transactiondaterange" },
+        {
+            "data": { createddate: "createddate" },
+            "render": function (data) {
+                if (data.createddate === null || data.createddate == null) {
+                    return data.createddate;
+                }
+                return formatDateTime(new Date(data.createddate));
+            }
+        },
         { "data": "branchname" },
-        { "data": "itemcode" },
-        { "data": "itemname" },
-        { "data": "brandname" },
-        { "data": "totalsaleqty" },
-        { "data": "itempriceinbranch" },
-        { "data": "totalamount" }
+        { "data": "transactiontypedesc" },
+        { "data": "totalamount" },
+        { "data": "reason" },
+        { "data": "createdbystaff" }
     ],
     "order": [[0, "desc"]],
     "columnDefs": [
@@ -84,21 +77,21 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            title: 'รายงานยอดรวมตามรหัสสินค้า',
+            title: 'รายงานยกเลิกรายการขาย',
             text: 'ดาวโหลดรายงานหน้าปัจจุบัน',
             class: 'btn-primary',
             //Columns to export
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                columns: [1, 2, 3, 4, 5, 6]
             }
         },
         {
             extend: 'excelHtml5',
-            title: 'รายงานยอดรวมตามรหัสสินค้าทั้งหมด',
+            title: 'รายงานยกเลิกรายการขายทั้งหมด',
             text: 'ดาวโหลดรายงานทั้งหมด',
             class: 'btn-primary',
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                columns: [1, 2, 3, 4, 5, 6],
                 modifier: {
                     page: 'all'
                 },
@@ -129,14 +122,13 @@ datatable = $("#tbSaleItemGroupReport").DataTable({
 
                 // Custom action to fetch all data
                 $.ajax({
-                    url: "/Report/SearchSaleItemGroupReport", // Create a new endpoint for all data
+                    url: "/Report/SearchTransactionCancelReport", // Create a new endpoint for all data
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({
                         startdate: $("#txtStartDate").val(),
                         enddate: $("#txtEndDate").val(),
                         branchid: $('.ddl-branch').val() || 0,
-                        itembrandid: $('.ddl-itembrand').val() || 0,
                         draw: dt.page.info().draw,
                         start: dt.page.info().start,
                         length: dt.page.info().length,

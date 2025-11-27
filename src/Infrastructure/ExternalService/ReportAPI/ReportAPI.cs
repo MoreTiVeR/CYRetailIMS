@@ -23,6 +23,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.SaleReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleReportGroupByBranch.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.SaleSummaryReportByBranch.v1;
+using CYRetailIMS.Application.Services.ReportService.Queries.TransactionDeletionLogReport.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.ReportAPI;
 public class ReportAPI : HttpClientService, IReportAPI
@@ -131,5 +132,11 @@ public class ReportAPI : HttpClientService, IReportAPI
     {
         return await _httpClientRequest.HttpRequestToObject<SaleBarcodeReportResponseDTO,
             SaleBarcodeReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/salebarcodereport"), saleBarcodeReportQuery);
+    }
+
+    public async Task<BaseResponse<TransactionDeletionLogReportResponseDTO>> GetTransactionDeletionLogReportAsync(TransactionDeletionLogReportQuery transactionDeletionLogReportQuery)
+    {
+        return await _httpClientRequest.HttpRequestToObject<TransactionDeletionLogReportResponseDTO,
+                    TransactionDeletionLogReportQuery>(HttpMethod.Post, new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/report/v1/transdeletereport"), transactionDeletionLogReportQuery);
     }
 }

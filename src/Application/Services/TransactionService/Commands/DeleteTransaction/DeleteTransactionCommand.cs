@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using MediatR;
 
@@ -18,5 +14,10 @@ public record DeleteTransactionCommand : IRequest<BaseResponse<CommandResponse>>
     [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
     [MaxLength(10, ErrorMessage = "Maximum length 10")]
     public string deletedby { get; init; }
+
+
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Required field")]
+    [MaxLength(500, ErrorMessage = "Maximum length 500")]
+    public string reason { get; init; }
 
 }

@@ -86,7 +86,8 @@ public class TransactionsController : BaseController
             BaseResponse<CommandResponse> resDeleteTran = await _transactionAPI.DeleteTransactionByIDAsync(new DeleteTransactionCommand
             {
                 transactionid = deleteTranObj.transactionid,
-                deletedby = base.UserProfile.username
+                deletedby = base.UserProfile.username,
+                reason = deleteTranObj.reason // pass reason from UI
             });
             //if (resDeleteTran.result)
             //{

@@ -29,4 +29,8 @@ public partial class TTReceipt : BaseEntity
     [StringLength(10)]
     [Unicode(false)]
     public string CreatedBy { get; set; }
+
+    [ForeignKey("TransactionID")]
+    [InverseProperty("TTReceipts")]
+    public virtual TTTransaction Transaction { get; set; }
 }

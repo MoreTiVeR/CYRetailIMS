@@ -4,6 +4,7 @@ using CYRetailIMS.Application.Services.ItemInBranchService.EventHandlers;
 using CYRetailIMS.Application.Services.TransactionService.EventHandlers;
 using CYRetailIMS.Domain.Entities;
 using CYRetailIMS.Domain.Events.TMItemInBranchs;
+using CYRetailIMS.Domain.Events.TTTransactionDeletionLogs;
 using CYRetailIMS.Domain.Events.TTTransactionDetails;
 using CYRetailIMS.Domain.Events.TTTransactions;
 using CYRetailIMS.Domain.Infrastructure.Database;
@@ -41,24 +42,16 @@ public class DeleteTransactionHandler : BaseService, IRequestHandler<DeleteTrans
                         message = "ไม่พบรายการขาย หรือรายการได้ถูกยกเลิกแล้ว"
                     }
                 }
-                //error = new ErrorResponse
-                //{
-                //    error = new ErrorData
-                //    {
-                //        type = StatusCodes.Status404NotFound.ToString(),
-                //        status = StatusCodes.Status404NotFound.ToString(),
-                //        message = "ไม่พบรายการขาย หรือรายการได้ถูกยกเลิกแล้ว"
-                //    }
-                //}
             };
         }
 
-        // Get branch id from transaction
+        #region Get branch id from transaction
         int branchId = resTrans.FirstOrDefault().BranchID;
         DateTime txnDate = resTrans.FirstOrDefault().TransactionDate;
-        var resAuditData = await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync(w => w.BranchID == branchId 
+        IQueryable<TTTransactionAudit> resAuditData = await _unitOfWork.Repository<TTTransactionAudit>().QueryAsync(w => w.BranchID == branchId
         && w.IsActive && w.TransactionDate.Date == txnDate.Date);
-        if (resAuditData != null || resAuditData.Any())
+        var auditEntities = resAuditData.ToList();
+        if (auditEntities.Any())
         {
             //throw new Exception("Transaction has been audit.");
             return new BaseResponse<CommandResponse>
@@ -77,23 +70,15 @@ public class DeleteTransactionHandler : BaseService, IRequestHandler<DeleteTrans
                         message = "ไม่สามารถยกเลิกรายการได้, เนื่องจากบัญชีได้ทำการตรวจสอบรายการแล้ว"
                     }
                 }
-                //error = new ErrorResponse
-                //{
-                //    error = new ErrorData
-                //    {
-                //        type = StatusCodes.Status404NotFound.ToString(),
-                //        status = StatusCodes.Status404NotFound.ToString(),
-                //        message = "ไม่สามารถยกเลิกรายการได้, เนื่องจากบัญชีได้ทำการตรวจสอบรายการแล้ว"
-                //    },
-                //}
             };
         }
+        #endregion
 
+        #region In-Active trasnaction, detail
         DateTime delDate = DateTime.Now;
-        //In-Active trasnaction, detail
         resTrans.ToList().ForEach(w =>
         {
-            w.Remark = $"[ถูกยกเลิกโดยพนักงาน {request.deletedby}] | " + w.Remark;
+            w.Remark = w.Remark;
             w.IsActive = false;
             w.SetUpdatedBy(request.deletedby);
             w.SetUpdatedDate(delDate);
@@ -104,8 +89,10 @@ public class DeleteTransactionHandler : BaseService, IRequestHandler<DeleteTrans
             });
             w.AddDomainEvent(new TTTransactionsDeleteEvent(w));
         });
+        #endregion
 
-        //Returned Item in branch stock
+
+        #region Returned Item in branch stock
         var itemCollections = resTrans.SelectMany(s => s.TTTransactonDetails).Select(s => new
         {
             ItemID = s.ItemID,
@@ -122,6 +109,21 @@ public class DeleteTransactionHandler : BaseService, IRequestHandler<DeleteTrans
             d.SetUpdatedDate(delDate);
             d.AddDomainEvent(new TMItemInBranchUpdateEvent(d));
         });
+        #endregion
+
+        #region Insert Log Reason for delete to table name TTTransactionDeletionLogs
+        TTTransactionDeletionLog transactionDeletionLogs = new TTTransactionDeletionLog
+        {
+            TransactionID = request.transactionid,
+            BranchID = branchId,
+            Reason = request.reason,
+            CreatedBy = request.deletedby,
+            CreatedDate = delDate
+        };
+        transactionDeletionLogs.AddDomainEvent(new TTTransactionDeletionLogsCreateEvent(transactionDeletionLogs));
+        await _unitOfWork.Repository<TTTransactionDeletionLog>().AddAsync(transactionDeletionLogs);
+        #endregion
+
 
         await _unitOfWork.SaveChangesAsync();
         return new BaseResponse<CommandResponse>
