@@ -89,11 +89,7 @@ public class TransactionsController : BaseController
                 deletedby = base.UserProfile.username,
                 reason = deleteTranObj.reason // pass reason from UI
             });
-            //if (resDeleteTran.result)
-            //{
-            //    return Json(new JsonViewModel { result = resDeleteTran.result, message = resDeleteTran.result ? resDeleteTran.message : resDeleteTran.error.error.message });
-            //}
-            //return Json(new JsonViewModel { result = resDeleteTran.result, message = resDeleteTran.error.error.message });
+
             return Json(new JsonViewModel 
             { 
                 result = resDeleteTran.data.result, 
@@ -113,7 +109,8 @@ public class TransactionsController : BaseController
         {
             transactionid = editTranObj.TransactionID,
             updatedby = base.UserProfile.username,
-            transactiondate = editTranObj.TransactionDate.ToDate()
+            transactiondate = editTranObj.TransactionDate.ToDate(),
+            
         };
     }
     #endregion

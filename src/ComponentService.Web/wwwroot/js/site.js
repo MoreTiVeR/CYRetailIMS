@@ -79,7 +79,9 @@ function InitialDatePicker() {
 }
 
 function InitialDatePickerWithoutSetCurrentData() {
-    var now = new Date();
+    var today = new Date();
+    today.setHours(0, 0, 0, 0); // กันปัญหา timezone / เวลา
+
     var $input = $('.pickadate-saledate').pickadate({
         selectYears: true,
         selectMonths: true,
@@ -87,22 +89,38 @@ function InitialDatePickerWithoutSetCurrentData() {
         format: 'dd/mm/yyyy',
         formatSubmit: 'dd/mm/yyyy',
         monthsFull: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'],
-        monthsShort: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'พ.ย.', 'พ.ย.', 'ธ.ค.'],
-        weekdaysShort: ['อา', 'จ', 'ค', 'พ', 'พฤ', 'ศ', 'ส'],
+        monthsShort: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
+        weekdaysShort: ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'],
         today: 'วันนี้',
         clear: 'ล้างค่า',
         close: 'ปิด',
+
+        // ✅ ห้ามลงย้อนหลัง (เลือกได้ตั้งแต่วันนี้)
+        min: today,
+
         onSet: function (event) {
-            var $input = $('#date-fin').pickadate();
-            var picker = $input.pickadate('picker');
-            var tempDate = new Date(event.select);
-            //picker.set('select', tempDate.setDate(tempDate.getDate() + 7));
-            //picker.set('min', new Date(event.select));
+            // กันผู้ใช้พิมพ์วันที่เองแล้วเป็นอดีต
+            if (event.select) {
+                var selected = new Date(event.select);
+                selected.setHours(0, 0, 0, 0);
+
+                if (selected < today) {
+                    this.set('select', today, { silent: true });
+                }
+            }
+        },
+
+        onOpen: function () {
+            // เผื่อเปิดแล้ว min ยังไม่ถูก set (บางเคส)
+            this.set('min', today);
         }
     });
+
     datepicker = $input.pickadate('picker');
-    //datepicker.set('select', new Date())
+    // ไม่ set วันที่ปัจจุบันตามที่ต้องการ
+    // datepicker.set('select', new Date())
 }
+
 
 function InitialDatePickerSetDateWhenNoInput() {
     var now = new Date();

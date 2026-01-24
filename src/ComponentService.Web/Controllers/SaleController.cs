@@ -525,13 +525,21 @@ public class SaleController : BaseController
         };
     }
 
+    /// <summary>
+    /// UpdateDate: 24/1/2026
+    /// แก้ไข ค่าธรรมเนียม 1 กรณีจ่ายงินสด
+    /// isignorefee = true ค่าธรรมเนียมไม่ใช้เป็นเงื่อนไขในการบันทึก
+    /// </summary>
+    /// <param name="reqObj"></param>
+    /// <param name="createTransactionDetailCommands"></param>
+    /// <returns></returns>
     private CreateTransactionCommand PrepareCreateTransactionByBarcodeCommand(SellingItemViewModel reqObj,
         List<CreateTransactionDetailCommand> createTransactionDetailCommands)
     {
         decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
         bool isPayWithCash = reqObj.iscash.HasValue && reqObj.iscash == true ? true : false;
-        decimal mDeposit = isPayWithCash ? toalAmt - 1 : 0;
-        decimal nDepositFee = isPayWithCash ? 1 : 0;
+        decimal mDeposit = isPayWithCash ? toalAmt : 0;
+        //decimal nDepositFee = isPayWithCash ? 0 : 0;
         decimal mTransfer = isPayWithCash ? 0 : toalAmt;
         int transactionType = reqObj.transactiontype != null ? reqObj.transactiontype.Value : (int)EnumModel.SellTransactionType.RT01;
         return new CreateTransactionCommand
@@ -540,7 +548,8 @@ public class SaleController : BaseController
             amountcash = reqObj.mcash,
             amountdeposit = mDeposit,
             amounttransfer = mTransfer,
-            fee = nDepositFee,
+            //fee = nDepositFee,
+            fee = reqObj.mfee,
             branchid = reqObj.branch.ToInt32(),
             totalamount = toalAmt,
             isactive = true,
@@ -550,7 +559,8 @@ public class SaleController : BaseController
             createdby = base.UserProfile.username,
             transactiondetail = createTransactionDetailCommands,
             remark = reqObj.Remark,
-            paymenttypeid = isPayWithCash ? (int)EnumModel.PaymentType.CA : (int)EnumModel.PaymentType.TR
+            paymenttypeid = isPayWithCash ? (int)EnumModel.PaymentType.CA : (int)EnumModel.PaymentType.TR,
+            isignorefee = true
         };
     }
 
