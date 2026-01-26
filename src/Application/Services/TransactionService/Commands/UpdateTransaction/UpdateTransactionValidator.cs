@@ -11,7 +11,10 @@ public class UpdateTransactionValidator : AbstractValidator<UpdateTransactionCom
     public UpdateTransactionValidator()
     {
         RuleFor(r => r.transactionid).NotNull().Must(s => s > 0).WithMessage("ข้อมูลในการทำรายการไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง!");
-        RuleFor(r => r.transactiondate).NotNull().WithMessage("กรุณาระบุวันที่ขายสินค้า");
+        // transactiondate must be provided and be today or a future date
+        RuleFor(r => r.transactiondate)
+            .NotNull().WithMessage("กรุณาระบุวันที่ขายสินค้า")
+            .Must(d => d.Date >= DateTime.Today).WithMessage("ไม่สามารถแก้ไขรายการขายย้อนหลังได้");
         RuleFor(r => r.updatedby).NotNull().NotEmpty().WithMessage("กรุณาระบุผู้ทำรายการ");
     }
 }

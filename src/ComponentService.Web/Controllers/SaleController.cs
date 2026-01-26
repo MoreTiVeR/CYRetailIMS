@@ -41,6 +41,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using NetTopologySuite.Index.HPRtree;
 using static CYRetailIMS.Application.Common.Models.EnumModel;
 using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.CustomAuthorize;
 
@@ -525,13 +526,21 @@ public class SaleController : BaseController
         };
     }
 
+    /// <summary>
+    /// UpdateDate: 24/1/2026
+    /// แก้ไข ค่าธรรมเนียม 1 กรณีจ่ายงินสด
+    /// isignorefee = true ค่าธรรมเนียมไม่ใช้เป็นเงื่อนไขในการบันทึก
+    /// </summary>
+    /// <param name="reqObj"></param>
+    /// <param name="createTransactionDetailCommands"></param>
+    /// <returns></returns>
     private CreateTransactionCommand PrepareCreateTransactionByBarcodeCommand(SellingItemViewModel reqObj,
         List<CreateTransactionDetailCommand> createTransactionDetailCommands)
     {
         decimal toalAmt = createTransactionDetailCommands.Select(s => decimal.Multiply(s.price, s.qty)).Sum();
         bool isPayWithCash = reqObj.iscash.HasValue && reqObj.iscash == true ? true : false;
-        decimal mDeposit = isPayWithCash ? toalAmt - 1 : 0;
-        decimal nDepositFee = isPayWithCash ? 1 : 0;
+        decimal mDeposit = isPayWithCash ? toalAmt : 0;
+        //decimal nDepositFee = isPayWithCash ? 0 : 0;
         decimal mTransfer = isPayWithCash ? 0 : toalAmt;
         int transactionType = reqObj.transactiontype != null ? reqObj.transactiontype.Value : (int)EnumModel.SellTransactionType.RT01;
         return new CreateTransactionCommand
@@ -540,7 +549,8 @@ public class SaleController : BaseController
             amountcash = reqObj.mcash,
             amountdeposit = mDeposit,
             amounttransfer = mTransfer,
-            fee = nDepositFee,
+            //fee = nDepositFee,
+            fee = reqObj.mfee,
             branchid = reqObj.branch.ToInt32(),
             totalamount = toalAmt,
             isactive = true,
@@ -550,7 +560,8 @@ public class SaleController : BaseController
             createdby = base.UserProfile.username,
             transactiondetail = createTransactionDetailCommands,
             remark = reqObj.Remark,
-            paymenttypeid = isPayWithCash ? (int)EnumModel.PaymentType.CA : (int)EnumModel.PaymentType.TR
+            paymenttypeid = isPayWithCash ? (int)EnumModel.PaymentType.CA : (int)EnumModel.PaymentType.TR,
+            isignorefee = true
         };
     }
 
@@ -624,6 +635,11 @@ public class SaleController : BaseController
         }
     }
 
+    /// <summary>
+    /// Fix Validate Qty in Stock from TMItemInBranch by branchid and itemid before response
+    /// </summary>
+    /// <param name="sellingBarcodeItem"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<IActionResult> AddTempItemSellingBarcode([FromBody] SellingBarcodeItemViewModel sellingBarcodeItem)
     {
@@ -641,12 +657,12 @@ public class SaleController : BaseController
 
             //Get Current List
             List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeScannerName);
-
+            SellingBarcodeItemViewModel existData = null;
             #region Update when Already added
             if (tempSellingBarcodeItemList != null)
             {
                 //Check is exist from temp
-                SellingBarcodeItemViewModel existData = tempSellingBarcodeItemList.FirstOrDefault(w => w.barcode == sellingBarcodeItem.barcode);
+                existData = tempSellingBarcodeItemList.FirstOrDefault(w => w.barcode == sellingBarcodeItem.barcode);
                 if (existData != null)
                 {
                     //Update QTY
@@ -678,15 +694,20 @@ public class SaleController : BaseController
             #endregion
 
             #region Validate Qty in Stock TMItem by barcode before response
-            BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeV2Async(new GetItemByBarcodeQuery { itembarcode = sellingBarcodeItem.barcode });
+            //BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeV2Async(new GetItemByBarcodeQuery { itembarcode = sellingBarcodeItem.barcode });
+            BaseResponse<GetItemInBranchByCriteriaResponseDTO> resItem = await _itemInBranchAPI.GetItemInBranchByCriteriaAsync(new GetItemInBranchByCriteriaQuery
+            {
+                branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+                itemid = sellingBarcodeItem.itemid > 0 ? sellingBarcodeItem.itemid : existData != null ? existData.itemid : 0
+            });
             if (!resItem.result)
             {
                 return Json(new { result = false, message = $"{resItem.error.error.message} บาร์โค้ด {sellingBarcodeItem.barcode}" });
             }
 
-            if (resItem.data.qty < tempSellingBarcodeItemList.FirstOrDefault(w => w.itemid == resItem.data.itemid)?.qty)
+            if (resItem.data.item.qty < tempSellingBarcodeItemList.FirstOrDefault(w => w.itemid == resItem.data.item.itemid)?.qty)
             {
-                return Json(new { result = false, message = $"ไม่สามารภทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
+                return Json(new { result = false, message = $"ไม่สามารถทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
             }
             #endregion
 
@@ -826,6 +847,11 @@ public class SaleController : BaseController
         }
     }
 
+    /// <summary>
+    /// Fix Validate Qty in Stock from TMItemInBranch by branchid and itemid before response
+    /// </summary>
+    /// <param name="sellingBarcodeItem"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<IActionResult> AddTempItemSellingMobileBarcode([FromBody] SellingBarcodeItemViewModel sellingBarcodeItem)
     {
@@ -843,12 +869,12 @@ public class SaleController : BaseController
 
             //Get Current List
             List<SellingBarcodeItemViewModel> tempSellingBarcodeItemList = HttpContext.Session.GetDataFromSession<List<SellingBarcodeItemViewModel>>(_sessionTempSellingItemBarcodeMobileName);
-
+            SellingBarcodeItemViewModel existData = null;
             #region Update when Already added
             if (tempSellingBarcodeItemList != null)
             {
                 //Check is exist from temp
-                SellingBarcodeItemViewModel existData = tempSellingBarcodeItemList.FirstOrDefault(w => w.barcode == sellingBarcodeItem.barcode);
+                existData = tempSellingBarcodeItemList.FirstOrDefault(w => w.barcode == sellingBarcodeItem.barcode);
                 if (existData != null)
                 {
                     //Update QTY
@@ -880,15 +906,20 @@ public class SaleController : BaseController
             #endregion
 
             #region Validate Qty in Stock TMItem by barcode before response
-            BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeV2Async(new GetItemByBarcodeQuery { itembarcode = sellingBarcodeItem.barcode });
+            //BaseResponse<GetItemByIDResponseDTO> resItem = await _itemAPI.GetItemByBarCodeV2Async(new GetItemByBarcodeQuery { itembarcode = sellingBarcodeItem.barcode });
+            BaseResponse<GetItemInBranchByCriteriaResponseDTO> resItem = await _itemInBranchAPI.GetItemInBranchByCriteriaAsync(new GetItemInBranchByCriteriaQuery
+            {
+                branchid = base.UserProfile.access_branch.FirstOrDefault().branchid,
+                itemid = sellingBarcodeItem.itemid > 0 ? sellingBarcodeItem.itemid : existData != null ? existData.itemid : 0
+            });
             if (!resItem.result)
             {
                 return Json(new { result = false, message = $"{resItem.error.error.message} บาร์โค้ด {sellingBarcodeItem.barcode}" });
             }
 
-            if (resItem.data.qty < tempSellingBarcodeItemList.FirstOrDefault(w => w.itemid == resItem.data.itemid)?.qty)
+            if (resItem.data.item.qty < tempSellingBarcodeItemList.FirstOrDefault(w => w.itemid == resItem.data.item.itemid)?.qty)
             {
-                return Json(new { result = false, message = $"ไม่สามารภทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
+                return Json(new { result = false, message = $"ไม่สามารถทำรายการได้, เนื่องจากจำนวนสต๊อกสินไม่เพียงพอ" });
             }
             #endregion
 

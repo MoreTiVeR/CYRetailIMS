@@ -23,6 +23,8 @@ public interface IItemAPI
     Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemListAsync();
     Task<BaseResponse<List<GetItemListResponseDTO>>> GetItemByIDListAsync(GetItemByIDListQuery itemByIDListQuery);
     Task<BaseResponse<GetItemListResponseDTO>> GetItemByIdAsync(int itemID);
+
+    [Obsolete("Use GetItemByBarCodeV2Async instead")]
     Task<BaseResponse<GetItemByIDResponseDTO>> GetItemByBarCodeAsync(string itemBarcode);
     Task<BaseResponse<GetItemByIDResponseDTO>> GetItemByBarCodeV2Async(GetItemByBarcodeQuery getItemByBarcodeQuery);
 }

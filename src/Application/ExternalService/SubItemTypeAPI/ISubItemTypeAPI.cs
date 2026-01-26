@@ -17,4 +17,5 @@ public interface ISubItemTypeAPI
     Task<BaseResponse<List<GetSubItemTypeResponseDTO>>> GetSubItemTypeListAsync();
     Task<BaseResponse<GetSubItemTypeResponseDTO>> GetSubItemTypeByIDAsync(GetSubItemTypeByIDQuery subItemTypeByIDQuery);
     Task<BaseResponse<List<GetSubItemTypeByItemIDListResponseDTO>>> GetSubItemTypeByItemIDListAsync(GetSubItemTypeByItemIDListQuery listQuery);
+    //Task<BaseResponse<CommandResponse>> GetSubItemTypeByCriteriaAsync();
 }
