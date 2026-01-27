@@ -184,17 +184,11 @@
                     </div>
                 </div>
             </div>
-            @*<div class="row">
-                <div class="col-lg-12">
-                    <a asp-action="Index" asp-controller="Sale" class="btn btn-cancel me-2">ยกเลิก</a>
-                    <button id="btnSaveTrasaction" type="submit" class="btn btn-submit me-2">บันทึกข้อมูล</button>
-                </div>
-            </div>*@
         </form>
         <div class="row">
             <div class="col-lg-12">
                 <a asp-action="Index" asp-controller="Sale" class="btn btn-cancel me-2">ยกเลิก</a>
-                <button id="btnUpdateTrasaction" type="button" class="btn btn-submit me-2">บันทึกข้อมูล</button>
+				<button id="btnUpdateTrasaction" type="button" class="btn btn-submit me-2" @(Model.CanUpdateTransaction ? "" : "disabled")>บันทึกข้อมูล</button>
             </div>
         </div>
     </div>

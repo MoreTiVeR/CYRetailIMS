@@ -52,6 +52,9 @@ public class TransactionsController : BaseController
             seq++;
             return s;
         }).ToList();
+
+        // disable แก้ไข จาก คุมสิทธิ์ปุ่มจาก role พนักงาน
+        tranViewModel.CanUpdateTransaction = UserProfile.roleid != (int)EnumModel.UserRole.Sale;
         return View(tranViewModel);
     }
 
@@ -60,6 +63,11 @@ public class TransactionsController : BaseController
     {
         try
         {
+            if (UserProfile.roleid == (int)EnumModel.UserRole.Sale)
+            {
+                return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });
+            }
+
             if (!base.UserProfile.access_branch.Select(s => s.branchid).Contains(editTranObj.BranchID))
             {
                 return Json(new JsonViewModel { result = false, message = "ขออภัย, คุณไม่มีสิทธิ์ในการทำรายการ" });

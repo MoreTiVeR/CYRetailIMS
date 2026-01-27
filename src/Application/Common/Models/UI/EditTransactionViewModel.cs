@@ -43,6 +43,8 @@ public class EditTransactionViewModel
 
     public string? Remark { get; set; }
 
+    public bool CanUpdateTransaction { get; set; }
+
     public List<EditTransactionDetailViewModel> Detail { get; set; }
 
 
