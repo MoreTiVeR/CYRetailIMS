@@ -1041,7 +1041,7 @@ catch
 
 ---
 
-## Backoffice UI Modernization Guidelines
+## 10. Backoffice UI Modernization Guidelines
 
 When working on Backoffice UI modernization, the AI must focus on improving the user interface and user experience without changing or breaking existing business functionality.
 
