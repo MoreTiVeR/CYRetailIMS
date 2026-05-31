@@ -1041,7 +1041,213 @@ catch
 
 ---
 
-## 10. Testing Rules
+## Backoffice UI Modernization Guidelines
+
+When working on Backoffice UI modernization, the AI must focus on improving the user interface and user experience without changing or breaking existing business functionality.
+
+### Main Objective
+
+Modernize the Backoffice UI to make it:
+
+- More modern
+- Easier to use
+- More readable
+- More consistent across screens
+- More suitable for daily operation
+- More responsive for desktop, tablet, and smaller screens where applicable
+- Easier for users to search, filter, view, create, edit, approve, export, and manage data
+
+The existing functionality must continue to work exactly as before.
+
+### Existing Behavior That Must Be Preserved
+
+The AI must not break or change the behavior of:
+
+- Login / logout
+- Menu and navigation
+- Search and filter
+- DataTables or grid behavior
+- Create / edit / delete forms
+- Detail pages
+- Approval workflow
+- Status update workflow
+- Import / export function
+- File upload / download
+- Report generation
+- Printing function if available
+- Modal dialogs
+- Existing validations
+- Existing AJAX calls
+- Existing API routes
+- Existing model binding
+- Existing JavaScript behavior
+- Permission and role-based access behavior
+
+### Before Changing Backoffice UI
+
+Before suggesting or modifying Backoffice UI code, the AI must inspect and understand:
+
+- Razor Views
+- Partial Views
+- Layout files
+- Shared components
+- JavaScript files
+- CSS files
+- Form IDs
+- Input names
+- Button IDs
+- CSS classes used by JavaScript
+- Data attributes
+- AJAX URLs
+- Existing event handlers
+- Existing route dependencies
+- Existing validation behavior
+- Existing permission checks
+
+### Do Not Rename or Remove
+
+The AI must not rename or remove the following unless all references are safely updated:
+
+- Form field names used by model binding
+- Element IDs used by JavaScript
+- CSS classes used by JavaScript
+- Button IDs used by event handlers
+- Data attributes used by scripts
+- Existing route URLs
+- Existing API endpoints
+- Existing JavaScript function names
+- Existing validation attributes
+- Existing permission-related attributes or conditions
+
+### UI Modernization Scope
+
+Allowed UI improvements include:
+
+- Layout improvement
+- Better spacing
+- Better typography
+- Clearer page headers
+- Better search/filter panels
+- Better table/grid layout
+- Better form layout
+- Better modal dialogs
+- Better action button placement
+- Better validation message display
+- Loading states
+- Empty states
+- Error states
+- Responsive layout
+- Accessibility improvement
+- Consistent buttons, badges, cards, tabs, and alerts
+
+### Recommended Backoffice Layout
+
+For Backoffice screens, prefer a clear administrative layout:
+
+- Top section: page title, breadcrumb, main action buttons
+- Filter section: search fields, date range, status filter, branch/user filter if applicable
+- Main section: data table, list, form, or detail view
+- Right or bottom section: summary, audit information, status history, or related actions where applicable
+- Modal section: confirmation, quick edit, detail preview, or workflow actions
+
+The UI must prioritize clarity, consistency, and operational accuracy.
+
+### Razor View Rules
+
+When updating Razor Views:
+
+- Keep existing model binding intact.
+- Keep existing `asp-for` attributes intact.
+- Keep existing form `method` and `action` intact unless clearly required.
+- Preserve anti-forgery token usage.
+- Preserve validation summary and validation message behavior.
+- Do not move elements in a way that breaks JavaScript selectors.
+- Use partial views only when it improves maintainability and does not break existing behavior.
+
+### JavaScript Rules
+
+When updating JavaScript:
+
+- Do not remove existing event handlers.
+- Do not change AJAX payload structure unless required.
+- Do not change AJAX response handling unless required.
+- Keep backward compatibility with existing DOM structure.
+- If DOM structure changes, update selectors carefully.
+- Add defensive checks to avoid JavaScript errors.
+- Avoid duplicate event binding.
+- Keep DataTables, Select2, SweetAlert2, date picker, upload, export, and report logic stable where used.
+
+### CSS Rules
+
+When updating CSS:
+
+- Prefer adding new CSS classes instead of changing global styles.
+- Avoid breaking Bootstrap, DataTables, Select2, SweetAlert2, modals, date pickers, or printing layout.
+- Keep print-specific styles separated from screen styles.
+- Avoid global CSS changes that may affect unrelated screens.
+
+### Backoffice UI Regression Test Checklist
+
+After Backoffice UI changes, verify:
+
+- Page loads without JavaScript errors.
+- Login / logout works.
+- Menu and navigation work.
+- Search and filter work.
+- DataTables or grid works.
+- Create form works.
+- Edit form works.
+- Delete or cancel action works if available.
+- Detail page works.
+- Approval or status workflow works if available.
+- Import / export works if available.
+- File upload / download works if available.
+- Report generation works if available.
+- Printing works if available.
+- Validation messages still display correctly.
+- Required fields still validate correctly.
+- Existing AJAX calls still work.
+- Existing route URLs are unchanged.
+- Existing model binding still works.
+- Permission and role-based access still work.
+- Responsive layout is usable.
+- Bootstrap modals still work.
+- No regression occurs in the existing Backoffice workflow.
+
+### Output Requirement for Backoffice UI Tasks
+
+For every Backoffice UI modernization task, the AI must respond with:
+
+#### Summary
+Briefly explain the UI improvement.
+
+#### Current Behavior to Preserve
+List existing behaviors that must remain unchanged.
+
+#### Recommended UI Approach
+Explain the proposed layout or design direction.
+
+#### Files to Review First
+List Razor, JavaScript, CSS, layout, and partial view files that should be inspected.
+
+#### Files to Change
+List expected files to modify.
+
+#### Implementation Steps
+Provide safe step-by-step implementation guidance.
+
+#### Risk / Impact
+Mention possible risks and how to prevent regression.
+
+#### Test Cases
+List required UI and functional regression test cases.
+
+#### Rollback Plan
+Explain how to revert the UI changes safely if something breaks.
+
+---
+
+## 11. Testing Rules
 
 - Write tests for **all business logic** in Application and Domain layers.
 - Use **Arrange-Act-Assert** structure in every test.
@@ -1071,7 +1277,7 @@ public async Task AddTempItem_WhenItemIsNew_ShouldAssignUniqueSequentialSeq()
 
 ---
 
-## 11. CI/CD & GitHub Actions Rules
+## 12. CI/CD & GitHub Actions Rules
 
 - Pipeline file: `.github/workflows/ci.yaml`
 - CI must pass before merging any PR: build, test, lint.
@@ -1082,7 +1288,7 @@ public async Task AddTempItem_WhenItemIsNew_ShouldAssignUniqueSequentialSeq()
 
 ---
 
-## 12. Docker / Kubernetes Rules
+## 13. Docker / Kubernetes Rules
 
 - `Dockerfile` is at the root; use multi-stage builds.
 - Do not hardcode environment values in Dockerfile — use environment variables.
@@ -1092,7 +1298,7 @@ public async Task AddTempItem_WhenItemIsNew_ShouldAssignUniqueSequentialSeq()
 
 ---
 
-## 13. Pull Request Rules
+## 14. Pull Request Rules
 
 For every PR, provide:
 
@@ -1132,7 +1338,7 @@ For every PR, provide:
 
 ---
 
-## 14. Payment Gateway Integration Rules
+## 15. Payment Gateway Integration Rules
 
 - Never log full card numbers, CVV, or raw payment tokens.
 - Use the payment provider's sandbox environment for all dev/test work.
@@ -1143,7 +1349,7 @@ For every PR, provide:
 
 ---
 
-## 15. Quick Reference — What Goes Where
+## 16. Quick Reference — What Goes Where
 
 | Concern | Layer | Example |
 |---|---|---|
