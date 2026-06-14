@@ -23,10 +23,22 @@ public class DeleteBranchHandler : BaseService, IRequestHandler<DeleteBranchComm
 
     public async Task<BaseResponse<CommandResponse>> Handle(DeleteBranchCommand request, CancellationToken cancellationToken)
     {
-        IQueryable<TMBranch> resBranch = await _unitOfWork.Repository<TMBranch>().FindWithInclude(w => w.BranchID == request.branhid, i => i.Include(s => s.TMBranchDetail));
+        if(request.branhid == 1)
+        {
+            throw new Exception("ไม่สามารถลบสาขาสำนักงานใหญ่ได้");
+        }
+
+        IQueryable<TMBranch> resBranch = await _unitOfWork.Repository<TMBranch>().FindWithInclude(w => w.BranchID == request.branhid, i => i.Include(s => s.TMBranchDetail),
+            ii => ii.Include(s => s.TMItemInBranches.Where(w => w.IsActive)));
         if (resBranch == null && !resBranch.Any())
         {
             throw new Exception("ไม่พบข้อมูลสาขา");
+        }
+
+        var itemsInBranch = resBranch.FirstOrDefault().TMItemInBranches;
+        if (itemsInBranch != null && itemsInBranch.Any())
+        {
+            throw new Exception("ไม่สามารถลบสาขาได้, เนื่องจากมีสต๊อกอยู่ในสาขา");
         }
 
         DateTime updateDate = DateTime.Now;
