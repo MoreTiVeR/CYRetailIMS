@@ -1,11 +1,13 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStockV2.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryItemsInBranchV2.v1;
 using CYRetailIMS.Application.Services.ItemService.Commands.CreateItem;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +35,21 @@ public class CountStockController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]CreateCountStockAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v2/create")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateCountStockV2Async(CreateCountStockV2Command createCountStockV2Command)
+    {
+        BaseResponse<CommandResponse> res = await Mediator.Send(createCountStockV2Command);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CreateCountStockV2Async Success");
         return Ok(res.data);
     }
 
@@ -114,6 +131,21 @@ public class CountStockController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetCountStockByIDAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/inquiry-items-bybranch-v2")]
+    [ProducesResponseType(typeof(List<InquiryItemsInBranchV2ResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetItemsInBranchV2Async(InquiryItemsInBranchV2Query query)
+    {
+        BaseResponse<List<InquiryItemsInBranchV2ResponseDTO>> res = await Mediator.Send(query);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetItemsInBranchV2Async Success");
         return Ok(res.data);
     }
 }

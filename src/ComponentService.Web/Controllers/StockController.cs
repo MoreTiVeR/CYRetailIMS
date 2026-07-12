@@ -23,6 +23,8 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountSto
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryItemsInBranchV2.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStockV2.v1;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -64,6 +66,12 @@ public class StockController : BaseController
         //});
 
         ViewBag.ItemTypeList = await PrepareSelectItemType();
+        ViewBag.BranchList = await PrepareSelectBranch();
+        return View();
+    }
+
+    public async Task<IActionResult> CountStockV2()
+    {
         ViewBag.BranchList = await PrepareSelectBranch();
         return View();
     }
@@ -275,8 +283,7 @@ public class StockController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> DeleteCountStockAsync([FromBody] DeleteCountStockModel deleteCountStock)
-    {
+    public async Task<IActionResult> DeleteCountStockAsync([FromBody] DeleteCountStockModel deleteCountStock)    {
         try
         {
             var resUpdate = await _countStockAPI.DeleteCountStockAsync(new DeleteCountStockCommand
@@ -293,6 +300,57 @@ public class StockController : BaseController
         catch (Exception ex)
         {
             return Json(new { result = false, message = $"ขออภัย เกิดข้อผิดพลาด: {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetStockDataByBranchV2([FromBody] SearchItemViewModel searchItem)
+    {
+        var stockData = await _countStockAPI.InquiryItemsInBranchV2Async(
+            new InquiryItemsInBranchV2Query { branchid = searchItem.branchid });
+        if (!stockData.result)
+        {
+            return Json(new { result = false, message = stockData.error.error.message, data = new List<InquiryItemsInBranchV2ResponseDTO>() });
+        }
+        return Json(new { result = true, message = "สำเร็จ", data = stockData.data });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateCountStockV2([FromBody] CountStockV2SaveModel model)
+    {
+        try
+        {
+            if (model?.Items == null || !model.Items.Any())
+            {
+                return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก กรุณาเลือกสาขาเพื่อทำรายการ" });
+            }
+
+            var command = new CreateCountStockV2Command
+            {
+                branchid       = model.BranchID,
+                countstockdate = DateTime.Now,
+                createdby      = base.UserProfile.username,
+                remark         = model.Remark,
+                totalcount     = model.Items.Sum(s => s.PhysicalCountQty),
+                detail         = model.Items.Select(s => new CreateCountStockV2Detail
+                {
+                    itemid                    = s.ItemID,
+                    subitemtypeid             = s.SubItemTypeID ?? 0,
+                    qtyinbranchofcountstockday = s.QtyInBranchOfStockDay,
+                    physicalcountqty          = s.PhysicalCountQty
+                }).ToList()
+            };
+
+            var resCreate = await _countStockAPI.CreateCountStockV2Async(command);
+            if (!resCreate.result)
+            {
+                return Json(new { result = false, message = "ข้อมูลนับสต๊อกไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
+            }
+            return Json(new { result = true, message = "บันทึกข้อมูลนับสต๊อกสำเร็จ" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!. {ex.Message}" });
         }
     }
     #endregion

@@ -7,11 +7,13 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStockV2.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryItemsInBranchV2.v1;
 using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyList.v1;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.CountStockAPI;
@@ -55,6 +57,18 @@ public class CountStockAPI : HttpClientService, ICountStockAPI
     {
         return await _httpClientRequest.HttpRequestToObject<InquiryCountStockByIDResponseDTO, InquiryCountStockByIDQuery>(HttpMethod.Post,
            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/inquiry-countstock-byid"), inquiryObj);
+    }
+
+    public async Task<BaseResponse<List<InquiryItemsInBranchV2ResponseDTO>>> InquiryItemsInBranchV2Async(InquiryItemsInBranchV2Query inquiryObj)
+    {
+        return await _httpClientRequest.HttpRequestToObject<List<InquiryItemsInBranchV2ResponseDTO>, InquiryItemsInBranchV2Query>(HttpMethod.Post,
+           new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/inquiry-items-bybranch-v2"), inquiryObj);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> CreateCountStockV2Async(CreateCountStockV2Command createCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateCountStockV2Command>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v2/create"), createCommand);
     }
 
 

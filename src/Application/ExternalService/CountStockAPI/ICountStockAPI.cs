@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStockV2.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryItemsInBranchV2.v1;
 
 namespace CYRetailIMS.Application.ExternalService.CountStockAPI;
 public interface ICountStockAPI
@@ -20,5 +22,7 @@ public interface ICountStockAPI
     Task<BaseResponse<List<InquiryCountStockResponseDTO>>> GetCountStockListAsync(InquiryCountStocksQuery inquiryObj);
     Task<BaseResponse<List<InquiryCountStockByBranchIDResponseDTO>>> InquiryCountStockByBranchIDAsync(InquiryCountStockByBranchIDQuery inquiryObj);
     Task<BaseResponse<InquiryCountStockByIDResponseDTO>> InquiryCountStockByStockIDAsync(InquiryCountStockByIDQuery inquiryObj);
+    Task<BaseResponse<List<InquiryItemsInBranchV2ResponseDTO>>> InquiryItemsInBranchV2Async(InquiryItemsInBranchV2Query inquiryObj);
+    Task<BaseResponse<CommandResponse>> CreateCountStockV2Async(CreateCountStockV2Command createCommand);
 
 }
