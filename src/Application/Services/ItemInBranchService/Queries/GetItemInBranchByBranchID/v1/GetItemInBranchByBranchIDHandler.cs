@@ -20,9 +20,18 @@ public class GetItemInBranchByBranchIDHandler : BaseService, IRequestHandler<Get
     {
     }
 
+    /// <summary>
+    /// Updated Date: 2024-07-28
+    /// Disable isactive status of item in branch by branch id and item id
+    /// Get item in branch by branch id
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<BaseResponse<GetItemInBranchByBranchIDResponseDTO>> Handle(GetItemInBranchByBranchIDQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<TMItemInBranch> resItemBranch = await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => w.BranchID == request.branchid && w.IsActive,
+        IEnumerable<TMItemInBranch> resItemBranch = await _unitOfWork.Repository<TMItemInBranch>().FindWithInclude(w => w.BranchID == request.branchid,
             i => i.Include(x => x.Branch),
             i => i.Include(x => x.Item),
             i => i.Include(x => x.Item.Brand),
