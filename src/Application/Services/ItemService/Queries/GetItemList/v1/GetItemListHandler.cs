@@ -28,7 +28,7 @@ public class GetItemListHandler : BaseService, IRequestHandler<GetItemListQuery,
                                                         join d in await _unitOfWork.Repository<TMUnitOfMeasure>().QueryAsync(w => w.IsActive) on a.UnitOfMeasureID equals d.UnitOfMeasureID
                                                         join isub in await _unitOfWork.Repository<TMSubItemType>().QueryAsync(s => s.IsActive) on a.SubItemTypeID equals isub.SubItemTypeID into jsubitem
                                                         from subitem in jsubitem.DefaultIfEmpty()
-                                                        where a.IsActive
+                                                        //where a.IsActive
                                                         select new GetItemListResponseDTO
                                                         {
                                                             itemid = a.ItemID,
