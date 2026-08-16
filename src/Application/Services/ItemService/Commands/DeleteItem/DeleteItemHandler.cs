@@ -46,6 +46,14 @@ public class DeleteItemHandler : BaseService, IRequestHandler<DeleteItemCommand,
         }
         #endregion
 
+        #region Check Have stock in branch then can't delete
+        var resItemInBranch = await _unitOfWork.Repository<TMItemInBranch>().FindListAsync(w => w.ItemID == request.itemid && (w.Qty > 0 || w.IsActive));
+        if (resItemInBranch.Any())
+        {
+            throw new Exception("ไม่สามารถลบสินค้าได้, เนื่องจากมีสต๊อกอยู่ในสาขา");
+        }
+        #endregion
+
         #region Check exist transfer item
         var resItemTransfer = await _unitOfWork.Repository<TTItemTransfer>().FindListAsync(w => w.ItemID == request.itemid 
         && w.TransferStatus == (int)EnumModel.TransferStatus.Pending);

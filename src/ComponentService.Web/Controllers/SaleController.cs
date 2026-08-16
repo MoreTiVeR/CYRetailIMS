@@ -674,7 +674,7 @@ public class SaleController : BaseController
                 else
                 {
                     //Add new if doesn't exist in temp list
-                    int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().qty : 0;
+                    int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().seq : 0;
                     lastId++;
                     sellingBarcodeItem.seq = lastId;
                     MappingSellingBarcodeItem(ref sellingBarcodeItem);
@@ -886,7 +886,7 @@ public class SaleController : BaseController
                 else
                 {
                     //Add new if doesn't exist in temp list
-                    int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().qty : 0;
+                    int lastId = tempSellingBarcodeItemList != null && tempSellingBarcodeItemList.Count > 0 ? tempSellingBarcodeItemList.Last().seq : 0;
                     lastId++;
                     sellingBarcodeItem.seq = lastId;
                     MappingSellingBarcodeItem(ref sellingBarcodeItem);
