@@ -33,6 +33,13 @@ public partial class TTCountStockDetail : BaseAuditableEntity
 
     public int ShortageSurplusQty { get; set; }
 
+    /// <summary>
+    /// หมายเหตุรายการ (กรณีนับได้ 0 ต้องระบุเหตุผล)
+    /// </summary>
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? ItemRemark { get; set; }
+
     [ForeignKey("CountStockID")]
     [InverseProperty("TTCountStockDetails")]
     public virtual TTCountStock CountStock { get; set; } = null!;

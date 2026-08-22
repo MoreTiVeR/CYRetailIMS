@@ -48,4 +48,9 @@ public record CreateCountStockDetail
     /// ขาดเกิน
     /// </summary>
     public int shortagesurplusqty => totalcountqty - qtyinbranch;
+
+    /// <summary>
+    /// หมายเหตุรายการ (บังคับกรอกถ้ายอดนับได้ = 0)
+    /// </summary>
+    public string? itemremark { get; init; }
 }

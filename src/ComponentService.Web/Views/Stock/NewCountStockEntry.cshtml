@@ -1,0 +1,126 @@
+@{
+	ViewData["Title"] = "นับสต๊อก (ใหม่)";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	string counterRole = ViewBag.CounterRole as string ?? "PC";
+	string roleLabel = counterRole == "HeadPC" ? "หัวหน้า PC" : "พนักงานขาย (PC)";
+}
+
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>นับสต๊อก (ใหม่)</h4>
+		<h6>กรอกข้อมูลนับสต๊อก — <span class="badges bg-lightgreen">@roleLabel</span></h6>
+	</div>
+	<div class="page-btn">
+		<a asp-controller="Stock" asp-action="Index" class="btn btn-secondary me-1">ย้อนกลับ</a>
+	</div>
+</div>
+
+<!-- Filter Panel -->
+<div class="card mb-0">
+	<div class="card-body pb-0">
+		<div class="row">
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group">
+					<label>สาขา</label>
+					<select id="ddlBranch" class="select2 ddl-select2 ddl-entry-branch"
+						asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text"))">
+						<option value="">--เลือกสาขา--</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group">
+					<label>ประเภทสินค้า</label>
+					<select id="ddlItemType" class="select2 ddl-select2 ddl-entry-itemtype"
+						asp-items="@(new SelectList(ViewBag.ItemTypeList, "Value", "Text"))">
+						<option value="">--ทั้งหมด--</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group">
+					<label>ค้นหารายการสินค้า</label>
+					<input id="txtItemSearch" type="text" class="form-control" placeholder="ค้นหาประเภทย่อย / รหัสสินค้า...">
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group" style="text-align:left">
+					<label>&nbsp;</label><br />
+					<a id="btnLoadStock" class="btn btn-filters" title="โหลดข้อมูลสต๊อก">
+						<img src="~/assets/img/icons/search-whites.svg" alt="img">
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Zero-qty Alert -->
+<div id="alertZeroQty" class="alert alert-warning d-none mt-3" role="alert">
+	<strong><img src="~/assets/img/icons/warning.svg" alt="" style="width:16px" class="me-1">แจ้งเตือน:</strong>
+	รายการที่นับได้ 0 ต้องระบุหมายเหตุก่อนบันทึก:
+	<span id="alertZeroQtyList" class="fw-bold"></span>
+</div>
+
+<!-- Main Table Card -->
+<div class="card mt-3">
+	<div class="card-body">
+		<!-- Table Actions Row -->
+		<div class="table-top">
+			<div class="search-set">
+				<div class="search-input">
+					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+				</div>
+			</div>
+			<div class="wordset" id="stockTableActions" style="display:none">
+				<input id="txtGlobalRemark" type="text" class="form-control d-inline-block me-2" style="width:200px"
+					placeholder="หมายเหตุรวม (ถ้ามี)" maxlength="100">
+				<a id="btnSaveDraft" class="btn btn-secondary me-1" title="บันทึกแบบร่าง">
+					บันทึกแบบร่าง
+				</a>
+				<a id="btnSubmitStock" class="btn btn-added" title="บันทึกส่งข้อมูล">
+					<img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">บันทึกส่งข้อมูล
+				</a>
+			</div>
+		</div>
+
+		<!-- Empty State -->
+		<div id="emptyPlaceholder" class="text-center py-4 text-muted">
+			<p>กรุณาเลือกสาขาแล้วกดโหลดข้อมูล</p>
+		</div>
+
+		<div id="stockTableWrapper" class="table-responsive" style="display:none">
+			<table id="tbNewCountStock" class="table">
+				<thead>
+					<tr>
+						<th hidden>itemid</th>
+						<th hidden>branchid</th>
+						<th hidden>subitemtypeid</th>
+						<th hidden>itemtypecode</th>
+						<th>ประเภทย่อย</th>
+						<th>สต๊อกจริง CY</th>
+						<th>ยอดนับได้</th>
+						<th>รอเติม</th>
+						<th>ชำรุด</th>
+						<th>ขายก่อนนับ</th>
+						<th>รวมนับได้</th>
+						<th>ขาด/เกิน</th>
+						<th>หมายเหตุรายการ</th>
+					</tr>
+				</thead>
+				<tbody id="tbNewCountStockBody"></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<input type="hidden" id="hdnCounterRole" value="@counterRole" />
+
+@section Scripts {
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+	<script src="~/js/view/countstock/countstock_newentry.js" asp-append-version="true"></script>
+}

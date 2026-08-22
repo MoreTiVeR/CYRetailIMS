@@ -1,8 +1,12 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
@@ -114,6 +118,66 @@ public class CountStockController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetCountStockByIDAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/submit")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SubmitCountStockAsync(SubmitCountStockCommand submitCountStockCommand)
+    {
+        BaseResponse<CommandResponse> res = await Mediator.Send(submitCountStockCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]SubmitCountStockAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/approve")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ApproveCountStockAsync(ApproveCountStockCommand approveCountStockCommand)
+    {
+        BaseResponse<CommandResponse> res = await Mediator.Send(approveCountStockCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]ApproveCountStockAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/pending-approvals")]
+    [ProducesResponseType(typeof(List<GetPendingApprovalsResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetPendingApprovalsAsync(GetPendingApprovalsQuery query)
+    {
+        BaseResponse<List<GetPendingApprovalsResponseDTO>> res = await Mediator.Send(query);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetPendingApprovalsAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/comparison")]
+    [ProducesResponseType(typeof(List<GetCountStockComparisonResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetCountStockComparisonAsync(GetCountStockComparisonQuery query)
+    {
+        BaseResponse<List<GetCountStockComparisonResponseDTO>> res = await Mediator.Send(query);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetCountStockComparisonAsync Success");
         return Ok(res.data);
     }
 }

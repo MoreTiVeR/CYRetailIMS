@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CYRetailIMS.Application.Common.Models;
+using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
@@ -21,4 +25,24 @@ public interface ICountStockAPI
     Task<BaseResponse<List<InquiryCountStockByBranchIDResponseDTO>>> InquiryCountStockByBranchIDAsync(InquiryCountStockByBranchIDQuery inquiryObj);
     Task<BaseResponse<InquiryCountStockByIDResponseDTO>> InquiryCountStockByStockIDAsync(InquiryCountStockByIDQuery inquiryObj);
 
+    /// <summary>
+    /// ส่งข้อมูลนับสต๊อกเพื่อรออนุมัติ (Draft → Submitted)
+    /// </summary>
+    Task<BaseResponse<CommandResponse>> SubmitCountStockAsync(SubmitCountStockCommand submitCommand);
+
+    /// <summary>
+    /// อนุมัติการนับสต๊อก (เฉพาะรายการ HeadPC เท่านั้น) และปรับสต๊อกในระบบ
+    /// </summary>
+    Task<BaseResponse<CommandResponse>> ApproveCountStockAsync(ApproveCountStockCommand approveCommand);
+
+    /// <summary>
+    /// ดึงรายการรออนุมัติ (หน้ารออนุมัติ)
+    /// </summary>
+    Task<BaseResponse<List<GetPendingApprovalsResponseDTO>>> GetPendingApprovalsAsync(GetPendingApprovalsQuery query);
+
+    /// <summary>
+    /// ดึงข้อมูลเปรียบเทียบสต๊อก (หน้าเทียบข้อมูล)
+    /// </summary>
+    Task<BaseResponse<List<GetCountStockComparisonResponseDTO>>> GetCountStockComparisonAsync(GetCountStockComparisonQuery query);
 }
+

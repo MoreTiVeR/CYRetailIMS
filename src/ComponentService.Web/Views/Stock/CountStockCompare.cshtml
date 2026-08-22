@@ -1,0 +1,146 @@
+@{
+	ViewData["Title"] = "เทียบข้อมูลสต๊อก";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>เทียบข้อมูลสต๊อก</h4>
+		<h6>เปรียบเทียบสต๊อกระบบ CY กับยอดที่นับได้จริง</h6>
+	</div>
+	<div class="page-btn">
+		<a asp-controller="Stock" asp-action="Index" class="btn btn-secondary me-1">ย้อนกลับ</a>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="table-top">
+			<div class="search-set">
+				<div class="search-path">
+					<a class="btn btn-filter" id="filter_search">
+						<img src="~/assets/img/icons/filter.svg" alt="img">
+						<span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
+					</a>
+				</div>
+				<div class="search-input">
+					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+				</div>
+			</div>
+			<div class="wordset">
+				<a id="btnExportCompare" class="btn btn-added" style="display:none" title="ดาวน์โหลด Excel">
+					<img src="~/assets/img/icons/excel.svg" alt="img" class="me-1">ดาวน์โหลด Excel
+				</a>
+			</div>
+		</div>
+
+		<!-- Filter -->
+		<div class="card mb-0" id="filter_inputs">
+			<div class="card-body pb-0">
+				<div class="row">
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<label>ชื่อสาขา</label>
+							<select id="ddlCompareBranch" class="select2 ddl-select2"
+								asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text"))">
+								<option value="">--เลือกสาขา--</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<label>ประเภทย่อย</label>
+							<select id="ddlCompareItemType" class="select2 ddl-select2"
+								asp-items="@(new SelectList(ViewBag.ItemTypeList, "Value", "Text"))">
+								<option value="">--ทั้งหมด--</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<label>จากวันที่ (ยอดขาย/สินค้าเข้า/ออก)</label>
+							<div class="input-groupicon">
+								<input id="txtSalesStart" type="text" placeholder="จากวันที่" class="datetimepicker">
+								<div class="addonset">
+									<img src="~/assets/img/icons/calendars.svg" alt="img">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<label>ถึงวันที่ (ยอดขาย/สินค้าเข้า/ออก)</label>
+							<div class="input-groupicon">
+								<input id="txtSalesEnd" type="text" placeholder="ถึงวันที่" class="datetimepicker">
+								<div class="addonset">
+									<img src="~/assets/img/icons/calendars.svg" alt="img">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<label>จากวันที่ (Audit นับ)</label>
+							<div class="input-groupicon">
+								<input id="txtAuditStart" type="text" placeholder="จากวันที่นับ" class="datetimepicker">
+								<div class="addonset">
+									<img src="~/assets/img/icons/calendars.svg" alt="img">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group">
+							<label>ถึงวันที่ (Audit นับ)</label>
+							<div class="input-groupicon">
+								<input id="txtAuditEnd" type="text" placeholder="ถึงวันที่นับ" class="datetimepicker">
+								<div class="addonset">
+									<img src="~/assets/img/icons/calendars.svg" alt="img">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-3 col-sm-6 col-12">
+						<div class="form-group" style="text-align:left">
+							<label>&nbsp;</label><br />
+							<a id="btnSearchCompare" class="btn btn-filters" title="ค้นหา">
+								<img src="~/assets/img/icons/search-whites.svg" alt="img">
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Filter -->
+
+		<div class="table-responsive">
+			<table id="tbCompare" class="table">
+				<thead>
+					<tr>
+						<th hidden>รหัสประเภทย่อย</th>
+						<th>รหัสสินค้า</th>
+						<th>ชื่อสินค้า</th>
+						<th>ประเภทย่อย</th>
+						<th style="text-align:center">หัวหน้า PC</th>
+						<th style="text-align:center">สต๊อกจริง CY</th>
+						<th style="text-align:center">ยอดขาย</th>
+						<th style="text-align:center">ของเข้า</th>
+						<th style="text-align:center">ของออก</th>
+						<th style="text-align:center">นับได้ (PC)</th>
+						<th style="text-align:center">ขาด/เกิน</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+	<script src="~/js/view/countstock/countstock_compare.js" asp-append-version="true"></script>
+}
