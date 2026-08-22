@@ -29,7 +29,7 @@
 		<div class="table-top">
 			<div class="search-set">
 				<div class="search-path">
-					<a class="btn btn-filter" id="filter_search">
+					<a class="btn btn-filter" id="filter_search2">
 						<img src="~/assets/img/icons/filter.svg" alt="img">
 						<span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
 					</a>
@@ -41,38 +41,31 @@
 		</div>
 
 		<!-- Filter -->
-		<div class="card mb-0" id="filter_inputs">
-			<div class="card-body pb-0">
-				<div class="row">
-					<div class="col-lg-3 col-sm-6 col-12">
-						<div class="form-group">
-							<label>ผู้นับ</label>
-							<select id="ddlCounterRole" class="select2 ddl-select2">
-								<option value="">--ทั้งหมด--</option>
-								<option value="PC">พนักงานขาย (PC)</option>
-								<option value="HeadPC">หัวหน้า PC</option>
-							</select>
-						</div>
-					</div>
-					<div class="col-lg-3 col-sm-6 col-12">
-						<div class="form-group">
-							<label>สถานะ</label>
-							<select id="ddlApproveStatus" class="select2 ddl-select2">
-								<option value="">--ทั้งหมด--</option>
-								<option value="0">แบบร่าง</option>
-								<option value="1">รออนุมัติ</option>
-								<option value="2">อนุมัติแล้ว</option>
-							</select>
-						</div>
-					</div>
-					<div class="col-lg-3 col-sm-6 col-12">
-						<div class="form-group" style="text-align:left">
-							<label>&nbsp;</label><br />
-							<a id="btnSearchApproval" class="btn btn-filters" title="ค้นหา">
-								<img src="~/assets/img/icons/search-whites.svg" alt="img">
-							</a>
-						</div>
-					</div>
+		<div class="row">
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group">
+					<label>ผู้นับ</label>
+					<select id="ddlCounterRole" class="select2 ddl-select2">
+						<option value="">--ทั้งหมด--</option>
+						<option value="PC">พนักงานขาย (PC)</option>
+						<option value="HeadPC">หัวหน้า PC</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group">
+					<label>สถานะ</label>
+					<select id="ddlApproveStatus" class="select2 ddl-select2">
+						<option value="">--ทั้งหมด--</option>
+						<option value="0">แบบร่าง</option>
+						<option value="1">รออนุมัติ</option>
+						<option value="2">อนุมัติแล้ว</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group" style="text-align: left">
+					<a id="btnSearchApproval" class="btn btn-filters" title="ค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
 				</div>
 			</div>
 		</div>

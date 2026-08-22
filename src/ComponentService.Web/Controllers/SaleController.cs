@@ -47,7 +47,7 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.SaleArea)]
 public class SaleController : BaseController
 {
     private string _sessionTempSellingItemBarcodeScannerName => "TEMP_SELLING_ITEM_BARCODE_DATA";

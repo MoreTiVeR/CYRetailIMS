@@ -47,7 +47,7 @@
 			</div>
 			<div class="col-lg-3 col-sm-6 col-12">
 				<div class="form-group" style="text-align:left">
-					<label>&nbsp;</label><br />
+					<label>&nbsp;</label>
 					<a id="btnLoadStock" class="btn btn-filters" title="โหลดข้อมูลสต๊อก">
 						<img src="~/assets/img/icons/search-whites.svg" alt="img">
 					</a>
@@ -75,14 +75,13 @@
 				</div>
 			</div>
 			<div class="wordset" id="stockTableActions" style="display:none">
-				<input id="txtGlobalRemark" type="text" class="form-control d-inline-block me-2" style="width:200px"
-					placeholder="หมายเหตุรวม (ถ้ามี)" maxlength="100">
-				<a id="btnSaveDraft" class="btn btn-secondary me-1" title="บันทึกแบบร่าง">
-					บันทึกแบบร่าง
-				</a>
-				<a id="btnSubmitStock" class="btn btn-added" title="บันทึกส่งข้อมูล">
-					<img src="~/assets/img/icons/plus.svg" alt="img" class="me-1">บันทึกส่งข้อมูล
-				</a>
+				<div class="d-flex align-items-center flex-wrap justify-content-end gap-2">
+					<input id="txtGlobalRemark" type="text" class="form-control"
+						style="min-width:240px;max-width:340px" placeholder="หมายเหตุรวม (ถ้ามี)" maxlength="100">
+					<a id="btnExportEntry" class="btn btn-added" title="ดาวน์โหลด Excel">
+						<img src="~/assets/img/icons/excel.svg" alt="img" class="me-1">ดาวน์โหลด Excel
+					</a>
+				</div>
 			</div>
 		</div>
 
@@ -98,7 +97,9 @@
 						<th hidden>itemid</th>
 						<th hidden>branchid</th>
 						<th hidden>subitemtypeid</th>
-						<th hidden>itemtypecode</th>
+						<th hidden>ประเภท</th>
+						<th>รหัสสินค้า</th>
+						<th>ชื่อสินค้า</th>
 						<th>ประเภทย่อย</th>
 						<th>สต๊อกจริง CY</th>
 						<th>ยอดนับได้</th>
@@ -112,6 +113,14 @@
 				</thead>
 				<tbody id="tbNewCountStockBody"></tbody>
 			</table>
+		</div>
+
+		<div id="stockBottomActions" class="text-center" style="display:none">
+			<button id="btnSaveDraft" class="btn btn-submit mt-3">บันทึกแบบร่าง</button>
+			<button id="btnSubmitStock" name="btnCreate" class="btn btn-submit mt-3">
+				<i class="bx bx-plus"></i>
+				บันทึกข้อมูล
+			</button>
 		</div>
 	</div>
 </div>

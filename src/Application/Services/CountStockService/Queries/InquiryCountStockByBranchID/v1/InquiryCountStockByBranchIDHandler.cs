@@ -31,6 +31,8 @@ public class InquiryCountStockByBranchIDHandler : BaseService, IRequestHandler<I
                              {
                                  branchid = a.BranchID,
                                  itemid = a.ItemID,
+                                 itemcode = a.Item.ItemCode,
+                                 itemname = a.Item.Name,
                                  itemtypecode = b.ItemTypeName,
                                  subitemtypeid = s != null ? s.SubItemTypeID : 0,
                                  subitemcode = s != null ? s.SubItemCode : "ไม่มีประเภทย่อย",
@@ -47,6 +49,24 @@ public class InquiryCountStockByBranchIDHandler : BaseService, IRequestHandler<I
         if (resCountStockData == null || resCountStockData?.Count() == 0)
         {
             throw new Exception("ไม่พบข้อมูลสินค้าสาขาที่ต้องการนับสต๊อก");
+        }
+
+        // หน้านับสต๊อกแบบใหม่: ต้องการข้อมูลระดับรายสินค้า (รหัสสินค้า/ชื่อสินค้า)
+        // จึงไม่รวมกลุ่มตามประเภทย่อย และเรียงตามประเภทย่อย -> รหัสสินค้า
+        if (request.itemlevel)
+        {
+            var itemLevelData = resCountStockData.AsEnumerable()
+                .OrderBy(o => o.subitemcode)
+                .ThenBy(o => o.itemcode)
+                .ToList();
+            return new BaseResponse<List<InquiryCountStockByBranchIDResponseDTO>>
+            {
+                result = true,
+                data = itemLevelData,
+                message = "Success",
+                soruce = "db",
+                status = StatusCodes.Status200OK.ToString()
+            };
         }
 
         var resFinalData = resCountStockData.AsEnumerable().GroupBy(g => g.subitemcode)

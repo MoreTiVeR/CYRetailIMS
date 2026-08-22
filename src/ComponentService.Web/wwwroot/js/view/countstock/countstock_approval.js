@@ -14,12 +14,7 @@ $(document).ready(function () {
 
     // select2
     $('.select2').select2();
-
-    // Filter toggle
-    $("#filter_search").on('click', function () {
-        $("#filter_inputs").slideToggle("slow");
-        $(this).toggleClass('setclose');
-    });
+    // Note: #filter_search toggle is handled globally by assets/js/script.js
 
     // ========== Load on page ready ==========
     loadApprovals();
@@ -180,8 +175,14 @@ $(document).ready(function () {
         }
     });
 
+    var approveInFlight = false;
+
     $('#btnConfirmApprove').on('click', function () {
         if (!pendingApproveId) return;
+        // ป้องกันการกดอนุมัติซ้ำ (กันการปรับสต๊อกซ้ำซ้อน)
+        if (approveInFlight) return;
+        approveInFlight = true;
+        $(this).prop('disabled', true);
 
         var $modal = $('#modalConfirmApprove');
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -198,6 +199,8 @@ $(document).ready(function () {
             data: JSON.stringify({ CountStockID: pendingApproveId }),
             success: function (res) {
                 HideLoading();
+                approveInFlight = false;
+                $('#btnConfirmApprove').prop('disabled', false);
                 var savedId = pendingApproveId;
                 pendingApproveId = null;
                 if (res.result) {
@@ -213,6 +216,8 @@ $(document).ready(function () {
             },
             error: function () {
                 HideLoading();
+                approveInFlight = false;
+                $('#btnConfirmApprove').prop('disabled', false);
                 pendingApproveId = null;
                 ShowMessageError('เกิดข้อผิดพลาด');
             }

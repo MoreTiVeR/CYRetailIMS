@@ -21,7 +21,7 @@ public class CustomAuthorize : TypeFilterAttribute
 		public const string Sale = "Sale";
 		public const string Stock = "Stock";
 		public const string AccountingOfficer = "Accounting Officer";
-		public const string AreaSale = "Area Sale";
+		public const string SaleArea = "Sale Area";
         public const string Audit = "Audit";
     }
 

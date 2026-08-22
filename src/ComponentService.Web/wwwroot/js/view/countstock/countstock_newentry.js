@@ -1,13 +1,26 @@
 /**
  * countstock_newentry.js
- * หน้านับสต๊อกแบบใหม่ — PC และ HeadPC กรอกข้อมูลนับสต๊อก
- * สามารถกรองตาม ItemType และค้นหารายการสินค้าได้
- * บันทึกแบบร่าง (Draft) หรือบันทึกส่งข้อมูล (Submit)
+ * หน้านับสต๊อกแบบใหม่ — พนักงานขาย (PC) และ หัวหน้า PC (HeadPC) กรอกข้อมูลนับสต๊อก
+ *
+ * คอลัมน์ตามสเปค:
+ *   A รหัสสินค้า | B ชื่อสินค้า | C ประเภทย่อย | D สต๊อกจริง CY (ดึงอัตโนมัติ)
+ *   E ยอดนับได้ | F รอเติม | G ชำรุด | H ขายก่อนนับ | I รวมนับได้ | J ขาด/เกิน
+ *
+ * สูตรคำนวณ:
+ *   I รวมนับได้  = E + F + G + H   (ผลรวมจำนวนที่นับ/แยกสถานะได้จริง ไม่รวมสต๊อกระบบ D)
+ *   J ขาด/เกิน   = E - D           (ยอดนับได้ − สต๊อกจริง CY)
+ *
+ * หมายเหตุ: สเปคต้นฉบับเขียน I = SUM(D+E+F+G+H) แต่แถวตัวอย่างในไฟล์ไม่ตรงกับสูตรนั้น
+ *           (การรวมสต๊อกระบบ D เข้าไปด้วยจะเป็นการนับซ้ำ) จึงใช้ E+F+G+H ซึ่งตรงกับ
+ *           ความหมาย "รวมนับได้" และตรงกับตัวอย่าง หากต้องการรวม D ให้ปรับที่ calcRow()
  */
 
 var tableEntry;
 var loadedData = [];   // raw data from API
 var counterRole = 'PC';
+
+// ปรับค่านี้เป็น true หากยืนยันแล้วว่าต้องการให้ "รวมนับได้" รวมสต๊อกจริง CY (D) ด้วย
+var INCLUDE_CY_IN_TOTAL = false;
 
 $(document).ready(function () {
 
@@ -15,13 +28,7 @@ $(document).ready(function () {
 
     // select2
     $('.select2').select2();
-
-    // Filter toggle (existing theme pattern)
-    $("#filter_search").on('click', function () {
-        var dv = $("#filter_inputs");
-        dv.slideToggle("slow");
-        $(this).toggleClass('setclose');
-    });
+    // Note: #filter_search toggle is handled globally by assets/js/script.js
 
     // ====== Load Stock Button ======
     $('#btnLoadStock').on('click', function () {
@@ -51,13 +58,14 @@ $(document).ready(function () {
         $('#emptyPlaceholder').hide();
         $('#stockTableWrapper').hide();
         $('#stockTableActions').hide();
+        $('#stockBottomActions').hide();
         $('#alertZeroQty').addClass('d-none');
 
         $.ajax({
-            url: '/Stock/GetStockDataByBranch',
+            url: '/Stock/GetItemStockDataByBranch',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ branchid: branchId }),
+            data: JSON.stringify({ branchid: branchId, itemlevel: true }),
             success: function (res) {
                 HideLoading();
                 if (!res.result) {
@@ -90,6 +98,7 @@ $(document).ready(function () {
             if (tableEntry) { tableEntry.destroy(); tableEntry = null; }
             $('#stockTableWrapper').hide();
             $('#stockTableActions').hide();
+            $('#stockBottomActions').hide();
             $('#emptyPlaceholder').text('ไม่พบรายการสินค้าสำหรับตัวกรองที่เลือก').show();
             return;
         }
@@ -107,15 +116,27 @@ $(document).ready(function () {
 
         var rows = '';
         $.each(data, function (i, d) {
-            var cyQty = d.qtyinbranchofstockday || 0;
+            var rowItemId = pickValue(d, ['itemid', 'itemId', 'ItemID', 'ItemId'], 0);
+            var rowBranchId = pickValue(d, ['branchid', 'branchId', 'BranchID', 'BranchId'], 0);
+            var rowSubItemTypeId = pickValue(d, ['subitemtypeid', 'subItemTypeId', 'SubItemTypeID', 'SubItemTypeId'], 0);
+            var rowItemTypeCode = pickValue(d, ['itemtypecode', 'itemTypeCode', 'ItemTypeCode'], '');
+            var rowItemCode = pickValue(d, ['itemcode', 'itemCode', 'ItemCode'], '');
+            var rowItemName = pickValue(d, ['itemname', 'itemName', 'ItemName'], '');
+            var rowSubItemCode = pickValue(d, ['subitemcode', 'subItemCode', 'SubItemCode', 'subitemtypename', 'subItemTypeName', 'SubItemTypeName'], '');
+            var cyQty = parseInt(pickValue(d, ['qtyinbranchofstockday', 'qtyInBranchOfStockDay', 'QtyInBranchOfStockDay'], 0)) || 0;
+            if (i == 1) {
+                console.log(d);
+            }
             rows += '<tr>'
-                + '<td hidden>' + (d.itemid || 0) + '</td>'
-                + '<td hidden>' + (d.branchid || 0) + '</td>'
-                + '<td hidden>' + (d.subitemtypeid || 0) + '</td>'
-                + '<td hidden>' + escHtml(d.itemtypecode || '') + '</td>'
-                + '<td>' + escHtml(d.subitemcode || '') + '</td>'
+                + '<td hidden>' + rowItemId + '</td>'
+                + '<td hidden>' + rowBranchId + '</td>'
+                + '<td hidden>' + rowSubItemTypeId + '</td>'
+                + '<td hidden>' + escHtml(rowItemTypeCode) + '</td>'
+                + '<td class="col-itemcode">' + escHtml(rowItemCode) + '</td>'
+                + '<td class="col-itemname">' + escHtml(rowItemName) + '</td>'
+                + '<td class="col-subtype">' + escHtml(rowSubItemCode) + '</td>'
                 + '<td style="text-align:right;font-weight:600" class="cy-stock">' + cyQty + '</td>'
-                // Editable input columns
+                // Editable input columns (E,F,G,H)
                 + '<td><input type="number" class="form-control form-control-sm inp-counted text-right" value="0" min="0" style="width:80px;text-align:right"></td>'
                 + '<td><input type="number" class="form-control form-control-sm inp-restock text-right" value="0" min="0" style="width:80px;text-align:right"></td>'
                 + '<td><input type="number" class="form-control form-control-sm inp-damaged text-right" value="0" min="0" style="width:80px;text-align:right"></td>'
@@ -133,17 +154,68 @@ $(document).ready(function () {
             pageLength: 15,
             ordering: true,
             stateSave: false,
-            sDom: 'frtlpi',
+            sDom: 'Bfrtlpi',
             columnDefs: [{ targets: [0, 1, 2, 3], visible: false }],
             language: {
                 search: ' ',
                 sLengthMenu: '_MENU_',
-                searchPlaceholder: 'ค้นหาประเภทย่อย...',
+                searchPlaceholder: 'ค้นหารหัส/ชื่อสินค้า/ประเภทย่อย...',
                 info: '_START_ - _END_ of _TOTAL_ รายการ',
                 emptyTable: 'ไม่พบข้อมูล',
                 infoEmpty: 'ไม่พบรายการ',
                 paginate: { next: 'ถัดไป', previous: 'ก่อนหน้า' }
-            }
+            },
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: null,
+                    text: 'ดาวน์โหลด Excel',
+                    className: 'buttons-excel d-none',
+                    // ส่งออกตามรูปแบบมาตรฐาน: รหัสสินค้า, ชื่อสินค้า, ประเภท, ประเภทย่อย,
+                    // สต๊อกจริงCY, ยอดนับได้, รอเติม, ชำรุด, ขายก่อนนับ, รวมนับได้, ขาด-เกิน
+                    exportOptions: {
+                        columns: [4, 5, 3, 6, 7, 8, 9, 10, 11, 12, 13],
+                        format: {
+                            // อ่านค่าจาก <input> (DataTables อ่าน text ของ cell ไม่ได้อ่าน value ของ input)
+                            body: function (data, row, column, node) {
+                                var $inp = $(node).find('input');
+                                if ($inp.length) return $inp.val();
+                                return data;
+                            }
+                        }
+                    },
+                    customize: function (xlsx) {
+                        // เพิ่มหัวรายงาน: ชื่อสาขา + วันที่ ไว้ด้านบนสุด (ตามรูปแบบ Export Excel)
+                        try {
+                            var branchName = $('#ddlBranch option:selected').text() || '';
+                            var today = new Date();
+                            var dateStr = ('0' + today.getDate()).slice(-2) + '-'
+                                + ('0' + (today.getMonth() + 1)).slice(-2) + '-'
+                                + today.getFullYear();
+
+                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            var sheetData = sheet.getElementsByTagName('sheetData')[0];
+
+                            function makeInfoRow(label, value) {
+                                var row = sheet.createElement('row');
+                                var c1 = sheet.createElement('c');
+                                c1.setAttribute('t', 'inlineStr');
+                                var is1 = sheet.createElement('is');
+                                var t1 = sheet.createElement('t');
+                                t1.textContent = label + ': ' + value;
+                                is1.appendChild(t1); c1.appendChild(is1); row.appendChild(c1);
+                                return row;
+                            }
+
+                            sheetData.insertBefore(makeInfoRow('วันที่', dateStr), sheetData.firstChild);
+                            sheetData.insertBefore(makeInfoRow('ชื่อสาขา', branchName), sheetData.firstChild);
+                        } catch (e) {
+                            // ถ้าปรับแต่งหัวไม่สำเร็จ ก็ยังส่งออกข้อมูลได้ตามปกติ
+                            console.warn('customize export header failed', e);
+                        }
+                    }
+                }
+            ]
         });
 
         // Append DataTable search into existing search-input
@@ -151,28 +223,27 @@ $(document).ready(function () {
 
         $('#stockTableWrapper').show();
         $('#stockTableActions').show();
+        $('#stockBottomActions').show();
         $('#emptyPlaceholder').hide();
 
-        // Bind input events for live calc (use event delegation on tbody)
-        $('#tbNewCountStock tbody').off('input', 'input[type="number"]')
-            .on('input', 'input[type="number"]', function () {
+        // Bind input events for live calc (event delegation on tbody)
+        $('#tbNewCountStock tbody').off('input', 'input')
+            .on('input', 'input', function () {
                 recalcRow($(this).closest('tr'));
                 checkZeroAlert();
             });
     }
 
-    // ====== Recalculate row ======
+    // ====== Recalculate a single row ======
     function recalcRow(row) {
-        var cy = parseInt(row.find('.cy-stock').text()) || 0;
-        var counted = parseInt(row.find('.inp-counted').val()) || 0;
-        var restock = parseInt(row.find('.inp-restock').val()) || 0;
-        var damaged = parseInt(row.find('.inp-damaged').val()) || 0;
-        var sold = parseInt(row.find('.inp-sold').val()) || 0;
+        var cy = parseInt(row.find('.cy-stock').text()) || 0;          // D
+        var counted = parseInt(row.find('.inp-counted').val()) || 0;   // E
+        var restock = parseInt(row.find('.inp-restock').val()) || 0;   // F
+        var damaged = parseInt(row.find('.inp-damaged').val()) || 0;   // G
+        var sold = parseInt(row.find('.inp-sold').val()) || 0;         // H
 
-        // รวมนับได้ = CY + counted + restock + damaged + sold (spec: SUM D+E+F+G+H)
-        var total = cy + counted + restock + damaged + sold;
-        // ขาด/เกิน = counted - CY
-        var diff = counted - cy;
+        var total = calcTotal(cy, counted, restock, damaged, sold);    // I
+        var diff = counted - cy;                                       // J = E - D
 
         row.find('.td-total').text(total);
         var tdDiff = row.find('.td-diff');
@@ -180,18 +251,24 @@ $(document).ready(function () {
         tdDiff.css('color', diff < 0 ? '#FF0000' : diff > 0 ? '#28a745' : '');
     }
 
-    // ====== Zero-qty Alert ======
+    // I รวมนับได้ = E+F+G+H (ค่าเริ่มต้น) หรือ D+E+F+G+H หาก INCLUDE_CY_IN_TOTAL = true
+    function calcTotal(cy, counted, restock, damaged, sold) {
+        var base = counted + restock + damaged + sold;
+        return INCLUDE_CY_IN_TOTAL ? base + cy : base;
+    }
+
+    // ====== Zero-qty Alert (แจ้งเตือนตามประเภทย่อย เผื่อลืมกรอก) ======
     function checkZeroAlert() {
-        var zeroList = [];
+        var zeroSet = {};
         $('#tbNewCountStock tbody tr').each(function () {
             var counted = parseInt($(this).find('.inp-counted').val()) || 0;
-            var remark = $(this).find('.inp-remark').val().trim();
-            var subType = $(this).find('td:eq(4)').text().trim(); // visible col 0 = subitemcode
+            var remark = ($(this).find('.inp-remark').val() || '').trim();
+            var subType = ($(this).find('.col-subtype').text() || '').trim();
             if (counted === 0 && !remark && subType) {
-                zeroList.push(subType);
+                zeroSet[subType] = true;
             }
         });
-        var unique = [...new Set(zeroList)];
+        var unique = Object.keys(zeroSet);
         if (unique.length > 0) {
             $('#alertZeroQtyList').text(unique.join(', '));
             $('#alertZeroQty').removeClass('d-none');
@@ -207,34 +284,40 @@ $(document).ready(function () {
             Swal.fire({ icon: 'warning', title: 'กรุณาเลือกสาขา' });
             return null;
         }
-        var remark = $('#txtGlobalRemark').val().trim();
+        var remark = ($('#txtGlobalRemark').val() || '').trim();
         var items = [];
 
-        // Iterate all rows (across all pages)
-        $('#tbNewCountStock tbody tr').each(function () {
-            var cells = $(this).find('td');
-            var itemId      = parseInt($(cells[0]).text()) || 0;
-            var branchCell  = parseInt($(cells[1]).text()) || branchId;
-            var subTypeId   = parseInt($(cells[2]).text()) || 0;
-            var itemType    = $(cells[3]).text().trim();
-            var subCode     = $(cells[4]).text().trim();
-            var cyStock     = parseInt($(cells[5]).text()) || 0;
+        // Iterate all rows (across all pages) via DataTables API for reliability
+        tableEntry.rows().every(function () {
+            var node = this.node();
+            var $row = $(node);
+            var cells = $row.find('td');
 
-            var counted  = parseInt($(this).find('.inp-counted').val()) || 0;
-            var restock  = parseInt($(this).find('.inp-restock').val()) || 0;
-            var damaged  = parseInt($(this).find('.inp-damaged').val()) || 0;
-            var sold     = parseInt($(this).find('.inp-sold').val()) || 0;
-            var total    = cyStock + counted + restock + damaged + sold;
-            var diff     = counted - cyStock;
-            var itemRmk  = $(this).find('.inp-remark').val().trim();
+            var itemId = parseInt($(cells[0]).text()) || 0;
+            var branchCell = parseInt($(cells[1]).text()) || branchId;
+            var subTypeId = parseInt($(cells[2]).text()) || 0;
+            var itemType = ($(cells[3]).text() || '').trim();
+            var itemCode = ($row.find('.col-itemcode').text() || '').trim();
+            var itemName = ($row.find('.col-itemname').text() || '').trim();
+            var subCode = ($row.find('.col-subtype').text() || '').trim();
+            var cyStock = parseInt($row.find('.cy-stock').text()) || 0;
+
+            var counted = parseInt($row.find('.inp-counted').val()) || 0;
+            var restock = parseInt($row.find('.inp-restock').val()) || 0;
+            var damaged = parseInt($row.find('.inp-damaged').val()) || 0;
+            var sold = parseInt($row.find('.inp-sold').val()) || 0;
+            var total = calcTotal(cyStock, counted, restock, damaged, sold);
+            var diff = counted - cyStock;
+            var itemRmk = ($row.find('.inp-remark').val() || '').trim();
 
             items.push({
                 BranchID: branchCell,
                 ItemId: itemId,
+                ItemTypeCode: itemType,
                 SubItemTypeID: subTypeId,
                 SubItemCode: subCode,
-                ItemCode: subCode,
-                ItemName: subCode,
+                ItemCode: itemCode,
+                ItemName: itemName,
                 CYStockQty: cyStock,
                 CountedQty: counted,
                 WaitingToRestock: restock,
@@ -254,6 +337,16 @@ $(document).ready(function () {
         }
         return items;
     }
+
+    // ====== Export Excel ======
+    $('#btnExportEntry').on('click', function (e) {
+        e.preventDefault();
+        if (!tableEntry) {
+            Swal.fire({ icon: 'warning', title: 'ยังไม่มีข้อมูล', text: 'กรุณาโหลดข้อมูลก่อนดาวน์โหลด' });
+            return;
+        }
+        tableEntry.button('.buttons-excel').trigger();
+    });
 
     // ====== Save Draft ======
     $('#btnSaveDraft').on('click', function (e) {
@@ -277,8 +370,8 @@ $(document).ready(function () {
 
         var zeros = items.filter(function (i) { return i.CountedQty === 0 && !i.ItemRemark; });
         if (zeros.length > 0) {
-            var names = [...new Set(zeros.map(function (i) { return i.SubItemCode; }))].join(', ');
-            Swal.fire({ icon: 'warning', title: 'กรุณาระบุหมายเหตุ', text: 'รายการที่นับได้ 0: ' + names });
+            var names = uniq(zeros.map(function (i) { return i.SubItemCode; })).join(', ');
+            Swal.fire({ icon: 'warning', title: 'กรุณาระบุหมายเหตุ', text: 'รายการที่นับได้ 0 (ตามประเภทย่อย): ' + names });
             return;
         }
 
@@ -313,7 +406,24 @@ $(document).ready(function () {
         });
     }
 
+    function uniq(arr) {
+        var seen = {}, out = [];
+        arr.forEach(function (x) { if (x && !seen[x]) { seen[x] = true; out.push(x); } });
+        return out;
+    }
+
     function escHtml(str) {
-        return $('<div>').text(str).html();
+        return $('<div>').text(str == null ? '' : str).html();
+    }
+
+    function pickValue(obj, keys, defaultValue) {
+        if (!obj) return defaultValue;
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            if (Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== null && obj[key] !== undefined) {
+                return obj[key];
+            }
+        }
+        return defaultValue;
     }
 });

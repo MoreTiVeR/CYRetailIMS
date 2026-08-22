@@ -40,7 +40,8 @@ public class NewCountStockEntryModel
     public int SoldBeforeCount { get; set; }
 
     /// <summary>
-    /// รวมนับได้ = CYStockQty + CountedQty + WaitingToRestock + Damaged + SoldBeforeCount
+    /// รวมนับได้ = CountedQty + WaitingToRestock + Damaged + SoldBeforeCount (E+F+G+H)
+    /// ไม่รวมสต๊อกระบบ (CYStockQty) เพื่อไม่ให้นับซ้ำ — ดูหมายเหตุใน countstock_newentry.js
     /// </summary>
     public int TotalCounted { get; set; }
 

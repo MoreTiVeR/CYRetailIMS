@@ -30,7 +30,7 @@ using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockCo
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.AreaSale, RoleName.Stock, RoleName.Sale)]
+[CustomAuthorize(RoleName.Admin, RoleName.SaleArea, RoleName.Stock, RoleName.Sale)]
 public class StockController : BaseController
 {
     private readonly ICountStockAPI _countStockAPI;
@@ -209,6 +209,64 @@ public class StockController : BaseController
         return Json(new { result = true, message = "สำเร็จ", data = stockData.data });
     }
 
+    /// <summary>
+    /// โหลดข้อมูลสต๊อกระดับรายสินค้า (รหัสสินค้า/ชื่อสินค้า/ประเภทย่อย) สำหรับหน้านับสต๊อกแบบใหม่
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> GetItemStockDataByBranch([FromBody] SearchItemViewModel searchItem)
+    {
+        var stockData = await _countStockAPI.InquiryCountStockByBranchIDAsync(new InquiryCountStockByBranchIDQuery
+        {
+            branchid = searchItem.branchid,
+            itemlevel = true
+        });
+        if (!stockData.result)
+        {
+            return Json(new { result = false, message = stockData.error.error.message, data = new List<InquiryCountStockByBranchIDResponseDTO>() });
+        }
+
+        var data = stockData.data ?? new List<InquiryCountStockByBranchIDResponseDTO>();
+        bool hasMissingItemInfo = data.Any(w => string.IsNullOrWhiteSpace(w.itemcode) || string.IsNullOrWhiteSpace(w.itemname));
+
+        if (hasMissingItemInfo)
+        {
+            var itemInBranchRes = await _itemInBranchAPI.GetItemInBranchByBranchIDAsync(searchItem.branchid);
+            if (itemInBranchRes.result && itemInBranchRes.data?.itemlist != null)
+            {
+                var itemLookup = itemInBranchRes.data.itemlist
+                    .GroupBy(g => g.itemid)
+                    .ToDictionary(
+                        k => k.Key,
+                        v => v.FirstOrDefault());
+
+                foreach (var row in data)
+                {
+                    if (!itemLookup.TryGetValue(row.itemid, out var itemRef) || itemRef == null)
+                    {
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(row.itemcode))
+                    {
+                        row.itemcode = itemRef.itemcode;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(row.itemname))
+                    {
+                        row.itemname = itemRef.itemname;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(row.subitemcode) && !string.IsNullOrWhiteSpace(itemRef.subitemtypename))
+                    {
+                        row.subitemcode = itemRef.subitemtypename;
+                    }
+                }
+            }
+        }
+
+        return Json(new { result = true, message = "สำเร็จ", data });
+    }
+
     [HttpPost]
     public async Task<IActionResult> GetStockDataByCountStockID([FromBody] SearchCountStockByIDViewModel searchItem)
     {
@@ -306,7 +364,7 @@ public class StockController : BaseController
     /// <summary>
     /// หน้านับสต๊อก (แบบใหม่) — PC และ HeadPC กรอกข้อมูลนับสต๊อก
     /// </summary>
-    [CustomAuthorize(RoleName.Sale, RoleName.AreaSale)]
+    [CustomAuthorize(RoleName.Sale, RoleName.SaleArea)]
     public async Task<IActionResult> NewCountStockEntry()
     {
         ViewBag.ItemTypeList = await PrepareSelectItemType();
@@ -319,7 +377,7 @@ public class StockController : BaseController
     /// <summary>
     /// หน้าเทียบข้อมูล — เปรียบเทียบสต๊อกระบบกับยอดที่นับได้
     /// </summary>
-    [CustomAuthorize(RoleName.Admin, RoleName.Stock, RoleName.AreaSale, RoleName.Sale)]
+    [CustomAuthorize(RoleName.Admin, RoleName.Stock, RoleName.SaleArea, RoleName.Sale)]
     public async Task<IActionResult> CountStockCompare()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
@@ -330,7 +388,7 @@ public class StockController : BaseController
     /// <summary>
     /// หน้ารออนุมัติ — รายการที่ส่งมารออนุมัติ, Admin กดอนุมัติได้เฉพาะรายการ HeadPC
     /// </summary>
-    [CustomAuthorize(RoleName.Admin, RoleName.Stock)]
+    [CustomAuthorize(RoleName.Admin, RoleName.SaleArea)]
     public IActionResult CountStockPendingApproval()
     {
         ViewBag.IsAdmin = base.UserProfile.roleid == (int)UserRole.Admin;

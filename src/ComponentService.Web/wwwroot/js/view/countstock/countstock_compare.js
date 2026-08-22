@@ -9,12 +9,7 @@ $(document).ready(function () {
 
     // select2
     $('.select2').select2();
-
-    // Filter toggle (existing theme pattern)
-    $("#filter_search").on('click', function () {
-        $("#filter_inputs").slideToggle("slow");
-        $(this).toggleClass('setclose');
-    });
+    // Note: #filter_search toggle is handled globally by assets/js/script.js
 
     // ========== Search ==========
     $('#btnSearchCompare').on('click', function (e) {
