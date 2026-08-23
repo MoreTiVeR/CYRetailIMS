@@ -18,6 +18,7 @@
 var tableEntry;
 var loadedData = [];   // raw data from API
 var counterRole = 'PC';
+var ZERO_REMARK_NEUTRAL_THRESHOLD = 5;
 
 // ปรับค่านี้เป็น true หากยืนยันแล้วว่าต้องการให้ "รวมนับได้" รวมสต๊อกจริง CY (D) ด้วย
 var INCLUDE_CY_IN_TOTAL = false;
@@ -49,6 +50,30 @@ $(document).ready(function () {
     $('#txtItemSearch').on('keyup', function () {
         if (tableEntry) {
             tableEntry.search($(this).val()).draw();
+        }
+    });
+
+    // ====== Bulk Apply Remark For Zero Qty ======
+    $('#btnApplyZeroRemark').on('click', function (e) {
+        e.preventDefault();
+        if (!tableEntry) {
+            Swal.fire({ icon: 'warning', title: 'ยังไม่มีข้อมูล', text: 'กรุณาโหลดข้อมูลก่อน' });
+            return;
+        }
+
+        var globalRemark = ($('#txtGlobalRemark').val() || '').trim();
+        if (!globalRemark) {
+            Swal.fire({ icon: 'warning', title: 'กรุณากรอกหมายเหตุรวม', text: 'เพื่อใช้เติมให้รายการที่นับได้ 0' });
+            return;
+        }
+
+        var appliedCount = applyRemarkToZeroRows(globalRemark);
+        checkZeroAlert();
+
+        if (appliedCount > 0) {
+            Swal.fire({ icon: 'success', title: 'เติมหมายเหตุสำเร็จ', text: 'อัปเดต ' + appliedCount + ' รายการ' });
+        } else {
+            Swal.fire({ icon: 'info', title: 'ไม่มีรายการที่ต้องเติม', text: 'รายการนับได้ 0 ถูกระบุหมายเหตุครบแล้ว' });
         }
     });
 
@@ -124,9 +149,6 @@ $(document).ready(function () {
             var rowItemName = pickValue(d, ['itemname', 'itemName', 'ItemName'], '');
             var rowSubItemCode = pickValue(d, ['subitemcode', 'subItemCode', 'SubItemCode', 'subitemtypename', 'subItemTypeName', 'SubItemTypeName'], '');
             var cyQty = parseInt(pickValue(d, ['qtyinbranchofstockday', 'qtyInBranchOfStockDay', 'QtyInBranchOfStockDay'], 0)) || 0;
-            if (i == 1) {
-                console.log(d);
-            }
             rows += '<tr>'
                 + '<td hidden>' + rowItemId + '</td>'
                 + '<td hidden>' + rowBranchId + '</td>'
@@ -260,17 +282,22 @@ $(document).ready(function () {
     // ====== Zero-qty Alert (แจ้งเตือนตามประเภทย่อย เผื่อลืมกรอก) ======
     function checkZeroAlert() {
         var zeroSet = {};
-        $('#tbNewCountStock tbody tr').each(function () {
-            var counted = parseInt($(this).find('.inp-counted').val()) || 0;
-            var remark = ($(this).find('.inp-remark').val() || '').trim();
-            var subType = ($(this).find('.col-subtype').text() || '').trim();
+        eachTableRow(function ($row) {
+            var counted = parseInt($row.find('.inp-counted').val()) || 0;
+            var remark = ($row.find('.inp-remark').val() || '').trim();
+            var subType = ($row.find('.col-subtype').text() || '').trim();
             if (counted === 0 && !remark && subType) {
                 zeroSet[subType] = true;
             }
         });
+
         var unique = Object.keys(zeroSet);
         if (unique.length > 0) {
-            $('#alertZeroQtyList').text(unique.join(', '));
+            if (unique.length > ZERO_REMARK_NEUTRAL_THRESHOLD) {
+                $('#alertZeroQtyList').text('กรุณาระบุหมายเหตุที่นับได้ 0');
+            } else {
+                $('#alertZeroQtyList').text(unique.join(', '));
+            }
             $('#alertZeroQty').removeClass('d-none');
         } else {
             $('#alertZeroQty').addClass('d-none');
@@ -351,42 +378,111 @@ $(document).ready(function () {
     // ====== Save Draft ======
     $('#btnSaveDraft').on('click', function (e) {
         e.preventDefault();
-        var items = collectItems();
-        if (!items) return;
+        validateZeroRemarksBeforeSave(function () {
+            var items = collectItems();
+            if (!items) return;
 
-        Swal.fire({
-            title: 'บันทึกแบบร่าง?', icon: 'question',
-            showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก'
-        }).then(function (r) {
-            if (r.value) { postSave('/Stock/SaveDraftCountStock', items, false); }
+            Swal.fire({
+                title: 'บันทึกแบบร่าง?', icon: 'question',
+                showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก'
+            }).then(function (r) {
+                if (r.value) { postSave('/Stock/SaveDraftCountStock', items, false); }
+            });
         });
     });
 
     // ====== Submit ======
     $('#btnSubmitStock').on('click', function (e) {
         e.preventDefault();
-        var items = collectItems();
-        if (!items) return;
+        validateZeroRemarksBeforeSave(function () {
+            var items = collectItems();
+            if (!items) return;
 
-        var zeros = items.filter(function (i) { return i.CountedQty === 0 && !i.ItemRemark; });
-        if (zeros.length > 0) {
-            var names = uniq(zeros.map(function (i) { return i.SubItemCode; })).join(', ');
-            Swal.fire({ icon: 'warning', title: 'กรุณาระบุหมายเหตุ', text: 'รายการที่นับได้ 0 (ตามประเภทย่อย): ' + names });
+            Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล?',
+                text: 'ระบบจะส่งข้อมูลให้ audit ตรวจสอบ',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ส่งข้อมูล',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#28a745'
+            }).then(function (r) {
+                if (r.value) { postSave('/Stock/SubmitNewCountStock', items, true); }
+            });
+        });
+    });
+
+    function validateZeroRemarksBeforeSave(onValidated) {
+        var missing = getZeroRowsWithoutRemark();
+        if (missing.length === 0) {
+            onValidated();
+            return;
+        }
+
+        var globalRemark = ($('#txtGlobalRemark').val() || '').trim();
+        var neutralMessage = 'กรุณาระบุหมายเหตุที่นับได้ 0';
+        var detailMessage = 'รายการที่นับได้ 0 (ตามประเภทย่อย): ' + uniq(missing.map(function (x) { return x.subType; })).join(', ');
+        var warningText = missing.length > ZERO_REMARK_NEUTRAL_THRESHOLD ? neutralMessage : detailMessage;
+
+        if (globalRemark) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณาระบุหมายเหตุ',
+                text: warningText,
+                showCancelButton: true,
+                confirmButtonText: 'ใช้หมายเหตุรวมเติมอัตโนมัติ',
+                cancelButtonText: 'ปิด'
+            }).then(function (r) {
+                if (r.value) {
+                    applyRemarkToZeroRows(globalRemark);
+                    checkZeroAlert();
+                    onValidated();
+                }
+            });
             return;
         }
 
         Swal.fire({
-            title: 'ยืนยันการส่งข้อมูล?',
-            text: 'ระบบจะส่งข้อมูลให้ audit ตรวจสอบ',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'ส่งข้อมูล',
-            cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#28a745'
-        }).then(function (r) {
-            if (r.value) { postSave('/Stock/SubmitNewCountStock', items, true); }
+            icon: 'warning',
+            title: 'กรุณาระบุหมายเหตุ',
+            text: warningText
         });
-    });
+    }
+
+    function applyRemarkToZeroRows(remarkText) {
+        var applied = 0;
+        eachTableRow(function ($row) {
+            var counted = parseInt($row.find('.inp-counted').val()) || 0;
+            var remarkInput = $row.find('.inp-remark');
+            var currentRemark = (remarkInput.val() || '').trim();
+            if (counted === 0 && !currentRemark) {
+                remarkInput.val(remarkText);
+                applied++;
+            }
+        });
+        return applied;
+    }
+
+    function getZeroRowsWithoutRemark() {
+        var rows = [];
+        eachTableRow(function ($row) {
+            var counted = parseInt($row.find('.inp-counted').val()) || 0;
+            var remark = ($row.find('.inp-remark').val() || '').trim();
+            if (counted === 0 && !remark) {
+                rows.push({
+                    subType: ($row.find('.col-subtype').text() || '').trim()
+                });
+            }
+        });
+        return rows;
+    }
+
+    function eachTableRow(callback) {
+        if (!tableEntry) return;
+        tableEntry.rows().every(function () {
+            callback($(this.node()));
+        });
+    }
 
     function postSave(url, items, redirect) {
         ShowLoading();

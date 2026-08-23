@@ -18,8 +18,6 @@ using CYRetailIMS.Application.ExternalService.ItemTypeAPI;
 using CYRetailIMS.Application.Services.ItemTypeService.Queries.GetItemTypeList.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using Microsoft.EntityFrameworkCore;
-using CYRetailIMS.Infrastructure.Database;
-using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
@@ -27,6 +25,10 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountSto
 using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
+using CreateCountStockCommandV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockCommand;
+using CreateCountStockDetailV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockDetail;
+using CreateCountStockCommandV2 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v2.CreateCountStockCommand;
+using CreateCountStockDetailV2 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v2.CreateCountStockDetail;
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
@@ -293,7 +295,7 @@ public class StockController : BaseController
             {
                 return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก กรุณาเลือกขาสาเพื่อทำรายการ" });
             }
-            CreateCountStockCommand countStockCommand = PrepareCreateCountStockData(updatedItems);
+            CreateCountStockCommandV1 countStockCommand = PrepareCreateCountStockData(updatedItems);
             var resCreate = await _countStockAPI.CreateCountStockListAsync(countStockCommand);
             if (!resCreate.result)
             {
@@ -527,7 +529,7 @@ public class StockController : BaseController
             }
 
             var command = PrepareNewCountStockCommand(items, statusId: 0); // Draft
-            var res = await _countStockAPI.CreateCountStockListAsync(command);
+            var res = await _countStockAPI.CreateCountStockListV2Async(command);
             if (!res.result)
                 return Json(new { result = false, message = "บันทึกแบบร่างไม่สำเร็จ กรุณาลองใหม่" });
             return Json(new { result = true, message = "บันทึกแบบร่างสำเร็จ" });
@@ -554,7 +556,7 @@ public class StockController : BaseController
             }
 
             var command = PrepareNewCountStockCommand(items, statusId: 1); // Submitted
-            var res = await _countStockAPI.CreateCountStockListAsync(command);
+            var res = await _countStockAPI.CreateCountStockListV2Async(command);
             if (!res.result)
                 return Json(new { result = false, message = "ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่" });
             return Json(new { result = true, message = "ส่งข้อมูลนับสต๊อกสำเร็จ" });
@@ -586,16 +588,16 @@ public class StockController : BaseController
         return resBranch.data.Select(s => new SelectListItem { Text = s.itemtypename, Value = s.itemtypename }).ToList();
     }
 
-    private CreateCountStockCommand PrepareCreateCountStockData(List<CountStockCreateModel> countStockModel)
+    private CreateCountStockCommandV1 PrepareCreateCountStockData(List<CountStockCreateModel> countStockModel)
     {
-        CreateCountStockCommand createCountStockCommand = new CreateCountStockCommand
+        CreateCountStockCommandV1 createCountStockCommand = new CreateCountStockCommandV1
         {
             branchid = countStockModel.FirstOrDefault().BranchID,
             countstockdate = DateTime.Now,
             createdby = base.UserProfile.username,
             remark = countStockModel.FirstOrDefault()?.Remark,
             totalcount = countStockModel.Sum(s => s.TotalCounted),
-            detail = countStockModel.Select(s => new CreateCountStockDetail
+            detail = countStockModel.Select(s => new CreateCountStockDetailV1
             {
                 subitemtypeid = s.SubItemTypeID > 0 ? s.SubItemTypeID : 0,
                 qtyinbranchofcountstockday = s.QtyInBranchOfStockDay,
@@ -635,10 +637,10 @@ public class StockController : BaseController
         return createCountStockCommand;
     }
 
-    private CreateCountStockCommand PrepareNewCountStockCommand(List<NewCountStockEntryModel> items, int statusId)
+    private CreateCountStockCommandV2 PrepareNewCountStockCommand(List<NewCountStockEntryModel> items, int statusId)
     {
         string counterRole = items.FirstOrDefault()?.CounterRole ?? "PC";
-        return new CreateCountStockCommand
+        return new CreateCountStockCommandV2
         {
             branchid = items.FirstOrDefault()!.BranchID,
             countstockdate = DateTime.Now,
@@ -647,7 +649,7 @@ public class StockController : BaseController
             totalcount = items.Sum(s => s.TotalCounted),
             counterstockstatusid = statusId,
             counterrole = counterRole,
-            detail = items.Select(s => new CreateCountStockDetail
+            detail = items.Select(s => new CreateCountStockDetailV2
             {
                 subitemtypeid = s.SubItemTypeID > 0 ? s.SubItemTypeID : 0,
                 qtyinbranchofcountstockday = s.CYStockQty,

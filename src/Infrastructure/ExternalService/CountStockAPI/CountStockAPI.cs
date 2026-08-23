@@ -7,7 +7,6 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
-using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
@@ -16,7 +15,8 @@ using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingAppro
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
-using CYRetailIMS.Application.Services.CurrencyService.Queries.GetCurrencyList.v1;
+using CreateCountStockCommandV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockCommand;
+using CreateCountStockCommandV2 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v2.CreateCountStockCommand;
 
 namespace CYRetailIMS.Infrastructure.ExternalService.CountStockAPI;
 public class CountStockAPI : HttpClientService, ICountStockAPI
@@ -25,10 +25,16 @@ public class CountStockAPI : HttpClientService, ICountStockAPI
     {
     }
 
-    public async Task<BaseResponse<CommandResponse>> CreateCountStockListAsync(CreateCountStockCommand createCommand)
+    public async Task<BaseResponse<CommandResponse>> CreateCountStockListAsync(CreateCountStockCommandV1 createCommand)
     {
-        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateCountStockCommand>(HttpMethod.Post,
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateCountStockCommandV1>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/create"), createCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> CreateCountStockListV2Async(CreateCountStockCommandV2 createCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CreateCountStockCommandV2>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v2/stock/v2/create"), createCommand);
     }
 
     public async Task<BaseResponse<CommandResponse>> UpdateCountStocAsync(UpdateCountStockCommand updateCommand)
