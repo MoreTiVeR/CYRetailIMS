@@ -428,7 +428,7 @@ public class StockController : BaseController
     [CustomAuthorize(RoleName.Sale, RoleName.SaleArea)]
     public async Task<IActionResult> NewCountStockEntry()
     {
-        ViewBag.ItemTypeList = await PrepareSelectItemType();
+        ViewBag.ItemTypeList = await PrepareSelectSubItemType();
         ViewBag.BranchList = await PrepareSelectBranch();
         // Pass current user's role to view so JS can adjust UI
         ViewBag.CounterRole = base.UserProfile.roleid == (int)UserRole.SaleArea ? "HeadPC" : "PC";
@@ -442,7 +442,7 @@ public class StockController : BaseController
     public async Task<IActionResult> CountStockCompare()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
-        ViewBag.ItemTypeList = await PrepareSelectItemType();
+        ViewBag.ItemTypeList = await PrepareSelectSubItemType();
         return View();
     }
 
@@ -677,6 +677,18 @@ public class StockController : BaseController
     {
         BaseResponse<List<GetItemTypeListResponseDTO>> resBranch = await _itemTypeAPI.GetItemTypeListAsync();
         return resBranch.data.Select(s => new SelectListItem { Text = s.itemtypename, Value = s.itemtypename }).ToList();
+    }
+
+    // SubItemType dropdown for comparison and new-entry pages — uses actual DB codes (e.g. CASEHONOR, GA001)
+    private async Task<List<SelectListItem>> PrepareSelectSubItemType()
+    {
+        var res = await _subItemTypeAPI.GetSubItemTypeListAsync();
+        if (!res.result || res.data == null) return new List<SelectListItem>();
+        return res.data
+            .Where(s => s.isactive)
+            .OrderBy(s => s.subitemcode)
+            .Select(s => new SelectListItem { Text = s.subitemcode, Value = s.subitemcode })
+            .ToList();
     }
 
     private CreateCountStockCommandV1 PrepareCreateCountStockData(List<CountStockCreateModel> countStockModel)

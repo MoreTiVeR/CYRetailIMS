@@ -110,12 +110,13 @@ $(document).ready(function () {
     }
 
     function applyClientFilter() {
-        var itemTypeFilter = $('#ddlItemType').val() || '';
+        var subTypeFilter = ($('#ddlItemType').val() || '').trim();
         var filtered = loadedData;
 
-        if (itemTypeFilter) {
+        if (subTypeFilter) {
             filtered = loadedData.filter(function (d) {
-                return d.itemtypecode && d.itemtypecode.toLowerCase().indexOf(itemTypeFilter.toLowerCase()) >= 0;
+                var sub = (d.subitemcode || d.subItemCode || d.SubItemCode || d.subitemtypename || '');
+                return sub.toLowerCase().indexOf(subTypeFilter.toLowerCase()) >= 0;
             });
         }
 
