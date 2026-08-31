@@ -51,45 +51,45 @@ public class ApproveCountStockHandler : BaseService, IRequestHandler<ApproveCoun
         countStock.SetUpdatedDate();
         _unitOfWork.Repository<TTCountStock>().Update(countStock);
 
-        // Update TMItemInBranch stock quantities per SubItemType
-        // Group by subitemtype and sum countedamountqty for each item in branch
-        var branchItems = await _unitOfWork.Repository<TMItemInBranch>()
-            .QueryAsync(w => w.BranchID == countStock.BranchID && w.IsActive);
-
-        var itemsWithSubType = branchItems
-            .Where(i => i.Item != null)
-            .ToList();
+        // Load branch items with Item navigation to enable SubItemType matching for V1 fallback
+        var branchItemsQuery = await _unitOfWork.Repository<TMItemInBranch>()
+            .FindWithInclude(
+                w => w.BranchID == countStock.BranchID && w.IsActive,
+                i => i.Include(s => s.Item));
+        var branchItems = branchItemsQuery.ToList();
 
         foreach (var detail in countStock.TTCountStockDetails)
         {
-            // Find items in this branch that belong to this subitemtype
-            var itemsInSubType = itemsWithSubType
-                .Where(i => i.Item.SubItemTypeID == detail.SubItemTypeID)
-                .ToList();
+            int targetQty = detail.TotalCountQty > 0 ? detail.TotalCountQty : detail.CountedAmountQty;
 
-            if (!itemsInSubType.Any()) continue;
-
-            // Distribute the counted qty proportionally, or set total for subitemtype
-            // Per spec: approve = update stock to counted qty
-            // We update the aggregate qty at subitemtype level by adjusting each item proportionally
-            int totalCurrentQty = itemsInSubType.Sum(i => i.Qty);
-            int targetQty = detail.CountedAmountQty;
-
-            foreach (var item in itemsInSubType)
+            if (detail.ItemID.HasValue && detail.ItemID.Value > 0)
             {
-                if (totalCurrentQty > 0)
-                {
-                    // Proportional distribution
-                    item.Qty = (int)Math.Round((double)item.Qty / totalCurrentQty * targetQty);
-                }
-                else
-                {
-                    // If current qty is 0, distribute evenly
-                    item.Qty = targetQty / itemsInSubType.Count;
-                }
+                // V2 per-item: update the specific item directly by ItemID
+                var item = branchItems.FirstOrDefault(i => i.ItemID == detail.ItemID.Value);
+                if (item == null) continue;
+                item.Qty = targetQty;
                 item.SetUpdatedBy(request.approvedby);
                 item.SetUpdatedDate();
                 _unitOfWork.Repository<TMItemInBranch>().Update(item);
+            }
+            else
+            {
+                // V1 legacy: distribute proportionally across items in the same SubItemType
+                var itemsInSubType = branchItems
+                    .Where(i => i.Item?.SubItemTypeID == detail.SubItemTypeID)
+                    .ToList();
+                if (!itemsInSubType.Any()) continue;
+
+                int totalCurrentQty = itemsInSubType.Sum(i => i.Qty);
+                foreach (var item in itemsInSubType)
+                {
+                    item.Qty = totalCurrentQty > 0
+                        ? (int)Math.Round((double)item.Qty / totalCurrentQty * targetQty)
+                        : targetQty / itemsInSubType.Count;
+                    item.SetUpdatedBy(request.approvedby);
+                    item.SetUpdatedDate();
+                    _unitOfWork.Repository<TMItemInBranch>().Update(item);
+                }
             }
         }
 

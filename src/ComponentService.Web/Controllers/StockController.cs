@@ -26,6 +26,7 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountSt
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
 using System.Globalization;
+using OfficeOpenXml;
 using CreateCountStockCommandV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockCommand;
 using CreateCountStockDetailV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockDetail;
 using CreateCountStockCommandV2 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v2.CreateCountStockCommand;
@@ -570,6 +571,56 @@ public class StockController : BaseController
         {
             return Json(new { result = false, message = $"ขออภัย เกิดข้อผิดพลาด: {ex.Message}" });
         }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportCountStockExcel(int countstockid)
+    {
+        var res = await _countStockAPI.InquiryCountStockByStockIDAsync(
+            new InquiryCountStockByIDQuery { countstockid = countstockid });
+
+        if (!res.result || res.data == null)
+            return NotFound("ไม่พบข้อมูลนับสต๊อก");
+
+        var data   = res.data;
+        var detail = data.detail ?? new List<InquiryCountStockByIDDetail>();
+
+        using var package = new ExcelPackage();
+        var ws = package.Workbook.Worksheets.Add("นับสต๊อก");
+
+        // Title
+        ws.Cells[1, 1].Value = $"รายการนับสต๊อก — {data.branchname} — วันที่ {data.countstockdate:dd/MM/yyyy}";
+        ws.Cells[1, 1, 1, 11].Merge = true;
+
+        // Headers
+        string[] headers = { "รหัสสินค้า", "ชื่อสินค้า", "ประเภทย่อย",
+                              "สต๊อกระบบ", "ยอดนับได้", "รอเติม", "ชำรุด",
+                              "ขายก่อนนับ", "รวมนับได้", "ขาด/เกิน", "หมายเหตุ" };
+        for (int c = 0; c < headers.Length; c++)
+            ws.Cells[2, c + 1].Value = headers[c];
+
+        // Data rows
+        int row = 3;
+        foreach (var d in detail)
+        {
+            ws.Cells[row, 1].Value  = d.itemcode;
+            ws.Cells[row, 2].Value  = d.itemname;
+            ws.Cells[row, 3].Value  = d.subitemcode;
+            ws.Cells[row, 4].Value  = d.qtyinbranchofstockday;
+            ws.Cells[row, 5].Value  = d.countedqty;
+            ws.Cells[row, 6].Value  = d.waitingtorestock;
+            ws.Cells[row, 7].Value  = d.damaged;
+            ws.Cells[row, 8].Value  = d.soldbeforecount;
+            ws.Cells[row, 9].Value  = d.totalcounted;
+            ws.Cells[row, 10].Value = d.difference;
+            ws.Cells[row, 11].Value = d.itemremark;
+            row++;
+        }
+
+        ws.Cells.AutoFitColumns();
+        var bytes    = package.GetAsByteArray();
+        string name  = $"CountStock_{data.branchname}_{data.countstockdate:yyyyMMdd}.xlsx";
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", name);
     }
 
     [HttpPost]

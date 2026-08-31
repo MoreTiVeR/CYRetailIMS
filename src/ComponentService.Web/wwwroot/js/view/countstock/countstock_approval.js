@@ -107,7 +107,8 @@ $(document).ready(function () {
                 data: 'exceldownloadurl',
                 className: 'text-center',
                 render: function (d) {
-                    return '<a href="' + escHtml(d) + '" class="btn btn-sm btn-info" title="ดาวน์โหลด Excel">Excel</a>';
+                    return '<a href="' + escHtml(d) + '" class="btn btn-sm btn-added" title="ดาวน์โหลด Excel" download>'
+                         + '<img src="/assets/img/icons/excel.svg" alt="excel" style="width:14px;margin-right:4px;vertical-align:middle">Excel</a>';
                 }
             }
         ];
