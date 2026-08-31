@@ -149,7 +149,17 @@ $(document).ready(function () {
             var rowItemName = pickValue(d, ['itemname', 'itemName', 'ItemName'], '');
             var rowSubItemCode = pickValue(d, ['subitemcode', 'subItemCode', 'SubItemCode', 'subitemtypename', 'subItemTypeName', 'SubItemTypeName'], '');
             var cyQty = parseInt(pickValue(d, ['qtyinbranchofstockday', 'qtyInBranchOfStockDay', 'QtyInBranchOfStockDay'], 0)) || 0;
-            rows += '<tr>'
+            var countedQty = parseInt(pickValue(d, ['countedqty', 'countedQty', 'CountedQty'], 0)) || 0;
+            var restockQty = parseInt(pickValue(d, ['waitingtorestock', 'waitingToRestock', 'WaitingToRestock'], 0)) || 0;
+            var damagedQty = parseInt(pickValue(d, ['damaged', 'Damaged'], 0)) || 0;
+            var soldQty = parseInt(pickValue(d, ['soldbeforecount', 'soldBeforeCount', 'SoldBeforeCount'], 0)) || 0;
+            var itemRemark = pickValue(d, ['itemremark', 'itemRemark', 'ItemRemark'], '');
+            rows += '<tr'
+                + ' data-itemid="' + rowItemId + '"'
+                + ' data-branchid="' + rowBranchId + '"'
+                + ' data-subitemtypeid="' + rowSubItemTypeId + '"'
+                + ' data-itemtypecode="' + escAttr(rowItemTypeCode) + '"'
+                + '>'
                 + '<td hidden>' + rowItemId + '</td>'
                 + '<td hidden>' + rowBranchId + '</td>'
                 + '<td hidden>' + rowSubItemTypeId + '</td>'
@@ -159,13 +169,13 @@ $(document).ready(function () {
                 + '<td class="col-subtype">' + escHtml(rowSubItemCode) + '</td>'
                 + '<td style="text-align:right;font-weight:600" class="cy-stock">' + cyQty + '</td>'
                 // Editable input columns (E,F,G,H)
-                + '<td><input type="number" class="form-control form-control-sm inp-counted text-right" value="0" min="0" style="width:80px;text-align:right"></td>'
-                + '<td><input type="number" class="form-control form-control-sm inp-restock text-right" value="0" min="0" style="width:80px;text-align:right"></td>'
-                + '<td><input type="number" class="form-control form-control-sm inp-damaged text-right" value="0" min="0" style="width:80px;text-align:right"></td>'
-                + '<td><input type="number" class="form-control form-control-sm inp-sold text-right" value="0" min="0" style="width:80px;text-align:right"></td>'
+                + '<td><input type="number" class="form-control form-control-sm inp-counted text-right" value="' + countedQty + '" min="0" style="width:80px;text-align:right"></td>'
+                + '<td><input type="number" class="form-control form-control-sm inp-restock text-right" value="' + restockQty + '" min="0" style="width:80px;text-align:right"></td>'
+                + '<td><input type="number" class="form-control form-control-sm inp-damaged text-right" value="' + damagedQty + '" min="0" style="width:80px;text-align:right"></td>'
+                + '<td><input type="number" class="form-control form-control-sm inp-sold text-right" value="' + soldQty + '" min="0" style="width:80px;text-align:right"></td>'
                 + '<td style="text-align:right;font-weight:600" class="td-total">0</td>'
                 + '<td style="text-align:right;font-weight:600" class="td-diff">0</td>'
-                + '<td><input type="text" class="form-control form-control-sm inp-remark" placeholder="หมายเหตุ (ถ้านับ 0 กรุณาระบุ)" maxlength="200" style="width:180px"></td>'
+                + '<td><input type="text" class="form-control form-control-sm inp-remark" value="' + escAttr(itemRemark) + '" placeholder="หมายเหตุ (ถ้านับ 0 กรุณาระบุ)" maxlength="200" style="width:180px"></td>'
                 + '</tr>';
         });
         $('#tbNewCountStockBody').html(rows);
@@ -248,6 +258,12 @@ $(document).ready(function () {
         $('#stockBottomActions').show();
         $('#emptyPlaceholder').hide();
 
+        // Initialize calculated cells from preloaded values (including saved draft values)
+        $('#tbNewCountStock tbody tr').each(function () {
+            recalcRow($(this));
+        });
+        checkZeroAlert();
+
         // Bind input events for live calc (event delegation on tbody)
         $('#tbNewCountStock tbody').off('input', 'input')
             .on('input', 'input', function () {
@@ -312,6 +328,8 @@ $(document).ready(function () {
             return null;
         }
         var remark = ($('#txtGlobalRemark').val() || '').trim();
+        var itemTypeFilter = ($('#ddlItemType').val() || '').toString().trim();
+        var textFilter = ($('#txtItemSearch').val() || '').toString().trim();
         var items = [];
 
         // Iterate all rows (across all pages) via DataTables API for reliability
@@ -320,10 +338,11 @@ $(document).ready(function () {
             var $row = $(node);
             var cells = $row.find('td');
 
-            var itemId = parseInt($(cells[0]).text()) || 0;
-            var branchCell = parseInt($(cells[1]).text()) || branchId;
-            var subTypeId = parseInt($(cells[2]).text()) || 0;
-            var itemType = ($(cells[3]).text() || '').trim();
+            // Read stable row keys from data-* first to avoid DataTables hidden-column index drift.
+            var itemId = parseInt($row.attr('data-itemid')) || parseInt($(cells[0]).text()) || 0;
+            var branchCell = parseInt($row.attr('data-branchid')) || parseInt($(cells[1]).text()) || branchId;
+            var subTypeId = parseInt($row.attr('data-subitemtypeid')) || parseInt($(cells[2]).text()) || 0;
+            var itemType = ($row.attr('data-itemtypecode') || $(cells[3]).text() || '').trim();
             var itemCode = ($row.find('.col-itemcode').text() || '').trim();
             var itemName = ($row.find('.col-itemname').text() || '').trim();
             var subCode = ($row.find('.col-subtype').text() || '').trim();
@@ -362,6 +381,18 @@ $(document).ready(function () {
             Swal.fire({ icon: 'warning', title: 'ไม่พบรายการ', text: 'กรุณาโหลดข้อมูลก่อนบันทึก' });
             return null;
         }
+
+        var isPartialSave = false;
+        if (itemTypeFilter.length > 0 || textFilter.length > 0) {
+            isPartialSave = true;
+        } else if (loadedData && loadedData.length > 0 && items.length < loadedData.length) {
+            isPartialSave = true;
+        }
+
+        items.forEach(function (x) {
+            x.IsPartialSave = isPartialSave;
+        });
+
         return items;
     }
 
@@ -510,6 +541,14 @@ $(document).ready(function () {
 
     function escHtml(str) {
         return $('<div>').text(str == null ? '' : str).html();
+    }
+
+    function escAttr(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     }
 
     function pickValue(obj, keys, defaultValue) {

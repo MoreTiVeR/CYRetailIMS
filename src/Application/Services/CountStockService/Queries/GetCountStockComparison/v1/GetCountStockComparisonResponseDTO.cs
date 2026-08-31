@@ -7,6 +7,7 @@ public class GetCountStockComparisonResponseDTO
 {
     public string itemcode { get; set; }
     public string itemname { get; set; }
+    public DateTime? comparedate { get; set; }
     public string subitemtypename { get; set; }
     public int subitemtypeid { get; set; }
 

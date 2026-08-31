@@ -25,5 +25,10 @@ public record CreateCountStockCommand : IRequest<BaseResponse<CommandResponse>>
     /// </summary>
     public string? counterrole { get; init; }
 
+    /// <summary>
+    /// true = อัปเดตแบบ partial merge, false = อัปเดตแบบ full replace
+    /// </summary>
+    public bool ispartialsave { get; init; }
+
     public List<CreateCountStockDetail> detail { get; init; }
 }

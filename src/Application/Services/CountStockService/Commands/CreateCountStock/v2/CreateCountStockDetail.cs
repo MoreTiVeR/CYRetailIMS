@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v2;
 public record CreateCountStockDetail
 {
+    public int itemid { get; init; }
+
     public int subitemtypeid { get; init; }
 
     /// <summary>

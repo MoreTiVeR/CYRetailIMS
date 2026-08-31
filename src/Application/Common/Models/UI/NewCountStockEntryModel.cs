@@ -64,4 +64,9 @@ public class NewCountStockEntryModel
     /// บทบาทผู้นับ: "PC" หรือ "HeadPC"
     /// </summary>
     public string CounterRole { get; set; }
+
+    /// <summary>
+    /// true = บันทึกเฉพาะรายการที่ถูกกรอง/ค้นหา (partial merge), false = บันทึกทั้งชุด (full replace)
+    /// </summary>
+    public bool IsPartialSave { get; set; }
 }

@@ -13,6 +13,11 @@ public partial class TTCountStockDetail : BaseAuditableEntity
     [Key]
     public int CountStockDetailID { get; set; }
 
+    /// <summary>
+    /// สินค้าที่ทำการนับ (รองรับหน้านับสต๊อกแบบรายสินค้า)
+    /// </summary>
+    public int? ItemID { get; set; }
+
     public int SubItemTypeID { get; set; }
 
     public int CountStockID { get; set; }

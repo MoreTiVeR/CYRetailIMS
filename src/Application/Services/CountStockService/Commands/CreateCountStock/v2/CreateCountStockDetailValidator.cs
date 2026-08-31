@@ -6,6 +6,7 @@ public class CreateCountStockDetailValidator : AbstractValidator<CreateCountStoc
 {
     public CreateCountStockDetailValidator()
     {
+        RuleFor(r => r.itemid).NotNull().Must(s => s > 0).WithMessage("ข้อมูลสินค้าไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
         RuleFor(r => r.subitemtypeid).NotNull().Must(s => s >= 0).WithMessage("ข้อมูลประเภทย่อยไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
         //RuleFor(r => r.qtyinbranchofcountstockday).NotNull().Must(s => s >= 0).WithMessage("จำนวนสต๊อกหน้าร้าน ณ วันปัจจุบันไม่ถูกต้อง  กรุณาลองใหม่อีกครั้ง");
         RuleFor(r => r.qtyinbranch).NotNull().Must(s => s >= 0).WithMessage("จำนวนสต๊อกหน้าร้านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");

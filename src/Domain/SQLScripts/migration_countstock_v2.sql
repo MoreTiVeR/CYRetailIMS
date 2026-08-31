@@ -60,6 +60,17 @@ GO
 -- -------------------------------------------------------
 IF NOT EXISTS (
     SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'TTCountStockDetail' AND COLUMN_NAME = 'ItemID'
+)
+BEGIN
+    ALTER TABLE TTCountStockDetail
+        ADD ItemID INT NULL;
+    PRINT 'Added ItemID to TTCountStockDetail';
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_NAME = 'TTCountStockDetail' AND COLUMN_NAME = 'ItemRemark'
 )
 BEGIN
@@ -67,6 +78,19 @@ BEGIN
         ADD ItemRemark VARCHAR(200) NULL;
         -- หมายเหตุรายการ บังคับกรอกเมื่อ CountedAmountQty = 0
     PRINT 'Added ItemRemark to TTCountStockDetail';
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'IX_TTCountStockDetail_CountStockID_ItemID_SubItemTypeID'
+      AND object_id = OBJECT_ID('TTCountStockDetail')
+)
+BEGIN
+    CREATE INDEX IX_TTCountStockDetail_CountStockID_ItemID_SubItemTypeID
+        ON TTCountStockDetail (CountStockID, ItemID, SubItemTypeID);
+    PRINT 'Added index IX_TTCountStockDetail_CountStockID_ItemID_SubItemTypeID';
 END;
 GO
 

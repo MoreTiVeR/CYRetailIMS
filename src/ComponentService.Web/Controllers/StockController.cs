@@ -25,6 +25,7 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountSto
 using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
+using System.Globalization;
 using CreateCountStockCommandV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockCommand;
 using CreateCountStockDetailV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockDetail;
 using CreateCountStockCommandV2 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v2.CreateCountStockCommand;
@@ -248,6 +249,11 @@ public class StockController : BaseController
                         continue;
                     }
 
+                    if (row.subitemtypeid <= 0 && itemRef.subitemtypeid.HasValue && itemRef.subitemtypeid.Value > 0)
+                    {
+                        row.subitemtypeid = itemRef.subitemtypeid.Value;
+                    }
+
                     if (string.IsNullOrWhiteSpace(row.itemcode))
                     {
                         row.itemcode = itemRef.itemcode;
@@ -261,6 +267,59 @@ public class StockController : BaseController
                     if (string.IsNullOrWhiteSpace(row.subitemcode) && !string.IsNullOrWhiteSpace(itemRef.subitemtypename))
                     {
                         row.subitemcode = itemRef.subitemtypename;
+                    }
+                }
+            }
+        }
+
+        string currentCounterRole = base.UserProfile.roleid == (int)UserRole.SaleArea ? "HeadPC" : "PC";
+        DateTime today = DateTime.Today;
+        DateTime tomorrow = today.AddDays(1);
+
+        var pendingDrafts = await _countStockAPI.GetPendingApprovalsAsync(new GetPendingApprovalsQuery
+        {
+            counterrole = currentCounterRole,
+            statuscid = 0
+        });
+
+        if (pendingDrafts.result && pendingDrafts.data != null)
+        {
+            var latestDraft = pendingDrafts.data
+                .Where(w => w.branchid == searchItem.branchid
+                            && w.countstockdate >= today
+                            && w.countstockdate < tomorrow)
+                .OrderByDescending(o => o.countstockdate)
+                .ThenByDescending(o => o.countstockid)
+                .FirstOrDefault();
+
+            if (latestDraft != null)
+            {
+                var draftDetailRes = await _countStockAPI.InquiryCountStockByStockIDAsync(new InquiryCountStockByIDQuery
+                {
+                    countstockid = latestDraft.countstockid
+                });
+
+                if (draftDetailRes.result && draftDetailRes.data?.detail != null)
+                {
+                    var draftDetailLookup = draftDetailRes.data.detail
+                        .GroupBy(g => new { g.itemid, g.subitemtypeid })
+                        .ToDictionary(k => k.Key, v => v.FirstOrDefault());
+
+                    foreach (var row in data)
+                    {
+                        var draftKey = new { itemid = row.itemid, subitemtypeid = row.subitemtypeid };
+                        if (!draftDetailLookup.TryGetValue(draftKey, out var draftDetail) || draftDetail == null)
+                        {
+                            continue;
+                        }
+
+                        row.countedqty = draftDetail.countedqty;
+                        row.waitingtorestock = draftDetail.waitingtorestock;
+                        row.damaged = draftDetail.damaged;
+                        row.soldbeforecount = draftDetail.soldbeforecount;
+                        row.totalcounted = draftDetail.totalcounted;
+                        row.difference = draftDetail.difference;
+                        row.itemremark = draftDetail.itemremark;
                     }
                 }
             }
@@ -521,6 +580,22 @@ public class StockController : BaseController
             if (!items.Any())
                 return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก" });
 
+            var invalidSubItems = items
+                .Where(i => i.SubItemTypeID <= 0)
+                .Select(i => !string.IsNullOrWhiteSpace(i.ItemCode) ? i.ItemCode : i.ItemName)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct()
+                .Take(10)
+                .ToList();
+            if (invalidSubItems.Any())
+            {
+                return Json(new
+                {
+                    result = false,
+                    message = $"พบรายการที่ไม่สามารถระบุประเภทย่อยได้ (SubItemTypeID=0): {string.Join(", ", invalidSubItems)} กรุณาตรวจสอบข้อมูลสินค้าในระบบก่อนบันทึก"
+                });
+            }
+
             var zeroQtyWithoutRemark = items.Where(i => i.CountedQty == 0 && string.IsNullOrEmpty(i.ItemRemark)).ToList();
             if (zeroQtyWithoutRemark.Any())
             {
@@ -531,7 +606,7 @@ public class StockController : BaseController
             var command = PrepareNewCountStockCommand(items, statusId: 0); // Draft
             var res = await _countStockAPI.CreateCountStockListV2Async(command);
             if (!res.result)
-                return Json(new { result = false, message = "บันทึกแบบร่างไม่สำเร็จ กรุณาลองใหม่" });
+                return Json(new { result = false, message = res.error?.error?.message ?? "บันทึกแบบร่างไม่สำเร็จ กรุณาลองใหม่" });
             return Json(new { result = true, message = "บันทึกแบบร่างสำเร็จ" });
         }
         catch (Exception ex)
@@ -548,6 +623,22 @@ public class StockController : BaseController
             if (!items.Any())
                 return Json(new { result = false, message = "ไม่พบรายการนับสต๊อก" });
 
+            var invalidSubItems = items
+                .Where(i => i.SubItemTypeID <= 0)
+                .Select(i => !string.IsNullOrWhiteSpace(i.ItemCode) ? i.ItemCode : i.ItemName)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct()
+                .Take(10)
+                .ToList();
+            if (invalidSubItems.Any())
+            {
+                return Json(new
+                {
+                    result = false,
+                    message = $"พบรายการที่ไม่สามารถระบุประเภทย่อยได้ (SubItemTypeID=0): {string.Join(", ", invalidSubItems)} กรุณาตรวจสอบข้อมูลสินค้าในระบบก่อนส่งข้อมูล"
+                });
+            }
+
             var zeroQtyWithoutRemark = items.Where(i => i.CountedQty == 0 && string.IsNullOrEmpty(i.ItemRemark)).ToList();
             if (zeroQtyWithoutRemark.Any())
             {
@@ -558,7 +649,7 @@ public class StockController : BaseController
             var command = PrepareNewCountStockCommand(items, statusId: 1); // Submitted
             var res = await _countStockAPI.CreateCountStockListV2Async(command);
             if (!res.result)
-                return Json(new { result = false, message = "ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่" });
+                return Json(new { result = false, message = res.error?.error?.message ?? "ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่" });
             return Json(new { result = true, message = "ส่งข้อมูลนับสต๊อกสำเร็จ" });
         }
         catch (Exception ex)
@@ -649,8 +740,10 @@ public class StockController : BaseController
             totalcount = items.Sum(s => s.TotalCounted),
             counterstockstatusid = statusId,
             counterrole = counterRole,
+            ispartialsave = items.FirstOrDefault()?.IsPartialSave ?? false,
             detail = items.Select(s => new CreateCountStockDetailV2
             {
+                itemid = s.ItemId,
                 subitemtypeid = s.SubItemTypeID > 0 ? s.SubItemTypeID : 0,
                 qtyinbranchofcountstockday = s.CYStockQty,
                 qtyinbranch = s.CYStockQty,
@@ -665,15 +758,37 @@ public class StockController : BaseController
 
     private static DateTime? ParseDate(string? dateStr)
     {
-        if (string.IsNullOrEmpty(dateStr)) return null;
-        string[] parts = dateStr.Split("-");
-        if (parts.Length != 3) return null;
-        if (int.TryParse(parts[0], out int day) &&
-            int.TryParse(parts[1], out int month) &&
-            int.TryParse(parts[2], out int year))
+        if (string.IsNullOrWhiteSpace(dateStr)) return null;
+
+        string value = dateStr.Trim();
+        string[] formats =
         {
-            return new DateTime(year, month, day);
+            "dd/MM/yyyy",
+            "d/M/yyyy",
+            "dd-MM-yyyy",
+            "d-M-yyyy",
+            "yyyy-MM-dd",
+            "yyyy/MM/dd"
+        };
+
+        if (DateTime.TryParseExact(
+                value,
+                formats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out DateTime parsed)
+            || DateTime.TryParseExact(
+                value,
+                formats,
+                CultureInfo.GetCultureInfo("th-TH"),
+                DateTimeStyles.None,
+                out parsed)
+            || DateTime.TryParse(value, CultureInfo.GetCultureInfo("th-TH"), DateTimeStyles.None, out parsed)
+            || DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed))
+        {
+            return parsed.Date;
         }
+
         return null;
     }
 

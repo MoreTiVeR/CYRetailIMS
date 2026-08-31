@@ -84,4 +84,9 @@ public class InquiryCountStockByBranchIDResponseDTO
     /// </summary>
     public int difference { get; set; }
     //public int difference => totalcounted - storestock;
+
+    /// <summary>
+    /// หมายเหตุรายการ (กรณีนับได้ 0 ต้องระบุเหตุผล)
+    /// </summary>
+    public string? itemremark { get; set; }
 }
