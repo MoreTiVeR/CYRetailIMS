@@ -180,7 +180,7 @@ public class AccountController : BaseController
 				case (int)EnumModel.UserRole.AccountingOfficer:
 					return Url.Action("SaleReport", "Report");
 				case (int)EnumModel.UserRole.SaleArea:
-					return Url.Action("SaleSummaryReport", "Report");
+                    return Url.Action("NewCountStockEntry", "Stock");
                 case (int)EnumModel.UserRole.Audit:
                     return Url.Action("CountStockReport", "Report");
                 default:

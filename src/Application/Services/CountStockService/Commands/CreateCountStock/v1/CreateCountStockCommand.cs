@@ -14,5 +14,16 @@ public record CreateCountStockCommand : IRequest<BaseResponse<CommandResponse>>
     public int totalcount { get; init; }
     public string? remark { get; init; }
     public string createdby { get; init; }
+
+    /// <summary>
+    /// สถานะ: 0=Draft, 1=Submitted
+    /// </summary>
+    public int counterstockstatusid { get; init; } = 0;
+
+    /// <summary>
+    /// บทบาทผู้นับ: "PC" หรือ "HeadPC"
+    /// </summary>
+    public string? counterrole { get; init; }
+
     public List<CreateCountStockDetail> detail { get; init; }
 }

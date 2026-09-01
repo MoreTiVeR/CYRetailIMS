@@ -13,9 +13,19 @@ public class InquiryCountStockByBranchIDResponseDTO
     public int branchid { get; set; }
 
     /// <summary>
-    /// รหัสสินค้า
+    /// รหัสสินค้า (id)
     /// </summary>
     public int itemid { get; set; }
+
+    /// <summary>
+    /// รหัสสินค้า (code) — คอลัมน์ A ของหน้านับสต๊อก
+    /// </summary>
+    public string itemcode { get; set; }
+
+    /// <summary>
+    /// ชื่อสินค้า — คอลัมน์ B ของหน้านับสต๊อก
+    /// </summary>
+    public string itemname { get; set; }
 
     /// <summary>
     /// ประเภท
@@ -74,4 +84,9 @@ public class InquiryCountStockByBranchIDResponseDTO
     /// </summary>
     public int difference { get; set; }
     //public int difference => totalcounted - storestock;
+
+    /// <summary>
+    /// หมายเหตุรายการ (กรณีนับได้ 0 ต้องระบุเหตุผล)
+    /// </summary>
+    public string? itemremark { get; set; }
 }

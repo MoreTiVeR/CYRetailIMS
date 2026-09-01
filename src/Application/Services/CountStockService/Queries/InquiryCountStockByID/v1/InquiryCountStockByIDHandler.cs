@@ -23,6 +23,9 @@ public class InquiryCountStockByIDHandler : BaseService, IRequestHandler<Inquiry
     {
         var resCountStockEntities = (from a in await _unitOfWork.Repository<TTCountStock>().QueryAsync()
                                      join b in await _unitOfWork.Repository<TTCountStockDetail>().QueryAsync() on a.CountStockID equals b.CountStockID
+                                     join item in await _unitOfWork.Repository<TMItem>().QueryAsync() on b.ItemID equals item.ItemID
+                                     into jItem
+                                     from i in jItem.DefaultIfEmpty()
                                      join subitem in await _unitOfWork.Repository<TMSubItemType>().QueryAsync() on b.SubItemTypeID equals subitem.SubItemTypeID
                                      into jSubitemType
                                      from c in jSubitemType.DefaultIfEmpty()
@@ -32,6 +35,9 @@ public class InquiryCountStockByIDHandler : BaseService, IRequestHandler<Inquiry
                                      {
                                          countstockid = a.CountStockID,
                                          branchid = a.BranchID,
+                                         itemid = b.ItemID ?? 0,
+                                         itemcode = i != null ? i.ItemCode : string.Empty,
+                                         itemname = i != null ? i.Name : string.Empty,
                                          branchname = d.BranchName,
                                          countstockdate = a.CreatedDate,
                                          createdby = a.CreatedBy,
@@ -47,7 +53,8 @@ public class InquiryCountStockByIDHandler : BaseService, IRequestHandler<Inquiry
                                          damaged = b.DamagedQty,
                                          soldbeforecount = b.SaleBeforeCountQty,
                                          totalcounted = b.TotalCountQty,
-                                         difference = b.ShortageSurplusQty
+                                         difference = b.ShortageSurplusQty,
+                                         itemremark = b.ItemRemark
                                      }).AsQueryable();
 
         if (resCountStockEntities == null || (resCountStockEntities != null && !resCountStockEntities.Any()))
@@ -68,6 +75,9 @@ public class InquiryCountStockByIDHandler : BaseService, IRequestHandler<Inquiry
             {
                 countstockdetailid = d.countstockdetailid,
                 branchid = d.branchid,
+                itemid = d.itemid,
+                itemcode = d.itemcode,
+                itemname = d.itemname,
                 subitemtypeid = d.subitemtypeid,
                 subitemcode = d.subitemcode,
                 qtyinbranchofstockday = d.qtyinbranchofstockday,
@@ -78,6 +88,7 @@ public class InquiryCountStockByIDHandler : BaseService, IRequestHandler<Inquiry
                 soldbeforecount = d.soldbeforecount,
                 totalcounted = d.totalcounted,
                 difference = d.difference,
+                itemremark = d.itemremark,
             }).ToList()
         }).FirstOrDefault();
 

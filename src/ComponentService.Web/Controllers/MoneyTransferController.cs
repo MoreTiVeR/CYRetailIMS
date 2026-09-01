@@ -23,7 +23,7 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AreaSale)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.SaleArea)]
 public class MoneyTransferController : BaseController
 {
     private readonly string _moneyTransferSlipSubPath = "money_transfer_slip";

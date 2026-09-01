@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CYRetailIMS.ComponentService.API.V2.Controllers;
@@ -9,7 +10,8 @@ namespace CYRetailIMS.ComponentService.API.V2.Controllers;
 public class UserController : ControllerBase
 {
 
-    [HttpGet("{userid}")]
+    [HttpGet]
+    [Route("v1/user/{userid}")]
     public IActionResult Get(int userid)
     {
         return Ok();

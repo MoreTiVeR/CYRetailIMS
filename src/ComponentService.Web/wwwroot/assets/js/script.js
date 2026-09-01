@@ -415,6 +415,12 @@ $(document).ready(function(){
 	$(document).on('click', '#filter_search', function() {
 		$('#filter_search').toggleClass("setclose");
 	});
+	$(document).on('click', '#filter_search1', function() {
+		$('#filter_search1').toggleClass("setclose");
+	});
+	$(document).on('click', '#filter_search2', function() {
+		$('#filter_search2').toggleClass("setclose");
+	});
 	$(document).on("click",".productset",function () {
 		$(this).toggleClass("active");
 	});

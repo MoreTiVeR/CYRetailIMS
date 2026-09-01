@@ -1,0 +1,132 @@
+@{
+	ViewData["Title"] = "รออนุมัติ — นับสต๊อก";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	bool isAdmin = ViewBag.IsAdmin is bool b && b;
+}
+
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="page-header">
+	<div class="page-title">
+		<h4>รออนุมัติ — นับสต๊อก</h4>
+		<h6>รายการนับสต๊อกที่ส่งมารอการอนุมัติ</h6>
+	</div>
+	<div class="page-btn">
+		<a asp-controller="Stock" asp-action="Index" class="btn btn-secondary me-1">ย้อนกลับ</a>
+	</div>
+</div>
+
+@if (isAdmin)
+{
+	<div class="alert alert-info" role="alert">
+		สามารถ<strong>อนุมัติ</strong>ได้เฉพาะรายการที่ส่งโดย<strong> หัวหน้า PC </strong>เท่านั้น •
+		รายการพนักงานขาย (PC) ดูข้อมูลได้อย่างเดียว
+	</div>
+}
+
+<div class="card">
+	<div class="card-body">
+		<div class="table-top">
+			<div class="search-set">
+				<div class="search-path">
+					<a class="btn btn-filter" id="filter_search2">
+						<img src="~/assets/img/icons/filter.svg" alt="img">
+						<span><img src="~/assets/img/icons/closes.svg" alt="img"></span>
+					</a>
+				</div>
+				<div class="search-input">
+					<a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Filter -->
+		<div class="row">
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group">
+					<label>ผู้นับ</label>
+					<select id="ddlCounterRole" class="select2 ddl-select2">
+						<option value="">--ทั้งหมด--</option>
+						<option value="PC">พนักงานขาย (PC)</option>
+						<option value="HeadPC">หัวหน้า PC</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group">
+					<label>สถานะ</label>
+					<select id="ddlApproveStatus" class="select2 ddl-select2">
+						<option value="">--ทั้งหมด--</option>
+						<option value="0">แบบร่าง</option>
+						<option value="1">รออนุมัติ</option>
+						<option value="2">อนุมัติแล้ว</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3 col-sm-6 col-12">
+				<div class="form-group" style="text-align: left">
+					<a id="btnSearchApproval" class="btn btn-filters" title="ค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+				</div>
+			</div>
+		</div>
+		<!-- /Filter -->
+
+		<div class="table-responsive">
+			<table id="tbPendingApproval" class="table">
+				<thead>
+					<tr>
+						<th hidden>เลขที่</th>
+						<th hidden>รหัสสาขา</th>
+						<th>วันที่นับ</th>
+						<th>ชื่อสาขา</th>
+						<th>ผู้นับ</th>
+						<th style="text-align:center">สถานะ</th>
+						<th style="text-align:center">วันรออนุมัติ</th>
+						<th style="text-align:center">ดาวน์โหลด</th>
+						@if (isAdmin)
+						{
+							<th style="text-align:center">ดำเนินการ</th>
+						}
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<!-- Confirm Approve Modal -->
+<div class="modal fade" id="modalConfirmApprove" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">ยืนยันการอนุมัติ</h5>
+				<button type="button" class="close" data-bs-dismiss="modal">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p>คุณต้องการ <strong>อนุมัติ</strong> รายการนับสต๊อกนี้ใช่หรือไม่?</p>
+				<div class="alert alert-warning mb-0">
+					เมื่ออนุมัติแล้ว ระบบจะ <strong>ปรับสต๊อกทันที</strong> ให้เท่ากับยอดที่หัวหน้า PC นับได้
+					และไม่สามารถยกเลิกได้
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+				<button type="button" id="btnConfirmApprove" class="btn btn-submit">
+					ยืนยันอนุมัติ
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<input type="hidden" id="hdnIsAdmin" value="@isAdmin.ToString().ToLower()" />
+
+@section Scripts {
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+	<script src="~/js/view/countstock/countstock_approval.js" asp-append-version="true"></script>
+}

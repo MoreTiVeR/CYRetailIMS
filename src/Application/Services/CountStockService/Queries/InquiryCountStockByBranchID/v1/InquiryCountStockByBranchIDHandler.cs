@@ -19,45 +19,72 @@ public class InquiryCountStockByBranchIDHandler : BaseService, IRequestHandler<I
 
     public async Task<BaseResponse<List<InquiryCountStockByBranchIDResponseDTO>>> Handle(InquiryCountStockByBranchIDQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<InquiryCountStockByBranchIDResponseDTO> resCountStockData;
-        resCountStockData = (from a in await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.IsActive == true)
-                             join b in await _unitOfWork.Repository<TMItemType>().QueryAsync() on a.Item.ItemTypeID equals b.ItemTypeID
-                             join c in await _unitOfWork.Repository<TMSubItemType>().QueryAsync() on a.Item.SubItemTypeID equals c.SubItemTypeID
-                             into jSubitemType
-                             from s in jSubitemType.DefaultIfEmpty()
-                             where a.BranchID == request.branchid
-                             && a.IsActive == true
-                             select new InquiryCountStockByBranchIDResponseDTO
-                             {
-                                 branchid = a.BranchID,
-                                 itemid = a.ItemID,
-                                 itemtypecode = b.ItemTypeName,
-                                 subitemtypeid = s != null ? s.SubItemTypeID : 0,
-                                 subitemcode = s != null ? s.SubItemCode : "ไม่มีประเภทย่อย",
-                                 qtyinbranchofstockday = a.Qty,
-                                 storestock = 0,
-                                 countedqty = 0,
-                                 waitingtorestock = 0,
-                                 damaged = 0,
-                                 soldbeforecount = 0,
-                                 totalcounted = 0,
-                                 difference = 0,
-                             }).AsQueryable();
+        var itemInBranchQuery = (await _unitOfWork.Repository<TMItemInBranch>().QueryAsync(w => w.IsActive == true))
+            ?? Enumerable.Empty<TMItemInBranch>().AsQueryable();
+        var itemTypeQuery = (await _unitOfWork.Repository<TMItemType>().QueryAsync())
+            ?? Enumerable.Empty<TMItemType>().AsQueryable();
+        var subItemTypeQuery = (await _unitOfWork.Repository<TMSubItemType>().QueryAsync())
+            ?? Enumerable.Empty<TMSubItemType>().AsQueryable();
 
-        if (resCountStockData == null || resCountStockData?.Count() == 0)
+        var resCountStockData = (from a in itemInBranchQuery
+                                 join b in itemTypeQuery on a.Item.ItemTypeID equals b.ItemTypeID
+                                 join c in subItemTypeQuery on a.Item.SubItemTypeID equals c.SubItemTypeID
+                                 into jSubitemType
+                                 from s in jSubitemType.DefaultIfEmpty()
+                                 where a.BranchID == request.branchid
+                                 && a.IsActive == true
+                                 select new InquiryCountStockByBranchIDResponseDTO
+                                 {
+                                     branchid = a.BranchID,
+                                     itemid = a.ItemID,
+                                     itemcode = a.Item.ItemCode,
+                                     itemname = a.Item.Name,
+                                     itemtypecode = b.ItemTypeName,
+                                     // Use item's own subtype id as source of truth.
+                                     // This prevents losing valid subtype id when TMSubItemType row is missing/inactive.
+                                     subitemtypeid = a.Item.SubItemTypeID ?? 0,
+                                     subitemcode = s != null ? s.SubItemCode : "ไม่มีประเภทย่อย",
+                                     qtyinbranchofstockday = a.Qty,
+                                     storestock = 0,
+                                     countedqty = 0,
+                                     waitingtorestock = 0,
+                                     damaged = 0,
+                                     soldbeforecount = 0,
+                                     totalcounted = 0,
+                                     difference = 0,
+                                 }).ToList();
+
+        if (!resCountStockData.Any())
         {
             throw new Exception("ไม่พบข้อมูลสินค้าสาขาที่ต้องการนับสต๊อก");
         }
 
-        var resFinalData = resCountStockData.AsEnumerable().GroupBy(g => g.subitemcode)
-            .Select(s => new { s.Key, data = s })
+        // หน้านับสต๊อกแบบใหม่: ต้องการข้อมูลระดับรายสินค้า (รหัสสินค้า/ชื่อสินค้า)
+        // จึงไม่รวมกลุ่มตามประเภทย่อย และเรียงตามประเภทย่อย -> รหัสสินค้า
+        if (request.itemlevel)
+        {
+            var itemLevelData = resCountStockData
+                .OrderBy(o => o.subitemcode)
+                .ThenBy(o => o.itemcode)
+                .ToList();
+            return new BaseResponse<List<InquiryCountStockByBranchIDResponseDTO>>
+            {
+                result = true,
+                data = itemLevelData,
+                message = "Success",
+                soruce = "db",
+                status = StatusCodes.Status200OK.ToString()
+            };
+        }
+
+        var resFinalData = resCountStockData.GroupBy(g => g.subitemcode)
             .Select(s => new InquiryCountStockByBranchIDResponseDTO
             {
-                branchid = s.data.FirstOrDefault().branchid,
-                itemtypecode = s.data.FirstOrDefault(w => w.subitemcode == s.Key).itemtypecode,
-                subitemtypeid = s.data.FirstOrDefault(w => w.subitemcode == s.Key).subitemtypeid,
-                subitemcode = s.Key,
-                qtyinbranchofstockday = s.data.Sum(q => q.qtyinbranchofstockday),
+            branchid = s.First().branchid,
+            itemtypecode = s.First().itemtypecode,
+            subitemtypeid = s.First().subitemtypeid,
+            subitemcode = s.Key ?? "ไม่มีประเภทย่อย",
+            qtyinbranchofstockday = s.Sum(q => q.qtyinbranchofstockday),
                 storestock = 0,
                 countedqty = 0,
                 waitingtorestock = 0,

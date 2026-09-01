@@ -62,6 +62,8 @@ public class CreateCountStockHandler : BaseService, IRequestHandler<CreateCountS
             CountDate = stockCommand.countstockdate,
             TotalCount = stockCommand.totalcount,
             Remark = stockCommand.remark,
+            CountStockStatusID = stockCommand.counterstockstatusid,
+            CounterRole = stockCommand.counterrole ?? "PC",
             CreatedBy = stockCommand.createdby,
             CreatedDate = cDateTime,
             IsActive = true
@@ -84,6 +86,7 @@ public class CreateCountStockHandler : BaseService, IRequestHandler<CreateCountS
             SaleBeforeCountQty = s.salebeforecountqty,
             TotalCountQty = s.totalcountqty,
             ShortageSurplusQty = s.shortagesurplusqty,
+            ItemRemark = s.itemremark,
             CreatedBy = createdBy,
             CreatedDate = cDateTime,
             IsActive= true
