@@ -10,6 +10,8 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountSt
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReport.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReportByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
@@ -89,6 +91,18 @@ public class CountStockAPI : HttpClientService, ICountStockAPI
     {
         return await _httpClientRequest.HttpRequestToObject<List<GetCountStockComparisonResponseDTO>, GetCountStockComparisonQuery>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/comparison"), query);
+    }
+
+    public async Task<BaseResponse<GetCountStockApprovalReportResponseDTO>> GetCountStockApprovalReportAsync(GetCountStockApprovalReportQuery query)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetCountStockApprovalReportResponseDTO, GetCountStockApprovalReportQuery>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/approval-history"), query);
+    }
+
+    public async Task<BaseResponse<GetCountStockApprovalReportByIDResponseDTO>> GetCountStockApprovalReportByIDAsync(GetCountStockApprovalReportByIDQuery query)
+    {
+        return await _httpClientRequest.HttpRequestToObject<GetCountStockApprovalReportByIDResponseDTO, GetCountStockApprovalReportByIDQuery>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/approval-history-detail"), query);
     }
 }
 

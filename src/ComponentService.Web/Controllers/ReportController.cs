@@ -5,9 +5,12 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Common.Models.UI;
 using CYRetailIMS.Application.ExternalService.BranchAPI;
+using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.ExternalService.ItemBrandAPI;
 using CYRetailIMS.Application.ExternalService.ReportAPI;
 using CYRetailIMS.Application.ExternalService.SubItemTypeAPI;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReport.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReportByID.v1;
 using CYRetailIMS.Application.Services.BranchService.Queries.GetBranchByID.v1;
 using CYRetailIMS.Application.Services.ReportService.Commands.CreateAuditReport.v1;
 using CYRetailIMS.Application.Services.ReportService.Queries.AuditReport.v1;
@@ -28,6 +31,7 @@ using CYRetailIMS.Application.Services.ReportService.Queries.TransactionDeletion
 using CYRetailIMS.Application.Services.SubItemTypeService.Queries.GetSubItemTypeList.v1;
 using CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize;
 using CYRetailIMS.Infrastructure.Common.Extensions;
+using OfficeOpenXml;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Operations;
@@ -38,16 +42,18 @@ namespace CYRetailIMS.ComponentService.Web.Controllers;
 public class ReportController : BaseController
 {
     private readonly IReportAPI _reportAPI;
+    private readonly ICountStockAPI _countStockAPI;
     private readonly IBranchAPI _branchAPI;
     private readonly ISubItemTypeAPI _subItemTypeAPI;
     private readonly IItemBrandAPI _itemBrandAPI;
 
     public ReportController(IHttpClientRequest httpClientRequest, IMapper mapper, ILog4NetLogger log,
-        IReportAPI reportAPI, IBranchAPI branchAPI,
+        IReportAPI reportAPI, ICountStockAPI countStockAPI, IBranchAPI branchAPI,
         ISubItemTypeAPI subItemTypeAPI,
         IItemBrandAPI itemBrandAPI) : base(httpClientRequest, mapper, log)
     {
         _reportAPI = reportAPI;
+        _countStockAPI = countStockAPI;
         _branchAPI = branchAPI;
         _subItemTypeAPI = subItemTypeAPI;
         _itemBrandAPI = itemBrandAPI;
@@ -146,6 +152,35 @@ public class ReportController : BaseController
         ViewBag.SubItemTypeList = await PrepareSelectSubItemType();
 
         return View();
+    }
+
+    /// <summary>
+    /// รายงานประวัติการอนุมัตินับสต๊อก (เฉพาะ Admin)
+    /// </summary>
+    [CustomAuthorize(RoleName.Admin)]
+    public async Task<IActionResult> CountStockApprovalReport()
+    {
+        ViewBag.BranchList = await PrepareSelectBranch();
+        return View("~/Views/Stock/CountStockApprovalReport.cshtml");
+    }
+
+    /// <summary>
+    /// รายละเอียดราย transaction ของรายงานอนุมัตินับสต๊อก
+    /// </summary>
+    [CustomAuthorize(RoleName.Admin)]
+    public async Task<IActionResult> CountStockApprovalReportDetail(int countstockid)
+    {
+        var result = await _countStockAPI.GetCountStockApprovalReportByIDAsync(new GetCountStockApprovalReportByIDQuery
+        {
+            countstockid = countstockid
+        });
+
+        if (!result.result || result.data == null)
+        {
+            return RedirectToAction(nameof(CountStockApprovalReport));
+        }
+
+        return View("~/Views/Stock/CountStockApprovalReportDetail.cshtml", result.data);
     }
 
     /// <summary>
@@ -251,6 +286,113 @@ public class ReportController : BaseController
         {
             return Json(new { data = new List<SaleReportResponseDTO>(), recordsTotal = 0, recordsFiltered = 0 });
         }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetCountStockApprovalReport([FromBody] SearchCountStockApprovalReportViewModel? searchItem)
+    {
+        int draw = searchItem?.draw ?? 1;
+
+        if (searchItem == null)
+        {
+            return Json(new { draw, recordsTotal = 0, recordsFiltered = 0, data = new List<object>() });
+        }
+
+        try
+        {
+            DateTime? approvedStart = !string.IsNullOrWhiteSpace(searchItem.startdate) ? searchItem.startdate.DatetimePickerToDate() : null;
+            DateTime? approvedEnd = !string.IsNullOrWhiteSpace(searchItem.enddate) ? searchItem.enddate.DatetimePickerToDate() : null;
+
+            var result = await _countStockAPI.GetCountStockApprovalReportAsync(new GetCountStockApprovalReportQuery
+            {
+                branchid = searchItem.branchid,
+                startdate = approvedStart,
+                enddate = approvedEnd,
+                startrow = searchItem.start,
+                pagesize = searchItem.length,
+                searchvalue = searchItem.searchValue,
+                isexportalldata = false
+            });
+
+            if (!result.result || result.data == null)
+            {
+                return Json(new { draw, recordsTotal = 0, recordsFiltered = 0, data = new List<object>() });
+            }
+
+            return Json(new
+            {
+                draw,
+                recordsTotal = result.data.totalrow,
+                recordsFiltered = result.data.totalrow,
+                data = result.data.transactiondata
+            });
+        }
+        catch
+        {
+            return Json(new { draw, recordsTotal = 0, recordsFiltered = 0, data = new List<object>() });
+        }
+    }
+
+    [HttpGet]
+    [CustomAuthorize(RoleName.Admin)]
+    public async Task<IActionResult> ExportCountStockApprovalReportExcel(string? startdate, string? enddate, int? branchid)
+    {
+        DateTime? approvedStart = !string.IsNullOrWhiteSpace(startdate) ? startdate.DatetimePickerToDate() : null;
+        DateTime? approvedEnd = !string.IsNullOrWhiteSpace(enddate) ? enddate.DatetimePickerToDate() : null;
+
+        var result = await _countStockAPI.GetCountStockApprovalReportAsync(new GetCountStockApprovalReportQuery
+        {
+            branchid = branchid,
+            startdate = approvedStart,
+            enddate = approvedEnd,
+            startrow = 0,
+            pagesize = 0,
+            searchvalue = null,
+            isexportalldata = true
+        });
+
+        var reportRows = result.data?.transactiondata ?? new List<GetCountStockApprovalReportItemDTO>();
+        if (!result.result || !reportRows.Any())
+        {
+            return NotFound("ไม่พบข้อมูลรายงานอนุมัตินับสต๊อก");
+        }
+
+        using var package = new ExcelPackage();
+        var ws = package.Workbook.Worksheets.Add("Approval CountStock");
+
+        string[] headers =
+        {
+            "เลขที่นับสต๊อก", "วันที่นับ", "สาขา", "ผู้นับ", "ผู้อนุมัติ", "วันที่อนุมัติ",
+            "จำนวนรายการ", "รวมก่อนปรับ", "รวมหลังปรับ", "ผลต่าง"
+        };
+
+        for (int c = 0; c < headers.Length; c++)
+        {
+            ws.Cells[1, c + 1].Value = headers[c];
+        }
+
+        int row = 2;
+        foreach (var d in reportRows)
+        {
+            ws.Cells[row, 1].Value = d.countstockid;
+            ws.Cells[row, 2].Value = d.countstockdate;
+            ws.Cells[row, 2].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+            ws.Cells[row, 3].Value = d.branchname;
+            ws.Cells[row, 4].Value = d.counterrole;
+            ws.Cells[row, 5].Value = d.approvedby;
+            ws.Cells[row, 6].Value = d.approveddate;
+            ws.Cells[row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+            ws.Cells[row, 7].Value = d.totalitems;
+            ws.Cells[row, 8].Value = d.totalqtybefore;
+            ws.Cells[row, 9].Value = d.totalqtyafter;
+            ws.Cells[row, 10].Value = d.totaladjustedqty;
+            row++;
+        }
+
+        ws.Cells.AutoFitColumns();
+        var bytes = package.GetAsByteArray();
+        string fileName = $"CountStockApprovalReport_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
     [HttpGet]

@@ -25,6 +25,8 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountSto
 using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReport.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReportByID.v1;
 using System.Globalization;
 using OfficeOpenXml;
 using CreateCountStockCommandV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockCommand;
@@ -457,6 +459,24 @@ public class StockController : BaseController
         return View();
     }
 
+    /// <summary>
+    /// รายงานประวัติการอนุมัตินับสต๊อก (เฉพาะ Admin)
+    /// </summary>
+    [CustomAuthorize(RoleName.Admin)]
+    public IActionResult CountStockApprovalReport()
+    {
+        return RedirectToAction("CountStockApprovalReport", "Report");
+    }
+
+    /// <summary>
+    /// รายละเอียดราย transaction ของรายงานอนุมัตินับสต๊อก
+    /// </summary>
+    [CustomAuthorize(RoleName.Admin)]
+    public IActionResult CountStockApprovalReportDetail(int countstockid)
+    {
+        return RedirectToAction("CountStockApprovalReportDetail", "Report", new { countstockid });
+    }
+
     #endregion
 
     #region New Count Stock HTTP Methods
@@ -523,6 +543,44 @@ public class StockController : BaseController
 
             var items = filtered.Skip(searchItem.start).Take(searchItem.length).ToList();
             return Json(new { draw = searchItem.draw, recordsTotal = filtered.Count, recordsFiltered = filtered.Count, data = items });
+        }
+        catch
+        {
+            return Json(new { draw = searchItem.draw, recordsTotal = 0, recordsFiltered = 0, data = new List<object>() });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetCountStockApprovalReport([FromBody] SearchCountStockApprovalReportViewModel searchItem)
+    {
+        try
+        {
+            DateTime? approvedStart = ParseDate(searchItem.startdate);
+            DateTime? approvedEnd = ParseDate(searchItem.enddate);
+
+            var result = await _countStockAPI.GetCountStockApprovalReportAsync(new GetCountStockApprovalReportQuery
+            {
+                branchid = searchItem.branchid,
+                startdate = approvedStart,
+                enddate = approvedEnd,
+                startrow = searchItem.start,
+                pagesize = searchItem.length,
+                searchvalue = searchItem.searchValue,
+                isexportalldata = false
+            });
+
+            if (!result.result || result.data == null)
+            {
+                return Json(new { draw = searchItem.draw, recordsTotal = 0, recordsFiltered = 0, data = new List<object>() });
+            }
+
+            return Json(new
+            {
+                draw = searchItem.draw,
+                recordsTotal = result.data.totalrow,
+                recordsFiltered = result.data.totalrow,
+                data = result.data.transactiondata
+            });
         }
         catch
         {
@@ -621,6 +679,13 @@ public class StockController : BaseController
         var bytes    = package.GetAsByteArray();
         string name  = $"CountStock_{data.branchname}_{data.countstockdate:yyyyMMdd}.xlsx";
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", name);
+    }
+
+    [HttpGet]
+    [CustomAuthorize(RoleName.Admin)]
+    public async Task<IActionResult> ExportCountStockApprovalReportExcel(string? startdate, string? enddate, int? branchid)
+    {
+        return RedirectToAction("ExportCountStockApprovalReportExcel", "Report", new { startdate, enddate, branchid });
     }
 
     [HttpPost]

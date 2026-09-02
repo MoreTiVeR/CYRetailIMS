@@ -1,0 +1,126 @@
+@model CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReportByID.v1.GetCountStockApprovalReportByIDResponseDTO
+
+@{
+    ViewData["Title"] = "รายละเอียดอนุมัตินับสต๊อก";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>รายละเอียดอนุมัตินับสต๊อก</h4>
+        <h6>เลขที่นับสต๊อก: @Model.countstockid</h6>
+    </div>
+    <div class="page-btn">
+        <a asp-controller="Report" asp-action="CountStockApprovalReport" class="btn btn-secondary me-1">ย้อนกลับ</a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>สาขา:</strong> @Model.branchname
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>วันที่นับ:</strong> @Model.countstockdate.ToString("dd/MM/yyyy HH:mm")
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>ผู้นับ:</strong> @Model.counterrole
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>ผู้อนุมัติ:</strong> @Model.approvedby
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>วันที่อนุมัติ:</strong> @Model.approveddate.ToString("dd/MM/yyyy HH:mm")
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>รวมก่อนปรับ:</strong> @Model.totalqtybefore
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>รวมหลังปรับ:</strong> @Model.totalqtyafter
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12 mb-2">
+                <strong>ผลต่างสุทธิ:</strong> @Model.totaladjustedqty
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.remark))
+            {
+                <div class="col-12 mb-2">
+                    <strong>หมายเหตุ:</strong> @Model.remark
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="tbCountStockApprovalReportDetail" class="table">
+                <thead>
+                    <tr>
+                        <th>รหัสสินค้า</th>
+                        <th>ชื่อสินค้า</th>
+                        <th>ประเภทย่อย</th>
+                        <th class="text-right">สต๊อกตอนนับ</th>
+                        <th class="text-right">ก่อนปรับ</th>
+                        <th class="text-right">หลังปรับ</th>
+                        <th class="text-right">ยอดนับได้</th>
+                        <th class="text-right">รอเติม</th>
+                        <th class="text-right">ชำรุด</th>
+                        <th class="text-right">ขายก่อนนับ</th>
+                        <th class="text-right">รวมนับได้</th>
+                        <th class="text-right">ขาด/เกิน</th>
+                        <th class="text-right">ผลต่างปรับ</th>
+                        <th>หมายเหตุรายการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.detail)
+                    {
+                        <tr>
+                            <td>@d.itemcode</td>
+                            <td>@d.itemname</td>
+                            <td>@d.subitemcode</td>
+                            <td class="text-right">@d.qtyinbranchofcountstockday</td>
+                            <td class="text-right">@d.qtyinbranchbeforeapprove</td>
+                            <td class="text-right">@d.qtyinbranchafterapprove</td>
+                            <td class="text-right">@d.countedamountqty</td>
+                            <td class="text-right">@d.pendingrestockqty</td>
+                            <td class="text-right">@d.damagedqty</td>
+                            <td class="text-right">@d.salebeforecountqty</td>
+                            <td class="text-right">@d.totalcountqty</td>
+                            <td class="text-right">@d.shortagesurplusqty</td>
+                            <td class="text-right">@d.adjustedqty</td>
+                            <td>@d.itemremark</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#tbCountStockApprovalReportDetail').DataTable({
+                paging: true,
+                pageLength: 30,
+                ordering: true,
+                bFilter: true,
+                sDom: '<"top"f>rt<"bottom"lpi><"clear">',
+                language: {
+                    search: ' ',
+                    sLengthMenu: '_MENU_',
+                    searchPlaceholder: 'ค้นหา...',
+                    info: '_START_ - _END_ of _TOTAL_ รายการ',
+                    emptyTable: 'ไม่พบข้อมูล',
+                    infoEmpty: 'ไม่พบรายการ',
+                    paginate: { next: 'ถัดไป', previous: 'ก่อนหน้า' }
+                }
+            });
+        });
+    </script>
+}

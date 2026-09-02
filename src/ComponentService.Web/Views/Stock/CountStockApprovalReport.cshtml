@@ -1,0 +1,104 @@
+@{
+    ViewData["Title"] = "รายงานอนุมัตินับสต๊อก";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="page-header">
+    <div class="page-title">
+        <h4>รายงานอนุมัตินับสต๊อก</h4>
+        <h6>เฉพาะรายการที่อนุมัติแล้วจากหน้ารออนุมัติ</h6>
+    </div>
+    <div class="page-btn">
+        <a asp-controller="Stock" asp-action="CountStockPendingApproval" class="btn btn-secondary me-1">กลับหน้ารออนุมัติ</a>
+    </div>
+</div>
+
+<div class="card mb-0">
+    <div class="card-body pb-0">
+        <div class="row">
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group">
+                    <label>สาขา</label>
+                    <select id="ddlReportBranch" class="select2 ddl-select2" asp-items="@(new SelectList(ViewBag.BranchList, "Value", "Text"))">
+                        <option value="">--ทั้งหมด--</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group">
+                    <label>จากวันที่อนุมัติ</label>
+                    <div class="input-groupicon">
+                        <input id="txtApprovedStartDate" type="text" placeholder="จากวันที่" class="datetimepicker">
+                        <div class="addonset">
+                            <img src="~/assets/img/icons/calendars.svg" alt="img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group">
+                    <label>ถึงวันที่อนุมัติ</label>
+                    <div class="input-groupicon">
+                        <input id="txtApprovedEndDate" type="text" placeholder="ถึงวันที่" class="datetimepicker">
+                        <div class="addonset">
+                            <img src="~/assets/img/icons/calendars.svg" alt="img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group" style="text-align:left">
+                    <label>&nbsp;</label>
+                    <a id="btnSearchApprovalReport" class="btn btn-filters" title="ค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="table-top">
+            <div class="search-set">
+                <div class="search-input">
+                    <a class="btn btn-searchset"><img src="~/assets/img/icons/search-white.svg" alt="img"></a>
+                </div>
+            </div>
+            <div class="wordset">
+                <a id="btnExportApprovalReport" class="btn btn-added" title="ดาวน์โหลด Excel">
+                    <img src="~/assets/img/icons/excel.svg" alt="img" class="me-1">ดาวน์โหลด Excel
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tbCountStockApprovalReport" class="table">
+                <thead>
+                    <tr>
+                        <th>เลขที่นับสต๊อก</th>
+                        <th>วันที่นับ</th>
+                        <th>สาขา</th>
+                        <th>ผู้นับ</th>
+                        <th>ผู้อนุมัติ</th>
+                        <th>วันที่อนุมัติ</th>
+                        <th class="text-right">จำนวนรายการ</th>
+                        <th class="text-right">ก่อนปรับ</th>
+                        <th class="text-right">หลังปรับ</th>
+                        <th class="text-right">ผลต่าง</th>
+                        <th class="text-center">รายละเอียด</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="~/js/view/countstock/countstock_approval_report.js" asp-append-version="true"></script>
+}

@@ -141,6 +141,8 @@ public partial class CYDBContext : DbContext
 
     public virtual DbSet<TTCountStocksHistory> TTCountStocksHistories { get; set; }
 
+    public virtual DbSet<TTCountStockApprovalHistory> TTCountStockApprovalHistories { get; set; }
+
     public virtual DbSet<TMReceiveTemplate> TMReceiveTemplates { get; set; }
 
     public virtual DbSet<TMReceiptNumber> TMReceiptNumbers { get; set; }
@@ -611,6 +613,11 @@ public partial class CYDBContext : DbContext
         });
 
         modelBuilder.Entity<TTCountStocksHistory>(entity =>
+        {
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<TTCountStockApprovalHistory>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });

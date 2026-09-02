@@ -22,7 +22,7 @@ public class ApproveCountStockHandler : BaseService, IRequestHandler<ApproveCoun
             .FindWithInclude(
                 w => w.CountStockID == request.countstockid && w.IsActive,
                 i => i.Include(s => s.TTCountStockDetails));
-        TTCountStock countStock = countStockQuery.FirstOrDefault();
+        TTCountStock? countStock = countStockQuery.FirstOrDefault();
 
         if (countStock is null)
             throw new Exception("ไม่พบข้อมูลนับสต๊อก กรุณาลองใหม่อีกครั้ง");
@@ -69,6 +69,7 @@ public class ApproveCountStockHandler : BaseService, IRequestHandler<ApproveCoun
         _unitOfWork.Repository<TTCountStock>().Update(countStock);
 
         var stockAdjustments = new List<TTStockTransaction>();
+        var approvalHistories = new List<TTCountStockApprovalHistory>();
 
         foreach (var detail in countStock.TTCountStockDetails)
         {
@@ -86,11 +87,38 @@ public class ApproveCountStockHandler : BaseService, IRequestHandler<ApproveCoun
                 int inTransit = inTransitQtyByItem.TryGetValue(item.ItemID, out var t) ? t : 0;
                 int adjustedTarget = targetQty + inTransit;
 
+                int beforeQty = item.Qty;
                 int delta = adjustedTarget - item.Qty;
                 item.Qty  = adjustedTarget;
                 item.SetUpdatedBy(request.approvedby);
                 item.SetUpdatedDate();
                 _unitOfWork.Repository<TMItemInBranch>().Update(item);
+
+                approvalHistories.Add(new TTCountStockApprovalHistory
+                {
+                    CountStockID = countStock.CountStockID,
+                    CountStockDetailID = detail.CountStockDetailID,
+                    BranchID = countStock.BranchID,
+                    ItemID = item.ItemID,
+                    SubItemTypeID = detail.SubItemTypeID,
+                    QtyInBranchOfCountStockDay = detail.QtyInBranchOfCountStockDay,
+                    QtyInBranchBeforeApprove = beforeQty,
+                    QtyInBranchAfterApprove = item.Qty,
+                    CountedAmountQty = detail.CountedAmountQty,
+                    PendingReStockQty = detail.PendingReStockQty,
+                    DamagedQty = detail.DamagedQty,
+                    SaleBeforeCountQty = detail.SaleBeforeCountQty,
+                    TotalCountQty = detail.TotalCountQty,
+                    ShortageSurplusQty = detail.ShortageSurplusQty,
+                    ItemRemark = detail.ItemRemark,
+                    CounterRole = countStock.CounterRole ?? "PC",
+                    ApprovedBy = request.approvedby,
+                    CountStockDate = countStock.CountDate,
+                    ApprovedDate = approvedAt,
+                    CreatedBy = request.approvedby,
+                    CreatedDate = approvedAt,
+                    IsActive = true
+                });
 
                 // Audit: record stock adjustment transaction
                 if (delta != 0)
@@ -135,12 +163,39 @@ public class ApproveCountStockHandler : BaseService, IRequestHandler<ApproveCoun
                         share += inTransit;
 
                     share = Math.Max(0, share);
+                    int beforeQty = item.Qty;
                     int delta = share - item.Qty;
                     item.Qty = share;
                     item.SetUpdatedBy(request.approvedby);
                     item.SetUpdatedDate();
                     _unitOfWork.Repository<TMItemInBranch>().Update(item);
                     distributed += (share - inTransit);
+
+                    approvalHistories.Add(new TTCountStockApprovalHistory
+                    {
+                        CountStockID = countStock.CountStockID,
+                        CountStockDetailID = detail.CountStockDetailID,
+                        BranchID = countStock.BranchID,
+                        ItemID = item.ItemID,
+                        SubItemTypeID = detail.SubItemTypeID,
+                        QtyInBranchOfCountStockDay = detail.QtyInBranchOfCountStockDay,
+                        QtyInBranchBeforeApprove = beforeQty,
+                        QtyInBranchAfterApprove = item.Qty,
+                        CountedAmountQty = detail.CountedAmountQty,
+                        PendingReStockQty = detail.PendingReStockQty,
+                        DamagedQty = detail.DamagedQty,
+                        SaleBeforeCountQty = detail.SaleBeforeCountQty,
+                        TotalCountQty = detail.TotalCountQty,
+                        ShortageSurplusQty = detail.ShortageSurplusQty,
+                        ItemRemark = detail.ItemRemark,
+                        CounterRole = countStock.CounterRole ?? "PC",
+                        ApprovedBy = request.approvedby,
+                        CountStockDate = countStock.CountDate,
+                        ApprovedDate = approvedAt,
+                        CreatedBy = request.approvedby,
+                        CreatedDate = approvedAt,
+                        IsActive = true
+                    });
 
                     if (delta != 0)
                     {
@@ -158,6 +213,9 @@ public class ApproveCountStockHandler : BaseService, IRequestHandler<ApproveCoun
                 }
             }
         }
+
+        if (approvalHistories.Any())
+            await _unitOfWork.Repository<TTCountStockApprovalHistory>().AddRangeAsync(approvalHistories);
 
         if (stockAdjustments.Any())
             await _unitOfWork.Repository<TTStockTransaction>().AddRangeAsync(stockAdjustments);

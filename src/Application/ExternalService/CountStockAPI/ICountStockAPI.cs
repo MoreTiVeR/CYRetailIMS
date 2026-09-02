@@ -12,6 +12,8 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountSto
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReport.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReportByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStocks.v1;
@@ -47,5 +49,15 @@ public interface ICountStockAPI
     /// ดึงข้อมูลเปรียบเทียบสต๊อก (หน้าเทียบข้อมูล)
     /// </summary>
     Task<BaseResponse<List<GetCountStockComparisonResponseDTO>>> GetCountStockComparisonAsync(GetCountStockComparisonQuery query);
+
+    /// <summary>
+    /// รายงานรายการอนุมัตินับสต๊อก (Index)
+    /// </summary>
+    Task<BaseResponse<GetCountStockApprovalReportResponseDTO>> GetCountStockApprovalReportAsync(GetCountStockApprovalReportQuery query);
+
+    /// <summary>
+    /// รายงานรายละเอียดอนุมัตินับสต๊อก (By CountStockID)
+    /// </summary>
+    Task<BaseResponse<GetCountStockApprovalReportByIDResponseDTO>> GetCountStockApprovalReportByIDAsync(GetCountStockApprovalReportByIDQuery query);
 }
 

@@ -5,6 +5,8 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountSto
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReport.v1;
+using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockApprovalReportByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByBranchID.v1;
@@ -178,6 +180,36 @@ public class CountStockController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]GetCountStockComparisonAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/approval-history")]
+    [ProducesResponseType(typeof(GetCountStockApprovalReportResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetCountStockApprovalHistoryAsync(GetCountStockApprovalReportQuery query)
+    {
+        BaseResponse<GetCountStockApprovalReportResponseDTO> res = await Mediator.Send(query);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetCountStockApprovalHistoryAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/approval-history-detail")]
+    [ProducesResponseType(typeof(GetCountStockApprovalReportByIDResponseDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetCountStockApprovalHistoryDetailAsync(GetCountStockApprovalReportByIDQuery query)
+    {
+        BaseResponse<GetCountStockApprovalReportByIDResponseDTO> res = await Mediator.Send(query);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]GetCountStockApprovalHistoryDetailAsync Success");
         return Ok(res.data);
     }
 }

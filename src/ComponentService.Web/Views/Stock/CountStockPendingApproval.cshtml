@@ -12,6 +12,10 @@
 		<h6>รายการนับสต๊อกที่ส่งมารอการอนุมัติ</h6>
 	</div>
 	<div class="page-btn">
+		@if (isAdmin)
+		{
+			<a asp-controller="Report" asp-action="CountStockApprovalReport" class="btn btn-added me-1">รายงานอนุมัติ</a>
+		}
 		<a asp-controller="Stock" asp-action="Index" class="btn btn-secondary me-1">ย้อนกลับ</a>
 	</div>
 </div>
@@ -65,6 +69,7 @@
 			</div>
 			<div class="col-lg-3 col-sm-6 col-12">
 				<div class="form-group" style="text-align: left">
+					<label>&nbsp;</label>
 					<a id="btnSearchApproval" class="btn btn-filters" title="ค้นหา"><img src="~/assets/img/icons/search-whites.svg" alt="img"></a>
 				</div>
 			</div>

@@ -45,3 +45,17 @@ public class ApproveCountStockViewModel
 {
     public int CountStockID { get; set; }
 }
+
+/// <summary>
+/// Search model for count stock approval report (index)
+/// </summary>
+public class SearchCountStockApprovalReportViewModel
+{
+    public int? branchid { get; set; }
+    public string? startdate { get; set; }
+    public string? enddate { get; set; }
+    public int draw { get; set; }
+    public int start { get; set; }
+    public int length { get; set; }
+    public string? searchValue { get; set; }
+}
