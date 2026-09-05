@@ -213,7 +213,7 @@ $(document).ready(function () {
             text: 'รายการนับสต๊อกนี้จะถูกยกเลิกและไม่สามารถนำไปอนุมัติได้',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'ยืนยันการยกเลิก',
+            confirmButtonText: 'ยืนยัน',
             cancelButtonText: 'กลับ',
             confirmButtonColor: '#dc2626'
         }).then(function (result) {
