@@ -13,6 +13,11 @@ public class GetCountStockComparisonQuery : IRequest<BaseResponse<List<GetCountS
     public string? subitemtypename { get; init; }
 
     /// <summary>
+    /// true=ใช้เฉพาะรายการจากหน้าบันทึกแบบใหม่ (detail มี ItemID), false=เฉพาะรายการเก่า, null=ทั้งหมด
+    /// </summary>
+    public bool? isnewentryonly { get; init; }
+
+    /// <summary>
     /// วันที่เริ่มต้นสำหรับยอดขาย/สินค้าเข้า/สินค้าออก
     /// </summary>
     public DateTime? salesstartdate { get; init; }

@@ -5,6 +5,7 @@ namespace CYRetailIMS.Application.Services.CountStockService.Queries.GetCountSto
 /// </summary>
 public class GetCountStockComparisonResponseDTO
 {
+    public int itemid { get; set; }
     public string itemcode { get; set; }
     public string itemname { get; set; }
     public DateTime? comparedate { get; set; }

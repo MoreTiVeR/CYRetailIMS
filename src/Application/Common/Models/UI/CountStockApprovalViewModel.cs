@@ -7,6 +7,7 @@ public class SearchPendingApprovalViewModel
 {
     public string? counterrole { get; set; }
     public int? statuscid { get; set; }
+    public bool? isnewentryonly { get; set; }
     public int draw { get; set; }
     public int start { get; set; }
     public int length { get; set; }

@@ -35,6 +35,20 @@ public class GetCountStockComparisonHandler : BaseService,
                 w => w.BranchID == request.branchid && w.IsActive,
                 i => i.Include(s => s.TTCountStockDetails));
 
+        if (request.isnewentryonly.HasValue)
+        {
+            if (request.isnewentryonly.Value)
+            {
+                countStocksQuery = countStocksQuery.Where(w =>
+                    w.TTCountStockDetails.Any(d => d.ItemID.HasValue && d.ItemID.Value > 0));
+            }
+            else
+            {
+                countStocksQuery = countStocksQuery.Where(w =>
+                    !w.TTCountStockDetails.Any(d => d.ItemID.HasValue && d.ItemID.Value > 0));
+            }
+        }
+
         if (request.auditstartdate.HasValue)
             countStocksQuery = countStocksQuery.Where(w => w.CountDate >= request.auditstartdate.Value);
         if (request.auditenddate.HasValue)
@@ -153,6 +167,7 @@ public class GetCountStockComparisonHandler : BaseService,
 
             return new GetCountStockComparisonResponseDTO
             {
+                itemid           = itemId,
                 itemcode         = item.Item.ItemCode,
                 itemname         = item.Item.Name,
                 comparedate      = compareDate,

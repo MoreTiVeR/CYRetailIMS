@@ -16,7 +16,7 @@ using CYRetailIMS.Application.Services.TransactionService.Queries.GetTransaction
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.SaleArea)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.PcSupervisor)]
 public class TransactionsController : BaseController
 {
     private readonly ITransactionAPI _transactionAPI;

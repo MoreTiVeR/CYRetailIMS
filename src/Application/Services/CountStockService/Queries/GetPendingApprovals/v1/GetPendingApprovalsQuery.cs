@@ -19,4 +19,9 @@ public class GetPendingApprovalsQuery : IRequest<BaseResponse<List<GetPendingApp
     /// Filter by status: 0=Draft,1=Submitted,2=Approved, null=all submitted+approved
     /// </summary>
     public int? statuscid { get; init; }
+
+    /// <summary>
+    /// true=เฉพาะรายการจากหน้าบันทึกแบบใหม่ (มี ItemID ใน detail), false=เฉพาะรายการเก่า, null=ทั้งหมด
+    /// </summary>
+    public bool? isnewentryonly { get; init; }
 }

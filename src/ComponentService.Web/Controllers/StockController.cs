@@ -36,7 +36,7 @@ using CreateCountStockDetailV2 = CYRetailIMS.Application.Services.CountStockServ
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.SaleArea, RoleName.Stock, RoleName.Sale)]
+[CustomAuthorize(RoleName.Admin, RoleName.PcSupervisor, RoleName.Stock, RoleName.Sale)]
 public class StockController : BaseController
 {
     private readonly ICountStockAPI _countStockAPI;
@@ -282,7 +282,8 @@ public class StockController : BaseController
         var pendingDrafts = await _countStockAPI.GetPendingApprovalsAsync(new GetPendingApprovalsQuery
         {
             counterrole = currentCounterRole,
-            statuscid = 0
+            statuscid = 0,
+            isnewentryonly = true
         });
 
         if (pendingDrafts.result && pendingDrafts.data != null)
@@ -428,7 +429,7 @@ public class StockController : BaseController
     /// <summary>
     /// หน้านับสต๊อก (แบบใหม่) — PC และ HeadPC กรอกข้อมูลนับสต๊อก
     /// </summary>
-    [CustomAuthorize(RoleName.Sale, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Sale, RoleName.PcSupervisor)]
     public async Task<IActionResult> NewCountStockEntry()
     {
         ViewBag.ItemTypeList = await PrepareSelectSubItemType();
@@ -441,7 +442,7 @@ public class StockController : BaseController
     /// <summary>
     /// หน้าเทียบข้อมูล — เปรียบเทียบสต๊อกระบบกับยอดที่นับได้
     /// </summary>
-    [CustomAuthorize(RoleName.Admin, RoleName.Stock, RoleName.SaleArea, RoleName.Sale)]
+    [CustomAuthorize(RoleName.Admin, RoleName.Stock, RoleName.PcSupervisor, RoleName.Sale)]
     public async Task<IActionResult> CountStockCompare()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
@@ -452,7 +453,7 @@ public class StockController : BaseController
     /// <summary>
     /// หน้ารออนุมัติ — รายการที่ส่งมารออนุมัติ, Admin กดอนุมัติได้เฉพาะรายการ HeadPC
     /// </summary>
-    [CustomAuthorize(RoleName.Admin, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.PcSupervisor)]
     public IActionResult CountStockPendingApproval()
     {
         ViewBag.IsAdmin = base.UserProfile.roleid == (int)UserRole.Admin;
@@ -528,7 +529,8 @@ public class StockController : BaseController
             var result = await _countStockAPI.GetPendingApprovalsAsync(new GetPendingApprovalsQuery
             {
                 counterrole = searchItem.counterrole,
-                statuscid = searchItem.statuscid
+                statuscid = searchItem.statuscid,
+                isnewentryonly = searchItem.isnewentryonly ?? true
             });
 
             if (!result.result)
@@ -643,17 +645,33 @@ public class StockController : BaseController
         var data   = res.data;
         var detail = data.detail ?? new List<InquiryCountStockByIDDetail>();
 
+        var comparisonRes = await _countStockAPI.GetCountStockComparisonAsync(new GetCountStockComparisonQuery
+        {
+            branchid = data.branchid,
+            auditstartdate = data.countstockdate.Date,
+            auditenddate = data.countstockdate.Date,
+            isnewentryonly = true
+        });
+
+        var compareByItemId = (comparisonRes.result && comparisonRes.data != null)
+            ? comparisonRes.data
+                .Where(w => w.itemid > 0)
+                .GroupBy(g => g.itemid)
+                .ToDictionary(k => k.Key, v => v.First())
+            : new Dictionary<int, GetCountStockComparisonResponseDTO>();
+
         using var package = new ExcelPackage();
         var ws = package.Workbook.Worksheets.Add("นับสต๊อก");
 
         // Title
         ws.Cells[1, 1].Value = $"รายการนับสต๊อก — {data.branchname} — วันที่ {data.countstockdate:dd/MM/yyyy}";
-        ws.Cells[1, 1, 1, 11].Merge = true;
+        ws.Cells[1, 1, 1, 13].Merge = true;
 
         // Headers
         string[] headers = { "รหัสสินค้า", "ชื่อสินค้า", "ประเภทย่อย",
-                              "สต๊อกระบบ", "ยอดนับได้", "รอเติม", "ชำรุด",
-                              "ขายก่อนนับ", "รวมนับได้", "ขาด/เกิน", "หมายเหตุ" };
+                              "สต๊อกระบบ", "ยอดนับจากหัวหน้า PC", "ยอดนับจาก PC(Sale)",
+                              "ยอดนับได้", "รอเติม", "ชำรุด", "ขายก่อนนับ",
+                              "รวมนับได้", "ขาด/เกิน", "หมายเหตุ" };
         for (int c = 0; c < headers.Length; c++)
             ws.Cells[2, c + 1].Value = headers[c];
 
@@ -661,17 +679,20 @@ public class StockController : BaseController
         int row = 3;
         foreach (var d in detail)
         {
+            compareByItemId.TryGetValue(d.itemid, out var compareRow);
             ws.Cells[row, 1].Value  = d.itemcode;
             ws.Cells[row, 2].Value  = d.itemname;
             ws.Cells[row, 3].Value  = d.subitemcode;
             ws.Cells[row, 4].Value  = d.qtyinbranchofstockday;
-            ws.Cells[row, 5].Value  = d.countedqty;
-            ws.Cells[row, 6].Value  = d.waitingtorestock;
-            ws.Cells[row, 7].Value  = d.damaged;
-            ws.Cells[row, 8].Value  = d.soldbeforecount;
-            ws.Cells[row, 9].Value  = d.totalcounted;
-            ws.Cells[row, 10].Value = d.difference;
-            ws.Cells[row, 11].Value = d.itemremark;
+            ws.Cells[row, 5].Value  = compareRow?.headpc_countedqty;
+            ws.Cells[row, 6].Value  = compareRow?.pc_countedqty;
+            ws.Cells[row, 7].Value  = d.countedqty;
+            ws.Cells[row, 8].Value  = d.waitingtorestock;
+            ws.Cells[row, 9].Value  = d.damaged;
+            ws.Cells[row, 10].Value = d.soldbeforecount;
+            ws.Cells[row, 11].Value = d.totalcounted;
+            ws.Cells[row, 12].Value = d.difference;
+            ws.Cells[row, 13].Value = d.itemremark;
             row++;
         }
 

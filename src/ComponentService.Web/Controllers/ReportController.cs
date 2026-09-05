@@ -66,7 +66,7 @@ public class ReportController : BaseController
 
     #region Main Action
 
-    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
     public async Task<IActionResult> SaleReport()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
@@ -88,7 +88,7 @@ public class ReportController : BaseController
     /// สรุปยอดรวมประจำวัน ของแต่ละสาขา 1 สาขามี 1 รายการ /1วัน
     /// </summary>
     /// <returns></returns>
-    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
     public async Task<IActionResult> SaleSummaryReport()
     {
         ViewBag.BranchList = await PrepareSelectBranch();
@@ -100,7 +100,7 @@ public class ReportController : BaseController
     /// รายงานตั้งแต่วันที่ 1 ของเดือน ถึง end of month
     /// </summary>
     /// <returns></returns>
-    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
     public IActionResult AuditReport()
     {
         return View();
@@ -111,7 +111,7 @@ public class ReportController : BaseController
     /// รายงานแสดงสินค้าขั้นต่ำ
     /// </summary>
     /// <returns></returns>
-    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
     public async Task<IActionResult> ItemQtyReport()
     {
         BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
@@ -123,7 +123,7 @@ public class ReportController : BaseController
     /// รายงานปรับราคาสินค้าหน้าร้าน
     /// </summary>
     /// <returns></returns>
-    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
     public async Task<IActionResult> ItemTransactionReport()
     {
         BaseResponse<List<GetBranchResponseDTO>> resBranchList = await _branchAPI.GetBranchListAsync();
@@ -131,7 +131,7 @@ public class ReportController : BaseController
         return View();
     }
 
-    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
     public async Task<IActionResult> InventoryReport()
     {
         BaseResponse<List<InventoryReportResponseDTO>> resData = await _reportAPI.GetInventoryReportAsync(new InventoryReportQuery
@@ -187,7 +187,7 @@ public class ReportController : BaseController
     /// รายงานสินค้าโอนขาด
     /// </summary>
     /// <returns></returns>
-    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.SaleArea)]
+    [CustomAuthorize(RoleName.Admin, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
     public async Task<IActionResult> ItemTransferShortageReport()
     {
         ViewBag.BranchList = await PrepareSelectBranch();

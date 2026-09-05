@@ -36,6 +36,20 @@ public class GetPendingApprovalsHandler : BaseService, IRequestHandler<GetPendin
             countStockQuery = countStockQuery.Where(w => w.CounterRole == request.counterrole);
         }
 
+        if (request.isnewentryonly.HasValue)
+        {
+            if (request.isnewentryonly.Value)
+            {
+                countStockQuery = countStockQuery.Where(w =>
+                    w.TTCountStockDetails.Any(d => d.ItemID.HasValue && d.ItemID.Value > 0));
+            }
+            else
+            {
+                countStockQuery = countStockQuery.Where(w =>
+                    !w.TTCountStockDetails.Any(d => d.ItemID.HasValue && d.ItemID.Value > 0));
+            }
+        }
+
         IQueryable<TMBranch> branchQuery = await _unitOfWork.Repository<TMBranch>().QueryAsync();
 
         var result = (from cs in countStockQuery
@@ -49,6 +63,7 @@ public class GetPendingApprovalsHandler : BaseService, IRequestHandler<GetPendin
                           branchid = cs.BranchID,
                           branchname = branch != null ? branch.BranchName : string.Empty,
                           counterrole = cs.CounterRole ?? "PC",
+                          isnewentry = cs.TTCountStockDetails.Any(d => d.ItemID.HasValue && d.ItemID.Value > 0),
                           createdby = cs.CreatedBy,
                           counterstockstatusid = cs.CountStockStatusID,
                           approvedby = cs.ApprovedBy,

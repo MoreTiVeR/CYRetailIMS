@@ -38,6 +38,7 @@ $(document).ready(function () {
             data: JSON.stringify({
                 counterrole: counterRole,
                 statuscid: statusId,
+                isnewentryonly: true,
                 draw: 1, start: 0, length: 9999, searchValue: ''
             }),
             success: function (res) {
@@ -119,10 +120,11 @@ $(document).ready(function () {
                 className: 'text-center',
                 render: function (d, t, row) {
                     if (row.counterrole === 'HeadPC' && row.counterstockstatusid === 1) {
-                        return '<a class="btn btn-sm btn-added btn-approve" data-id="' + row.countstockid + '" href="javascript:void(0);">อนุมัติ</a>';
+                        return '<a class="btn btn-sm btn-added btn-approve" data-id="' + row.countstockid + '" href="javascript:void(0);" title="อนุมัติ">'
+                             + '<i class="bx bx-check-circle" aria-hidden="true"></i></a>';
                     }
                     if (row.counterstockstatusid === 2) {
-                        return '<span class="badges bg-lightgreen">อนุมัติแล้ว</span>';
+                        return '<span class="badges bg-lightgreen" title="อนุมัติแล้ว"><i class="bx bx-check-double" aria-hidden="true"></i></span>';
                     }
                     return '<span class="text-muted">-</span>';
                 }

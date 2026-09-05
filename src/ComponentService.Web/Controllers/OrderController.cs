@@ -30,7 +30,7 @@ using static CYRetailIMS.ComponentService.Web.Common.Infrasructure.Authorize.Cus
 
 namespace CYRetailIMS.ComponentService.Web.Controllers;
 
-[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AccountingOfficer, RoleName.SaleArea)]
+[CustomAuthorize(RoleName.Admin, RoleName.Sale, RoleName.AccountingOfficer, RoleName.PcSupervisor)]
 public class OrderController : BaseController
 {
     private readonly IPurchaseOrderAPI _purchaseOrderAPI;

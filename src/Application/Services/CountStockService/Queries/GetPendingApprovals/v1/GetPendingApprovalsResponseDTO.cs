@@ -16,6 +16,16 @@ public class GetPendingApprovalsResponseDTO
     public string counterrole { get; set; }
 
     /// <summary>
+    /// true = รายการจาก NewCountStockEntry, false = รายการนับสต๊อกแบบเก่า
+    /// </summary>
+    public bool isnewentry { get; set; }
+
+    /// <summary>
+    /// ชนิดการนับ: NewCountStockEntry หรือ LegacyCountStock
+    /// </summary>
+    public string countstockentrytype => isnewentry ? "NewCountStockEntry" : "LegacyCountStock";
+
+    /// <summary>
     /// ชื่อผู้นับ
     /// </summary>
     public string createdby { get; set; }
