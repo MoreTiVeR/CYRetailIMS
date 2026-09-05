@@ -118,25 +118,40 @@ $(document).ready(function () {
             columns.push({
                 data: null,
                 className: 'text-center',
+                orderable: false,
+                searchable: false,
                 render: function (d, t, row) {
-                    if (isHeadPcRole(row.counterrole) && row.counterstockstatusid === 1) {
-                        return '<button type="button" class="btn btn-sm btn-primary btn-approve" ' +
+
+                    // แสดงปุ่มดำเนินการเฉพาะรายการที่สถานะ = รออนุมัติ (1)
+                    if (row.counterstockstatusid !== 1) {
+                        return '<span class="text-muted">-</span>';
+                    }
+
+                    var html = '<div class="stock-action-group">';
+
+                    // ── อนุมัติ (เฉพาะรายการที่ส่งโดยหัวหน้า PC) ──
+                    if (isHeadPcRole(row.counterrole)) {
+                        html +=
+                            '<button type="button" ' +
+                            'class="stock-action stock-action-approve btn-approve" ' +
                             'data-id="' + row.countstockid + '" ' +
-                            'title="อนุมัติ">' +
+                            'title="อนุมัติ" aria-label="อนุมัติ">' +
                             '<i class="fe fe-check-circle" aria-hidden="true"></i>' +
-                            '<span>อนุมัติ</span>' +
                             '</button>';
                     }
 
-                    if (row.counterstockstatusid === 2) {
-                        return '<button type="button" class="btn btn-sm btn-success btn-approved" disabled ' +
-                            'title="อนุมัติแล้ว">' +
-                            '<i class="fe fe-check" aria-hidden="true"></i>' +
-                            '<span>อนุมัติแล้ว</span>' +
-                            '</button>';
-                    }
+                    // ── ลบ (ยกเลิกรายการ → อัปเดตสถานะเป็น 0) ──
+                    html +=
+                        '<button type="button" ' +
+                        'class="stock-action stock-action-cancel btn-cancel-stock" ' +
+                        'data-id="' + row.countstockid + '" ' +
+                        'title="ลบ" aria-label="ลบ">' +
+                        '<i class="fe fe-trash-2" aria-hidden="true"></i>' +
+                        '</button>';
 
-                    return '<span class="text-muted">-</span>';
+                    html += '</div>';
+
+                    return html;
                 }
             });
         }
