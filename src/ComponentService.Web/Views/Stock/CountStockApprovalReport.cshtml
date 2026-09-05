@@ -4,15 +4,83 @@
 }
 
 <link href="~/css/site.css" rel="stylesheet" />
+<style>
+    .btn-detail {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
 
+        min-width: 118px;
+        padding: 7px 12px;
+
+        border-radius: 8px;
+        border: 1px solid #3b82f6;
+
+        background: #eff6ff;
+        color: #2563eb;
+
+        font-weight: 600;
+        font-size: 13px;
+        text-decoration: none;
+
+        transition: all 0.18s ease;
+    }
+
+    .btn-detail:hover,
+    .btn-detail:focus {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff !important;
+
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
+        transform: translateY(-1px);
+    }
+
+    .btn-detail:hover .fe,
+    .btn-detail:focus .fe {
+        color: #ffffff !important;
+    }
+
+    .btn-detail .fe {
+        font-size: 16px;
+        color: inherit;
+    }
+
+    
+	/* =========================
+	Back button
+	========================= */
+
+	.btn-back {
+		background: #ffffff;
+		border: 1px solid #d0d5dd;
+		color: #475467;
+	}
+
+	.btn-back:hover,
+	.btn-back:focus {
+		background: #f9fafb;
+		border-color: #98a2b3;
+		color: #344054;
+
+		transform: translateY(-1px);
+	}
+</style>
 <div class="page-header">
     <div class="page-title">
         <h4>รายงานอนุมัตินับสต๊อก</h4>
         <h6>เฉพาะรายการที่อนุมัติแล้วจากหน้ารออนุมัติ</h6>
     </div>
-    <div class="page-btn">
-        <a asp-controller="Stock" asp-action="CountStockPendingApproval" class="btn btn-secondary me-1">กลับหน้ารออนุมัติ</a>
-    </div>
+    @* <div class="page-btn">
+        <a asp-controller="Stock"
+           asp-action="CountStockPendingApproval"
+           class="btn btn-back">
+            <i class="fe fe-arrow-left"></i>
+            <span>ย้อนกลับ</span>
+        </a>
+    </div> *@
 </div>
 
 <div class="card mb-0">

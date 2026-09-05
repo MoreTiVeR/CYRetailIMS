@@ -78,7 +78,7 @@ $(document).ready(function () {
             {
                 data: 'createdby',
                 render: function (d, t, row) {
-                    var badge = row.counterrole === 'HeadPC'
+                    var badge = isHeadPcRole(row.counterrole)
                         ? '<span class="badges bg-lightpurple">หัวหน้า PC</span>&nbsp;'
                         : '<span class="badges bg-lightblue">PC</span>&nbsp;';
                     return badge + escHtml(d);
@@ -119,13 +119,23 @@ $(document).ready(function () {
                 data: null,
                 className: 'text-center',
                 render: function (d, t, row) {
-                    if (row.counterrole === 'HeadPC' && row.counterstockstatusid === 1) {
-                        return '<a class="btn btn-sm btn-added btn-approve" data-id="' + row.countstockid + '" href="javascript:void(0);" title="อนุมัติ">'
-                             + '<i class="bx bx-check-circle" aria-hidden="true"></i></a>';
+                    if (isHeadPcRole(row.counterrole) && row.counterstockstatusid === 1) {
+                        return '<button type="button" class="btn btn-sm btn-primary btn-approve" ' +
+                            'data-id="' + row.countstockid + '" ' +
+                            'title="อนุมัติ">' +
+                            '<i class="fe fe-check-circle" aria-hidden="true"></i>' +
+                            '<span>อนุมัติ</span>' +
+                            '</button>';
                     }
+
                     if (row.counterstockstatusid === 2) {
-                        return '<span class="badges bg-lightgreen" title="อนุมัติแล้ว"><i class="bx bx-check-double" aria-hidden="true"></i></span>';
+                        return '<button type="button" class="btn btn-sm btn-success btn-approved" disabled ' +
+                            'title="อนุมัติแล้ว">' +
+                            '<i class="fe fe-check" aria-hidden="true"></i>' +
+                            '<span>อนุมัติแล้ว</span>' +
+                            '</button>';
                     }
+
                     return '<span class="text-muted">-</span>';
                 }
             });
@@ -230,5 +240,13 @@ $(document).ready(function () {
     function escHtml(str) {
         if (!str) return '';
         return $('<div>').text(String(str)).html();
+    }
+
+    function isHeadPcRole(role) {
+        if (!role) return false;
+        var normalized = String(role).trim().toLowerCase();
+        return normalized === 'headpc'
+            || normalized === 'pc supervisor'
+            || normalized === 'salearea';
     }
 });

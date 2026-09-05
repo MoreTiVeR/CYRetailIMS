@@ -71,7 +71,12 @@ $(document).ready(function () {
                 className: 'text-center',
                 orderable: false,
                 render: function (d) {
-                    return '<a class="btn btn-sm btn-added" href="/Report/CountStockApprovalReportDetail?countstockid=' + d + '">ดูรายละเอียด</a>';
+                    return '<a class="btn-detail" ' +
+                        'href="/Report/CountStockApprovalReportDetail?countstockid=' + d + '" ' +
+                        'title="ดูรายละเอียด">' +
+                        '<i class="fe fe-eye" aria-hidden="true"></i>' +
+                        '<span>รายละเอียด</span>' +
+                        '</a>';
                 }
             }
         ],

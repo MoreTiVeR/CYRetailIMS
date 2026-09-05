@@ -33,7 +33,23 @@ public class GetPendingApprovalsHandler : BaseService, IRequestHandler<GetPendin
 
         if (!string.IsNullOrEmpty(request.counterrole))
         {
-            countStockQuery = countStockQuery.Where(w => w.CounterRole == request.counterrole);
+            if (request.counterrole == "HeadPC")
+            {
+                countStockQuery = countStockQuery.Where(w =>
+                    w.CounterRole == "HeadPC"
+                    || w.CounterRole == "PC Supervisor"
+                    || w.CounterRole == "SaleArea");
+            }
+            else if (request.counterrole == "PC")
+            {
+                countStockQuery = countStockQuery.Where(w =>
+                    w.CounterRole == "PC"
+                    || w.CounterRole == null);
+            }
+            else
+            {
+                countStockQuery = countStockQuery.Where(w => w.CounterRole == request.counterrole);
+            }
         }
 
         if (request.isnewentryonly.HasValue)
@@ -62,7 +78,11 @@ public class GetPendingApprovalsHandler : BaseService, IRequestHandler<GetPendin
                           countstockdate = cs.CountDate,
                           branchid = cs.BranchID,
                           branchname = branch != null ? branch.BranchName : string.Empty,
-                          counterrole = cs.CounterRole ?? "PC",
+                          counterrole = cs.CounterRole == "HeadPC"
+                              || cs.CounterRole == "PC Supervisor"
+                              || cs.CounterRole == "SaleArea"
+                              ? "HeadPC"
+                              : "PC",
                           isnewentry = cs.TTCountStockDetails.Any(d => d.ItemID.HasValue && d.ItemID.Value > 0),
                           createdby = cs.CreatedBy,
                           counterstockstatusid = cs.CountStockStatusID,

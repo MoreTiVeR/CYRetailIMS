@@ -27,7 +27,13 @@ public class ApproveCountStockHandler : BaseService, IRequestHandler<ApproveCoun
         if (countStock is null)
             throw new Exception("ไม่พบข้อมูลนับสต๊อก กรุณาลองใหม่อีกครั้ง");
 
-        if (countStock.CounterRole != "HeadPC")
+        string counterRole = (countStock.CounterRole ?? string.Empty).Trim();
+        bool isHeadPcRole =
+            counterRole.Equals("HeadPC", StringComparison.OrdinalIgnoreCase)
+            || counterRole.Equals("PC Supervisor", StringComparison.OrdinalIgnoreCase)
+            || counterRole.Equals("SaleArea", StringComparison.OrdinalIgnoreCase);
+
+        if (!isHeadPcRole)
             throw new Exception("ไม่สามารถอนุมัติได้ เนื่องจากรายการนี้ไม่ได้ส่งโดยหัวหน้า PC");
 
         // Load branch items with navigation property (needed for SubItemType fallback)
