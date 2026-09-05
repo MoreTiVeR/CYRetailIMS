@@ -203,6 +203,29 @@ $(document).ready(function () {
         }
     });
 
+    $('#tbPendingApproval').on('click', '.btn-cancel-stock', function (e) {
+        e.preventDefault();
+        var countStockId = parseInt($(this).data('id'));
+        if (!countStockId) return;
+
+        Swal.fire({
+            title: 'ยกเลิกรายการ?',
+            text: 'รายการนับสต๊อกนี้จะถูกยกเลิกและไม่สามารถนำไปอนุมัติได้',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยันการยกเลิก',
+            cancelButtonText: 'กลับ',
+            confirmButtonColor: '#dc2626'
+        }).then(function (result) {
+
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            cancelCountStock(countStockId);
+        });
+    });
+
     var approveInFlight = false;
 
     $('#btnConfirmApprove').on('click', function () {
@@ -251,6 +274,39 @@ $(document).ready(function () {
             }
         });
     });
+
+    function cancelCountStock(countStockId) {
+        ShowLoading();
+        $.ajax({
+            url: '/Stock/CancelCountStockNew',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ CountStockID: countStockId }),
+            success: function (res) {
+                HideLoading();
+                if (res && res.result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ยกเลิกสำเร็จ',
+                        text: res.message || 'รายการถูกยกเลิกเรียบร้อยแล้ว',
+                        confirmButtonText: 'ตกลง'
+                    }).then(function () {
+                        loadApprovals();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ยกเลิกไม่สำเร็จ',
+                        text: (res && res.message) ? res.message : 'ไม่สามารถยกเลิกรายการได้'
+                    });
+                }
+            },
+            error: function () {
+                HideLoading();
+                ShowMessageError('เกิดข้อผิดพลาดในการยกเลิกรายการ');
+            }
+        });
+    }
 
     function escHtml(str) {
         if (!str) return '';

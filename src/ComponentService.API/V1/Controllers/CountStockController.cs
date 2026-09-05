@@ -1,6 +1,7 @@
 ﻿using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CancelCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
@@ -135,6 +136,21 @@ public class CountStockController : BaseApiController
         Response.Headers.Add("responsedatasource", res.soruce);
         Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
         _log.Debug($"[{DateTime.Now}]SubmitCountStockAsync Success");
+        return Ok(res.data);
+    }
+
+    [HttpPost]
+    [Route("v1/cancel")]
+    [ProducesResponseType(typeof(CommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorData), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CancelCountStockAsync(CancelCountStockCommand cancelCountStockCommand)
+    {
+        BaseResponse<CommandResponse> res = await Mediator.Send(cancelCountStockCommand);
+        Response.Headers.Add("responsecode", res.status);
+        Response.Headers.Add("responsedatasource", res.soruce);
+        Response.Headers.Add("responsemessage", res.message?.Replace(Environment.NewLine, string.Empty));
+        _log.Debug($"[{DateTime.Now}]CancelCountStockAsync Success");
         return Ok(res.data);
     }
 

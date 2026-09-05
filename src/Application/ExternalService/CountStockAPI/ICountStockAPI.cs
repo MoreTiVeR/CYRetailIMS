@@ -8,6 +8,7 @@ using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountSt
 using CreateCountStockCommandV1 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v1.CreateCountStockCommand;
 using CreateCountStockCommandV2 = CYRetailIMS.Application.Services.CountStockService.Commands.CreateCountStock.v2.CreateCountStockCommand;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CancelCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetCountStockComparison.v1;
@@ -34,6 +35,11 @@ public interface ICountStockAPI
     /// ส่งข้อมูลนับสต๊อกเพื่อรออนุมัติ (Draft → Submitted)
     /// </summary>
     Task<BaseResponse<CommandResponse>> SubmitCountStockAsync(SubmitCountStockCommand submitCommand);
+
+    /// <summary>
+    /// ยกเลิกรายการรออนุมัติ (Submitted → Draft)
+    /// </summary>
+    Task<BaseResponse<CommandResponse>> CancelCountStockAsync(CancelCountStockCommand cancelCommand);
 
     /// <summary>
     /// อนุมัติการนับสต๊อก (เฉพาะรายการ HeadPC เท่านั้น) และปรับสต๊อกในระบบ

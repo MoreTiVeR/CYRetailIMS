@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using CYRetailIMS.Application.Services.CountStockService.Queries.InquiryCountStockByID.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CancelCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Queries.GetPendingApprovals.v1;
@@ -603,6 +604,29 @@ public class StockController : BaseController
             if (!result.result)
                 return Json(new { result = false, message = result.error?.error?.message ?? "ส่งข้อมูลไม่สำเร็จ" });
             return Json(new { result = true, message = "ส่งข้อมูลนับสต๊อกสำเร็จ" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { result = false, message = $"ขออภัย เกิดข้อผิดพลาด: {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CancelCountStockNew([FromBody] SubmitCountStockViewModel model)
+    {
+        try
+        {
+            if (base.UserProfile.roleid != (int)UserRole.Admin)
+                return Json(new { result = false, message = "ไม่มีสิทธิ์ยกเลิกรายการ" });
+
+            var result = await _countStockAPI.CancelCountStockAsync(new CancelCountStockCommand
+            {
+                countstockid = model.CountStockID,
+                canceledby = base.UserProfile.username
+            });
+            if (!result.result)
+                return Json(new { result = false, message = result.error?.error?.message ?? "ยกเลิกรายการไม่สำเร็จ" });
+            return Json(new { result = true, message = "ยกเลิกรายการนับสต๊อกสำเร็จ" });
         }
         catch (Exception ex)
         {

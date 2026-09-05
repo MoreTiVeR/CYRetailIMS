@@ -7,6 +7,7 @@ using CYRetailIMS.Application.Common.Interfaces;
 using CYRetailIMS.Application.Common.Models;
 using CYRetailIMS.Application.ExternalService.CountStockAPI;
 using CYRetailIMS.Application.Services.CountStockService.Commands.ApproveCountStock.v1;
+using CYRetailIMS.Application.Services.CountStockService.Commands.CancelCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.DeleteCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.SubmitCountStock.v1;
 using CYRetailIMS.Application.Services.CountStockService.Commands.UpdateCountStock.v1;
@@ -73,6 +74,12 @@ public class CountStockAPI : HttpClientService, ICountStockAPI
     {
         return await _httpClientRequest.HttpRequestToObject<CommandResponse, SubmitCountStockCommand>(HttpMethod.Post,
             new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/submit"), submitCommand);
+    }
+
+    public async Task<BaseResponse<CommandResponse>> CancelCountStockAsync(CancelCountStockCommand cancelCommand)
+    {
+        return await _httpClientRequest.HttpRequestToObject<CommandResponse, CancelCountStockCommand>(HttpMethod.Post,
+            new Uri($"{_httpClientRequest.CYApiUrl}/api/v1/stock/v1/cancel"), cancelCommand);
     }
 
     public async Task<BaseResponse<CommandResponse>> ApproveCountStockAsync(ApproveCountStockCommand approveCommand)

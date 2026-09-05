@@ -6,6 +6,26 @@
 }
 
 <link href="~/css/site.css" rel="stylesheet" />
+<style>
+    /* =========================
+	Back button
+	========================= */
+
+	.btn-back {
+		background: #f79009;
+		border: 1px solid #f79009;
+		color: #f7f7f8;
+	}
+
+	.btn-back:hover,
+	.btn-back:focus {
+		background: #f79009;
+		border-color: #f79009;
+		color: #f7f7f8;
+
+		transform: translateY(-1px);
+	}
+</style>
 
 <div class="page-header">
     <div class="page-title">
@@ -13,7 +33,12 @@
         <h6>เลขที่นับสต๊อก: @Model.countstockid</h6>
     </div>
     <div class="page-btn">
-        <a asp-controller="Report" asp-action="CountStockApprovalReport" class="btn btn-secondary me-1">ย้อนกลับ</a>
+        <a asp-controller="Stock"
+           asp-action="CountStockApprovalReport"
+           class="btn btn-back">
+            <i class="fe fe-arrow-left"></i>
+            <span>ย้อนกลับ</span>
+        </a>
     </div>
 </div>
 
